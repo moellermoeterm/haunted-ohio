@@ -1,0 +1,1934 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MoeTerm Haunted Ohio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1EC; --surface:#FFFFFF; --surface2:#E0E7DF; --text:#14201B; --muted:#4C5F55; --line:#C4D0C6;
+  --accent:#1F6B52; --mark:#8A4B0B; --ok:#1B7A4B; --bad:#B23A2B; --header:rgba(238,241,236,.94);
+  --btn:#E58A3A; --btn-ink:#14201B;
+  --pad:clamp(1rem,4vw,2rem);
+  --display:'IM Fell English','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --body:'Atkinson Hyperlegible','Segoe UI',system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1411; --surface:#131F1A; --surface2:#1B2B24; --text:#E6E9DF; --muted:#9DB0A5; --line:#2C4237;
+    --accent:#8FD3B6; --mark:#F0A560; --ok:#6FD3A0; --bad:#F0806F; --header:rgba(12,20,17,.94);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1411; --surface:#131F1A; --surface2:#1B2B24; --text:#E6E9DF; --muted:#9DB0A5; --line:#2C4237;
+  --accent:#8FD3B6; --mark:#F0A560; --ok:#6FD3A0; --bad:#F0806F; --header:rgba(12,20,17,.94);
+  color-scheme:dark;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 4.5rem)}
+@media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:1.0625rem/1.62 var(--body);-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--header);z-index:60;pointer-events:none}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:0;background:var(--btn);color:var(--btn-ink);padding:.6rem 1rem;z-index:100}
+.skip:focus{left:0}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--header);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1080px;margin:0 auto;padding:.55rem var(--pad);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.mark{font-family:var(--display);font-size:1.45rem;color:var(--text);text-decoration:none;margin-right:auto}
+.nav{display:flex;gap:.15rem;flex-wrap:wrap}
+.nav a{padding:.4rem .7rem;border-radius:6px;color:var(--text);text-decoration:none}
+.nav a:hover{background:var(--surface2)}
+.theme{font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:6px;padding:.35rem .7rem;cursor:pointer}
+.theme:hover{background:var(--surface2)}
+
+/* buttons */
+.btn{display:inline-block;font:inherit;font-weight:700;padding:.7rem 1.15rem;border-radius:8px;border:2px solid var(--btn);background:var(--btn);color:var(--btn-ink);text-decoration:none;cursor:pointer;line-height:1.25}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+.btn.ghost:hover{background:var(--surface2);filter:none}
+.btn.small{padding:.4rem .75rem;font-size:.95rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0}
+
+/* hero: always a dark room */
+.hero{--mx:70%;--my:45%;position:relative;overflow:hidden;background:#070D0A;color:#E9ECE3;min-height:min(88vh,780px);display:flex;align-items:center;isolation:isolate}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 28% 40%,#14291F 0%,#070D0A 68%)}
+.glow{position:absolute;inset:0;background:radial-gradient(circle 300px at var(--mx) var(--my),rgba(229,138,58,.17),rgba(229,138,58,0) 72%);pointer-events:none}
+.vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.62) 100%);pointer-events:none}
+.whispers{position:absolute;inset:0;pointer-events:none;
+  -webkit-mask-image:radial-gradient(circle 175px at var(--mx) var(--my),#000 0,rgba(0,0,0,.75) 40%,transparent 100%);
+  mask-image:radial-gradient(circle 175px at var(--mx) var(--my),#000 0,rgba(0,0,0,.75) 40%,transparent 100%)}
+.whispers span{position:absolute;max-width:42%;font-family:var(--display);font-style:italic;color:#F0A560;font-size:clamp(1.05rem,2.2vw,1.7rem);line-height:1.2}
+.hero-in{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:clamp(3rem,9vw,6rem) var(--pad)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(3.6rem,12vw,8.5rem);line-height:.9;margin:0;letter-spacing:-.01em;text-shadow:0 2px 30px rgba(0,0,0,.6)}
+.hero .sub{font-family:var(--display);font-style:italic;font-size:clamp(1.3rem,3vw,2rem);margin:.9rem 0 0;color:#c9d4cc}
+.hero .lede{max-width:34rem;margin:1.4rem 0 0;color:#d8e0d9;font-size:1.15rem}
+.hero .row{margin-top:1.8rem}
+.hero .btn.ghost{color:#E9ECE3;border-color:rgba(233,236,227,.55)}
+.hero .btn.ghost:hover{background:rgba(233,236,227,.1)}
+.hero :focus-visible{outline-color:#E58A3A}
+.hint{margin:1.6rem 0 0;font-style:italic;color:#9fb2a7}
+
+/* hub */
+.where{max-width:1080px;margin:0 auto;padding:clamp(2rem,5vw,3.25rem) var(--pad);display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem}
+.where a{display:block;padding:.1rem 1.1rem .5rem;border-left:4px solid var(--line);color:var(--text);text-decoration:none}
+.where a:hover,.where a:focus-visible{border-left-color:var(--btn)}
+.where strong{display:block;font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1.15}
+.where span{color:var(--muted)}
+
+/* sections */
+.sec{max-width:1080px;margin:0 auto;padding:clamp(2.5rem,6vw,5rem) var(--pad);border-top:1px solid var(--line)}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.05;margin:0 0 .6rem}
+h3{font-family:var(--display);font-weight:400;font-size:1.8rem;line-height:1.15;margin:1.6rem 0 .5rem}
+h4{font-size:1.05rem;margin:1.4rem 0 .4rem}
+.intro{max-width:42rem;color:var(--muted);font-size:1.15rem;margin:0}
+.prose{max-width:66ch}
+.prose p{margin:.7rem 0}
+.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.8rem 1rem;max-width:66ch;margin:1.2rem 0;border-radius:0 6px 6px 0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem 2.5rem}
+.muted{color:var(--muted)}
+em.q{font-family:var(--display);font-size:1.15em}
+
+/* tabs and pickers */
+.tabs{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:2px solid var(--line);margin:1.6rem 0 1.6rem}
+.tab{font:inherit;font-weight:700;background:none;border:0;border-bottom:4px solid transparent;margin-bottom:-2px;padding:.7rem 1rem;color:var(--muted);cursor:pointer}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--btn)}
+[role=tabpanel][hidden]{display:none}
+.picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin:1.6rem 0}
+.pick{font:inherit;text-align:left;color:var(--text);background:none;border:1.5px solid var(--line);border-left:5px solid var(--line);border-radius:8px;padding:.7rem .9rem;cursor:pointer}
+.pick strong{display:block;font-family:var(--display);font-weight:400;font-size:1.3rem}
+.pick span{color:var(--muted);font-size:.95rem}
+.pick:hover{background:var(--surface2)}
+.pick[aria-selected="true"]{background:var(--surface);border-left-color:var(--btn);border-color:var(--btn)}
+
+/* details */
+details{border-top:1px solid var(--line)}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:700;padding:.8rem 0}
+details>div{padding:0 0 1rem;max-width:62ch}
+details p{margin:.4rem 0}
+
+/* game shell */
+.game{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(1rem,3vw,1.75rem)}
+.game h3{margin-top:0}
+.lbl{display:block;font-weight:700;margin:1.1rem 0 .3rem}
+input[type=text],textarea,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.65rem .8rem}
+textarea{resize:vertical;min-height:6.5rem;line-height:1.55}
+textarea[readonly]{opacity:.85}
+.count{margin:.4rem 0 0;font-weight:700}
+.count.ok{color:var(--ok)}
+.wall{list-style:none;margin:.6rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.6rem}
+.wall li{display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start;border-left:4px solid var(--btn);background:var(--bg);padding:.5rem .7rem;font-family:var(--display);font-size:1.15rem}
+.wall button{font:inherit;font-size:.85rem;background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;flex:none}
+.flat{font-family:var(--display);font-style:italic;font-size:1.5rem;margin:.4rem 0 1rem}
+.opts{display:grid;gap:.6rem}
+.opt{font:inherit;text-align:left;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.7rem .9rem;cursor:pointer}
+.opt:hover:not([disabled]){background:var(--surface2)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--bg))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--bg))}
+.opt[disabled]{cursor:default}
+.fb{margin:1rem 0 0;padding:.7rem 1rem;border-left:4px solid var(--btn);background:var(--surface2);border-radius:0 6px 6px 0}
+.card-draw{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1rem 0}
+.card-draw div{border:1.5px dashed var(--line);border-radius:8px;padding:.8rem 1rem}
+.card-draw b{display:block;color:var(--muted);font-size:.95rem;font-weight:700}
+.card-draw p{margin:.2rem 0 0;font-family:var(--display);font-size:1.35rem;line-height:1.25}
+.timer{font-family:var(--display);font-size:2.6rem;line-height:1;margin:.4rem 0}
+.chip{display:inline-block;background:var(--surface2);border:1.5px solid var(--btn);border-radius:99px;padding:.2rem .8rem;font-weight:700}
+.story p{margin:.6rem 0;max-width:62ch}
+.story .open{font-style:italic}
+
+/* prompt generator */
+.slots{display:grid;gap:.4rem;margin:1.2rem 0}
+.slot{display:grid;grid-template-columns:9.5rem 1fr auto auto;gap:.5rem 1rem;align-items:center;padding:.6rem 0;border-top:1px solid var(--line)}
+.slot:last-child{border-bottom:1px solid var(--line)}
+.slot-l{font-weight:700;color:var(--muted)}
+.slot-v{font-family:var(--display);font-size:1.3rem;line-height:1.25}
+.keep{display:flex;gap:.35rem;align-items:center;font-size:.95rem;cursor:pointer}
+.keep input{width:1.1rem;height:1.1rem}
+.out{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--btn);border-radius:0 10px 10px 0;padding:1rem 1.25rem;font-family:var(--display);font-size:1.45rem;line-height:1.4;margin:1.2rem 0 .4rem}
+@media (max-width:640px){.slot{grid-template-columns:1fr auto auto}.slot-l{grid-column:1/-1}}
+
+/* draft lab */
+.lab{display:grid;grid-template-columns:250px minmax(0,1fr);gap:2rem;margin-top:1.8rem}
+.steps{display:grid;gap:.2rem;align-content:start}
+.stepbtn{display:flex;gap:.7rem;align-items:center;width:100%;text-align:left;font:inherit;background:none;border:0;border-left:4px solid var(--line);padding:.55rem .8rem;color:var(--text);cursor:pointer}
+.stepbtn:hover{background:var(--surface2)}
+.stepbtn[aria-current="step"]{border-left-color:var(--btn);background:var(--surface2);font-weight:700}
+.num{display:inline-grid;place-items:center;width:1.7rem;height:1.7rem;border-radius:50%;border:2px solid var(--line);font-size:.85rem;flex:none;font-weight:700}
+.done .num{background:var(--ok);border-color:var(--ok);color:#fff}
+.pane{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:clamp(1rem,3vw,1.75rem);min-width:0}
+.pane h3{margin-top:0}
+.cardset{border:1.5px solid var(--line);border-radius:8px;margin:1rem 0;padding:.5rem 1rem 1rem}
+.cardset legend{font-family:var(--display);font-size:1.3rem;padding:0 .4rem}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}
+.cardgrid .span2{grid-column:1/-1}
+.saved{color:var(--muted);font-size:.95rem;margin:.8rem 0 0}
+@media (max-width:820px){
+  .lab{grid-template-columns:1fr}
+  .steps{display:flex;overflow-x:auto;gap:.3rem;padding-bottom:.4rem}
+  .stepbtn{width:auto;white-space:nowrap;border-left:0;border-bottom:4px solid var(--line)}
+  .stepbtn[aria-current="step"]{border-bottom-color:var(--btn)}
+  .cardgrid{grid-template-columns:1fr}
+}
+.about dl{display:grid;grid-template-columns:auto 1fr;gap:.3rem 1.5rem;margin:1.2rem 0}
+.about dt{font-weight:700}
+.about dd{margin:0}
+.bio{border-left:4px solid var(--btn);padding:.2rem 0 .2rem 1.2rem;margin:2rem 0}
+.bio h3{margin-top:0}
+footer{border-top:1px solid var(--line);padding:2rem var(--pad) 3rem;color:var(--muted);font-size:.95rem}
+footer p{max-width:70ch;margin:.3rem auto;}
+footer div{max-width:1080px;margin:0 auto}
+@media (max-width:760px){.whispers span.hide-sm{display:none}.whispers span{max-width:60%}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.nav a{padding:.4rem .6rem}
+.nav a[aria-current="page"]{background:var(--surface2);font-weight:700}
+.view[hidden]{display:none}
+.pills{display:flex;flex-wrap:wrap;gap:.4rem}
+.pill{font:inherit;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:99px;padding:.35rem .85rem;cursor:pointer}
+.pill:hover{background:var(--surface2)}
+.pill[aria-pressed="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);font-weight:700}
+.legend{border-top:1px solid var(--line);padding:1.1rem 0}
+.legend h3{margin:.2rem 0 0}
+.where-l{color:var(--muted);margin:0 0 .5rem}
+.legend dl{display:grid;grid-template-columns:9rem 1fr;gap:.5rem 1.2rem;margin:.6rem 0}
+.legend dt{font-weight:700}
+.legend dd{margin:0;max-width:62ch}
+@media (max-width:640px){.legend dl{grid-template-columns:1fr}}
+.memgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.5rem}
+.stamprow{display:flex;gap:.5rem;align-items:center}
+.stamprow input{flex:1;min-width:0}
+.bar{height:.75rem;background:var(--surface2);border-radius:99px;overflow:hidden;margin:.4rem 0 1rem}
+#barfill{height:100%;width:0;background:var(--btn);transition:width .3s}
+.mission{border:1px solid var(--line);border-left:5px solid var(--line);background:var(--surface);border-radius:8px;padding:1rem 1.25rem 1.25rem;margin:1rem 0}
+.mission.done{border-left-color:var(--ok)}
+.mhead{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between}
+.tdisp{font-family:var(--display);font-size:2.2rem;line-height:1.1;margin:.3rem 0}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin:1.5rem 0 .5rem}
+.llcol{border-top:4px solid var(--btn);padding-top:.2rem}
+.beats{list-style:none;margin:1.4rem 0 1rem;padding:0;display:grid;gap:.6rem}
+.beat{display:grid;grid-template-columns:2rem minmax(0,1fr) 140px 2rem auto;gap:.5rem .7rem;align-items:center}
+.beat .bn{font-weight:700;text-align:center}
+.beat output{font-weight:700;text-align:center}
+@media (max-width:760px){.beat{grid-template-columns:1.6rem minmax(0,1fr) 2rem}.beat input[type=range]{grid-column:2/3}.beat .ctl{grid-column:2/-1}}
+#dChart{margin:1.2rem 0}
+.dchart{display:block;width:100%;height:auto;max-width:720px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.dchart .ln{fill:none;stroke:var(--btn);stroke-width:3;stroke-linejoin:round}
+.dchart .gr{stroke:var(--line);stroke-width:1}
+.dchart .pt{fill:var(--btn);stroke:var(--surface);stroke-width:2}
+.dchart text{fill:var(--muted);font:12px var(--body)}
+.leaders{display:grid;gap:1.8rem;margin-top:1.6rem}
+.leader{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:1.2rem;padding-top:1.4rem;border-top:1px solid var(--line)}
+.mono{width:5.5rem;height:5.5rem;border-radius:50%;background:var(--surface2);border:3px solid var(--btn);display:grid;place-items:center;font-family:var(--display);font-size:1.9rem}
+.leader h3{margin:0}
+.role{color:var(--muted);margin:.1rem 0 .6rem}
+.leader p{max-width:62ch}
+.bio-soon{color:var(--muted);font-style:italic}
+@media (max-width:520px){.leader{grid-template-columns:1fr}}
+.pick[aria-pressed="true"]{background:var(--surface);border-left-color:var(--btn);border-color:var(--btn)}
+.links{list-style:none;padding:0;margin:.8rem 0;display:grid;gap:.9rem}
+.links li{border-left:4px solid var(--line);padding:.1rem 0 .1rem 1rem}
+.links a{font-weight:700}
+.reads{list-style:none;padding:0;margin:.4rem 0;display:grid;gap:.5rem}
+.tag{display:inline-block;font-size:.85rem;border:1px solid var(--line);border-radius:99px;padding:.05rem .6rem;color:var(--muted);margin-left:.3rem}
+.tree h4{margin:1rem 0 .3rem}
+.tree ul{margin:.3rem 0;padding-left:1.2rem}
+.tree li{margin:.25rem 0}
+.gloss{margin:.6rem 0;max-width:70ch}
+.gloss dt{font-weight:700;margin-top:1rem}
+.gloss dd{margin:.15rem 0 0}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="top-in">
+    <a class="mark" href="#home">Haunted Ohio</a>
+    <nav class="nav" aria-label="Pages">
+      <a href="#learn">Learn</a>
+      <a href="#games">Play</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#draft">Draft Lab</a>
+      <a href="#legend">Legend Lab</a>
+      <a href="#dread">Dread Meter</a>
+      <a href="#resources">Resources</a>
+      <a href="#cemetery">Spring Grove</a>
+      <a href="#leaders">Leaders</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="theme" id="theme" type="button">Dark mode</button>
+  </div>
+</header>
+
+<main id="main">
+
+<div class="view" data-view="home" id="home">
+<section class="hero" id="hero" aria-label="Haunted Ohio">
+  <div class="hero-bg"></div>
+  <div class="glow"></div>
+  <div class="whispers" aria-hidden="true">
+    <span style="left:56%;top:14%">Something followed you home from the cemetery.</span>
+    <span style="left:50%;top:33%">Room 214 has been empty for years. The sheets are warm.</span>
+    <span style="left:46%;top:60%" class="hide-sm">We buried her in April. She’s in the back seat.</span>
+    <span style="left:8%;top:80%">Every photo of the old hotel has one more face in the windows.</span>
+    <span style="left:58%;top:78%" class="hide-sm">The phone is ringing. The caller ID says your name.</span>
+    <span style="left:5%;top:10%">Your name is on the stone. The date hasn’t been filled in yet.</span>
+  </div>
+  <div class="vig"></div>
+  <div class="hero-in">
+    <h1>Haunted Ohio</h1>
+    <p class="sub">Ghost stories from the Queen City and more</p>
+    <p class="lede">A MoeTerm creative writing course for grades 9–12. Learn what makes a story scare people, play with words, roll a prompt, and build a draft you’ll want to read out loud in the dark.</p>
+    <div class="row">
+      <a class="btn" href="#prompts">Roll a story prompt</a>
+      <a class="btn ghost" href="#draft">Start your draft</a>
+    </div>
+    <p class="hint" id="hint">Move your light around. Something is written in the dark.</p>
+  </div>
+</section>
+
+<section class="where" aria-label="Where to go">
+  <a href="#learn"><strong>Learn</strong><span>What creative writing is, what makes horror work, how a ghost story is built.</span></a>
+  <a href="#games"><strong>Play</strong><span>Four quick writing games. Six words, sharper sentences, a 60-second sprint.</span></a>
+  <a href="#prompts"><strong>Prompts</strong><span>Roll a place, a haunting, and a rule. Keep what you like.</span></a>
+  <a href="#draft"><strong>Draft Lab</strong><span>Plan your story from the inside out, then write it.</span></a>
+  <a href="#legend"><strong>Legend Lab</strong><span>Sort a real place into history, science, and legend, then write the gap.</span></a>
+  <a href="#dread"><strong>Dread Meter</strong><span>Map the fear in your story beat by beat and see its shape.</span></a>
+  <a href="#resources"><strong>Resources</strong><span>Horror genres, character questions, and the best reading and links.</span></a>
+  <a href="#cemetery"><strong>Spring Grove</strong><span>Field investigation: four local legends, twelve missions, one case file.</span></a>
+  <a href="#leaders"><strong>Leaders</strong><span>Meet the three teachers running Haunted Ohio.</span></a>
+  <a href="#about"><strong>About</strong><span>The course, the field trips, and what to bring.</span></a>
+</section>
+</div>
+
+<section class="sec view" data-view="learn" id="learn" hidden>
+  <h2>Learn the craft</h2>
+  <p class="intro">Three short ideas. Read them in any order, then go play.</p>
+
+  <div id="learnTabs">
+    <div class="tabs" role="tablist" aria-label="Craft topics">
+      <button class="tab" role="tab" id="t-create" aria-controls="p-create">Creative writing</button>
+      <button class="tab" role="tab" id="t-genre" aria-controls="p-genre">What’s a genre?</button>
+      <button class="tab" role="tab" id="t-popular" aria-controls="p-popular">10 popular genres</button>
+      <button class="tab" role="tab" id="t-ours" aria-controls="p-ours">Our genres</button>
+      <button class="tab" role="tab" id="t-horror" aria-controls="p-horror">Horror</button>
+      <button class="tab" role="tab" id="t-ghost" aria-controls="p-ghost">Ghost stories</button>
+      <button class="tab" role="tab" id="t-gloss" aria-controls="p-gloss">Glossary</button>
+      <button class="tab" role="tab" id="t-faith" aria-controls="p-faith">Ghosts and faith</button>
+    </div>
+
+    <div role="tabpanel" id="p-create" aria-labelledby="t-create" class="prose">
+      <p>Creative writing is writing meant to make someone <em>feel</em> something, not just know something. A report tells you what happened. A story puts you inside it.</p>
+      <div class="game" style="margin:1.4rem 0">
+        <p class="muted" style="margin:0">Same fact, two ways</p>
+        <p class="flat" id="pairFact"></p>
+        <div id="pairOut" hidden>
+          <p class="flat" id="pairStory" style="font-style:normal"></p>
+          <p class="fb" id="pairNote"></p>
+        </div>
+        <div class="row">
+          <button class="btn" type="button" id="pairToggle">Make it creative</button>
+          <button class="btn ghost" type="button" id="pairNext">Next example</button>
+        </div>
+      </div>
+      <h3>Forms of creative writing</h3>
+      <p>Creative writing comes in many shapes: short stories, poems, scripts for film and theater, creative nonfiction (true stories told with the craft of fiction), and audio like podcasts. In this course you’ll make a short story, a podcast, or a film.</p>
+      <h3>Five tools you’ll use all week</h3>
+      <details><summary>Specific detail</summary><div><p>“A car” is nothing. “A rust-colored Buick with one hubcap” is a car in a story. The right detail tells the reader who owns it, how old it is, and what kind of place this is.</p></div></details>
+      <details><summary>The five senses</summary><div><p>Most beginners write what things look like. Add what it sounds like, smells like, and feels like on the skin. Horror lives in sound and smell more than you’d think.</p></div></details>
+      <details><summary>Voice</summary><div><p>Voice is how your narrator talks. A nervous night guard, a bored tour guide, and a kid telling it years later all describe the same hallway differently.</p></div></details>
+      <details><summary>Conflict</summary><div><p>Someone wants something, and something is in the way. No conflict, no story. You’ll plan this carefully in the Draft Lab.</p></div></details>
+      <details><summary>Show, don’t tell</summary><div><p>Don’t write “he was scared.” Write what scared looks like: the peeled label, the checked watch, the step back. Try the Show It game to practice.</p></div></details>
+    </div>
+
+    <div role="tabpanel" id="p-horror" aria-labelledby="t-horror" class="prose" hidden>
+      <p>Horror is fiction built to make you afraid. It works by threatening something the reader cares about: safety, home, sanity, the people they love, or their sense of who they are.</p>
+      <h3>Terror and horror are different</h3>
+      <div class="cols">
+        <div><h4>Terror is the dread before</h4><p>The creak on the stairs. The door that’s ajar. Your mind fills the gap with something worse than anything you could write. This is the good stuff.</p></div>
+        <div><h4>Horror is the shock after</h4><p>The thing finally shows up. It hits fast and fades fast. The novelist Ann Radcliffe argued that terror expands the mind while horror freezes it, and most writers still follow her lead.</p></div>
+      </div>
+      <h3>Five levers that make readers afraid</h3>
+      <details><summary>The unknown</summary><div><p>What we can’t see is scarier than what we can. Describe the sound, not the source.</p></div></details>
+      <details><summary>The familiar made wrong</summary><div><p>A kitchen is safe. A kitchen where every cabinet is open and you didn’t open them is not. Start normal so the wrongness has something to break.</p></div></details>
+      <details><summary>A rule that breaks</summary><div><p>Readers trust the rules of a place: doors lock, lights work, the dead stay dead. Show a rule, then break it.</p></div></details>
+      <details><summary>A slow build</summary><div><p>One small wrong thing, then two, then a pattern. Escalate in steps. Readers feel dread when they see the pattern before the character does.</p></div></details>
+      <details><summary>Nobody believes it</summary><div><p>If someone says “you’re imagining it,” the character is alone with the problem. Isolation turns a strange event into a frightening one.</p></div></details>
+      <h3>Neighborhoods of horror</h3>
+      <p>Ghost stories, Gothic (old houses, family secrets), folk horror (old customs in rural places), found footage (told through recordings), psychological horror (is it real, or in their head?), and internet horror. You’ll try several this week.</p>
+      <p class="note"><strong>Class guideline:</strong> Scary comes from dread and imagination, not gore. Keep it school-appropriate.</p>
+    </div>
+
+    <div role="tabpanel" id="p-ghost" aria-labelledby="t-ghost" class="prose" hidden>
+      <p>A ghost story is a story about unfinished business. Someone, or something, is stuck, and a living person has to figure out why.</p>
+      <h3>The five ingredients</h3>
+      <details><summary>A place with a past</summary><div><p>The best haunted places have real history: a prison, a hotel, a hospital wing, a hall built on older ground. The place remembers.</p></div></details>
+      <details><summary>A ghost who wants something</summary><div><p>Don’t make it a random monster. What did this ghost want, lose, or never say? The answer is your ending.</p></div></details>
+      <details><summary>A rule</summary><div><p>Hauntings have patterns. It only happens after midnight. It only follows people who lie. Rules make it feel real and give you something to break.</p></div></details>
+      <details><summary>A witness</summary><div><p>The living character who notices. They’re skeptical, or they’re hiding something, and the ghost forces them to change.</p></div></details>
+      <details><summary>A last image</summary><div><p>End on something the reader can picture, not an explanation. One cold, specific image beats a paragraph of wrap-up.</p></div></details>
+      <h3>History, science, and legend</h3>
+      <div class="cols">
+        <div><h4>History</h4><p>What actually happened here? Dates, names, records. This is where your story gets its weight.</p></div>
+        <div><h4>Science</h4><p>What could explain it? Drafty buildings, expectation, and low-frequency sound all make people feel watched. In one famous case, an engineer traced a lab’s “ghost” to low-frequency vibration from a fan.</p></div>
+        <div><h4>Legend</h4><p>What do people say? Legends are what the town tells itself. Use them, and decide whether your narrator believes them.</p></div>
+      </div>
+      <h3>Build it in the order readers feel it</h3>
+      <p>Normal, then one small wrong thing, then closer, then someone doesn’t believe it, then the rule is revealed, then the last image. That’s the shape the Twist Chain game uses. Try it, then open the Draft Lab to plan your own.</p>
+      <div class="row"><a class="btn" href="#games" data-game="chain">Try the Twist Chain</a><a class="btn ghost" href="#draft">Open the Draft Lab</a></div>
+    </div>
+
+    <div role="tabpanel" id="p-genre" aria-labelledby="t-genre" class="prose" hidden>
+      <p>A <strong>genre</strong> is a category of stories that share ingredients and promise the reader a certain feeling. Pick up a mystery and you expect a puzzle. Pick up a horror story and you expect to be unsettled. That promise is what makes genres useful.</p>
+      <h3>Genre, subgenre, and trope</h3>
+      <div class="cols">
+        <div><h4>Genre</h4><p>The big category. Example: horror.</p></div>
+        <div><h4>Subgenre</h4><p>A smaller category inside it. Examples: ghost story, haunted house, Gothic.</p></div>
+        <div><h4>Trope</h4><p>A familiar device that shows up again and again. Examples: the cold spot, the creepy doll, the character who goes down to the basement alone.</p></div>
+      </div>
+      <h3>Why genres matter to writers</h3>
+      <p>Genres give you a map. Readers arrive with expectations, called <em>conventions</em>, and you can either deliver them or twist them. A ghost story where the ghost is kind is a twist. A mystery where the detective is also the culprit is a twist. You can’t twist a convention you don’t know.</p>
+      <p>Stories can also belong to more than one genre. Horror plus history is a ghost story built on real events. Horror plus comedy is a spooky laugh. Our course is mostly horror plus history plus mystery.</p>
+      <p class="note"><strong>Genre is not the same as format or age group.</strong> Short story, podcast, and film are <em>formats</em>. Young adult and middle grade are <em>age categories</em>. A young adult book can be fantasy, mystery, or horror.</p>
+      <div class="game" style="margin-top:1.4rem">
+        <h3 style="margin-top:0">Name that genre</h3>
+        <div id="gqBox"></div>
+      </div>
+    </div>
+
+    <div role="tabpanel" id="p-popular" aria-labelledby="t-popular" class="prose" hidden>
+      <p>Here are ten of the most popular genres, each with a quick way to spot it and an idea for mixing it with horror. Open any one.</p>
+      <details><summary>Fantasy</summary><div><p><strong>What it is:</strong> Magic, invented worlds, and quests. The rules of the real world don’t apply.</p><p><strong>You’ll know it by:</strong> Wizards, dragons, prophecies, maps at the front of the book.</p><p><strong>Mix it with horror:</strong> Dark fantasy. The magic has a price, and the monsters are old.</p></div></details>
+      <details><summary>Science fiction</summary><div><p><strong>What it is:</strong> Stories built on imagined science and technology, often set in the future or in space.</p><p><strong>You’ll know it by:</strong> Spaceships, robots, time travel, “what if” questions about technology.</p><p><strong>Mix it with horror:</strong> A ship, a lab, or an AI that shouldn’t be awake.</p></div></details>
+      <details><summary>Mystery</summary><div><p><strong>What it is:</strong> A puzzle at the center: a crime or a secret, with clues, suspects, and a solution.</p><p><strong>You’ll know it by:</strong> A detective, red herrings, a final reveal.</p><p><strong>Mix it with horror:</strong> Every haunting is a mystery: why is the ghost here, and what does it want?</p></div></details>
+      <details><summary>Thriller and suspense</summary><div><p><strong>What it is:</strong> High stakes, fast pacing, and danger that keeps tightening.</p><p><strong>You’ll know it by:</strong> A ticking clock, a hunted hero, cliffhanger chapter endings.</p><p><strong>Mix it with horror:</strong> Survive the night, with something worse than a person chasing you.</p></div></details>
+      <details><summary>Romance</summary><div><p><strong>What it is:</strong> A relationship is the heart of the story, and the ending is hopeful.</p><p><strong>You’ll know it by:</strong> Two people, obstacles between them, and a lot of feeling.</p><p><strong>Mix it with horror:</strong> Gothic romance, where a love story is haunted by a past.</p></div></details>
+      <details><summary>Historical fiction</summary><div><p><strong>What it is:</strong> Invented characters living in a real time and place, often alongside real events.</p><p><strong>You’ll know it by:</strong> Period detail, real dates, and a setting that feels researched.</p><p><strong>Mix it with horror:</strong> A ghost story rooted in real local history. That’s Haunted Cincinnati.</p></div></details>
+      <details><summary>Horror</summary><div><p><strong>What it is:</strong> Stories built to frighten, unsettle, or fill the reader with dread.</p><p><strong>You’ll know it by:</strong> Threat, atmosphere, and the sense that something is wrong.</p><p><strong>Our course:</strong> This is our home genre. See the Horror tab.</p></div></details>
+      <details><summary>Contemporary realistic fiction</summary><div><p><strong>What it is:</strong> Everyday life, today, with no magic or monsters. The conflict comes from real situations and feelings.</p><p><strong>You’ll know it by:</strong> Familiar settings, such as school, family, and friends.</p><p><strong>Mix it with horror:</strong> Psychological horror. Real fears, with just a little wrongness at the edges.</p></div></details>
+      <details><summary>Adventure</summary><div><p><strong>What it is:</strong> Journeys, risk, and exploration, where the action drives the story.</p><p><strong>You’ll know it by:</strong> Expeditions, survival, escapes, treasure.</p><p><strong>Mix it with horror:</strong> An expedition into a place that doesn’t want to be explored.</p></div></details>
+      <details><summary>Dystopian</summary><div><p><strong>What it is:</strong> A grim imagined society where something has gone badly wrong, often under tight control.</p><p><strong>You’ll know it by:</strong> Surveillance, rules no one questions, a hidden truth.</p><p><strong>Mix it with horror:</strong> A perfect-looking society that hides a terrible secret.</p></div></details>
+    </div>
+
+    <div role="tabpanel" id="p-ours" aria-labelledby="t-ours" class="prose" hidden>
+      <p>Here is where Haunted Cincinnati lives on the genre map. Our home is <strong>horror</strong>, and we borrow from the genres next to it.</p>
+      <div class="cols" style="margin-top:1.2rem">
+        <div class="tree">
+          <h4>Our home genre</h4>
+          <p><strong>Horror</strong></p>
+          <h4>Horror subgenres we’ll use</h4>
+          <ul>
+            <li>Ghost stories</li>
+            <li>Haunted places and houses</li>
+            <li>Gothic</li>
+            <li>Paranormal investigation</li>
+            <li>Folk horror and local legend</li>
+            <li>Psychological horror</li>
+            <li>Found footage</li>
+            <li>Dark academia (a close cousin)</li>
+          </ul>
+        </div>
+        <div class="tree">
+          <h4>Neighbor genres we borrow from</h4>
+          <ul>
+            <li><strong>Historical fiction:</strong> real Cincinnati and Ohio history as the foundation</li>
+            <li><strong>Mystery:</strong> every haunting has a “why”</li>
+            <li><strong>Creative nonfiction and folklore:</strong> retelling real legends with craft</li>
+            <li><strong>Documentary style:</strong> podcasts and films that feel like evidence</li>
+          </ul>
+          <h4>Formats we make</h4>
+          <ul>
+            <li>Short story</li>
+            <li>Podcast episode</li>
+            <li>Short film</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">A good one-sentence description of our work: <em>a ghost story built on real local history, told as a mystery, in the form of a short story, podcast, or film.</em></p>
+      <div class="row"><a class="btn" href="#resources">Explore the horror genres</a><a class="btn ghost" href="#legend">Open the Legend Lab</a></div>
+    </div>
+
+    <div role="tabpanel" id="p-gloss" aria-labelledby="t-gloss" hidden>
+      <p class="prose muted" style="margin-top:0">Search, or filter by topic.</p>
+      <label class="lbl" for="glSearch" style="margin-top:0">Search the glossary</label>
+      <input type="text" id="glSearch" autocomplete="off" placeholder="Try “dread” or “purgatory”" style="max-width:26rem">
+      <div class="pills" role="group" aria-label="Filter by topic" id="glCats" style="margin:.8rem 0"></div>
+      <p class="count" id="glCount" aria-live="polite"></p>
+      <dl class="gloss" id="glList"></dl>
+    </div>
+
+    <div role="tabpanel" id="p-faith" aria-labelledby="t-faith" class="prose" hidden>
+      <p>We’re a Catholic school, so it’s fair to ask: what does the Church actually say about ghosts and the paranormal? The honest answer is that some things are settled, some are open, and some are clearly off-limits.</p>
+      <p class="note">This is a student-friendly summary, not an official statement of the Church. If you have questions about faith, talk with your theology teacher, campus ministry, or a priest.</p>
+
+      <h3>What the Church teaches clearly</h3>
+      <ul>
+        <li><strong>Every person’s soul is judged at death.</strong> The Church teaches that each soul goes to heaven, purgatory, or hell (Catechism 1021–1022, 1030).</li>
+        <li><strong>The living and the dead stay connected.</strong> This is the “communion of saints.” Catholics pray for those who have died, and the Church sets aside All Souls’ Day, November 2, for exactly that (Catechism 1032).</li>
+        <li><strong>Demons are real.</strong> The Church teaches that they are fallen angels who work against God (Catechism 391–395).</li>
+      </ul>
+
+      <h3>What the Church leaves open</h3>
+      <p>There is no binding Church teaching on whether ghosts exist or what they are. Theologians have disagreed for centuries: St. Augustine was doubtful about most ghost stories, while St. Thomas Aquinas argued that souls are not locked away from the world. The Church has affirmed many apparitions of saints, but reports like these are “private revelation,” which means Catholics are not required to believe any particular story.</p>
+      <p>A common Catholic view is that if a soul in purgatory ever appears, it would be by God’s permission and usually to ask for prayer, not to terrify anyone. Many Catholic writers also say that a violent or hateful “haunting” is more likely to be demonic than a human soul. These are traditions and opinions, not doctrine.</p>
+      <p>Marian apparitions, like those at Lourdes and Fatima, are a different thing from ghosts. They are visits from heaven with a message, and they’re treated very differently from hauntings.</p>
+
+      <h3>What the Church warns against</h3>
+      <p>The Catechism says all forms of divination are to be rejected. That includes conjuring up the dead and consulting mediums, because it seeks power or knowledge outside of God (Catechism 2116). It also warns against magic and sorcery (2117). Catholic dioceses and writers have specifically cautioned about séances and Ouija boards for the same reason.</p>
+
+      <h3>What do Catholics do if they think they’ve met a ghost?</h3>
+      <p>Guidance from Catholic writers is fairly consistent:</p>
+      <ul>
+        <li><strong>Don’t try to communicate or bargain.</strong> Don’t treat it like a conversation.</li>
+        <li><strong>Pray.</strong> If it might be a soul, offer prayers (and a Mass) for the dead. If it might be something worse, prayer is still the right response.</li>
+        <li><strong>Talk to a priest</strong> if something keeps happening or feels frightening. Priests can bless homes.</li>
+        <li><strong>Exorcism is rare and serious.</strong> Church law requires the bishop’s permission, and the Church’s approach is to rule out medical and psychological explanations first.</li>
+      </ul>
+
+      <h3>Why this matters for investigators</h3>
+      <p>The Church has a long tradition of testing strange claims carefully, and it doesn’t assume the supernatural first. That’s the same mindset as your Spring Grove hunt: gather evidence, look for natural explanations, and only then ask what’s left over.</p>
+
+      <h3>Halloween has Catholic roots</h3>
+      <p>The word “Halloween” comes from All Hallows’ Eve, the evening before All Saints’ Day (November 1). The next day, All Souls’ Day, is for praying for the faithful departed. Some medieval Catholics believed souls in purgatory could appear around these feasts, which is one reason ghost stories and the Church’s calendar have always overlapped.</p>
+
+      <h3>Catholic stories about the dead</h3>
+      <p>Dante’s <em>Divine Comedy</em> is a famous journey through hell, purgatory, and heaven that is full of conversations with the dead. Much of the Western ghost-story tradition grew up around Catholic ideas of unfinished business, guilt, and prayer. That’s rich material for a writer.</p>
+
+      <h3>How this fits our course</h3>
+      <p>In Haunted Ohio, ghosts are stories, folklore, and history. Our fieldwork is observation and testing, and none of our activities involve trying to contact spirits, using Ouija boards, or holding séances.</p>
+      <div class="row"><button type="button" class="btn" id="faithPrompt">Use a faith-based ghost prompt</button></div>
+      <p class="muted">Prompt: a ghost who wants prayers, not revenge.</p>
+
+      <h3>Sources</h3>
+      <ul class="links">
+        <li><a href="https://www.vatican.va/content/catechism/en/part_three/section_two/chapter_one/article_1/iii_you_shall_have_no_other_gods_before_me.html" target="_blank" rel="noopener">Catechism of the Catholic Church, on divination and magic (Vatican)</a></li>
+        <li><a href="https://uscatholic.org/articles/202310/glad-you-asked-do-catholics-believe-in-ghosts/" target="_blank" rel="noopener">Do Catholics believe in ghosts? (U.S. Catholic)</a></li>
+        <li><a href="https://www.catholic.com/magazine/online-edition/what-are-ghosts" target="_blank" rel="noopener">What Are Ghosts? (Catholic Answers)</a></li>
+        <li><a href="https://www.oursundayvisitor.com/are-ghosts-real-heres-what-the-church-teaches/" target="_blank" rel="noopener">Are ghosts real? Here’s what the Church teaches (Our Sunday Visitor)</a></li>
+        <li><a href="https://nwcatholic.org/news/jenna-marie-cooper-osv-news/q-a-what-does-the-church-say-about-ghosts" target="_blank" rel="noopener">What does the church say about ghosts? (Northwest Catholic / OSV News)</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec view" data-view="games" id="games" hidden>
+  <h2>Play with words</h2>
+  <p class="intro">Short, weird, and a little competitive with yourself. Nothing here is graded.</p>
+
+  <div id="gameTabs">
+    <div class="picker" role="tablist" aria-label="Writing games">
+      <button class="pick" role="tab" id="gt-six" aria-controls="g-six"><strong>Six-Word Scare</strong><span>A whole story in six words.</span></button>
+      <button class="pick" role="tab" id="gt-show" aria-controls="g-show"><strong>Show It</strong><span>Pick the sentence that shows, not tells.</span></button>
+      <button class="pick" role="tab" id="gt-sense" aria-controls="g-sense"><strong>Sense Sprint</strong><span>Sixty seconds, one place, one sense.</span></button>
+      <button class="pick" role="tab" id="gt-chain" aria-controls="g-chain"><strong>Twist Chain</strong><span>Build a ghost story in five rounds.</span></button>
+    </div>
+
+    <div role="tabpanel" id="g-six" aria-labelledby="gt-six" class="game">
+      <h3>Six-Word Scare</h3>
+      <p class="muted" style="margin-top:0">Exactly six words. Hyphenated words count as one. Imply what you don’t say.</p>
+      <label class="lbl" for="six">Your six words</label>
+      <input type="text" id="six" autocomplete="off" maxlength="120" placeholder="Type your story here">
+      <p class="count" id="sixCount" aria-live="polite">0 of 6 words</p>
+      <div class="row">
+        <button class="btn" type="button" id="sixPin" disabled>Pin to the wall</button>
+        <button class="btn ghost" type="button" id="sixSpark">Need a spark?</button>
+      </div>
+      <p class="fb" id="sixHint" hidden></p>
+      <h4>The wall</h4>
+      <ul class="wall" id="wall"></ul>
+      <p class="muted" id="wallEmpty">Nothing pinned yet. Your scariest six words go here.</p>
+    </div>
+
+    <div role="tabpanel" id="g-show" aria-labelledby="gt-show" class="game" hidden>
+      <h3>Show It</h3>
+      <div id="showBox"></div>
+    </div>
+
+    <div role="tabpanel" id="g-sense" aria-labelledby="gt-sense" class="game" hidden>
+      <h3>Sense Sprint</h3>
+      <p class="muted" style="margin-top:0">Draw a card, then write for sixty seconds. Don’t stop. Don’t fix. Use only the sense on your card.</p>
+      <div class="card-draw" id="spCards" hidden>
+        <div><b>Place</b><p id="spPlace"></p></div>
+        <div><b>Sense</b><p id="spSense"></p></div>
+      </div>
+      <div class="row">
+        <button class="btn" type="button" id="spDraw">Draw a card</button>
+        <button class="btn" type="button" id="spStart" disabled>Start 60 seconds</button>
+      </div>
+      <p class="timer" id="spTimer" role="timer" hidden>60</p>
+      <label class="lbl" for="spText">Your sprint</label>
+      <textarea id="spText" rows="8" disabled placeholder="Draw a card, then press start."></textarea>
+      <p class="fb" id="spResult" hidden></p>
+    </div>
+
+    <div role="tabpanel" id="g-chain" aria-labelledby="gt-chain" class="game" hidden>
+      <h3>Twist Chain</h3>
+      <div id="chainBox"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec view" data-view="prompts" id="prompts" hidden>
+  <h2>Story prompts</h2>
+  <p class="intro">Roll the dice. Keep the pieces you like and reroll the rest. When something clicks, send it to the Draft Lab.</p>
+
+  <label class="lbl" for="fmt">What are you making?</label>
+  <select id="fmt" style="max-width:20rem">
+    <option value="short story">Short story</option>
+    <option value="podcast episode">Podcast episode</option>
+    <option value="short film scene">Short film scene</option>
+  </select>
+  <p class="muted" id="fmtTip" style="margin:.4rem 0 0"></p>
+
+  <div class="slots" id="slots"></div>
+  <div class="row"><button class="btn" type="button" id="rollAll">Roll everything unlocked</button></div>
+
+  <div class="out" id="promptOut" aria-live="polite"></div>
+  <div class="row">
+    <button class="btn ghost" type="button" id="copyPrompt">Copy prompt</button>
+    <button class="btn" type="button" id="usePrompt">Use this in the Draft Lab</button>
+  </div>
+</section>
+
+<section class="sec view" data-view="draft" id="draft" hidden>
+  <h2>Draft Lab</h2>
+  <p class="intro">Plan your story from the inside out: who your character is and what they believe first, then what happens. These steps follow the method from Lisa Cron’s <em>Story Genius</em>, simplified for class.</p>
+  <p class="saved" id="saved">Your work saves in this browser only. Copy it into your own document often.</p>
+  <div class="lab">
+    <nav class="steps" id="steps" aria-label="Draft steps"></nav>
+    <div class="pane" id="pane"></div>
+  </div>
+  <div class="row">
+    <button class="btn ghost" type="button" id="copyBlue">Copy my blueprint</button>
+    <button class="btn ghost" type="button" id="copyDraft">Copy my draft</button>
+    <button class="btn ghost" type="button" id="resetAll">Erase everything</button>
+  </div>
+</section>
+
+<section class="sec view" data-view="resources" id="resources" hidden>
+  <h2>Resources</h2>
+  <p class="intro">Horror genres to explore, a way to get to know your characters, and the best reading and links we’ve found.</p>
+
+  <div id="resTabs">
+    <div class="tabs" role="tablist" aria-label="Resource topics">
+      <button class="tab" role="tab" id="rt-genres" aria-controls="rp-genres">Horror genres</button>
+      <button class="tab" role="tab" id="rt-char" aria-controls="rp-char">Build a character</button>
+      <button class="tab" role="tab" id="rt-links" aria-controls="rp-links">Reading and links</button>
+    </div>
+
+    <div role="tabpanel" id="rp-genres" aria-labelledby="rt-genres">
+      <p class="prose muted" style="margin-top:0">Horror isn’t one thing. Pick a genre to see what it’s made of, then write one.</p>
+      <div class="picker" id="genrePick" role="group" aria-label="Genres"></div>
+      <div class="game" id="genreBox" aria-live="polite"></div>
+    </div>
+
+    <div role="tabpanel" id="rp-char" aria-labelledby="rt-char" hidden>
+      <div class="prose">
+        <p>Readers fear for people they care about, so the scariest thing in your story is a character who feels real. Answer a few questions in their voice before you start drafting. You’ll be surprised what you find out.</p>
+      </div>
+      <div class="game">
+        <label class="lbl" for="ivName" style="margin-top:0">Your character’s name</label>
+        <input type="text" id="ivName" autocomplete="off" placeholder="Who are you interviewing?">
+        <p class="muted" id="ivCount" style="margin:1.2rem 0 0"></p>
+        <p class="flat" id="ivQ" style="margin-top:.2rem"></p>
+        <label class="lbl" for="ivA">Their answer, in your own words</label>
+        <textarea id="ivA" rows="5"></textarea>
+        <div class="row">
+          <button type="button" class="btn ghost" id="ivPrev">Back</button>
+          <button type="button" class="btn" id="ivNext">Next question</button>
+          <button type="button" class="btn ghost" id="ivRand">Surprise me</button>
+          <button type="button" class="btn ghost" id="ivCopy">Copy my interview</button>
+        </div>
+        <p class="saved" style="margin:.4rem 0 0">Saves in this browser only.</p>
+      </div>
+      <p class="note">Want a deeper profile? Reedsy has a free character template with more than 50 guided questions, covering looks, speech, background, psychology, fears, and regrets. You’ll need a free Reedsy account to use it. <a href="https://reedsy.com/studio/templates/character-profile/" target="_blank" rel="noopener">Open the Reedsy character template</a></p>
+      <p class="muted" style="max-width:62ch">Connect this to your Draft Lab: the character’s secret or fear often turns out to be their misbelief.</p>
+    </div>
+
+    <div role="tabpanel" id="rp-links" aria-labelledby="rt-links" hidden>
+      <div class="prose">
+        <h3 style="margin-top:0">What the pros say about writing horror</h3>
+        <p class="muted">Summarized from Reedsy’s guides. Read the originals below.</p>
+        <details><summary>Fear comes first</summary><div><p>People read horror to be unsettled, so the fear has to land. Everything else (setting, plot, voice) is there to build it.</p></div></details>
+        <details><summary>The uncertainty is the scare</summary><div><p>We know vampires and ghosts aren’t real, but the “what if they are?” is what shakes us. The uncanny, something familiar that feels wrong, works the same way. If you write the supernatural, make it convincing.</p></div></details>
+        <details><summary>Let your story carry a real worry</summary><div><p>Many great horror stories turn a real tension in society into a monster or a rule. Shirley Jackson’s short story “The Lottery” is a famous example. Ask what your haunting is really about.</p></div></details>
+        <details><summary>Give the threat a human heart</summary><div><p>The stories that keep people up at night are usually about something human, like grief, family secrets, or isolation, with something terrible growing inside it.</p></div></details>
+        <details><summary>Make the flaw feed the fear</summary><div><p>The thing that makes your character sympathetic should also be what makes them vulnerable. A person in denial is easy prey for a horror that thrives on disbelief. That’s your misbelief from the Draft Lab at work.</p></div></details>
+
+        <h3>Links</h3>
+        <ul class="links">
+          <li><a href="https://reedsy.com/blog/how-to-write-a-horror-story/" target="_blank" rel="noopener">How to write a horror story (Reedsy)</a><br><span class="muted">Seven tips on atmosphere, stakes, and fear.</span></li>
+          <li><a href="https://reedsy.com/studio/templates/character-profile/" target="_blank" rel="noopener">Character profile template (Reedsy Studio)</a><br><span class="muted">Free template with 50+ guided questions. Needs a free account.</span></li>
+          <li><a href="https://reedsy.com/discovery/blog/best-horror-books" target="_blank" rel="noopener">The 100 best horror books (Reedsy Discovery)</a><br><span class="muted">From Frankenstein to today. Many are written for adults, so see the note below.</span></li>
+          <li><a href="https://reedsy.com/discovery/blog/dark-academia-books" target="_blank" rel="noopener">30 best dark academia books (Reedsy Discovery)</a><br><span class="muted">Secret societies, old libraries, and dark secrets at elite schools.</span></li>
+          <li><a href="https://reedsy.com/creative-writing-prompts/horror/" target="_blank" rel="noopener">Horror writing prompts (Reedsy)</a><br><span class="muted">A fresh list of spooky story starters.</span></li>
+          <li><a href="https://reedsy.com/resources/short-story-ideas/horror/" target="_blank" rel="noopener">Horror short story ideas (Reedsy)</a><br><span class="muted">Short, bite-sized ideas you can finish in one sitting.</span></li>
+        </ul>
+        <p class="note"><strong>A note on reading.</strong> Those book lists were written for general readers, and many titles are for adults. The picks in the genre explorer are chosen to be a good starting point. If you’re unsure about a book, ask a course leader or your school librarian.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec view" data-view="leaders" id="leaders" hidden>
+  <h2>Your course leaders</h2>
+  <p class="intro">Meet the three teachers leading Haunted Ohio.</p>
+  <div class="leaders">
+    <article class="leader">
+      <div class="mono" aria-hidden="true">GG</div>
+      <div>
+        <h3>Mr. Girard</h3>
+        <p class="role">English teacher</p>
+        <p>Mr. Girard is an author and teacher. He earned a BA in English literature from Washington College and an MA and MFA in creative writing from Miami University. He has led creative writing seminars at colleges, bookstores, and writing conventions. He lives in Ohio.</p>
+      </div>
+    </article>
+    <article class="leader soon">
+      <div class="mono" aria-hidden="true">A</div>
+      <div>
+        <h3>Mrs. Allen</h3>
+        <p class="role">Course leader</p>
+        <p class="bio-soon">Bio coming soon.</p>
+      </div>
+    </article>
+    <article class="leader soon">
+      <div class="mono" aria-hidden="true">B</div>
+      <div>
+        <h3>Mr. Bennett</h3>
+        <p class="role">English teacher</p>
+        <p class="bio-soon">Bio coming soon.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="sec about view" data-view="about" id="about" hidden>
+  <h2>About this course</h2>
+  <div class="prose">
+    <p>In this spine-tingling, creative course, students will explore and discuss some of Cincinnati and Ohio’s most haunted locations, using history, science, and legend as the foundation for crafting their own ghost stories and programming. Through field trips and guest speakers that expand their knowledge and spark curiosity, students will draft podcasts, films, and/or short stories, honing their skills in storytelling and research.</p>
+    <p>By the end, you’ll have an original horror narrative inspired by real haunted sites. Like every MoeTerm, you’ll turn in something that shows what you learned. Here, that’s your story, podcast, or film.</p>
+  </div>
+  <dl>
+    <dt>Instructors</dt><dd>Mrs. Allen, Mr. Bennett, Mr. Girard</dd>
+    <dt>Grade levels</dt><dd>9–12</dd>
+    <dt>Course maximum</dt><dd>39 students</dd>
+  </dl>
+  <p class="note">Students registering for this course must be available for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield, Ohio, the location for the hit movie <em>The Shawshank Redemption</em>.</p>
+</section>
+
+<section class="sec view" data-view="legend" id="legend" hidden>
+  <h2>Legend Lab</h2>
+  <p class="intro">Great ghost stories grow from real places. Sort what you find into history, science, and legend, then write the story that lives in the gap between them.</p>
+  <p class="saved">Your work saves in this browser only. Copy it into your own document often.</p>
+  <label class="lbl" for="ll_place">Which place are you researching?</label>
+  <input type="text" id="ll_place" data-bind="place" placeholder="Example: a cemetery, a hotel, a theater, a prison">
+  <div class="cols3" id="llCols"></div>
+  <label class="lbl" for="ll_collide">Where do they collide? What does the record contradict, and what can’t science explain?</label>
+  <textarea id="ll_collide" data-bind="collide" rows="4"></textarea>
+  <label class="lbl" for="ll_premise">Your premise. One sentence that keeps the real history, uses one scientific explanation, and still leaves a question the reader can’t shake.</label>
+  <textarea id="ll_premise" data-bind="premise" rows="3"></textarea>
+  <div class="row">
+    <button type="button" class="btn ghost" id="llExample">Load an example</button>
+    <button type="button" class="btn ghost" id="llCopy">Copy my Legend Lab</button>
+    <button type="button" class="btn ghost" id="llClear">Clear it</button>
+  </div>
+</section>
+
+<section class="sec view" data-view="dread" id="dread" hidden>
+  <h2>Dread Meter</h2>
+  <p class="intro">Fear has a shape. List the beats of your story, rate the dread at each one from 0 to 10, and watch the line. Flat lines are boring. Good ones climb, dip, and climb again.</p>
+  <p class="saved">Your work saves in this browser only.</p>
+  <ul class="beats" id="beats"></ul>
+  <div class="row">
+    <button type="button" class="btn small" id="dAdd">Add a beat</button>
+    <button type="button" class="btn ghost small" id="dArc">Load the classic ghost story arc</button>
+    <button type="button" class="btn ghost small" id="dCopy">Copy my beats</button>
+  </div>
+  <div id="dChart"></div>
+  <p class="fb" id="dMsg" aria-live="polite"></p>
+</section>
+
+<section class="sec view" data-view="cemetery" id="cemetery" hidden>
+  <h2>Spring Grove field investigation</h2>
+  <p class="intro">Spring Grove Cemetery and Arboretum in Cincinnati opened in 1845, and it has more than its share of ghost stories. Your team will test four of them like a paranormal investigator and a skeptic at the same time, then bring the best material home for your own horror stories.</p>
+  <p class="note"><strong>Field rules.</strong> Stay on the paths. Respect all memorials. Follow teacher and staff instructions. Carry your phone and clipboard. Do not touch memorials unless you’re explicitly allowed to. Never shine a light at people.</p>
+
+  <div id="cemTabs">
+    <div class="tabs" role="tablist" aria-label="Spring Grove">
+      <button class="tab" role="tab" id="ct-legends" aria-controls="cp-legends">The legends</button>
+      <button class="tab" role="tab" id="ct-hunt" aria-controls="cp-hunt">The hunt</button>
+      <button class="tab" role="tab" id="ct-submit" aria-controls="cp-submit">Turn it in</button>
+    </div>
+
+    <div role="tabpanel" id="cp-legends" aria-labelledby="ct-legends">
+      <div class="prose"><p>Every haunted place has two stories: what people say, and what the record says. The best horror writers use both. Read the four case files before you go.</p></div>
+
+      <article class="legend">
+        <h3>The watching eyes</h3>
+        <p class="where-l">Lot 100, C.C. Breuer’s monument</p>
+        <dl>
+          <dt>The legend</dt><dd>A bronze bust on Breuer’s monument has eyes that seem to follow you. Some retellings say they’re his real eyes, preserved in glass at his request.</dd>
+          <dt>The record</dt><dd>The eyes are glass. Cincinnati Magazine reports that Breuer was a salesman and real estate investor, not the optometrist many retellings claim, so part of the legend has been wrong for a long time.</dd>
+          <dt>A writer’s hook</dt><dd>Why would a story about eyes keep getting retold even after the facts change?</dd>
+        </dl>
+      </article>
+
+      <article class="legend">
+        <h3>The white dogs</h3>
+        <p class="where-l">Dexter Mausoleum, Section 20</p>
+        <dl>
+          <dt>The legend</dt><dd>Sit on the steps and two white dogs (some tellers say wolves) run past. Sometimes they stop and stare, glowing.</dd>
+          <dt>The record</dt><dd>The mausoleum is a Gothic Revival building from the late 1860s, built for the family of Edmund Dexter, a Cincinnati liquor distributor. Construction stopped in 1869 and it was never finished. Tellers can’t agree on the animals, their number, or the color of their eyes.</dd>
+          <dt>A writer’s hook</dt><dd>A mansion for the dead that was never finished. What is still waiting to be completed?</dd>
+        </dl>
+      </article>
+
+      <article class="legend">
+        <h3>The ankle grabber</h3>
+        <p class="where-l">Section 53</p>
+        <dl>
+          <dt>The legend</dt><dd>A groundskeeper working alone says something grabbed his pant leg.</dd>
+          <dt>The record</dt><dd>This one rests on a single report passed along in local ghost lore. No one has documented it. Your job is to find out what could actually catch an ankle in that spot.</dd>
+          <dt>A writer’s hook</dt><dd>What does it feel like when you’re sure something touched you and nothing is there?</dd>
+        </dl>
+      </article>
+
+      <article class="legend">
+        <h3>Voices and figures</h3>
+        <p class="where-l">Section 16</p>
+        <dl>
+          <dt>The legend</dt><dd>Visitors report hearing voices and seeing figures in this part of the cemetery.</dd>
+          <dt>The record</dt><dd>Section 16 is also the resting place of William Kirk, whose death in 1884 sparked the Cincinnati Courthouse Riots. That gives the area real history for a writer to work with.</dd>
+          <dt>A writer’s hook</dt><dd>A place where one event changed a whole city. Who might still be listening?</dd>
+        </dl>
+      </article>
+
+      <p class="note">One more fact worth knowing: the cemetery’s own staff say Spring Grove isn’t haunted, and most reported sightings happen during regular daytime hours. That’s why this hunt takes place in daylight, and why your Daylight Pattern Log matters. Strange things are easy to believe in the dark. Can you find one that holds up in the sun?</p>
+    </div>
+
+    <div role="tabpanel" id="cp-hunt" aria-labelledby="ct-hunt" hidden>
+      <div class="game">
+        <label class="lbl" for="hTeam" style="margin-top:0">Team name</label>
+        <input type="text" id="hTeam" autocomplete="off" placeholder="Pick something that sounds good on a podcast">
+        <div class="lbl">Team members</div>
+        <div class="memgrid" id="hMems"></div>
+        <div class="row">
+          <button type="button" class="btn" id="hStart">Start the hunt</button>
+          <button type="button" class="btn ghost" id="hEnd">Finish the hunt</button>
+        </div>
+        <p class="muted" id="hTimes" style="margin:0"></p>
+        <p class="muted" style="margin:.6rem 0 0">Keep your photos and audio on your phone and bring them with you. Stamp a time or write the file name in each mission so we can match them later.</p>
+      </div>
+      <p class="count" id="huntCount" style="margin-top:1.4rem"></p>
+      <div class="bar" id="bar" role="progressbar" aria-label="Missions complete" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="barfill"></div></div>
+      <div id="missions"></div>
+      <div class="row"><button type="button" class="btn ghost small" id="hReset">Start over</button></div>
+    </div>
+
+    <div role="tabpanel" id="cp-submit" aria-labelledby="ct-submit" hidden>
+      <div class="prose">
+        <p>When your team is done, check the report below, then send it to your leaders. Only one person per team needs to turn it in.</p>
+      </div>
+      <ul id="subCheck" class="muted" style="max-width:62ch"></ul>
+      <label class="lbl" for="subText">Your team’s report</label>
+      <textarea id="subText" rows="16" readonly></textarea>
+      <div class="row">
+        <button type="button" class="btn" id="subMail" hidden>Email my leaders</button>
+        <button type="button" class="btn ghost" id="subCopy">Copy report</button>
+        <button type="button" class="btn ghost" id="subRefresh">Refresh report</button>
+      </div>
+      <p class="fb" id="subNote">Your leaders will tell you where to send this. For now, copy the report and paste it where they say.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div>
+    <p>Haunted Ohio is a MoeTerm course at Archbishop Moeller High School.</p>
+    <p>Anything you write here is stored only in this browser on this device. It never leaves it, and a shared or cleared browser can lose it. Copy what matters into your own document.</p>
+    <p>The Draft Lab is a classroom adaptation of the planning steps in Lisa Cron’s <em>Story Genius</em>. Read the book for the full method.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
+var shuffle=function(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var words=function(s){return (String(s).trim().match(/\S+/g)||[]).length};
+var mem={};
+var store={
+  get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):(k in mem?mem[k]:d)}catch(e){return k in mem?mem[k]:d}},
+  set:function(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+function copy(text,btn){
+  var old=btn.textContent;
+  function done(ok){btn.textContent=ok?'Copied':'Copy didn’t work. Select and copy by hand.';setTimeout(function(){btn.textContent=old},1800)}
+  function fallback(){
+    try{var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');document.body.removeChild(ta);done(ok)}catch(e){done(false)}
+  }
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true)},fallback)}else{fallback()}}catch(e){fallback()}
+}
+
+/* theme */
+var root=document.documentElement, tbtn=$('#theme');
+function effective(){return root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
+function themeLabel(){tbtn.textContent=effective()==='dark'?'Light mode':'Dark mode'}
+var savedTheme=store.get('ho-theme',null); if(savedTheme) root.setAttribute('data-theme',savedTheme);
+tbtn.addEventListener('click',function(){var n=effective()==='dark'?'light':'dark';root.setAttribute('data-theme',n);store.set('ho-theme',n);themeLabel()});
+themeLabel();
+
+/* page router: each tab is its own page, addressed by #name */
+(function(){
+  var VIEWS=$$('.view'),NAV=$$('.nav a');
+  var TITLES={learn:'Learn',games:'Play',prompts:'Prompts',draft:'Draft Lab',legend:'Legend Lab',dread:'Dread Meter',resources:'Resources',cemetery:'Spring Grove',leaders:'Leaders',about:'About'};
+  function route(){
+    var h=(location.hash||'').replace('#','');
+    if(!VIEWS.some(function(v){return v.getAttribute('data-view')===h}))h='home';
+    VIEWS.forEach(function(v){v.hidden=v.getAttribute('data-view')!==h});
+    NAV.forEach(function(a){if(a.getAttribute('href')==='#'+h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    document.title=(h==='home'?'':TITLES[h]+' | ')+'Haunted Ohio';
+    window.scrollTo(0,0);
+    window.dispatchEvent(new Event('resize'));
+  }
+  window.addEventListener('hashchange',route);
+  route();
+})();
+
+/* hero flashlight */
+(function(){
+  var hero=$('#hero'), idle=true, t=0, last=performance.now(), timer=null, visible=true;
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse=matchMedia('(pointer: coarse)').matches;
+  if(coarse) $('#hint').textContent='Tap around to shine your light. Something is written in the dark.';
+  function setLight(x,y){hero.style.setProperty('--mx',x+'px');hero.style.setProperty('--my',y+'px')}
+  function place(){var r=hero.getBoundingClientRect();setLight(r.width*0.68,r.height*0.45)}
+  place(); window.addEventListener('resize',function(){if(reduce||idle)place()});
+  function move(e){var r=hero.getBoundingClientRect();setLight(e.clientX-r.left,e.clientY-r.top);idle=false;clearTimeout(timer);timer=setTimeout(function(){idle=true},3000)}
+  hero.addEventListener('pointermove',move);
+  hero.addEventListener('pointerdown',move);
+  if('IntersectionObserver' in window){new IntersectionObserver(function(en){visible=en[0].isIntersecting}).observe(hero)}
+  function drift(now){
+    if(idle&&visible&&!reduce){
+      t+=(now-last)/1000;var r=hero.getBoundingClientRect();
+      setLight(r.width*(0.5+0.34*Math.sin(t*0.42)), r.height*(0.5+0.28*Math.sin(t*0.29+1.2)));
+    }
+    last=now;requestAnimationFrame(drift);
+  }
+  if(!reduce) requestAnimationFrame(drift);
+})();
+
+/* tabs */
+function tabs(rootEl){
+  var tl=$$('[role=tab]',rootEl), pn=tl.map(function(t){return document.getElementById(t.getAttribute('aria-controls'))});
+  function sel(i,focus){tl.forEach(function(t,j){t.setAttribute('aria-selected',j===i?'true':'false');t.tabIndex=j===i?0:-1;pn[j].hidden=j!==i});if(focus)tl[i].focus()}
+  tl.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(i)});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown')n=(i+1)%tl.length;
+      if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=(i-1+tl.length)%tl.length;
+      if(e.key==='Home')n=0; if(e.key==='End')n=tl.length-1;
+      if(n!==null){e.preventDefault();sel(n,true)}
+    });
+  });
+  sel(0);return sel;
+}
+tabs($('#learnTabs'));
+var gameSel=tabs($('#gameTabs'));
+$$('[data-game=chain]').forEach(function(a){a.addEventListener('click',function(){gameSel(3)})});
+
+/* facts to feeling */
+(function(){
+  var pairs=[
+    {fact:'The house had been empty since 1962.',story:'Nobody had lived in the house since 1962, but the porch swing was still moving.',note:'A moving object turns a fact into a question.'},
+    {fact:'The tour guide was nervous.',story:'Our guide checked his watch, then the staircase, then his watch again.',note:'Actions let the reader decide the feeling.'},
+    {fact:'The hotel room was cold.',story:'I could see my breath, and the radiator was hot enough to burn my hand.',note:'Two details that don’t fit together make a reader lean in.'}
+  ];
+  var i=0,shown=false;
+  function r(){
+    $('#pairFact').textContent=pairs[i].fact;
+    $('#pairOut').hidden=!shown;
+    $('#pairStory').textContent=pairs[i].story;
+    $('#pairNote').textContent=pairs[i].note;
+    $('#pairToggle').textContent=shown?'Hide the creative version':'Make it creative';
+  }
+  $('#pairToggle').addEventListener('click',function(){shown=!shown;r()});
+  $('#pairNext').addEventListener('click',function(){i=(i+1)%pairs.length;shown=false;r()});
+  r();
+})();
+
+/* six-word scare */
+(function(){
+  var inp=$('#six'),cnt=$('#sixCount'),pin=$('#sixPin'),wall=$('#wall'),empty=$('#wallEmpty');
+  var sparks=['The footsteps upstairs matched mine perfectly.','Dad said goodnight. Dad was away.','Her voice answered. We’d buried her.','Tour over. One shadow stayed behind.','Room 214 empty. Someone checked in.'];
+  var list=store.get('ho-wall',[]);
+  function upd(){var n=words(inp.value);cnt.textContent=n+' of 6 words';cnt.className='count'+(n===6?' ok':'');pin.disabled=n!==6}
+  function render(){
+    wall.innerHTML='';
+    list.forEach(function(s,i){
+      var li=document.createElement('li');var sp=document.createElement('span');sp.textContent=s;
+      var b=document.createElement('button');b.type='button';b.textContent='Remove';b.setAttribute('aria-label','Remove: '+s);
+      b.addEventListener('click',function(){list.splice(i,1);store.set('ho-wall',list);render()});
+      li.appendChild(sp);li.appendChild(b);wall.appendChild(li);
+    });
+    empty.hidden=list.length>0;
+  }
+  inp.addEventListener('input',upd);
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!pin.disabled){e.preventDefault();pin.click()}});
+  pin.addEventListener('click',function(){list.unshift(inp.value.trim());store.set('ho-wall',list);inp.value='';upd();render();inp.focus()});
+  $('#sixSpark').addEventListener('click',function(){var h=$('#sixHint');h.hidden=false;h.textContent='Example: '+pick(sparks)+' Notice how it implies a whole story.'});
+  upd();render();
+})();
+
+/* show it */
+(function(){
+  var items=[
+    {flat:'The house was creepy.',good:'Every window had curtains, and none of them hung the same way.',bad:['The house was very creepy and scary.','I felt scared when I looked at the house.'],why:'The detail does the work. The reader supplies the fear.'},
+    {flat:'He was nervous.',good:'He peeled the label off his water bottle in one long strip, then started on another.',bad:['He was so nervous that he felt nervous all over.','He was a nervous kind of guy.'],why:'A small action shows the feeling without naming it.'},
+    {flat:'The basement was cold.',good:'Her breath showed in front of her, though it was July.',bad:['The basement was freezing cold and chilly.','It was colder in the basement than upstairs.'],why:'A detail that doesn’t fit the season makes the reader ask why.'},
+    {flat:'The ghost was scary.',good:'The ghost didn’t move. It was just closer every time I blinked.',bad:['The ghost had a scary face.','I was terrified of the ghost.'],why:'Showing what it does is scarier than describing how it looks.'},
+    {flat:'It was quiet.',good:'The fridge cut off, and I realized I’d been hearing it my whole life.',bad:['It was very, very quiet.','There was no noise at all.'],why:'Noticing a sound by losing it makes quiet feel physical.'},
+    {flat:'The old prison was spooky at night.',good:'Down the long row of cells, one door was open. It hadn’t been when we walked in.',bad:['The prison was a haunted place that gave everyone the creeps.','The old prison was spooky at night because it was dark.'],why:'A specific change is more frightening than a general mood.'}
+  ];
+  var order,idx,score,box=$('#showBox');
+  function start(){order=shuffle(items);idx=0;score=0;q()}
+  function q(){
+    if(idx>=order.length){
+      var msg=score>=5?'You think like a horror writer.':score>=3?'Solid instincts. Play again and aim for a perfect run.':'Good start. Look for the detail that makes you picture something.';
+      box.innerHTML='<p class="flat">You got '+score+' of '+order.length+'.</p><p>'+msg+'</p><div class="row"><button class="btn" type="button" id="showAgain">Play again</button></div>';
+      $('#showAgain').addEventListener('click',start);return;
+    }
+    var it=order[idx];
+    var opts=shuffle([{t:it.good,ok:true}].concat(it.bad.map(function(b){return {t:b,ok:false}})));
+    box.innerHTML='<p class="muted" style="margin:0">Question '+(idx+1)+' of '+order.length+'. Which version shows the idea instead of just saying it?</p><p class="flat">“'+esc(it.flat)+'”</p><div class="opts" id="opts"></div><div id="showFb"></div>';
+    var wrap=$('#opts');
+    opts.forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=o.t;
+      b.addEventListener('click',function(){
+        $$('.opt',wrap).forEach(function(x){x.disabled=true});
+        var all=$$('.opt',wrap);
+        opts.forEach(function(oo,k){if(oo.ok)all[k].classList.add('right')});
+        if(o.ok){score++}else{b.classList.add('wrong')}
+        $('#showFb').innerHTML='<p class="fb"><strong>'+(o.ok?'Yes.':'Not quite.')+'</strong> '+esc(it.why)+'</p><div class="row"><button class="btn" type="button" id="showNext">'+(idx===order.length-1?'See my score':'Next question')+'</button></div>';
+        var nb=$('#showNext');nb.focus();
+        nb.addEventListener('click',function(){idx++;q()});
+      });
+      wrap.appendChild(b);
+    });
+  }
+  start();
+})();
+
+/* sense sprint */
+(function(){
+  var places=['the Cincinnati subway tunnels that were never finished','a school gym at midnight','a prison cell block','a cornfield after harvest','a hotel hallway with one flickering light','a basement with a locked door','an empty roller rink','a lighthouse on Lake Erie','a hospital wing that’s been sealed off','a riverboat landing at 4 a.m.'];
+  var senses=['Smell','Sound','Touch','Taste','Sight','What’s missing'];
+  var cards=$('#spCards'),ta=$('#spText'),tm=$('#spTimer'),res=$('#spResult'),start=$('#spStart'),draw=$('#spDraw'),iv=null;
+  function reset(){clearInterval(iv);iv=null}
+  draw.addEventListener('click',function(){
+    reset();cards.hidden=false;$('#spPlace').textContent=pick(places);$('#spSense').textContent=pick(senses);
+    start.disabled=false;tm.hidden=true;res.hidden=true;ta.value='';ta.disabled=true;ta.readOnly=false;
+    ta.placeholder='Press start when you’re ready.';
+  });
+  start.addEventListener('click',function(){
+    reset();var left=60;tm.hidden=false;tm.textContent=left;res.hidden=true;ta.disabled=false;ta.readOnly=false;ta.value='';ta.focus();start.disabled=true;draw.disabled=true;
+    iv=setInterval(function(){
+      left--;tm.textContent=left;
+      if(left<=0){
+        reset();ta.readOnly=true;draw.disabled=false;
+        res.hidden=false;res.textContent='Time. You wrote '+words(ta.value)+' words. Read it out loud once, then underline your scariest sentence.';
+      }
+    },1000);
+  });
+})();
+
+/* twist chain */
+(function(){
+  var OPEN=['The first thing I noticed was that the door was already open.','Nobody warned us about the third floor.','The recording starts normally. Listen closely at 0:41.','My little brother stopped talking to the empty chair on a Tuesday.','It was the kind of quiet that has been waiting for you.','The tour ended, but someone was still walking behind us.','We found the key exactly where the note said it would be.','Everyone in town knows not to ring that bell after dark.'];
+  var ROUNDS=[
+    {t:'The first sign',d:'Something small is wrong. Make it easy to explain away.'},
+    {t:'It comes closer',d:'The wrongness shows up somewhere safer than before.'},
+    {t:'Nobody believes it',d:'Someone dismisses it, or your narrator starts to doubt themselves.'},
+    {t:'The rule',d:'Reveal how this haunting works, or what it wants.'},
+    {t:'The last image',d:'End on something the reader can see. Don’t explain it.'}
+  ];
+  var MUST=['a cold spot','a wrong number','a wet footprint','a song nobody is playing','a photograph','the smell of smoke','a name nobody recognizes','a locked door','a clock that’s wrong','a voice that sounds familiar','a light switch','a mirror'];
+  var C={on:false,i:0,open:'',texts:[],must:[]},box=$('#chainBox');
+  function begin(){C.on=true;C.i=0;C.open=pick(OPEN);C.texts=[];C.must=ROUNDS.map(function(){return pick(MUST)});render()}
+  function saveCur(){var t=$('#chText');if(t)C.texts[C.i]=t.value}
+  function render(){
+    if(!C.on){
+      box.innerHTML='<p class="muted" style="margin-top:0">You’ll get an opening line and five rounds. Each round has a job and a thing you must include. Write one to three sentences per round. At the end, you’ll have a complete mini ghost story.</p><div class="row"><button class="btn" type="button" id="chGo">Start the chain</button></div>';
+      $('#chGo').addEventListener('click',begin);return;
+    }
+    if(C.i>=ROUNDS.length){
+      var ps=C.texts.filter(function(t){return t&&t.trim()});
+      box.innerHTML='<p class="muted" style="margin-top:0">Your story</p><div class="story" id="chStory"></div><div class="row"><button class="btn" type="button" id="chCopy">Copy story</button><button class="btn ghost" type="button" id="chAgain">Play again</button></div>';
+      var s=$('#chStory');var p0=document.createElement('p');p0.className='open';p0.textContent=C.open;s.appendChild(p0);
+      ps.forEach(function(t){var p=document.createElement('p');p.textContent=t.trim();s.appendChild(p)});
+      $('#chCopy').addEventListener('click',function(){copy([C.open].concat(ps).join('\n\n'),this)});
+      $('#chAgain').addEventListener('click',begin);return;
+    }
+    var R=ROUNDS[C.i];
+    box.innerHTML='<p class="muted" style="margin:0">Round '+(C.i+1)+' of '+ROUNDS.length+'</p>'+
+      '<p class="flat">“'+esc(C.open)+'”</p>'+
+      '<h4 style="margin-top:0">'+esc(R.t)+'</h4><p style="margin:.2rem 0 .8rem">'+esc(R.d)+'</p>'+
+      '<p>You must include: <span class="chip">'+esc(C.must[C.i])+'</span> <button type="button" class="btn ghost small" id="chSwap">Swap it</button></p>'+
+      '<label class="lbl" for="chText">Your sentences</label><textarea id="chText" rows="4"></textarea>'+
+      '<div class="row"><button class="btn" type="button" id="chNext">'+(C.i===ROUNDS.length-1?'Finish the story':'Next round')+'</button></div>';
+    var t=$('#chText');t.value=C.texts[C.i]||'';t.focus();
+    $('#chSwap').addEventListener('click',function(){saveCur();C.must[C.i]=pick(MUST);render()});
+    $('#chNext').addEventListener('click',function(){saveCur();C.i++;render()});
+  }
+  render();
+})();
+
+/* prompt generator */
+var PROMPT='';
+(function(){
+  var DATA={
+    place:['a hotel in a small Ohio river town, in the room nobody books','the abandoned subway tunnels under Cincinnati','a prison cell block that’s been closed for decades','a high school at 2 a.m. during winter break','a cornfield after harvest, with one row left standing','a public stairway on a Cincinnati hillside','a riverboat landing on the Ohio River','a closed-down roller rink','a hospital wing that’s been sealed off','a one-room schoolhouse in the middle of a field','a concert hall older than anyone alive','a county fairgrounds in the off-season','a basement apartment with a bricked-up doorway','a lighthouse on Lake Erie'],
+    haunt:['the footsteps always arrive one second after you stop walking','every photograph taken here has one extra person','the temperature drops in the shape of a person','a light turns on in a room with no power','the radio only plays songs from one year','your reflection is a little late','someone is knocking from the wrong side of the wall','the visitor log has your name in handwriting that isn’t yours','a child’s laughter stops whenever you listen','every door opens toward you, never away','the same stranger shows up in every room'],
+    who:['a skeptic who debunks hauntings for fun','a night-shift security guard','a new kid who just moved in','a tour guide who has said the script a thousand times','a podcast host recording on location','the ghost, telling it in first person','someone retelling this years later','a historian who researched the wrong thing'],
+    obj:['a brass key','a cassette tape','a cracked pocket watch','a stack of unsent letters','a toy train','a flashlight with no batteries that still works','a map with one place scratched out','a locked trunk','a school ID from 1974','a single wet footprint'],
+    rule:['Never show the ghost directly.','Tell it entirely through texts or voicemails.','Use only what can be heard.','Start in the middle of the scariest moment.','End on an image, not an explanation.','Every paragraph must use a sense you haven’t used yet.','Keep it under 500 words.','End in the same spot where it begins.']
+  };
+  var SLOTS=[{k:'place',l:'Place'},{k:'haunt',l:'What’s wrong'},{k:'who',l:'Main character'},{k:'obj',l:'Must include'},{k:'rule',l:'Rule'}];
+  var TIPS={'short story':'Pick one point of view and stay inside one head.','podcast episode':'Your listener can’t see anything. Make sound do the work.','short film scene':'Write only what the camera can see or the microphone can hear.'};
+  var vals={},lock={},slotsEl=$('#slots'),fmt=$('#fmt');
+  SLOTS.forEach(function(s){
+    var row=document.createElement('div');row.className='slot';
+    row.innerHTML='<div class="slot-l">'+s.l+'</div><div class="slot-v" id="sv_'+s.k+'"></div><label class="keep"><input type="checkbox" data-lock="'+s.k+'"> Keep</label><button type="button" class="btn ghost small" data-re="'+s.k+'" aria-label="Reroll '+s.l+'">Reroll</button>';
+    slotsEl.appendChild(row);
+  });
+  function roll(k){var n;do{n=pick(DATA[k])}while(n===vals[k]&&DATA[k].length>1);vals[k]=n}
+  function build(){
+    var f=fmt.value;
+    PROMPT='Write a '+f+' set in '+vals.place+'. What’s wrong: '+vals.haunt+'. Main character: '+vals.who+'. It must include '+vals.obj+'. Rule: '+vals.rule;
+    SLOTS.forEach(function(s){$('#sv_'+s.k).textContent=vals[s.k]});
+    $('#promptOut').textContent=PROMPT;
+    $('#fmtTip').textContent=TIPS[f];
+  }
+  slotsEl.addEventListener('change',function(e){var k=e.target.getAttribute('data-lock');if(k)lock[k]=e.target.checked});
+  slotsEl.addEventListener('click',function(e){var b=e.target.closest('[data-re]');if(b){roll(b.getAttribute('data-re'));build()}});
+  $('#rollAll').addEventListener('click',function(){SLOTS.forEach(function(s){if(!lock[s.k])roll(s.k)});build()});
+  fmt.addEventListener('change',build);
+  $('#copyPrompt').addEventListener('click',function(){copy(PROMPT,this)});
+  $('#usePrompt').addEventListener('click',function(){window.__useprompt(PROMPT)});
+  SLOTS.forEach(function(s){roll(s.k)});build();
+})();
+
+/* draft lab */
+(function(){
+  var STEPS=[
+    {id:'spark',title:'The what if',
+     intro:'Every story starts with a what if: a situation that will force a person to change. A strong one holds two things, what’s at stake and how it feels. Don’t worry about plot yet.',
+     ex:'What if a sixteen-year-old night cleaner who never admits he’s scared has to work Room 214, where every guest who checks in leaves screaming before sunrise?',
+     fields:[{k:'whatif',t:'area',rows:4,label:'Finish the sentence: What if…',ph:'What if a…'}]},
+    {id:'who',title:'Your protagonist',
+     intro:'Who is this story happening to? Be specific. “A teenager” is nobody. “A sixteen-year-old who cleans the hotel at night” is somebody.',
+     ex:'Eli Brandt, sixteen. He works the overnight cleaning shift at the Rivergate Hotel with his uncle because his family needs the money. He walks the halls alone with a cart and a flashlight.',
+     fields:[{k:'p_name',t:'text',label:'Name',ph:'Name'},{k:'p_now',t:'area',rows:4,label:'Who are they right now? Age, situation, and how they’re connected to the haunted place.'}]},
+    {id:'want',title:'What they want',
+     intro:'Your protagonist wants something concrete, something you could film. This is what drives the outside story. Make it something they’d tell a friend.',
+     ex:'Want: to get through one night in Room 214 without quitting. Stakes: if he loses the job, his family falls behind on rent.',
+     fields:[{k:'want',t:'area',rows:3,label:'What do they want?'},{k:'stakes',t:'area',rows:3,label:'What happens if they don’t get it?'}]},
+    {id:'mis',title:'The misbelief',
+     intro:'Your protagonist believes something that isn’t true, and it holds them back. It feels true to them because it once kept them safe. This is the inside story, and it’s the heart of your draft. A misbelief isn’t a villain flaw. It’s a survival rule that has outlived its use.',
+     ex:'Rule: if I show I’m scared, people will stop trusting me. How it protects him: he hides every worry, so nobody has ever benched him again. Ghost link: the ghost is a bellhop who hid something frightening until it was too late.',
+     fields:[{k:'mis_rule',t:'text',label:'Finish the sentence: I believe…',ph:'I believe that…'},{k:'mis_safe',t:'area',rows:3,label:'How has this belief kept them safe so far?'},{k:'mis_ghost',t:'area',rows:3,label:'Optional: how does the haunting push on this belief? Ghosts are often the misbelief made visible.'}]},
+    {id:'origin',title:'The origin scene',
+     intro:'Go back to the moment the misbelief took root. It happened before your story starts, and it should be specific. Answer the questions first, then write the scene itself with real detail.',
+     ex:'Age ten, Little League championship, in the dugout. He believed telling a grown-up the truth gets you help. He wanted help with his fear of the pitcher and expected a pep talk. Coach benched him in front of everyone, and his dad looked away. He decided: never say you’re afraid.',
+     fields:[
+      {k:'o_when',t:'text',label:'Where and when? How old are they?'},
+      {k:'o_believed',t:'area',rows:2,label:'What did they believe going in? (The healthy belief the event will break.)'},
+      {k:'o_wanted',t:'area',rows:2,label:'What did they want in that moment?'},
+      {k:'o_expected',t:'area',rows:2,label:'What did they expect would happen?'},
+      {k:'o_happened',t:'area',rows:3,label:'What actually happened?'},
+      {k:'o_concluded',t:'area',rows:2,label:'What did they decide, and what rule did they take from it?'},
+      {k:'o_scene',t:'area',rows:10,label:'Now write the scene. A few paragraphs, with real sensory detail.'}]},
+    {id:'turns',title:'Turning points',
+     intro:'After the origin scene, the misbelief shapes their choices. List three moments where it protected them or steered a decision, then the moment life forces them to go after what they want.',
+     ex:'1. Eli doesn’t tell his uncle about a flickering light. 2. He lies to a guest who asks if the hotel is haunted. 3. He ignores a coworker’s warning about Room 214. The push: a guest vanishes, and Eli is the only one with the key.',
+     fields:[{k:'t1',t:'area',rows:2,label:'Turning point 1'},{k:'t2',t:'area',rows:2,label:'Turning point 2'},{k:'t3',t:'area',rows:2,label:'Turning point 3'},{k:'t_push',t:'area',rows:3,label:'The moment they can’t put it off any longer'}]},
+    {id:'end',title:'The ending',
+     intro:'Cron suggests drafting the ending early so you know what your protagonist has to earn. The ending isn’t only what happens. It’s what they finally understand, and it has to cost them something.',
+     ex:'Realization: saying “I’m scared” out loud is what makes people help, and it’s what lets the ghost stop hiding. Last image: the elevator opens on two, empty, and a bell rings once, softly, like a thank-you.',
+     fields:[{k:'e_aha',t:'area',rows:3,label:'What do they realize? What must they let go of?'},{k:'e_scene',t:'area',rows:4,label:'What’s the last image the reader sees?'}]},
+    {id:'cards',title:'Scene cards',kind:'cards',
+     intro:'Plan each scene before you write it. The top row is the plot, what happens and what it causes. The rest is the inside story, why it matters to this character and what they take from it. Add as many scenes as you need.',
+     ex:'Scene 1. Cause: Eli is assigned Room 214 alone. Effect: he accepts and says nothing. Why it matters: admitting fear would feel like repeating the dugout. Realization: hiding keeps him safe, for now. And so: he goes in with the cart and the door locks behind him.'},
+    {id:'write',title:'Write the story',kind:'write',
+     intro:'Now write. Keep the scene card beside you. Draft in order, and expect to rewrite. The goal is to get it down.',
+     ex:'Open with Eli already inside Room 214, doing something ordinary, while one small thing is wrong.'}
+  ];
+  var CARDF=[
+    {k:'cause',label:'Cause: what happens?',ph:'The event'},
+    {k:'effect',label:'Effect: what does it lead to?',ph:'The consequence'},
+    {k:'why',label:'Why it matters: what does this mean to your protagonist, given the misbelief?',ph:'The inside story'},
+    {k:'real',label:'The realization: what do they take away from it?',ph:'What they conclude'},
+    {k:'andso',label:'And so…: what does this make them do next?',ph:'The next step'}
+  ];
+  var fresh=function(){return {f:{},cards:[{}],draft:'',prompt:'',step:0}};
+  var D=store.get('ho-draft',null)||fresh();
+  D.f=D.f||{};D.cards=(D.cards&&D.cards.length)?D.cards:[{}];D.step=D.step||0;D.prompt=D.prompt||'';D.draft=D.draft||'';
+  var pt=null,pane=$('#pane'),nav=$('#steps'),savedEl=$('#saved');
+  function persist(){clearTimeout(pt);pt=setTimeout(function(){store.set('ho-draft',D);savedEl.textContent='Saved in this browser. Copy it into your own document often.'},350)}
+  function filled(i){
+    var s=STEPS[i];
+    if(s.kind==='cards')return D.cards.some(function(c){return CARDF.some(function(f){return (c[f.k]||'').trim()})});
+    if(s.kind==='write')return D.draft.trim().length>0;
+    return s.fields.some(function(f){return (D.f[f.k]||'').trim()});
+  }
+  function dots(){$$('.stepbtn',nav).forEach(function(b,i){b.classList.toggle('done',filled(i))})}
+  function field(f){
+    var v=esc(D.f[f.k]||'');
+    var h='<label class="lbl" for="f_'+f.k+'">'+f.label+'</label>';
+    if(f.t==='text')h+='<input type="text" id="f_'+f.k+'" data-k="'+f.k+'" value="'+v+'" placeholder="'+esc(f.ph||'')+'">';
+    else h+='<textarea id="f_'+f.k+'" data-k="'+f.k+'" rows="'+(f.rows||4)+'" placeholder="'+esc(f.ph||'')+'">'+v+'</textarea>';
+    return h;
+  }
+  function cardsHTML(){
+    var h=D.cards.map(function(c,i){
+      return '<fieldset class="cardset"><legend>Scene '+(i+1)+'</legend><div class="cardgrid">'+
+        CARDF.map(function(f){return '<div'+(f.k==='andso'?' class="span2"':'')+'><label class="lbl" for="c'+i+'_'+f.k+'">'+f.label+'</label><textarea id="c'+i+'_'+f.k+'" data-c="'+i+'" data-ck="'+f.k+'" rows="3" placeholder="'+esc(f.ph)+'">'+esc(c[f.k]||'')+'</textarea></div>'}).join('')+
+        '</div>'+(D.cards.length>1?'<button type="button" class="btn ghost small" data-rm="'+i+'" style="margin-top:.8rem">Remove scene '+(i+1)+'</button>':'')+'</fieldset>';
+    }).join('');
+    return h+'<button type="button" class="btn small" id="addCard">Add a scene</button>';
+  }
+  function writeHTML(){
+    var opts=D.cards.map(function(c,i){var t=(c.cause||'').trim();return '<option value="'+i+'">Scene '+(i+1)+(t?': '+esc(t.slice(0,60)):'')+'</option>'}).join('');
+    return '<label class="lbl" for="refsel">Scene card to follow</label><select id="refsel">'+opts+'</select><div class="note" id="refbox"></div>'+
+      '<label class="lbl" for="draftTa">Your draft</label><textarea id="draftTa" rows="18" placeholder="Start with the first scene.">'+esc(D.draft)+'</textarea><p class="count" id="wc"></p>';
+  }
+  function refresh(){
+    var sel=$('#refsel');if(!sel)return;
+    var c=D.cards[+sel.value]||{},box=$('#refbox');box.innerHTML='';
+    function line(h,v){if(v&&String(v).trim()){var p=document.createElement('p');p.style.margin='.25rem 0';var b=document.createElement('strong');b.textContent=h+' ';p.appendChild(b);p.appendChild(document.createTextNode(v));box.appendChild(p)}}
+    line('Cause:',c.cause);line('Effect:',c.effect);line('Why it matters:',c.why);line('Realization:',c.real);line('And so:',c.andso);
+    line('Misbelief:',D.f.mis_rule);line('Wants:',D.f.want);line('Ending:',D.f.e_aha);
+    if(!box.children.length)box.textContent='Fill in your scene cards and blueprint, and they’ll show up here while you write.';
+    var wc=$('#wc');if(wc)wc.textContent=words(D.draft)+' words';
+  }
+  function render(){
+    nav.innerHTML='';
+    STEPS.forEach(function(s,i){
+      var b=document.createElement('button');b.type='button';b.className='stepbtn'+(filled(i)?' done':'');
+      if(i===D.step)b.setAttribute('aria-current','step');
+      b.innerHTML='<span class="num">'+(i+1)+'</span><span>'+s.title+'</span>';
+      b.addEventListener('click',function(){D.step=i;persist();render();pane.scrollIntoView({block:'nearest'})});
+      nav.appendChild(b);
+    });
+    var s=STEPS[D.step],h='<h3>'+s.title+'</h3><p>'+s.intro+'</p>';
+    h+='<details><summary>Show the example (Eli in Room 214)</summary><div><p>'+s.ex+'</p></div></details>';
+    if(s.id==='spark'&&D.prompt)h+='<p class="note"><strong>Your prompt:</strong> '+esc(D.prompt)+'</p>';
+    if(s.kind==='cards')h+=cardsHTML();
+    else if(s.kind==='write')h+=writeHTML();
+    else h+=s.fields.map(field).join('');
+    h+='<div class="row" style="margin-top:1.4rem">'+(D.step>0?'<button type="button" class="btn ghost" id="prev">Back</button>':'')+(D.step<STEPS.length-1?'<button type="button" class="btn" id="next">Next step</button>':'')+'</div>';
+    pane.innerHTML=h;
+    var pv=$('#prev'),nx=$('#next');
+    if(pv)pv.addEventListener('click',function(){D.step--;persist();render();pane.scrollIntoView({block:'nearest'})});
+    if(nx)nx.addEventListener('click',function(){D.step++;persist();render();pane.scrollIntoView({block:'nearest'})});
+    var sel=$('#refsel');if(sel){sel.addEventListener('change',refresh);refresh()}
+  }
+  pane.addEventListener('input',function(e){
+    var t=e.target,k=t.getAttribute('data-k');
+    if(k){D.f[k]=t.value}
+    else if(t.hasAttribute('data-c')){D.cards[+t.getAttribute('data-c')][t.getAttribute('data-ck')]=t.value}
+    else if(t.id==='draftTa'){D.draft=t.value;var wc=$('#wc');if(wc)wc.textContent=words(D.draft)+' words'}
+    else return;
+    savedEl.textContent='Saving…';persist();dots();
+  });
+  pane.addEventListener('click',function(e){
+    if(e.target.id==='addCard'){D.cards.push({});persist();render()}
+    var rm=e.target.getAttribute&&e.target.getAttribute('data-rm');
+    if(rm!==null&&rm!==undefined&&e.target.hasAttribute('data-rm')){D.cards.splice(+rm,1);persist();render()}
+  });
+  function blueprint(){
+    var f=D.f,L=[];
+    function add(h,v){if(v&&String(v).trim())L.push(h+'\n'+String(v).trim()+'\n')}
+    add('WHAT IF',f.whatif);add('PROTAGONIST',[f.p_name,f.p_now].filter(Boolean).join('. '));
+    add('WHAT THEY WANT',f.want);add('STAKES',f.stakes);
+    add('MISBELIEF',f.mis_rule);add('HOW IT KEEPS THEM SAFE',f.mis_safe);add('HOW THE HAUNTING PUSHES ON IT',f.mis_ghost);
+    add('ORIGIN SCENE: WHERE AND WHEN',f.o_when);add('WENT IN BELIEVING',f.o_believed);add('WANTED',f.o_wanted);add('EXPECTED',f.o_expected);add('WHAT HAPPENED',f.o_happened);add('CONCLUDED',f.o_concluded);add('ORIGIN SCENE',f.o_scene);
+    add('TURNING POINT 1',f.t1);add('TURNING POINT 2',f.t2);add('TURNING POINT 3',f.t3);add('THE PUSH',f.t_push);
+    add('THE REALIZATION',f.e_aha);add('LAST IMAGE',f.e_scene);
+    D.cards.forEach(function(c,i){
+      var parts=[['Cause',c.cause],['Effect',c.effect],['Why it matters',c.why],['Realization',c.real],['And so',c.andso]].filter(function(p){return p[1]&&p[1].trim()}).map(function(p){return p[0]+': '+p[1].trim()});
+      if(parts.length)L.push('SCENE '+(i+1)+'\n'+parts.join('\n')+'\n');
+    });
+    return (D.prompt?'PROMPT\n'+D.prompt+'\n\n':'')+L.join('\n');
+  }
+  $('#copyBlue').addEventListener('click',function(){copy(blueprint()||'(Nothing here yet.)',this)});
+  $('#copyDraft').addEventListener('click',function(){copy(D.draft||'(Nothing here yet.)',this)});
+  var rb=$('#resetAll'),rt=null;
+  rb.addEventListener('click',function(){
+    if(rb.getAttribute('data-arm')!=='1'){rb.setAttribute('data-arm','1');rb.textContent='Click again to erase everything';rt=setTimeout(function(){rb.removeAttribute('data-arm');rb.textContent='Erase everything'},4000);return}
+    clearTimeout(rt);rb.removeAttribute('data-arm');rb.textContent='Erase everything';D=fresh();store.set('ho-draft',D);render();
+  });
+  window.__useprompt=function(text){D.prompt=text;D.step=0;persist();render();location.hash='#draft'};
+  render();
+})();
+/* legend lab */
+(function(){
+  var KEY='ho-legend',L=store.get(KEY,{}),el=$('#llCols');
+  var COLS=[
+    {id:'h',title:'History',blurb:'What can be documented? Names, dates, records.',opts:['Documented','Reported','Unclear']},
+    {id:'s',title:'Science',blurb:'What natural explanation could fit?',opts:['Tested by us','Plausible','A guess']},
+    {id:'l',title:'Legend',blurb:'What do people say?',opts:['Widely told','Told by one person','Rumor']}
+  ];
+  el.innerHTML=COLS.map(function(c){
+    return '<div class="llcol"><h3 style="margin-top:.4rem">'+c.title+'</h3><p class="muted" style="margin:0">'+c.blurb+'</p>'+
+      '<label class="lbl" for="ll_'+c.id+'">What you found</label><textarea id="ll_'+c.id+'" data-bind="'+c.id+'" rows="6"></textarea>'+
+      '<label class="lbl" for="ll_'+c.id+'s">Where did you learn it?</label><input type="text" id="ll_'+c.id+'s" data-bind="'+c.id+'s" placeholder="Book, website, plaque, person">'+
+      '<div class="lbl" id="ll_'+c.id+'c_l">How solid is it?</div><div class="pills" role="group" aria-labelledby="ll_'+c.id+'c_l" data-pill="'+c.id+'c">'+
+      c.opts.map(function(o){return '<button type="button" class="pill" data-val="'+o+'" aria-pressed="false">'+o+'</button>'}).join('')+'</div></div>';
+  }).join('');
+  var root=$('#legend');
+  function refresh(){
+    $$('[data-bind]',root).forEach(function(i){i.value=L[i.getAttribute('data-bind')]||''});
+    $$('[data-pill]',root).forEach(function(g){var v=L[g.getAttribute('data-pill')];$$('.pill',g).forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-val')===v?'true':'false')})});
+  }
+  root.addEventListener('input',function(e){var k=e.target.getAttribute('data-bind');if(k){L[k]=e.target.value;store.set(KEY,L)}});
+  root.addEventListener('click',function(e){
+    var b=e.target.closest('.pill');if(!b)return;var g=b.parentNode,k=g.getAttribute('data-pill');
+    L[k]=L[k]===b.getAttribute('data-val')?'':b.getAttribute('data-val');store.set(KEY,L);refresh();
+  });
+  $('#llExample').addEventListener('click',function(){
+    L={place:'The watching bust at a cemetery monument',
+       h:'The monument belongs to a real Cincinnati man. The bust has glass eyes. Local reporting says he was a salesman and real estate investor, not the optometrist many retellings claim.',hs:'Cincinnati Magazine',hc:'Reported',
+       s:'Glass eyes catch changing light, and our brains are wired to notice faces and gaze. A bust can seem to look at you from several angles, especially in low light.',ss:'Our own flashlight on/off test',sc:'Tested by us',
+       l:'People say the eyes follow you, and that they are his real eyes, preserved in glass.',ls:'Retold in many ghost books and blogs',lc:'Widely told',
+       collide:'The record says glass and the legend says flesh. Someone had a reason to make the bigger story stick.',
+       premise:'A skeptical tour guide proves the bust’s eyes are only glass, then notices the bust has turned a little further toward her each time she says so.'};
+    store.set(KEY,L);refresh();
+  });
+  $('#llCopy').addEventListener('click',function(){
+    var o=[['PLACE',L.place],['HISTORY',L.h],['HISTORY SOURCE',L.hs],['HISTORY CONFIDENCE',L.hc],['SCIENCE',L.s],['SCIENCE SOURCE',L.ss],['SCIENCE CONFIDENCE',L.sc],['LEGEND',L.l],['LEGEND SOURCE',L.ls],['LEGEND CONFIDENCE',L.lc],['WHERE THEY COLLIDE',L.collide],['PREMISE',L.premise]]
+      .filter(function(p){return p[1]&&String(p[1]).trim()}).map(function(p){return p[0]+'\n'+String(p[1]).trim()+'\n'});
+    copy(o.join('\n')||'(Nothing here yet.)',this);
+  });
+  var cb=$('#llClear'),ct=null;
+  cb.addEventListener('click',function(){
+    if(cb.getAttribute('data-arm')!=='1'){cb.setAttribute('data-arm','1');cb.textContent='Click again to clear';ct=setTimeout(function(){cb.removeAttribute('data-arm');cb.textContent='Clear it'},4000);return}
+    clearTimeout(ct);cb.removeAttribute('data-arm');cb.textContent='Clear it';L={};store.set(KEY,L);refresh();
+  });
+  refresh();
+})();
+
+/* dread meter */
+(function(){
+  var KEY='ho-dread';
+  var ARC=[{t:'A normal day',d:1},{t:'One small wrong thing',d:3},{t:'It comes closer',d:5},{t:'Nobody believes it',d:4},{t:'The rule is revealed',d:8},{t:'The last image',d:6}];
+  var B=store.get(KEY,null);if(!B||!B.length)B=ARC.map(function(b){return {t:b.t,d:b.d}});
+  var list=$('#beats');
+  function save(){store.set(KEY,B)}
+  function rows(){
+    list.innerHTML='';
+    B.forEach(function(b,i){
+      var li=document.createElement('li');li.className='beat';
+      li.innerHTML='<span class="bn">'+(i+1)+'</span>'+
+        '<input type="text" data-bt="'+i+'" aria-label="Beat '+(i+1)+' description" value="'+esc(b.t)+'" placeholder="What happens?">'+
+        '<input type="range" min="0" max="10" step="1" data-bd="'+i+'" aria-label="Dread level for beat '+(i+1)+'" value="'+b.d+'">'+
+        '<output id="bo'+i+'">'+b.d+'</output>'+
+        '<span class="ctl"><button type="button" class="btn ghost small" data-up="'+i+'" aria-label="Move beat '+(i+1)+' up"'+(i===0?' disabled':'')+'>Up</button> <button type="button" class="btn ghost small" data-dn="'+i+'" aria-label="Move beat '+(i+1)+' down"'+(i===B.length-1?' disabled':'')+'>Down</button> <button type="button" class="btn ghost small" data-rm="'+i+'" aria-label="Remove beat '+(i+1)+'">Remove</button></span>';
+      list.appendChild(li);
+    });
+    draw();
+  }
+  function draw(){
+    var n=B.length,W=700,Hh=250,pl=44,pr=24,pt=18,pb=34;
+    function xs(i){return n<2?W/2:pl+(W-pl-pr)*i/(n-1)}
+    function ys(v){return pt+(Hh-pt-pb)*(1-v/10)}
+    var s='<svg class="dchart" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Dread level at each story beat">';
+    [0,5,10].forEach(function(v){s+='<line class="gr" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+ys(v)+'" y2="'+ys(v)+'"/><text x="'+(pl-10)+'" y="'+(ys(v)+4)+'" text-anchor="end">'+v+'</text>'});
+    if(n>0){
+      s+='<polyline class="ln" points="'+B.map(function(b,i){return xs(i)+','+ys(b.d)}).join(' ')+'"/>';
+      B.forEach(function(b,i){s+='<circle class="pt" cx="'+xs(i)+'" cy="'+ys(b.d)+'" r="6"/><text x="'+xs(i)+'" y="'+(Hh-10)+'" text-anchor="middle">'+(i+1)+'</text>'});
+    }
+    s+='</svg>';
+    $('#dChart').innerHTML=s;
+    msg();
+  }
+  function msg(){
+    var m=$('#dMsg'),n=B.length;
+    if(n<3){m.textContent='Add at least three beats to see the shape of your story.';return}
+    var v=B.map(function(b){return b.d}),mx=Math.max.apply(null,v),mn=Math.min.apply(null,v),im=v.indexOf(mx),inc=true;
+    for(var i=1;i<n;i++){if(v[i]<=v[i-1])inc=false}
+    var t;
+    if(mx-mn<=2)t='Your line is almost flat. Readers need the dread to change. Where can something get worse, or briefly get quieter?';
+    else if(im===0)t='Your scariest moment comes first. Try building toward it so the reader has time to feel it coming.';
+    else if(inc)t='A steady climb. Try putting one quiet beat right before your peak. The drop makes the next hit land harder.';
+    else if(im===n-1)t='You end on your peak, which works for a shock ending. Make sure there’s a dip earlier so the peak feels earned.';
+    else t='Your peak is beat '+(im+1)+', and then it eases. That lets readers exhale. Make sure the last beat still leaves a little unease behind.';
+    m.textContent=t;
+  }
+  list.addEventListener('input',function(e){
+    var t=e.target,bt=t.getAttribute('data-bt'),bd=t.getAttribute('data-bd');
+    if(bt!==null){B[+bt].t=t.value;save()}
+    else if(bd!==null){B[+bd].d=+t.value;$('#bo'+bd).textContent=t.value;save();draw()}
+  });
+  list.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var up=b.getAttribute('data-up'),dn=b.getAttribute('data-dn'),rm=b.getAttribute('data-rm'),i;
+    if(up!==null){i=+up;var a=B[i];B[i]=B[i-1];B[i-1]=a}
+    else if(dn!==null){i=+dn;var c=B[i];B[i]=B[i+1];B[i+1]=c}
+    else if(rm!==null){B.splice(+rm,1)}
+    else return;
+    save();rows();
+  });
+  $('#dAdd').addEventListener('click',function(){B.push({t:'',d:5});save();rows();var ins=$$('[data-bt]',list);ins[ins.length-1].focus()});
+  $('#dArc').addEventListener('click',function(){B=ARC.map(function(b){return {t:b.t,d:b.d}});save();rows()});
+  $('#dCopy').addEventListener('click',function(){copy(B.map(function(b,i){return (i+1)+'. [dread '+b.d+'/10] '+b.t}).join('\n'),this)});
+  rows();
+})();
+
+/* spring grove hunt */
+(function(){
+  tabs($('#cemTabs'));
+  var LEADERS=''; /* leaders' email addresses, comma separated. Leave empty until you decide how reports are collected. */
+  var KEY='ho-hunt';
+  var SUN=['Bright sun','Hazy','Overcast','Shade','Low sun'],WIND=['Calm','Breeze','Strong'],SND=['Quiet','Moderate','Loud'];
+  var RATE=['0','1','2','3','4','5'],YN=['Yes','No'];
+  var VERD=['Natural explanation','Still unexplained','Need more data'];
+  var H=store.get(KEY,null)||{team:'',mem:['','','','',''],start:'',end:'',v:{},done:{}};
+  H.mem=(H.mem&&H.mem.length===5)?H.mem:['','','','',''];H.v=H.v||{};H.done=H.done||{};
+  function save(){store.set(KEY,H)}
+  function names(){var a=H.mem.map(function(x){return x.trim()}).filter(Boolean);return a.length?a:['Member 1']}
+  function nowTime(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+
+  function daylog(){
+    var f=[];
+    [['1','Start of the hunt'],['2','Midpoint'],['3','End of the hunt']].forEach(function(p){
+      f.push({t:'h',label:p[1]});
+      f.push({k:'t'+p[0],t:'stamp',label:'Time'});
+      f.push({k:'a'+p[0],t:'text',label:'Human activity'});
+      f.push({k:'s'+p[0],t:'choice',label:'Sun and lighting',opts:SUN});
+      f.push({k:'n'+p[0],t:'area',rows:2,label:'Sensory changes'});
+    });
+    return f;
+  }
+  function survey(){
+    var f=[],nm=names();
+    ['A','B','C'].forEach(function(sp){
+      f.push({t:'h',label:'Spot '+sp});
+      f.push({k:'sp'+sp,t:'text',label:'Where is it?'});
+      nm.forEach(function(n,i){f.push({k:'r'+sp+i,t:'rate',label:'Spot '+sp+', '+n+' (0 = not watched, 5 = very watched)'})});
+    });
+    return f;
+  }
+  function envf(){
+    var f=[];
+    [['h','Haunted spot'],['c','Control spot (somewhere with no legend)']].forEach(function(p){
+      var x=p[0];
+      f.push({t:'h',label:p[1]});
+      f.push({k:x+'l',t:'text',label:'Location'});
+      f.push({k:x+'t',t:'num',label:'Temperature (degrees F)'});
+      f.push({k:x+'w',t:'choice',label:'Wind',opts:WIND});
+      f.push({k:x+'s',t:'choice',label:'Approximate sound level',opts:SND});
+      f.push({k:x+'n',t:'area',rows:2,label:'Notes'});
+    });
+    f.push({k:'diff',t:'calc',fn:function(v){
+      var a=parseFloat(v.m11_ht),b=parseFloat(v.m11_ct);
+      if(isNaN(a)||isNaN(b))return 'Enter both temperatures to compare them.';
+      var d=Math.round((a-b)*10)/10;
+      return (d===0?'The two spots are the same temperature.':'The haunted spot is '+Math.abs(d)+' degrees '+(d<0?'colder':'warmer')+' than the control spot.')+' Is that big enough to explain a chill, or small enough to be normal?';
+    }});
+    return f;
+  }
+  function verdicts(){
+    var f=[];
+    [['b','Breuer’s eyes'],['d','Dexter Mausoleum'],['g','Section 53'],['v','Section 16']].forEach(function(p){
+      f.push({t:'h',label:p[1]});
+      f.push({k:p[0]+'v',t:'choice',label:p[1]+': your verdict',opts:VERD});
+      f.push({k:p[0]+'s',t:'area',rows:2,label:p[1]+': story seed (one sentence)'});
+    });
+    return f;
+  }
+
+  var MISSIONS=[
+    {id:'m1',grp:'Lot 100: C.C. Breuer’s monument',title:'Watching Eyes',
+     desc:'Approach the bust from three angles: left, center, and right. Photograph or sketch each view, and stamp the time (or write the photo name) for each.',
+     fields:[{k:'L',t:'stamp',label:'Left view'},{k:'C',t:'stamp',label:'Center view'},{k:'R',t:'stamp',label:'Right view'},
+       {k:'rate',t:'rate',label:'How strongly did you feel watched? (0 = not at all, 5 = very)'},
+       {k:'n',t:'area',rows:3,label:'One detail you could use in a story'}]},
+    {id:'m2',grp:'Lot 100: C.C. Breuer’s monument',title:'Reflection Test',
+     desc:'From 6 to 10 feet away, hold your phone flashlight (on low) across the bust’s face. Take two photos: flashlight off, then on.',
+     fields:[{k:'off',t:'stamp',label:'Photo with flashlight OFF'},{k:'on',t:'stamp',label:'Photo with flashlight ON'},
+       {k:'yn',t:'yn',label:'Do reflections plausibly explain the eyes seeming to move?'},{k:'n',t:'area',rows:3,label:'Notes'}]},
+    {id:'m3',grp:'Dexter Mausoleum',title:'Sit Test',
+     desc:'Sit on the mausoleum steps for 1 minute, then stand and scan for 2 minutes. Your leaders will confirm where you’re allowed to sit.',
+     fields:[{k:'tm',t:'timer',label:'Sit test timer',phases:[{n:'Sit still',s:60},{n:'Stand and scan',s:120}]},
+       {k:'t',t:'stamp',label:'Time'},{k:'n',t:'area',rows:4,label:'Observations: sounds, movement, feelings'}]},
+    {id:'m4',grp:'Dexter Mausoleum',title:'Eye-Glow Check',
+     desc:'From a safe distance, try different angles with your phone flashlight (on low) to see whether glare or reflections make colored glints. Photograph any you find. Never shine a light at people.',
+     fields:[{k:'p',t:'stamp',label:'Photo time or name'},{k:'c',t:'checks',label:'Colors you saw',opts:['White','Blue','Red','Green','Yellow','None']},
+       {k:'n',t:'area',rows:3,label:'What explains the reflection?'}]},
+    {id:'m5',grp:'Section 53',title:'Ankle Grabber Walk',
+     desc:'Walk the reported path alone and with a partner, at a normal pace and a slow pace. Place a ribbon at ankle height and walk past it.',
+     fields:[{k:'w',t:'checks',label:'Walks completed',opts:['Alone, normal pace','Alone, slow pace','With partner, normal pace','With partner, slow pace']},
+       {k:'r',t:'choice',label:'Ribbon result',opts:['Untouched','Twisted','Moved']},{k:'n',t:'area',rows:3,label:'Notes'}]},
+    {id:'m6',grp:'Section 53',title:'Vegetation and Ground Check',
+     desc:'Look for anything that could touch an ankle: low branches, vines, uneven ground, hidden hazards. Photograph the best candidates.',
+     fields:[{k:'f',t:'checks',label:'What you found',opts:['Low branches','Vines or roots','Uneven ground','Loose stones','Tall grass','Nothing']},
+       {k:'p',t:'stamp',label:'Photo time or name'},{k:'n',t:'area',rows:3,label:'Possible natural causes'}]},
+    {id:'m7',grp:'Section 16',title:'Disembodied Voices Audit',
+     desc:'Sit silently for 3 minutes and record ambient audio. No talking. Note any voices, which direction they came from, and how clear they were.',
+     fields:[{k:'tm',t:'timer',label:'Silent listening timer',phases:[{n:'Silence',s:180}]},
+       {k:'a',t:'stamp',label:'Audio file name or time'},{k:'v',t:'yn',label:'Did you hear voices?'},
+       {k:'d',t:'choice',label:'Direction',opts:['North','South','East','West','Not sure']},
+       {k:'c',t:'choice',label:'Clarity',opts:['Faint','Clear','Can’t tell']},{k:'n',t:'area',rows:3,label:'Notes'}]},
+    {id:'m8',grp:'Section 16',title:'Shadow Figure Test',
+     desc:'Have a teammate create controlled shadows behind or near a monument while you watch from a fixed point. Photograph your setup.',
+     fields:[{k:'p',t:'stamp',label:'Photo time or name'},{k:'yn',t:'yn',label:'Could the shadows be mistaken for figures?'},{k:'n',t:'area',rows:3,label:'Notes'}]},
+    {id:'m9',grp:'Across the cemetery',title:'Daylight Pattern Log',
+     desc:'Three times during the hunt, record what people are doing, what the sun is doing, and how the place feels. Most reported sightings happen in daylight, so this matters.',
+     fields:daylog()},
+    {id:'m10',grp:'Across the cemetery',title:'Feeling of Being Watched Survey',
+     desc:'At three isolated spots, each team member privately rates how watched they feel. Don’t compare until everyone has scored.',
+     fields:survey},
+    {id:'m11',grp:'Across the cemetery',title:'Environmental Data Check',
+     desc:'At one “haunted” spot and one control spot, record temperature, wind, and approximate sound level.',
+     fields:envf()},
+    {id:'m12',grp:'Across the cemetery',title:'Oral History and Source Check',
+     desc:'Ask one staff member or volunteer, or read an on-site plaque: “Are there any stories staff commonly tell about this area?”',
+     fields:[{k:'w',t:'text',label:'Who you asked (name and role), or which plaque'},{k:'n',t:'area',rows:4,label:'Paraphrase of the response'}]},
+    {id:'m13',grp:'Across the cemetery',title:'Steal One Line',
+     desc:'At each of the four legends, write one sentence you could drop into your own ghost story. Use a sense you haven’t used yet.',
+     fields:[{k:'b',t:'area',rows:2,label:'Breuer’s eyes'},{k:'d',t:'area',rows:2,label:'Dexter Mausoleum'},{k:'g',t:'area',rows:2,label:'Section 53'},{k:'v',t:'area',rows:2,label:'Section 16'}]},
+    {id:'m14',grp:'Across the cemetery',title:'Close the Case',
+     desc:'For each legend, choose your verdict, then plant a story seed: one sentence that keeps what you learned and adds what you couldn’t explain.',
+     fields:verdicts()}
+  ];
+  function F(m){return typeof m.fields==='function'?m.fields():m.fields}
+  function findField(id){
+    for(var i=0;i<MISSIONS.length;i++){var fs=F(MISSIONS[i]);for(var j=0;j<fs.length;j++){if(MISSIONS[i].id+'_'+fs[j].k===id)return fs[j]}}
+    return null;
+  }
+  function pills(id,opts,val,multi){
+    return '<div class="pills" role="group" aria-labelledby="l_'+id+'">'+opts.map(function(o){
+      var on=multi?(val||[]).indexOf(o)>-1:String(val)===String(o);
+      return '<button type="button" class="pill" data-'+(multi?'tg':'set')+'="'+id+'" data-val="'+esc(o)+'" aria-pressed="'+(on?'true':'false')+'">'+esc(o)+'</button>';
+    }).join('')+'</div>';
+  }
+  function fieldHTML(m,f){
+    if(f.t==='h')return '<h4 style="margin-top:1.4rem">'+esc(f.label)+'</h4>';
+    var id=m.id+'_'+f.k,val=H.v[id];
+    if(f.t==='calc')return '<p class="fb" id="c_'+id+'"></p>';
+    if(f.t==='timer')return '<div class="lbl" id="l_'+id+'">'+esc(f.label)+'</div><div class="tdisp" id="td_'+id+'">'+(val?esc(val):'Ready')+'</div><div class="row" style="margin-top:.2rem"><button type="button" class="btn small" data-tstart="'+id+'">Start</button><button type="button" class="btn ghost small" data-tstop="'+id+'">Stop</button></div>';
+    var lbl;
+    if(f.t==='text'||f.t==='area'||f.t==='stamp'||f.t==='num')lbl='<label class="lbl" for="x_'+id+'">'+esc(f.label)+'</label>';
+    else lbl='<div class="lbl" id="l_'+id+'">'+esc(f.label)+'</div>';
+    var v=esc(val===undefined?'':val);
+    if(f.t==='text')return lbl+'<input type="text" id="x_'+id+'" data-f="'+id+'" value="'+v+'">';
+    if(f.t==='num')return lbl+'<input type="text" inputmode="decimal" id="x_'+id+'" data-f="'+id+'" value="'+v+'">';
+    if(f.t==='area')return lbl+'<textarea id="x_'+id+'" data-f="'+id+'" rows="'+(f.rows||3)+'">'+v+'</textarea>';
+    if(f.t==='stamp')return lbl+'<div class="stamprow"><input type="text" id="x_'+id+'" data-f="'+id+'" value="'+v+'" placeholder="Time or file name"><button type="button" class="btn ghost small" data-stamp="'+id+'">Stamp now</button></div>';
+    if(f.t==='yn')return lbl+pills(id,YN,val,false);
+    if(f.t==='rate')return lbl+pills(id,RATE,val,false);
+    if(f.t==='choice')return lbl+pills(id,f.opts,val,false);
+    if(f.t==='checks')return lbl+pills(id,f.opts,val,true);
+    return '';
+  }
+  function bodyHTML(m){return '<p style="margin:.4rem 0 .2rem">'+esc(m.desc)+'</p>'+F(m).map(function(f){return fieldHTML(m,f)}).join('')}
+  function render(){
+    var box=$('#missions'),h='',grp='';
+    MISSIONS.forEach(function(m){
+      if(m.grp!==grp){grp=m.grp;h+='<h3>'+esc(grp)+'</h3>'}
+      h+='<div class="mission'+(H.done[m.id]?' done':'')+'" id="mc_'+m.id+'"><div class="mhead"><h4 style="margin:0;font-family:var(--display);font-size:1.45rem;font-weight:400">'+esc(m.title)+'</h4><button type="button" class="pill" data-done="'+m.id+'" aria-pressed="'+(H.done[m.id]?'true':'false')+'">'+(H.done[m.id]?'Complete':'Mark complete')+'</button></div><div id="mb_'+m.id+'">'+bodyHTML(m)+'</div></div>';
+    });
+    box.innerHTML=h;calcs();progress();
+  }
+  function calcs(){
+    MISSIONS.forEach(function(m){F(m).forEach(function(f){if(f.t==='calc'){var e=$('#c_'+m.id+'_'+f.k);if(e)e.textContent=f.fn(H.v)}})});
+  }
+  function progress(){
+    var n=MISSIONS.filter(function(m){return H.done[m.id]}).length,pc=Math.round(100*n/MISSIONS.length);
+    $('#huntCount').textContent=n+' of '+MISSIONS.length+' missions complete';
+    $('#barfill').style.width=pc+'%';$('#bar').setAttribute('aria-valuenow',pc);
+  }
+  function times(){
+    var t=[];if(H.start)t.push('Started '+H.start);if(H.end)t.push('Finished '+H.end);
+    $('#hTimes').textContent=t.join('. ');
+    $('#hStart').textContent=H.start?'Restart the clock':'Start the hunt';
+  }
+
+  /* timers */
+  var TM={id:null,iv:null};
+  function beep(){
+    try{var C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=660;g.gain.value=0.15;o.start();setTimeout(function(){o.stop();c.close()},350)}catch(e){}
+    try{if(navigator.vibrate)navigator.vibrate(200)}catch(e){}
+  }
+  function fmt(s){return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2)}
+  function stopTimer(label){
+    clearInterval(TM.iv);TM.iv=null;
+    if(TM.id&&label){var d=$('#td_'+TM.id);if(d)d.textContent=label}
+    TM.id=null;
+  }
+  function startTimer(id){
+    var f=findField(id);if(!f)return;stopTimer('Stopped');
+    TM.id=id;var pi=0,left=f.phases[0].s,d=$('#td_'+id);
+    function show(){d.textContent=f.phases[pi].n+': '+fmt(left)}
+    show();
+    TM.iv=setInterval(function(){
+      left--;
+      if(left<=0){
+        beep();pi++;
+        if(pi>=f.phases.length){clearInterval(TM.iv);TM.iv=null;TM.id=null;H.v[id]='Finished at '+nowTime();save();d.textContent='Done. '+H.v[id];return}
+        left=f.phases[pi].s;
+      }
+      show();
+    },1000);
+  }
+
+  /* events */
+  var box=$('#missions');
+  box.addEventListener('input',function(e){
+    var id=e.target.getAttribute('data-f');if(!id)return;
+    H.v[id]=e.target.value;save();calcs();
+  });
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var set=b.getAttribute('data-set'),tg=b.getAttribute('data-tg'),st=b.getAttribute('data-stamp'),dn=b.getAttribute('data-done'),ts=b.getAttribute('data-tstart'),tp=b.getAttribute('data-tstop');
+    if(set){
+      var val=b.getAttribute('data-val');H.v[set]=(H.v[set]===val)?'':val;
+      $$('.pill',b.parentNode).forEach(function(x){x.setAttribute('aria-pressed',x.getAttribute('data-val')===H.v[set]?'true':'false')});
+      save();calcs();
+    }else if(tg){
+      var v=b.getAttribute('data-val'),a=Array.isArray(H.v[tg])?H.v[tg]:[],i=a.indexOf(v);
+      if(i>-1)a.splice(i,1);else a.push(v);
+      H.v[tg]=a;b.setAttribute('aria-pressed',i>-1?'false':'true');save();
+    }else if(st){
+      H.v[st]=nowTime();var x=$('#x_'+st);if(x)x.value=H.v[st];save();
+    }else if(dn){
+      H.done[dn]=!H.done[dn];b.setAttribute('aria-pressed',H.done[dn]?'true':'false');b.textContent=H.done[dn]?'Complete':'Mark complete';
+      $('#mc_'+dn).classList.toggle('done',!!H.done[dn]);save();progress();
+    }else if(ts){startTimer(ts)}
+    else if(tp){stopTimer('Stopped')}
+  });
+
+  /* team block */
+  var mems=$('#hMems');
+  mems.innerHTML=H.mem.map(function(n,i){return '<input type="text" aria-label="Team member '+(i+1)+'" data-mi="'+i+'" placeholder="Member '+(i+1)+(i>0?' (optional)':'')+'" value="'+esc(n)+'">'}).join('');
+  mems.addEventListener('input',function(e){var i=e.target.getAttribute('data-mi');if(i!==null){H.mem[+i]=e.target.value;save()}});
+  mems.addEventListener('change',function(){var m=MISSIONS[9];$('#mb_m10').innerHTML=bodyHTML(m)});
+  var team=$('#hTeam');team.value=H.team;team.addEventListener('input',function(){H.team=team.value;save()});
+  $('#hStart').addEventListener('click',function(){
+    H.start=nowTime();H.end='';
+    if(!H.v.m9_t1){H.v.m9_t1=H.start;var x=$('#x_m9_t1');if(x)x.value=H.start}
+    save();times();
+  });
+  $('#hEnd').addEventListener('click',function(){
+    H.end=nowTime();
+    if(!H.v.m9_t3){H.v.m9_t3=H.end;var x=$('#x_m9_t3');if(x)x.value=H.end}
+    save();times();
+  });
+  var hr=$('#hReset'),ht=null;
+  hr.addEventListener('click',function(){
+    if(hr.getAttribute('data-arm')!=='1'){hr.setAttribute('data-arm','1');hr.textContent='Click again to erase the whole hunt';ht=setTimeout(function(){hr.removeAttribute('data-arm');hr.textContent='Start over'},4000);return}
+    clearTimeout(ht);hr.removeAttribute('data-arm');hr.textContent='Start over';stopTimer();
+    H={team:'',mem:['','','','',''],start:'',end:'',v:{},done:{}};save();
+    team.value='';$$('input',mems).forEach(function(i){i.value=''});times();render();
+  });
+
+  /* turn it in */
+  function report(){
+    var L=[],n=MISSIONS.filter(function(m){return H.done[m.id]}).length;
+    L.push('HAUNTED OHIO: SPRING GROVE FIELD INVESTIGATION');
+    L.push('Team: '+(H.team.trim()||'(no name yet)'));
+    L.push('Members: '+(H.mem.map(function(x){return x.trim()}).filter(Boolean).join(', ')||'(none listed)'));
+    L.push('Start: '+(H.start||'not stamped')+'   End: '+(H.end||'not stamped'));
+    L.push('Missions marked complete: '+n+' of '+MISSIONS.length);L.push('');
+    MISSIONS.forEach(function(m){
+      var out=[];
+      F(m).forEach(function(f){
+        if(f.t==='h'||f.t==='calc')return;
+        var v=H.v[m.id+'_'+f.k];if(Array.isArray(v))v=v.join(', ');
+        if(v!==undefined&&v!==null&&String(v).trim()!=='')out.push('   '+f.label+': '+String(v).trim());
+      });
+      L.push((H.done[m.id]?'[x] ':'[ ] ')+m.title+' ('+m.grp+')');
+      if(out.length)L=L.concat(out);else L.push('   (nothing recorded)');
+      L.push('');
+    });
+    return L.join('\n');
+  }
+  function refreshSub(){
+    var n=MISSIONS.filter(function(m){return H.done[m.id]}).length,c=[];
+    if(!H.team.trim())c.push('Add your team name on the hunt page.');
+    if(!H.mem.some(function(x){return x.trim()}))c.push('List your team members on the hunt page.');
+    if(n<MISSIONS.length)c.push(n+' of '+MISSIONS.length+' missions are marked complete. Finish the rest, or turn it in as is if your leaders say so.');
+    if(!H.end)c.push('You haven’t stamped a finish time yet.');
+    $('#subCheck').innerHTML=c.length?c.map(function(x){return '<li>'+esc(x)+'</li>'}).join(''):'<li>Everything is filled in. Nice work.</li>';
+    $('#subText').value=report();
+  }
+  $('#ct-submit').addEventListener('click',refreshSub);
+  $('#subRefresh').addEventListener('click',refreshSub);
+  $('#subCopy').addEventListener('click',function(){refreshSub();copy($('#subText').value,this)});
+  if(LEADERS){
+    var mb=$('#subMail');mb.hidden=false;
+    $('#subNote').textContent='“Email my leaders” copies your report and opens your email app. If nothing opens, paste the report into an email to '+LEADERS+'.';
+    mb.addEventListener('click',function(){
+      refreshSub();var r=$('#subText').value;copy(r,mb);
+      var subj='Spring Grove hunt: '+(H.team.trim()||'team report'),body=encodeURIComponent(r);
+      if(body.length>1800)body=encodeURIComponent('My full report was copied to my clipboard. Paste it here.\n\nTeam: '+(H.team.trim()||''));
+      try{window.location.href='mailto:'+LEADERS+'?subject='+encodeURIComponent(subj)+'&body='+body}catch(e){}
+    });
+  }
+
+  render();times();refreshSub();
+})();
+
+/* resources: genre explorer + character interview */
+(function(){
+  tabs($('#resTabs'));
+  var G=[
+    {id:'haunted',name:'Haunted house',tag:'A place that remembers',
+     what:'The building is the threat. Something happened here, and the house keeps replaying it at whoever moves in.',
+     ing:['A setting with a history','Rooms that behave differently at night','A newcomer who doesn’t know the rules','The house wanting something'],
+     tip:'Describe the house like a character: its moods, its sounds, and what it does when no one is looking.',
+     prompt:'Write a haunted house story where the house never moves or speaks, but every room is wrong in a different way.',
+     read:[['The Haunting of Hill House','Shirley Jackson','Classic'],['The Fall of the House of Usher','Edgar Allan Poe','Classic short story']]},
+    {id:'ghost',name:'Ghost story',tag:'Unfinished business',
+     what:'Someone can’t move on, and a living person has to figure out why. The ghost wants something, and that want is your ending.',
+     ing:['A ghost with a clear want','A rule for how the haunting works','A witness who changes','A last image instead of an explanation'],
+     tip:'Decide what the ghost wants before you decide how it scares people.',
+     prompt:'Write a ghost story where the ghost only wants someone to finish something it left undone, and the living character misreads it as a threat.',
+     read:[['The Woman in Black','Susan Hill','Slow-burn ghost story'],['Anna Dressed in Blood','Kendare Blake','Young adult'],['Collected Ghost Stories','M. R. James','Classic short stories'],['Dark Matter','Michelle Paver','Ghost story in the Arctic']]},
+    {id:'paranormal',name:'Paranormal investigation',tag:'Evidence that cuts both ways',
+     what:'Characters go looking for the supernatural with equipment, theories, and doubts. It’s exactly what your Spring Grove team does.',
+     ing:['A skeptic and a believer','Tools and data: recorders, cameras, thermometers','Evidence with two possible explanations','The moment the evidence stops making sense'],
+     tip:'Let the evidence work for both sides, so the reader can’t decide who’s right.',
+     prompt:'Write a paranormal investigation where the team’s recordings prove the place is haunted, except for one thing that can only be explained by someone on the team.',
+     read:[['Shutter','Courtney Alameda','Young adult ghost hunting'],['Something Wicked This Way Comes','Ray Bradbury','Classic'],['Coraline','Neil Gaiman','A door that shouldn’t open']]},
+    {id:'academia',name:'Dark academia',tag:'Old schools, new secrets',
+     what:'Moody, literary stories set at elite schools, with libraries, secret societies, and dark secrets under all the tradition.',
+     ing:['An old school with its own rules','A secret society or exclusive group','An obsession with knowledge or art','A secret that binds the group together'],
+     tip:'Use the setting: stone halls, candlelit libraries, rain on old windows. Then let the real horror be what ambitious people will do to belong.',
+     prompt:'Write a story about a new student invited into a school society that only meets after the library closes.',
+     read:[['Truly Devious','Maureen Johnson','Young adult mystery'],['A Study in Charlotte','Brittany Cavallaro','Young adult mystery'],['The Mary Shelley Club','Goldy Moldavsky','Young adult'],['Frankenstein','Mary Shelley','Classic']]},
+    {id:'gothic',name:'Gothic',tag:'Mood is the monster',
+     what:'Crumbling estates, family secrets, wild weather, and a feeling of doom. The setting presses in on the characters.',
+     ing:['A decaying house or estate','A secret in the family','An isolated, stormy landscape','Intense emotion and a hint of the supernatural'],
+     tip:'Let the weather and the architecture do the scaring. Put the dread in the first paragraph.',
+     prompt:'Write a Gothic opening set in a river-town mansion during a flood, where the family is hiding something in the attic.',
+     read:[['Rebecca','Daphne du Maurier','Classic'],['Wuthering Heights','Emily Brontë','Classic'],['Gothic Tales','Elizabeth Gaskell','Classic stories']]},
+    {id:'psych',name:'Psychological',tag:'Is it real, or in their head?',
+     what:'The fear comes from doubt. The reader can’t tell whether the haunting is real or whether the narrator is losing it.',
+     ing:['An unreliable narrator','Small details that don’t add up','Isolation','An ending that stays open'],
+     tip:'Give the reader two explanations and make both believable.',
+     prompt:'Write a story where a character sees the same stranger three days in a row and no one else ever does.',
+     read:[['The Turn of the Screw','Henry James','Classic'],['We Have Always Lived in the Castle','Shirley Jackson','Classic']]},
+    {id:'folk',name:'Folk horror and legend',tag:'What the town warns you about',
+     what:'Stories built from local legends, old customs, and warnings a community tells itself. It’s the closest genre to your Legend Lab.',
+     ing:['A local legend','An old rule everyone follows without explaining','An outsider who ignores it','A consequence that fits the legend'],
+     tip:'Collect a real legend, then ask what it’s protecting people from.',
+     prompt:'Write a story about a town rule everyone follows, like never ringing the bell after dark, and the newcomer who breaks it.',
+     read:[['The Frangipani Hotel','Violet Kupersmith','Short stories based on Vietnamese ghost stories']]},
+    {id:'found',name:'Found footage',tag:'Told through evidence',
+     what:'The story is told through recordings, logs, videos, or messages, as if the reader has stumbled on the evidence. Perfect for podcasts and film.',
+     ing:['A source: a tape, a podcast, a stack of texts','Gaps, glitches, and missing pieces','A narrator who doesn’t realize what they’re recording','A final entry'],
+     tip:'Put the scariest thing at the edge of the frame, or just under the audio.',
+     prompt:'Write a podcast transcript where the host realizes there is a second voice on the recording.',
+     read:[]}
+  ];
+  var pk=$('#genrePick'),box=$('#genreBox');
+  pk.innerHTML=G.map(function(g){return '<button type="button" class="pick" data-g="'+g.id+'" aria-pressed="false"><strong>'+esc(g.name)+'</strong><span>'+esc(g.tag)+'</span></button>'}).join('');
+  function show(id){
+    var g=G.filter(function(x){return x.id===id})[0];if(!g)return;
+    $$('.pick',pk).forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-g')===id?'true':'false')});
+    var h='<h3>'+esc(g.name)+'</h3><p style="max-width:62ch">'+esc(g.what)+'</p><div class="cols"><div><h4>What it’s made of</h4><ul>'+g.ing.map(function(i){return '<li>'+esc(i)+'</li>'}).join('')+'</ul></div><div><h4>Writer’s tip</h4><p>'+esc(g.tip)+'</p>';
+    if(g.read.length)h+='<h4>Read next</h4><ul class="reads">'+g.read.map(function(r){return '<li><em>'+esc(r[0])+'</em> by '+esc(r[1])+' <span class="tag">'+esc(r[2])+'</span></li>'}).join('')+'</ul>';
+    h+='</div></div><div class="row"><button type="button" class="btn" id="genreUse">Write one: use this prompt</button></div><p class="muted" style="margin:0">'+esc(g.prompt)+'</p>';
+    box.innerHTML=h;
+    $('#genreUse').addEventListener('click',function(){window.__useprompt('Genre: '+g.name+'. '+g.prompt)});
+  }
+  pk.addEventListener('click',function(e){var b=e.target.closest('.pick');if(b)show(b.getAttribute('data-g'))});
+  show('ghost');
+
+  /* character interview */
+  var Q=['What would they grab first if their house were on fire? What if they could save three things?','What are they most afraid of, and how does that fear shape their choices?','What do they regret most?','What secret are they keeping, and what happens if it comes out?','What is their earliest memory, and why do they still have it?','Who do they think about in the past tense?','What compliment do they hear most often? What insult hurts the most?','What do they believe about the world that might not be true?','What sets off their emotions fastest, and why?','What do they want more than anything, and what would they give up for it?','What does their room, locker, or desk look like?','How do they act when they think no one is watching?','What habit shows up when they’re nervous?','Who is their rival or enemy, and how did it start?','What would they want written on their tombstone?','How would a stranger describe them from across a field?'];
+  var KEY='ho-interview',S=store.get(KEY,null)||{name:'',i:0,a:{}};
+  S.a=S.a||{};S.i=S.i||0;
+  var nm=$('#ivName'),qq=$('#ivQ'),aa=$('#ivA'),cc=$('#ivCount');
+  function saveS(){store.set(KEY,S)}
+  function draw(){
+    cc.textContent='Question '+(S.i+1)+' of '+Q.length;qq.textContent=Q[S.i];aa.value=S.a[S.i]||'';
+    $('#ivPrev').disabled=S.i===0;$('#ivNext').disabled=S.i===Q.length-1;
+  }
+  nm.value=S.name||'';
+  nm.addEventListener('input',function(){S.name=nm.value;saveS()});
+  aa.addEventListener('input',function(){S.a[S.i]=aa.value;saveS()});
+  $('#ivPrev').addEventListener('click',function(){if(S.i>0){S.i--;saveS();draw()}});
+  $('#ivNext').addEventListener('click',function(){if(S.i<Q.length-1){S.i++;saveS();draw()}});
+  $('#ivRand').addEventListener('click',function(){var n;do{n=Math.floor(Math.random()*Q.length)}while(n===S.i);S.i=n;saveS();draw()});
+  $('#ivCopy').addEventListener('click',function(){
+    var o=['CHARACTER INTERVIEW: '+(S.name||'(unnamed)'),''];
+    Q.forEach(function(q,i){if(S.a[i]&&S.a[i].trim()){o.push(q);o.push(S.a[i].trim());o.push('')}});
+    copy(o.join('\n'),this);
+  });
+  draw();
+})();
+
+/* learn: genre quiz + glossary + faith prompt */
+(function(){
+  /* name that genre */
+  var GN=['Fantasy','Science fiction','Mystery','Thriller','Romance','Historical fiction','Horror','Adventure'];
+  var Qs=[
+    {q:'A detective gathers the suspects in the library to reveal who poisoned the tea.',a:'Mystery',why:'A crime, suspects, and a final reveal are the heart of a mystery.'},
+    {q:'A teenager discovers she can bend fire and must stop an evil king.',a:'Fantasy',why:'Magic powers and a quest against a villain mark fantasy.'},
+    {q:'A colony ship’s computer begins hiding the truth about where they are headed.',a:'Science fiction',why:'Future technology and a “what if” about an AI point to science fiction.'},
+    {q:'Two rivals at a summer camp slowly fall for each other.',a:'Romance',why:'The relationship is the story, and the ending is hopeful.'},
+    {q:'A family moves into a house where doors open on their own and the basement hums at night.',a:'Horror',why:'Something is wrong in a place that should be safe, and dread builds. This one is also a haunted-house subgenre.'},
+    {q:'In 1884, a young clerk follows a rumor through Cincinnati as unrest spreads through the city.',a:'Historical fiction',why:'Invented characters, real time and place.'},
+    {q:'A government agent hunts a teenager who knows too much, and she has 48 hours to get away.',a:'Thriller',why:'High stakes and a ticking clock drive a thriller.'}
+  ];
+  var box=$('#gqBox'),order,i,score;
+  function start(){order=shuffle(Qs);i=0;score=0;ask()}
+  function ask(){
+    if(i>=order.length){
+      box.innerHTML='<p class="flat">You got '+score+' of '+order.length+'.</p><p>Remember, many stories blend genres. If you picked a different answer and can defend it, you’re thinking like a writer.</p><div class="row"><button type="button" class="btn" id="gqAgain">Play again</button></div>';
+      $('#gqAgain').addEventListener('click',start);return;
+    }
+    var it=order[i],opts=shuffle([it.a].concat(shuffle(GN.filter(function(g){return g!==it.a})).slice(0,3)));
+    box.innerHTML='<p class="muted" style="margin:0">Pitch '+(i+1)+' of '+order.length+'. What genre is this?</p><p class="flat">“'+esc(it.q)+'”</p><div class="opts" id="gqOpts"></div><div id="gqFb"></div>';
+    var w=$('#gqOpts');
+    opts.forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=o;
+      b.addEventListener('click',function(){
+        var all=$$('.opt',w);all.forEach(function(x){x.disabled=true;if(x.textContent===it.a)x.classList.add('right')});
+        if(o===it.a)score++;else b.classList.add('wrong');
+        $('#gqFb').innerHTML='<p class="fb"><strong>'+(o===it.a?'Yes.':'Not quite.')+'</strong> '+esc(it.why)+'</p><div class="row"><button type="button" class="btn" id="gqNext">'+(i===order.length-1?'See my score':'Next pitch')+'</button></div>';
+        var nb=$('#gqNext');nb.focus();nb.addEventListener('click',function(){i++;ask()});
+      });
+      w.appendChild(b);
+    });
+  }
+  start();
+
+  /* glossary */
+  var T=[
+   ['Antagonist','Writing','The person or force working against the protagonist.'],
+   ['Apophenia','Investigating','The brain’s habit of seeing connections or meaning in random things.'],
+   ['Apparition','Horror','The appearance of a ghost or spirit. In Catholic usage, also an appearance of a saint or Mary.'],
+   ['Atmosphere','Writing','The feeling a setting gives a scene, built from light, sound, weather, and space.'],
+   ['All Hallows’ Eve','Faith','The evening of October 31, the vigil of All Saints’ Day. The word Halloween comes from it.'],
+   ['All Saints’ Day','Faith','November 1, when the Church honors all the saints.'],
+   ['All Souls’ Day','Faith','November 2, when Catholics pray especially for the faithful who have died.'],
+   ['Climax','Writing','The moment of highest tension, when the main conflict comes to a head.'],
+   ['Communion of saints','Faith','The union of all the faithful, living and dead, in Christ. It’s why Catholics pray for the dead and ask the saints to pray for them.'],
+   ['Confirmation bias','Investigating','Noticing the evidence that supports what you already believe and overlooking the rest.'],
+   ['Conflict','Writing','The struggle that drives a story: a character against another person, nature, society, or themselves.'],
+   ['Control spot','Investigating','A comparison location where nothing unusual is claimed. It shows what “normal” looks like.'],
+   ['Convention','Writing','An ingredient readers expect from a genre.'],
+   ['Creative nonfiction','Writing','True stories told with the tools of fiction, like scene, voice, and vivid detail.'],
+   ['Crypt','Places','An underground chamber or vault, often under a church, used for burials.'],
+   ['Data','Investigating','The information you collect, like times, temperatures, and observations.'],
+   ['Dialogue','Writing','The words characters speak.'],
+   ['Divination','Faith','Trying to uncover hidden knowledge or the future by occult means. The Catechism rejects it (2116).'],
+   ['Dread','Horror','Slow-building fear of something that hasn’t happened yet.'],
+   ['Epitaph','Places','The words written on a gravestone or memorial.'],
+   ['EVP','Investigating','Electronic voice phenomena. Sounds on recordings that some people interpret as voices.'],
+   ['Exorcism','Faith','A prayer of the Church asking that a person or place be freed from demonic influence. It requires the bishop’s permission and careful discernment.'],
+   ['First person','Writing','A story told by “I.” The narrator is a character.'],
+   ['Folk horror','Horror','Horror built from local legends, old customs, and warnings a community tells itself.'],
+   ['Folklore','Horror','Stories, beliefs, and customs passed down by a community.'],
+   ['Foreshadowing','Writing','Hints about what is going to happen later.'],
+   ['Found footage','Horror','A story told through recordings, videos, logs, or messages, as if the reader found the evidence.'],
+   ['Genre','Writing','A category of stories that share ingredients and promise a certain feeling.'],
+   ['Gothic','Horror','A style with gloomy settings, old buildings, family secrets, and a mood of doom.'],
+   ['Haunting','Horror','Repeated, unexplained disturbances tied to a place or a person.'],
+   ['Hypothesis','Investigating','A testable guess about what is going on.'],
+   ['Imagery','Writing','Language that appeals to the senses.'],
+   ['Infrasound','Investigating','Sound too low to hear that some researchers link to feelings of unease.'],
+   ['Intercession','Faith','Praying on behalf of someone else, including asking saints to pray for us.'],
+   ['Interment','Places','Burial of a body in a grave or tomb.'],
+   ['Jump scare','Horror','A sudden shock, like a loud noise or something leaping into view.'],
+   ['Legend','Horror','A traditional story told as if it were true, usually tied to a place or person.'],
+   ['Lot','Places','A burial plot, often owned by a family. Spring Grove’s Lot 100 is one example.'],
+   ['Mausoleum','Places','A building that holds tombs above ground.'],
+   ['Misbelief','Writing','A false rule a character lives by that once kept them safe. (From the Draft Lab.)'],
+   ['Monument','Places','A marker or sculpture that commemorates a person.'],
+   ['Mood','Writing','The feeling the reader gets from the writing.'],
+   ['Narrator','Writing','The voice telling the story.'],
+   ['Natural explanation','Investigating','An ordinary cause, like wind, light, or a loose floorboard, that could explain a strange event.'],
+   ['Necromancy','Faith','Trying to communicate with or summon the dead. The Church rejects it as divination (Catechism 2116).'],
+   ['Occult','Faith','Practices that claim hidden or supernatural power outside of God.'],
+   ['Oral history','Investigating','Memories and stories gathered by talking to people.'],
+   ['Pacing','Writing','How fast a story reveals events and builds tension.'],
+   ['Paranormal','Investigating','Events claimed to be beyond normal scientific explanation.'],
+   ['Pareidolia','Investigating','The brain’s habit of seeing faces or patterns in random shapes or sounds.'],
+   ['Particular judgment','Faith','The judgment of each soul at the moment of death.'],
+   ['Plot','Writing','The sequence of events in a story.'],
+   ['Plot twist','Writing','An unexpected turn that changes what the reader thought they knew.'],
+   ['Point of view','Writing','Whose eyes the reader sees through.'],
+   ['Poltergeist','Horror','A “noisy ghost,” blamed for moving objects and bangs.'],
+   ['Primary source','Investigating','An original record from the time, like a letter, photo, or plaque.'],
+   ['Private revelation','Faith','A vision or message reported by an individual. The Church may judge it worthy of belief, but Catholics aren’t required to believe it.'],
+   ['Protagonist','Writing','The main character.'],
+   ['Purgatory','Faith','The Church’s teaching on a final purification after death for those who die in God’s friendship but still need to be made ready for heaven (Catechism 1030).'],
+   ['Red herring','Writing','A false clue that sends the reader the wrong way.'],
+   ['Resolution','Writing','How things settle after the climax.'],
+   ['Sacramental','Faith','A blessed object or action the Church uses to support prayer, like holy water or a house blessing.'],
+   ['Secondary source','Investigating','A later account that interprets the past, like a book or article.'],
+   ['Sensory detail','Writing','What a character sees, hears, smells, tastes, or touches.'],
+   ['Setting','Writing','Where and when a story happens.'],
+   ['Show, don’t tell','Writing','Reveal feelings and facts through action and detail instead of naming them.'],
+   ['Skeptic','Investigating','Someone who asks for evidence before believing a claim.'],
+   ['Specter','Horror','A ghost.'],
+   ['Stakes','Writing','What a character stands to lose.'],
+   ['Subgenre','Writing','A smaller category inside a genre, like ghost stories inside horror.'],
+   ['Supernatural','Horror','Beyond the natural world.'],
+   ['Suspense','Writing','The uncertainty that keeps a reader wondering what happens next.'],
+   ['Symbol','Writing','An object or image that stands for a bigger idea.'],
+   ['Terror and horror','Horror','Terror is the dread of what is coming. Horror is the shock of what arrives. Writers usually build terror first.'],
+   ['Theme','Writing','The big idea about life or people that a story explores.'],
+   ['Third person','Writing','A story told with “he,” “she,” or “they.”'],
+   ['Tone','Writing','The writer’s attitude toward the subject.'],
+   ['Trope','Writing','A familiar pattern or device in a genre, like the creepy doll.'],
+   ['Uncanny','Horror','Something familiar that feels strangely wrong.'],
+   ['Unreliable narrator','Writing','A narrator whose account you can’t fully trust.'],
+   ['Urban legend','Horror','A modern story passed along as true, often with a warning inside.'],
+   ['Voice','Writing','The personality in the way a writer or narrator sounds.']
+  ].sort(function(a,b){return a[0].toLowerCase()<b[0].toLowerCase()?-1:1});
+  var cats=['All','Writing','Horror','Investigating','Places','Faith'],cat='All';
+  var list=$('#glList'),q=$('#glSearch'),cc=$('#glCats');
+  cc.innerHTML=cats.map(function(c){return '<button type="button" class="pill" data-cat="'+c+'" aria-pressed="'+(c==='All'?'true':'false')+'">'+c+'</button>'}).join('');
+  function draw(){
+    var s=q.value.trim().toLowerCase();
+    var r=T.filter(function(t){return (cat==='All'||t[1]===cat)&&(!s||t[0].toLowerCase().indexOf(s)>-1||t[2].toLowerCase().indexOf(s)>-1)});
+    list.innerHTML=r.map(function(t){return '<dt>'+esc(t[0])+' <span class="tag">'+esc(t[1])+'</span></dt><dd>'+esc(t[2])+'</dd>'}).join('');
+    $('#glCount').textContent=r.length?(r.length+' of '+T.length+' terms'):'No terms match. Try a different word.';
+  }
+  q.addEventListener('input',draw);
+  cc.addEventListener('click',function(e){var b=e.target.closest('.pill');if(!b)return;cat=b.getAttribute('data-cat');$$('.pill',cc).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});draw()});
+  draw();
+
+  /* faith prompt */
+  $('#faithPrompt').addEventListener('click',function(){window.__useprompt('Ghosts and faith. Write a ghost story where the ghost wants prayers, not revenge, and the only person who understands is the one who least wants to believe.')});
+})();
+
+})();
+</script>
+</body>
+</html>
