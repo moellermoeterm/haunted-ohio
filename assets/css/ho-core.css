@@ -1,0 +1,223 @@
+/* ==========================================================================
+   HAUNTED OHIO DESIGN SYSTEM  ·  ho-core.css
+   A paranormal investigation bureau's digital archive: night ink, aged parchment, gold, and ember.
+   Night is the default. "Daylight" (parchment) is the secondary theme: <html data-theme="light">.
+   Everything is prefixed ho- so it can be adopted page by page without touching existing styles.
+   Load ho-fonts.css first.
+   ========================================================================== */
+
+:root{
+  /* ---- palette: night archive (default) ---- */
+  --ho-ink:#04090e;            /* deepest background */
+  --ho-night:#0a141c;          /* page background */
+  --ho-night-2:#0e1c27;
+  --ho-surface:#112029;        /* cards, panels */
+  --ho-surface-2:#182b38;      /* raised, hover */
+  --ho-line:#264050;           /* borders */
+  --ho-line-soft:#1b2f3c;
+  --ho-text:#ece7d8;
+  --ho-muted:#9db3bd;
+  --ho-gold:#d9b86c;           /* from the logo lettering: headings, ornaments */
+  --ho-gold-dim:#a98b48;
+  --ho-ember:#e58a3a;          /* primary action */
+  --ho-ember-hi:#f29a4c;
+  --ho-ember-ink:#17110a;
+  --ho-spectral:#8fd3e8;       /* links, "Veil" glow */
+  --ho-moon:#dfe9f2;
+  --ho-parch:#e6d9b8;          /* documents */
+  --ho-parch-2:#d6c496;
+  --ho-parch-ink:#2a2113;
+  --ho-red:#c0303a;            /* stamps, danger */
+  --ho-ok:#72d6a3;
+  --ho-bad:#f2857a;
+  --ho-warn:#e6ae4c;
+  --ho-focus:#ffd27a;
+
+  /* ---- type ---- */
+  --ho-display:'IM Fell English','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --ho-body:'Atkinson Hyperlegible','Segoe UI',system-ui,-apple-system,sans-serif;
+  --ho-type:'Special Elite','Courier New',monospace;           /* The Haunting Files */
+  --ho-cond:'Barlow Condensed','Arial Narrow',sans-serif;      /* The Last Light */
+  --ho-mono:'Share Tech Mono','Courier New',monospace;
+  --ho-fs-sm:.9rem; --ho-fs-md:1.0625rem; --ho-fs-lg:1.25rem;
+  --ho-fs-h3:clamp(1.35rem,2.2vw,1.7rem); --ho-fs-h2:clamp(1.9rem,4vw,2.9rem); --ho-fs-h1:clamp(2.6rem,7vw,5rem);
+
+  /* ---- space, shape, depth, motion ---- */
+  --ho-1:.25rem; --ho-2:.5rem; --ho-3:.75rem; --ho-4:1rem; --ho-5:1.5rem; --ho-6:2rem; --ho-7:3rem; --ho-8:4.5rem;
+  --ho-pad:clamp(1rem,4vw,3.5rem);
+  --ho-r-sm:6px; --ho-r:12px; --ho-r-lg:18px;
+  --ho-shadow:0 10px 30px rgba(0,0,0,.35);
+  --ho-shadow-lg:0 24px 70px rgba(0,0,0,.55);
+  --ho-glow:0 0 28px rgba(143,211,232,.22);
+  --ho-ease:cubic-bezier(.2,.7,.2,1);
+  --ho-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  color-scheme:dark;
+}
+
+/* ---- Daylight (secondary theme) ---- */
+:root[data-theme="light"]{
+  --ho-ink:#e7dfc9; --ho-night:#f2ecdc; --ho-night-2:#ebe4d0; --ho-surface:#fbf8ee; --ho-surface-2:#efe8d4;
+  --ho-line:#cdc2a4; --ho-line-soft:#ddd4ba;
+  --ho-text:#1d2227; --ho-muted:#58626b;
+  --ho-gold:#8a6a22; --ho-gold-dim:#6f541a;
+  --ho-ember:#e58a3a; --ho-ember-hi:#f0973f; --ho-ember-ink:#17110a;
+  --ho-spectral:#0e5a78; --ho-moon:#274558;
+  --ho-ok:#1d7a4c; --ho-bad:#b23a2b; --ho-warn:#8a5a0a; --ho-focus:#0e5a78;
+  --ho-shadow:0 10px 26px rgba(70,50,10,.16); --ho-shadow-lg:0 22px 60px rgba(70,50,10,.25); --ho-glow:0 0 22px rgba(14,90,120,.18);
+  color-scheme:light;
+}
+
+/* ---- opt-in page base ---- */
+.ho-page{margin:0;background:var(--ho-night);color:var(--ho-text);font:var(--ho-fs-md)/1.62 var(--ho-body);-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+:where(.ho-page) a{color:var(--ho-spectral)}
+.ho-page :focus-visible,.ho-focusable:focus-visible{outline:3px solid var(--ho-focus);outline-offset:2px;border-radius:4px}
+.ho-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ho-skip{position:absolute;left:-999px;top:0;z-index:1000;background:var(--ho-ember);color:var(--ho-ember-ink);padding:.7rem 1.1rem;font-weight:700;border-radius:0 0 var(--ho-r-sm) 0}
+.ho-skip:focus{left:0}
+.ho-page,.ho-page *,.ho-page *::before,.ho-page *::after,.ho-container{box-sizing:border-box}
+.ho-container{width:100%;max-width:1480px;margin:0 auto;padding-inline:var(--ho-pad)}
+.ho-stack>*+*{margin-top:var(--ho-4)}
+.ho-grid{display:grid;gap:var(--ho-5);grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))}
+.ho-muted{color:var(--ho-muted)}
+
+/* ---- typography ---- */
+.ho-eyebrow{font:700 .78rem/1 var(--ho-body);letter-spacing:.2em;text-transform:uppercase;color:var(--ho-gold)}
+.ho-h1,.ho-h2,.ho-h3{font-family:var(--ho-display);font-weight:400;margin:0;color:var(--ho-text);text-wrap:balance}
+.ho-h1{font-size:var(--ho-fs-h1);line-height:.95;letter-spacing:.005em}
+.ho-h2{font-size:var(--ho-fs-h2);line-height:1.05}
+.ho-h3{font-size:var(--ho-fs-h3);line-height:1.15}
+.ho-lede{font-size:var(--ho-fs-lg);color:var(--ho-muted);max-width:44rem}
+.ho-prose{max-width:68ch}
+.ho-prose p{margin:.75em 0}
+.ho-divider{display:flex;align-items:center;gap:var(--ho-3);color:var(--ho-gold-dim);margin:var(--ho-6) 0}
+.ho-divider::before,.ho-divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--ho-line),transparent)}
+.ho-divider i{width:7px;height:7px;transform:rotate(45deg);background:currentColor}
+
+/* ---- icons ---- */
+.ho-icon{width:1.2em;height:1.2em;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em}
+
+/* ---- buttons ---- */
+.ho-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55em;font:700 1rem/1.2 var(--ho-body);padding:.7em 1.25em;min-height:44px;border-radius:var(--ho-r);border:1.5px solid var(--ho-ember);background:var(--ho-ember);color:var(--ho-ember-ink);text-decoration:none;cursor:pointer;
+  box-shadow:0 2px 0 rgba(0,0,0,.25),0 8px 20px rgba(229,138,58,.18);transition:transform .15s var(--ho-ease),box-shadow .2s,background .2s,border-color .2s}
+.ho-btn:hover{background:var(--ho-ember-hi);border-color:var(--ho-ember-hi);transform:translateY(-1px);box-shadow:0 3px 0 rgba(0,0,0,.25),0 12px 26px rgba(229,138,58,.28)}
+.ho-btn:active{transform:translateY(1px);box-shadow:0 0 0 rgba(0,0,0,0)}
+.ho-btn--ghost{background:transparent;color:var(--ho-text);border-color:var(--ho-line);box-shadow:none}
+.ho-btn--ghost:hover{background:var(--ho-surface-2);border-color:var(--ho-gold-dim);box-shadow:none}
+.ho-btn--quiet{background:transparent;border-color:transparent;color:var(--ho-text);box-shadow:none}
+.ho-btn--quiet:hover{background:var(--ho-surface-2);box-shadow:none}
+.ho-btn--sm{padding:.45em .9em;min-height:36px;font-size:.92rem;border-radius:var(--ho-r-sm)}
+.ho-btn--lg{padding:.85em 1.7em;font-size:1.1rem}
+.ho-btn[disabled],.ho-btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;transform:none;pointer-events:none}
+
+/* ---- cards: "case files" ---- */
+.ho-card{position:relative;background:linear-gradient(180deg,var(--ho-surface-2),var(--ho-surface) 38%);border:1px solid var(--ho-line);border-radius:var(--ho-r-lg);padding:var(--ho-5);box-shadow:var(--ho-shadow);transition:transform .25s var(--ho-ease),border-color .25s,box-shadow .25s}
+a.ho-card,button.ho-card{display:block;text-align:left;color:inherit;text-decoration:none;font:inherit;cursor:pointer;width:100%}
+a.ho-card:hover,button.ho-card:hover,.ho-card--hover:hover{transform:translateY(-3px);border-color:var(--ho-gold-dim);box-shadow:var(--ho-shadow-lg),var(--ho-glow)}
+.ho-card__icon{display:grid;place-items:center;width:2.8rem;height:2.8rem;border-radius:50%;border:1px solid var(--ho-line);background:var(--ho-night-2);color:var(--ho-gold);margin-bottom:var(--ho-3);font-size:1.35rem}
+.ho-card__kicker{font:700 .72rem/1 var(--ho-body);letter-spacing:.2em;text-transform:uppercase;color:var(--ho-gold);margin:0 0 .5rem}
+.ho-card__title{font:400 var(--ho-fs-h3)/1.1 var(--ho-display);margin:0 0 .35rem;color:var(--ho-text)}
+.ho-card__text{margin:0;color:var(--ho-muted);font-size:.98rem}
+.ho-card--folder{margin-top:.9rem;border-top-left-radius:6px}
+.ho-card--folder::before{content:"";position:absolute;left:-1px;top:-.9rem;width:42%;max-width:9rem;height:.9rem;background:var(--ho-surface-2);border:1px solid var(--ho-line);border-bottom:0;border-radius:8px 8px 0 0;transition:border-color .25s}
+a.ho-card--folder:hover::before{border-color:var(--ho-gold-dim)}
+
+/* ---- documents ---- */
+.ho-paper{background:var(--ho-parch);color:var(--ho-parch-ink);border-radius:3px;padding:var(--ho-5);font-family:var(--ho-display);font-size:1.08em;line-height:1.6;box-shadow:inset 0 0 38px rgba(120,90,40,.28),0 10px 30px rgba(0,0,0,.35)}
+.ho-stamp{display:inline-block;font:700 .8rem/1 var(--ho-type);letter-spacing:.16em;text-transform:uppercase;color:var(--ho-red);border:2px solid currentColor;border-radius:3px;padding:.3em .6em;transform:rotate(-4deg);opacity:.9}
+
+/* ---- chips, badges, progress ---- */
+.ho-chip{display:inline-flex;align-items:center;gap:.4em;font-size:.8rem;font-weight:700;border:1px solid var(--ho-line);border-radius:99px;padding:.15em .8em;color:var(--ho-muted);background:var(--ho-night-2)}
+.ho-chip--gold{color:var(--ho-gold);border-color:var(--ho-gold-dim)}
+.ho-chip--veil{color:var(--ho-spectral);border-color:var(--ho-spectral)}
+.ho-badge{display:inline-flex;align-items:center;gap:.5em;padding:.3em .9em;border-radius:99px;font-weight:700;font-size:.85rem;background:linear-gradient(180deg,var(--ho-gold),var(--ho-gold-dim));color:#18120a}
+.ho-progress{height:10px;border-radius:99px;background:var(--ho-night-2);border:1px solid var(--ho-line);overflow:hidden}
+.ho-progress>i{display:block;height:100%;width:var(--v,0%);background:linear-gradient(90deg,var(--ho-gold-dim),var(--ho-gold));border-radius:inherit;transition:width .5s var(--ho-ease)}
+
+/* ---- tabs ---- */
+.ho-tabs{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:1px solid var(--ho-line)}
+.ho-tab{font:700 1rem/1 var(--ho-body);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:.85em 1.1em;color:var(--ho-muted);cursor:pointer;transition:color .2s,border-color .2s}
+.ho-tab:hover{color:var(--ho-text)}
+.ho-tab[aria-selected="true"],.ho-tab[aria-current]{color:var(--ho-gold);border-bottom-color:var(--ho-gold)}
+
+/* ---- form fields ---- */
+.ho-field{width:100%;font:inherit;color:var(--ho-text);background:var(--ho-night-2);border:1.5px solid var(--ho-line);border-radius:var(--ho-r);padding:.7em .9em;min-height:44px;transition:border-color .2s,box-shadow .2s}
+.ho-field::placeholder{color:var(--ho-muted)}
+.ho-field:hover{border-color:var(--ho-gold-dim)}
+.ho-field:focus{outline:none;border-color:var(--ho-spectral);box-shadow:0 0 0 3px rgba(143,211,232,.25)}
+textarea.ho-field{line-height:1.55;resize:vertical}
+.ho-label{display:block;font-weight:700;margin:var(--ho-4) 0 var(--ho-2)}
+
+/* ---- toast ---- */
+.ho-toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(20px);opacity:0;z-index:900;background:var(--ho-surface-2);color:var(--ho-text);border:1px solid var(--ho-gold-dim);border-radius:var(--ho-r);padding:.7em 1.2em;box-shadow:var(--ho-shadow-lg);max-width:min(92vw,34rem);transition:opacity .25s,transform .25s var(--ho-ease);pointer-events:none}
+.ho-toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---- dialog ---- */
+.ho-backdrop{position:fixed;inset:0;z-index:800;display:grid;place-items:center;padding:1rem;background:rgba(2,6,10,.78);backdrop-filter:blur(3px);animation:ho-fade .2s var(--ho-ease)}
+.ho-dialog{width:min(44rem,100%);max-height:90vh;overflow:auto;background:linear-gradient(180deg,var(--ho-surface-2),var(--ho-surface));border:1px solid var(--ho-gold-dim);border-radius:var(--ho-r-lg);padding:var(--ho-5) var(--ho-6);box-shadow:var(--ho-shadow-lg);animation:ho-rise .28s var(--ho-ease)}
+.ho-dialog h2{font:400 var(--ho-fs-h2)/1.05 var(--ho-display);margin:0 0 var(--ho-3);color:var(--ho-gold)}
+.ho-dialog h2:focus{outline:none}
+
+/* ---- loading screen ---- */
+.ho-loader{position:fixed;inset:0;z-index:1200;display:grid;place-content:center;justify-items:center;gap:1.2rem;background:radial-gradient(ellipse at 50% 38%,var(--ho-night-2),var(--ho-ink) 70%);color:var(--ho-text);transition:opacity .5s var(--ho-ease),visibility .5s}
+.ho-loader.is-off{opacity:0;visibility:hidden}
+.ho-loader img{width:clamp(110px,18vw,170px);height:auto;border-radius:50%;box-shadow:0 0 60px rgba(217,184,108,.25);animation:ho-breathe 3.2s ease-in-out infinite}
+.ho-loader p{margin:0;font:400 1.15rem var(--ho-display);letter-spacing:.14em;color:var(--ho-gold);text-transform:uppercase}
+.ho-loader .ho-progress{width:min(60vw,16rem)}
+.ho-loader .ho-progress>i{animation:ho-scan 1.6s ease-in-out infinite;width:40%}
+
+/* ---- bureau bar: the slim shared bar that keeps every game connected to the site ---- */
+.ho-bureau{display:flex;align-items:center;gap:var(--ho-3);padding:.35rem var(--ho-pad);background:rgba(4,9,14,.92);border-bottom:1px solid var(--ho-line);font-size:.88rem;color:var(--ho-muted);position:relative;z-index:50}
+.ho-bureau{white-space:nowrap;overflow:hidden}
+.ho-bureau a{display:inline-flex;align-items:center;gap:.5em;color:var(--ho-text);text-decoration:none;padding:.3em .6em;border-radius:var(--ho-r-sm)}
+.ho-bureau a:hover{background:var(--ho-surface-2)}
+.ho-bureau img{width:22px;height:22px;border-radius:50%}
+.ho-bureau .ho-bureau__sp{flex:1}
+
+/* ---- atmosphere helpers ---- */
+.ho-night-bg{background:radial-gradient(ellipse 80% 55% at 70% 0%,rgba(40,86,104,.35),transparent 70%),radial-gradient(ellipse 60% 50% at 10% 100%,rgba(217,184,108,.07),transparent 70%),var(--ho-night)}
+.ho-grain{position:relative}
+.ho-grain::after{content:"";position:absolute;inset:0;background-image:var(--ho-grain);opacity:.06;mix-blend-mode:overlay;pointer-events:none}
+.ho-fog{position:absolute;inset:auto 0 0 0;height:45%;pointer-events:none;background:linear-gradient(0deg,rgba(143,211,232,.10),transparent);animation:ho-drift 18s ease-in-out infinite alternate}
+.ho-glow-text{text-shadow:0 0 28px rgba(143,211,232,.35),0 2px 0 rgba(0,0,0,.6)}
+.ho-reveal{animation:ho-rise .7s var(--ho-ease) both}
+.ho-reveal.d1{animation-delay:.08s}.ho-reveal.d2{animation-delay:.16s}.ho-reveal.d3{animation-delay:.24s}.ho-reveal.d4{animation-delay:.32s}
+.ho-fade-in{animation:ho-fade .45s var(--ho-ease) both}
+
+@keyframes ho-fade{from{opacity:0}to{opacity:1}}
+@keyframes ho-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ho-breathe{0%,100%{transform:scale(1);filter:brightness(.95)}50%{transform:scale(1.04);filter:brightness(1.12)}}
+@keyframes ho-scan{0%{margin-left:-40%}100%{margin-left:100%}}
+@keyframes ho-drift{from{transform:translateX(-2%)}to{transform:translateX(2%)}}
+
+@media (prefers-reduced-motion: reduce){
+  .ho-page *,.ho-loader *,.ho-backdrop,.ho-dialog,.ho-reveal,.ho-fade-in,.ho-fog{animation:none!important;transition:none!important}
+}
+@media (max-width:640px){.ho-dialog{padding:var(--ho-4)}}
+
+/* ==========================================================================
+   GAME IDENTITIES: each game keeps its own personality inside the shared system.
+   Usage: <body class="ho-page" data-game="files"> (or last-light / veil / room214)
+   These only re-map tokens, so every ho- component adopts the game's look automatically.
+   ========================================================================== */
+[data-game="files"]{   /* The Haunting Files: evidence room, typewriter, red string */
+  --ho-ink:#070a10; --ho-night:#0b0e14; --ho-night-2:#0f1626; --ho-surface:#1b2638; --ho-surface-2:#26344b; --ho-line:#33445f; --ho-line-soft:#26344b;
+  --ho-text:#e9e4d4; --ho-muted:#a3adc0; --ho-gold:#e0a94a; --ho-gold-dim:#8a6d3b;
+  --ho-ember:#c0303a; --ho-ember-hi:#d6414c; --ho-ember-ink:#fff; --ho-spectral:#9dc3f2;
+  --ho-display:var(--ho-type); --ho-red:#ff5a5f;
+}
+[data-game="last-light"]{   /* The Last Light: desolate Ohio, radio signal amber, moss */
+  --ho-ink:#070908; --ho-night:#0d0f0c; --ho-night-2:#12160f; --ho-surface:#161a15; --ho-surface-2:#1f251e; --ho-line:#34402f; --ho-line-soft:#242c20;
+  --ho-text:#e1e5d8; --ho-muted:#9aa595; --ho-gold:#e3a83a; --ho-gold-dim:#8d6a22;
+  --ho-ember:#ff7a1a; --ho-ember-hi:#ff8f3d; --ho-ember-ink:#1a0f05; --ho-spectral:#8aa476;
+  --ho-display:var(--ho-cond);
+}
+[data-game="veil"]{   /* The Veil: gothic navy, spectral blue, muted gold */
+  --ho-ink:#04070f; --ho-night:#070b16; --ho-night-2:#0b1224; --ho-surface:#101a31; --ho-surface-2:#16244a; --ho-line:#2a3d66; --ho-line-soft:#1d2c4c;
+  --ho-text:#e1e7f3; --ho-muted:#9aabc8; --ho-gold:#c9a96a; --ho-gold-dim:#8f7a48;
+  --ho-ember:#c9a96a; --ho-ember-hi:#dcc07f; --ho-ember-ink:#14100a; --ho-spectral:#7fb2ff;
+}
+[data-game="room214"]{   /* Room 214: 1970s hotel, amber lamps, faded burgundy */
+  --ho-ink:#0a0605; --ho-night:#120d0b; --ho-night-2:#19110e; --ho-surface:#21160f; --ho-surface-2:#2c1d14; --ho-line:#4a3326; --ho-line-soft:#33231a;
+  --ho-text:#ece0cc; --ho-muted:#b09c85; --ho-gold:#d9a45a; --ho-gold-dim:#8f6a35;
+  --ho-ember:#d58a2f; --ho-ember-hi:#e49b42; --ho-ember-ink:#1a0f05; --ho-spectral:#9bb59a; --ho-red:#8a2434;
+}

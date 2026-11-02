@@ -1,0 +1,10 @@
+/* Haunted Ohio: self-hosted fonts (no Google Fonts request, works offline and on locked-down school networks). */
+@font-face{font-family:'IM Fell English';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/im-fell-english-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'IM Fell English';font-style:italic;font-weight:400;font-display:swap;src:url(../fonts/im-fell-english-latin-400-italic.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:italic;font-weight:400;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-400-italic.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Special Elite';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/special-elite-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/barlow-condensed-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/barlow-condensed-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Share Tech Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/share-tech-mono-latin-400-normal.woff2) format('woff2')}

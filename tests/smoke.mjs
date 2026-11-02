@@ -125,11 +125,25 @@ T('navigation: every game links back to the site; site links reach every game', 
   for (const g of ['haunting-files/', 'last-light/', 'show-dont-tell/']) { await p.goto(base); const r = await p.evaluate((h) => fetch(h).then((x) => x.status), g); eq(r, 200, g + ' resolves'); }
 });
 
+// ---------------------------------------------------------------- design system
+T('design-system: self-hosted fonts load, no external requests, theme switch works', async ({ base, newPage }) => {
+  const p = await newPage(); const ext = [];
+  p.on('request', (r) => { const u = r.url(); if (!u.startsWith(base) && !u.startsWith('data:')) ext.push(u); });
+  await p.goto(base + 'design-system/'); await p.waitForTimeout(500);
+  const fonts = await p.evaluate(async () => { await document.fonts.ready; return ['IM Fell English', 'Atkinson Hyperlegible', 'Special Elite', 'Barlow Condensed', 'Share Tech Mono'].map((f) => document.fonts.check('16px "' + f + '"')); });
+  ok(fonts.every(Boolean), 'all five families load from assets/fonts: ' + fonts);
+  eq(ext.length, 0, 'no external requests: ' + ext.join(', '));
+  const before = await p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await p.click('#themeSw'); await p.waitForTimeout(150);
+  ok(before !== (await p.evaluate(() => getComputedStyle(document.body).backgroundColor)), 'daylight theme changes the page');
+  ok(await noHScroll(p), 'no horizontal scroll');
+});
+
 // ---------------------------------------------------------------- responsive
 T('responsive: no horizontal scroll on any page at five widths', async ({ base, newPage }) => {
   for (const w of WIDTHS) {
     const p = await newPage({ width: w, height: 800 });
-    for (const u of ['', '#learn', '#games', '#prompts', '#draft', '#cemetery', 'show-dont-tell/#lesson-3', 'haunting-files/', 'last-light/']) {
+    for (const u of ['', '#learn', '#games', '#prompts', '#draft', '#cemetery', 'show-dont-tell/#lesson-3', 'haunting-files/', 'last-light/', 'design-system/']) {
       await p.goto(base + u); await p.waitForTimeout(120); ok(await noHScroll(p), `horizontal scroll at ${w}px on ${u || 'home'}`);
     }
     await p.context().close();
