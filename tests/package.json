@@ -1,0 +1,12 @@
+{
+  "name": "haunted-ohio-tests",
+  "private": true,
+  "type": "module",
+  "description": "Smoke tests and content-preservation checks for the Haunted Ohio site. Not part of the published site.",
+  "scripts": {
+    "smoke": "node smoke.mjs",
+    "content": "node content-check.mjs",
+    "content:baseline": "node content-check.mjs --write"
+  },
+  "devDependencies": { "playwright": "^1.45.0" }
+}
