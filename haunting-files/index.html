@@ -25,7 +25,7 @@ p{margin:0 0 .8rem}
 a{color:var(--warn)}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--warn);outline-offset:2px}
-.wrap{max-width:none;margin:0 auto;padding:1rem}
+.wrap{max-width:1280px;margin:0 auto;padding:1rem}
 .muted{color:var(--muted)}
 .row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
 .btn{background:var(--red);border:0;color:#fff;padding:.75rem 1.25rem;border-radius:3px;font-weight:700;min-height:44px}
@@ -37,14 +37,14 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* top bar */
 .bar{position:sticky;top:0;z-index:20;background:rgba(11,14,20,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--steel2)}
-.bar-in{max-width:none;margin:0 auto;padding:.5rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.bar-in{max-width:1280px;margin:0 auto;padding:.5rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--type);font-size:1.15rem;color:var(--text);text-decoration:none;margin-right:auto}
 .brand img{width:38px;height:38px;border-radius:50%}
 .rank{font-size:.9rem;color:var(--muted);text-align:right}
 .rank b{color:var(--warn)}
 .xpbar{height:6px;background:var(--steel2);border-radius:3px;margin-top:3px;min-width:120px}
 .xpbar i{display:block;height:100%;background:var(--warn);border-radius:3px}
-.tabs{max-width:none;margin:0 auto;padding:0 1rem;display:flex;gap:.3rem;overflow-x:auto}
+.tabs{max-width:1280px;margin:0 auto;padding:0 1rem;display:flex;gap:.3rem;overflow-x:auto}
 .tab{background:var(--steel);border:1px solid var(--steel2);border-bottom:0;padding:.5rem .9rem;border-radius:5px 5px 0 0;white-space:nowrap;font-size:.95rem;min-height:40px}
 .tab[aria-current="page"]{background:var(--paper);color:var(--pink);font-weight:700}
 .tab.locked{opacity:.55}
@@ -77,6 +77,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .badge{display:inline-block;font-family:var(--ui);font-size:.8rem;padding:.1rem .5rem;border-radius:3px;background:#2a2113;color:var(--paper);margin-right:.4rem}
 .badge.real{background:#2c5a3d}.badge.game{background:#6b2b2f}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3.spread{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.1rem}
 .grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.8rem}
 .split{grid-template-columns:1.4fr 1fr}.split2{grid-template-columns:2fr 1fr;align-items:start}
 @media(max-width:760px){.grid2,.split,.split2{grid-template-columns:1fr}.split2 .card[style*="sticky"]{position:static!important}}
@@ -316,13 +317,13 @@ case:function(){
    var c=S.cls[e.id],tick=c?'<span class="tick'+(c===e.type?'':' no')+'">'+(c===e.type?'Filed':'Review')+'</span>':'';
    return '<button class="ex'+(S.sel===e.id?' on':'')+'" data-ex="'+e.id+'">'+tick+'<b>'+e.id+'</b> '+esc(e.title)+'<small>'+esc(e.kind)+'</small></button>'}).join('');
  return nav()+'<div class="wrap"><div class="grid2 split">'+
- '<div><div class="paper"><span class="stamp">TRAINING CASE</span><h2 style="margin-top:.7rem">Case File #0047: Cincinnati Music Hall</h2>'+
+ '<div class="paper"><span class="stamp">TRAINING CASE</span><h2 style="margin-top:.7rem">Case File #0047: Cincinnati Music Hall</h2>'+
  '<p><b>Location:</b> Cincinnati Music Hall, Over-the-Rhine.<br><b>Reported event:</b> After a Saturday concert, an usher reports a figure in a gray coat on the upper balcony. A stagehand says nobody was there. The balcony door was found open.</p>'+
  '<p><b>Your assignment:</b> Open each exhibit. Decide what kind of evidence it is and file it. Then find where the witnesses disagree, connect the clues, and decide what you can defend.</p>'+
  '<p class="muted">Real history and game material are labeled on every exhibit. Do not treat game material as documented history.</p>'+
  (S.readCase?'':'<button class="btn" data-act="readcase">I have read the file</button>')+'</div>'+
- '<h3 style="margin:1.2rem 0 .6rem">Exhibits</h3><div class="grid3">'+cards+'</div></div>'+
- '<div><div class="card"><h3>Case progress</h3><ol class="track">'+STAGES.map(function(s,i){return '<li class="'+(d[i]?'done':'')+'"><span class="dot">'+(d[i]?'&#10003;':'')+'</span><span>'+s+'</span></li>'}).join('')+'</ol></div></div></div>'+
+ '<div class="card"><h3>Case progress</h3><ol class="track">'+STAGES.map(function(s,i){return '<li class="'+(d[i]?'done':'')+'"><span class="dot">'+(d[i]?'&#10003;':'')+'</span><span>'+s+'</span></li>'}).join('')+'</ol></div></div>'+
+ '<h3 style="margin:1.6rem 0 .8rem">Exhibits</h3><div class="grid3 spread">'+cards+'</div>'+
  '<div id="viewer" style="margin-top:1.2rem">'+(ev?viewer(ev):'<div class="empty">Select an exhibit to examine it.</div>')+'</div></div>'
 },
 

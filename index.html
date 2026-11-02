@@ -303,6 +303,33 @@ details.howto{margin:.6rem 0 1.1rem;border:1.5px solid var(--line);border-radius
 details.howto summary{padding:.65rem 0}
 details.howto ol,details.howto ul{margin:.2rem 0 .9rem;padding-left:1.3rem;max-width:66ch}
 details.howto li{margin:.35rem 0}
+
+/* game cards */
+.gamecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:1.4rem;margin:1.8rem 0}
+.gcard{position:relative;display:flex;gap:1.4rem;align-items:center;padding:1.6rem;border-radius:16px;text-decoration:none;color:#E9ECE3;overflow:hidden;min-height:12rem;border:2px solid transparent;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.gcard.hf{background:radial-gradient(circle at 18% 22%,#26385a 0,#0b0e14 72%);border-color:#c0303a}
+.gcard.ll{background:radial-gradient(circle at 18% 22%,#4a2a10 0,#0d0f0c 72%);border-color:#ff7a1a}
+.gcard:hover,.gcard:focus-visible{border-color:#fff}
+.gicon{flex:none;width:9.5rem;height:9.5rem}
+.gicon svg{display:block;width:100%;height:100%;overflow:visible}
+.gcard.hf .gicon svg{filter:drop-shadow(0 0 14px rgba(192,48,58,.8))}
+.gcard.ll .gicon svg{filter:drop-shadow(0 0 16px rgba(255,122,26,.85))}
+.gbody{display:block}
+.gbody strong{display:block;font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,3.6vw,2.5rem);line-height:1.05;margin:.25rem 0 .35rem}
+.gtag{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.1rem .65rem;border-radius:99px;background:rgba(255,255,255,.14)}
+.gdesc{display:block;color:#d3dbd4}
+.gcta{display:inline-block;margin-top:.8rem;font-weight:700;padding:.5rem 1rem;border-radius:8px;background:var(--btn);color:var(--btn-ink)}
+@media (max-width:520px){.gcard{flex-direction:column;align-items:flex-start}.gicon{width:7.5rem;height:7.5rem}}
+@media (prefers-reduced-motion: no-preference){
+  .gcard{transition:transform .2s ease,border-color .2s}
+  .gcard:hover,.gcard:focus-visible{transform:translateY(-4px)}
+  .mag{animation:magsweep 4s ease-in-out infinite;transform-origin:50% 50%}
+  .sig path{animation:sigpulse 2.2s ease-in-out infinite}.sig path.in{animation-delay:.35s}
+  .glow{animation:sigglow 2.2s ease-in-out infinite}
+}
+@keyframes magsweep{0%,100%{transform:translate(0,0)}50%{transform:translate(-8px,-6px)}}
+@keyframes sigpulse{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes sigglow{0%,100%{opacity:.2}50%{opacity:.4}}
 </style>
 </head>
 <body>
@@ -370,8 +397,8 @@ details.howto li{margin:.35rem 0}
 
 <section class="where" aria-label="Where to go">
   <a href="#learn"><strong>Learn</strong><span>What creative writing is, what makes horror work, how a ghost story is built.</span></a>
-  <a href="#games"><strong>Games</strong><span>Four quick writing games, plus The Haunting Files and The Last Light.</span></a>
-  <a href="#prompts"><strong>Prompts</strong><span>Roll a place, a haunting, and a rule. Keep what you like.</span></a>
+  <a href="#games"><strong>Games</strong><span>Two full games: The Haunting Files and The Last Light.</span></a>
+  <a href="#prompts"><strong>Prompts</strong><span>Roll a place, a haunting, and a rule, then warm up with four quick writing games.</span></a>
   <a href="#draft"><strong>Draft Lab</strong><span>Plan your story from the inside out, then write it.</span></a>
   <a href="#legend"><strong>Legend Lab</strong><span>Sort a real place into history, science, and legend, then write the gap.</span></a>
   <a href="#dread"><strong>Dread Meter</strong><span>Map the fear in your story beat by beat and see its shape.</span></a>
@@ -458,7 +485,7 @@ details.howto li{margin:.35rem 0}
       </div>
       <h3>Build it in the order readers feel it</h3>
       <p>Normal, then one small wrong thing, then closer, then someone doesn’t believe it, then the rule is revealed, then the last image. That’s the shape the Twist Chain game uses. Try it, then open the Draft Lab to plan your own.</p>
-      <div class="row"><a class="btn" href="#games" data-game="chain">Try the Twist Chain</a><a class="btn ghost" href="#draft">Open the Draft Lab</a></div>
+      <div class="row"><a class="btn" href="#prompts" data-game="chain">Try the Twist Chain</a><a class="btn ghost" href="#draft">Open the Draft Lab</a></div>
     </div>
 
     <div role="tabpanel" id="p-genre" aria-labelledby="t-genre" class="prose" hidden>
@@ -596,7 +623,42 @@ details.howto li{margin:.35rem 0}
 
 <section class="sec view" data-view="games" id="games" hidden>
   <h2>Games</h2>
-  <p class="intro">Short, weird, and a little competitive with yourself. Nothing here is graded.</p>
+  <p class="intro">Two full games that open on their own page. Each has a <b>How to play</b> guide on its title screen, menu, and header.</p>
+  <div class="gamecards">
+    <a class="gcard hf" href="haunting-files/">
+      <span class="gicon"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M6 30a7 7 0 0 1 7-7h22l9 9h43a7 7 0 0 1 7 7v42a7 7 0 0 1-7 7H13a7 7 0 0 1-7-7z" fill="#C9B98C"/><path d="M6 42a7 7 0 0 1 7-7h74a7 7 0 0 1 7 7v37a7 7 0 0 1-7 7H13a7 7 0 0 1-7-7z" fill="#E6D9B8"/><rect x="14" y="45" width="28" height="10" rx="2" fill="none" stroke="#C0303A" stroke-width="2.4" transform="rotate(-6 28 50)"/><path d="M14 66h30M14 75h20" stroke="#8a6d3b" stroke-width="3" stroke-linecap="round"/><g class="mag"><circle cx="64" cy="58" r="18" fill="#0b0e14" fill-opacity=".72" stroke="#C0303A" stroke-width="5"/><path d="M77 71l13 13" stroke="#C0303A" stroke-width="7" stroke-linecap="round"/><path d="M57 70V56a7 7 0 0 1 14 0v14l-3.5-3.5L64 70l-3.5-3.5z" fill="#fff"/><circle cx="61.5" cy="57" r="1.6" fill="#0b0e14"/><circle cx="67.5" cy="57" r="1.6" fill="#0b0e14"/></g></svg></span>
+      <span class="gbody"><span class="gtag">Detective game</span><strong>The Haunting Files</strong><span class="gdesc">Investigate a haunted Cincinnati case: evidence, witnesses, and a theory you can defend.</span><span class="gcta">Open the case &rarr;</span></span>
+    </a>
+    <a class="gcard ll" href="last-light/">
+      <span class="gicon"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><circle class="glow" cx="50" cy="38" r="32" fill="#ff7a1a" opacity=".2"/><g class="sig" fill="none" stroke="#ff9a3c" stroke-width="4" stroke-linecap="round"><path d="M30 20a28 28 0 0 0 0 36"/><path d="M70 20a28 28 0 0 1 0 36"/><path class="in" d="M39 27a15 15 0 0 0 0 22"/><path class="in" d="M61 27a15 15 0 0 1 0 22"/></g><circle cx="50" cy="38" r="6.5" fill="#ffd27a"/><path d="M50 45L33 92M50 45l17 47M41 70h18M45.5 56h9" stroke="#E1E5D8" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M20 92h60" stroke="#8aa476" stroke-width="4" stroke-linecap="round"/></svg></span>
+      <span class="gbody"><span class="gtag">Survival game</span><strong>The Last Light</strong><span class="gdesc">Survive a silent Ohio in 2047 and write your way through it.</span><span class="gcta">Enter the silence &rarr;</span></span>
+    </a>
+  </div>
+</section>
+
+<section class="sec view" data-view="prompts" id="prompts" hidden>
+  <h2>Story prompts</h2>
+  <p class="intro">Roll the dice. Keep the pieces you like and reroll the rest. When something clicks, send it to the Draft Lab.</p>
+
+  <label class="lbl" for="fmt">What are you making?</label>
+  <select id="fmt" style="max-width:20rem">
+    <option value="short story">Short story</option>
+    <option value="podcast episode">Podcast episode</option>
+    <option value="short film scene">Short film scene</option>
+  </select>
+  <p class="muted" id="fmtTip" style="margin:.4rem 0 0"></p>
+
+  <div class="slots" id="slots"></div>
+  <div class="row"><button class="btn" type="button" id="rollAll">Roll everything unlocked</button></div>
+
+  <div class="out" id="promptOut" aria-live="polite"></div>
+  <div class="row">
+    <button class="btn ghost" type="button" id="copyPrompt">Copy prompt</button>
+    <button class="btn" type="button" id="usePrompt">Use this in the Draft Lab</button>
+  </div>
+
+  <h3 id="quickgames" style="margin-top:2.4rem">Quick writing games</h3>
+  <p class="intro">Short, weird, and a little competitive with yourself. Nothing here is graded. Each game has a <b>How to play</b> guide.</p>
 
   <div id="gameTabs">
     <div class="picker" role="tablist" aria-label="Writing games">
@@ -672,34 +734,6 @@ details.howto li{margin:.35rem 0}
 </ol></details>
       <div id="chainBox"></div>
     </div>
-  </div>
-  <h3>Full games</h3>
-  <p class="intro">Longer games that open on their own page. Each one has a <b>How to play</b> guide on its title screen, menu, and header.</p>
-  <div class="picker">
-    <a class="pick" href="haunting-files/" style="text-decoration:none"><strong>The Haunting Files</strong><span>Investigate a haunted Cincinnati case: evidence, witnesses, and a theory you can defend.</span></a>
-    <a class="pick" href="last-light/" style="text-decoration:none"><strong>The Last Light</strong><span>Survive a silent Ohio in 2047 and write your way through it.</span></a>
-  </div>
-</section>
-
-<section class="sec view" data-view="prompts" id="prompts" hidden>
-  <h2>Story prompts</h2>
-  <p class="intro">Roll the dice. Keep the pieces you like and reroll the rest. When something clicks, send it to the Draft Lab.</p>
-
-  <label class="lbl" for="fmt">What are you making?</label>
-  <select id="fmt" style="max-width:20rem">
-    <option value="short story">Short story</option>
-    <option value="podcast episode">Podcast episode</option>
-    <option value="short film scene">Short film scene</option>
-  </select>
-  <p class="muted" id="fmtTip" style="margin:.4rem 0 0"></p>
-
-  <div class="slots" id="slots"></div>
-  <div class="row"><button class="btn" type="button" id="rollAll">Roll everything unlocked</button></div>
-
-  <div class="out" id="promptOut" aria-live="polite"></div>
-  <div class="row">
-    <button class="btn ghost" type="button" id="copyPrompt">Copy prompt</button>
-    <button class="btn" type="button" id="usePrompt">Use this in the Draft Lab</button>
   </div>
 </section>
 
@@ -1126,8 +1160,8 @@ themeLabel();
   var S=[
     {h:'#home',t:'Welcome to Haunted Ohio',x:'This short tour shows where everything lives. Use Next to continue, or Skip tour any time.'},
     {h:'#learn',sel:'.nav a[href="#learn"]',t:'Learn',x:'Start here: what creative writing is, what makes horror work, and how a ghost story is built. The ten-lesson Show, Don’t Tell course is linked at the top.'},
-    {h:'#games',sel:'.nav a[href="#games"]',t:'Games',x:'Four quick writing games, plus two full games: The Haunting Files and The Last Light. Every game has a How to play guide.'},
-    {h:'#prompts',sel:'.nav a[href="#prompts"]',t:'Prompts',x:'Roll a place, a haunting, and a rule. Keep what you like.'},
+    {h:'#games',sel:'.nav a[href="#games"]',t:'Games',x:'Two full games: The Haunting Files and The Last Light. Each has a How to play guide.'},
+    {h:'#prompts',sel:'.nav a[href="#prompts"]',t:'Prompts',x:'Roll a place, a haunting, and a rule. Below the roller are four quick writing games to warm up with.'},
     {h:'#draft',sel:'.nav a[href="#draft"]',t:'Draft Lab',x:'Plan your story from the inside out, then write it.'},
     {h:'#legend',sel:'.nav a[href="#legend"]',t:'Legend Lab',x:'Sort a real place into history, science, and legend, then write the gap.'},
     {h:'#dread',sel:'.nav a[href="#dread"]',t:'Dread Meter',x:'Map the fear in your story beat by beat and see its shape.'},
@@ -1196,7 +1230,7 @@ function tabs(rootEl){
 }
 tabs($('#learnTabs'));
 var gameSel=tabs($('#gameTabs'));
-$$('[data-game=chain]').forEach(function(a){a.addEventListener('click',function(){gameSel(3)})});
+$$('[data-game=chain]').forEach(function(a){a.addEventListener('click',function(){gameSel(3);setTimeout(function(){var q=document.getElementById('quickgames');if(q)q.scrollIntoView()},80)})});
 
 /* facts to feeling */
 (function(){
