@@ -52,6 +52,14 @@ a{color:var(--accent)}
 .back:hover{background:var(--surface2)}
 .theme{font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:6px;padding:.35rem .7rem;cursor:pointer}
 .theme:hover{background:var(--surface2)}
+.switch{display:inline-flex;align-items:center;gap:.5rem;font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:99px;padding:.2rem .75rem .2rem .3rem;cursor:pointer;min-height:38px}
+.switch:hover{background:var(--surface2)}
+.switch .track{position:relative;width:2.6rem;height:1.45rem;border-radius:99px;background:var(--muted);flex:none}
+.switch .knob{position:absolute;top:.17rem;left:.17rem;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--surface)}
+.switch[aria-checked="true"] .track{background:var(--accent)}
+.switch[aria-checked="true"] .knob{left:calc(100% - 1.27rem)}
+.switch .state{font-weight:700;min-width:1.7rem}
+@media (prefers-reduced-motion: no-preference){.switch .knob{transition:left .18s}.switch .track{transition:background .18s}}
 
 .wrap{max-width:none;margin:0 auto;padding:clamp(1.5rem,4vw,2.5rem) var(--pad)}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,6vw,3.8rem);line-height:1.02;margin:0 0 .4rem}
@@ -139,7 +147,7 @@ footer p{margin:.3rem 0;max-width:none}
   <div class="top-in">
     <a class="mark" href="../" aria-label="Haunted Ohio home"><img id="logo" alt="" width="32" height="32"><span>Haunted Ohio</span></a>
     <a class="back" href="../">Back to the course site</a>
-    <button class="theme" id="theme" type="button">Dark mode</button>
+    <button class="switch" id="theme" type="button" role="switch" aria-checked="false" aria-label="Dark mode"><span class="track" aria-hidden="true"><span class="knob"></span></span><span aria-hidden="true">Dark mode</span><span class="state" aria-hidden="true">Off</span></button>
   </div>
 </header>
 
@@ -192,7 +200,7 @@ var store={
 /* theme (shared key with the main site) */
 var root=document.documentElement, tbtn=$('#theme');
 function effective(){return root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
-function themeLabel(){tbtn.textContent=effective()==='dark'?'Light mode':'Dark mode'}
+function themeLabel(){var on=effective()==='dark';tbtn.setAttribute('aria-checked',on?'true':'false');$('.state',tbtn).textContent=on?'On':'Off'}
 var savedTheme=store.get('ho-theme',null); if(savedTheme) root.setAttribute('data-theme',savedTheme);
 tbtn.addEventListener('click',function(){var n=effective()==='dark'?'light':'dark';root.setAttribute('data-theme',n);store.set('ho-theme',n);themeLabel()});
 themeLabel();
