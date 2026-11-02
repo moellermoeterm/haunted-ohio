@@ -14,7 +14,7 @@
   --accent:#1F6B52; --mark:#8A4B0B; --ok:#1B7A4B; --bad:#B23A2B; --header:rgba(238,241,236,.94);
   --btn:#E58A3A; --btn-ink:#14201B;
   --hl-feel:rgba(229,138,58,.38); --hl-adv:rgba(31,140,82,.30);
-  --pad:clamp(1rem,4vw,2rem);
+  --pad:clamp(1rem,4vw,3.5rem);
   --display:'IM Fell English','Iowan Old Style','Palatino Linotype',Georgia,serif;
   --body:'Atkinson Hyperlegible','Segoe UI',system-ui,-apple-system,sans-serif;
   color-scheme:light;
@@ -45,7 +45,7 @@ a{color:var(--accent)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 .top{position:sticky;top:0;z-index:50;background:var(--header);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top-in{max-width:1080px;margin:0 auto;padding:.55rem var(--pad);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.top-in{max-width:none;margin:0 auto;padding:.55rem var(--pad);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
 .mark{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--display);font-size:1.45rem;color:var(--text);text-decoration:none;margin-right:auto}
 .mark img{width:32px;height:32px;border-radius:6px}
 .back{padding:.4rem .7rem;border-radius:6px;color:var(--text);text-decoration:none}
@@ -53,7 +53,7 @@ a{color:var(--accent)}
 .theme{font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:6px;padding:.35rem .7rem;cursor:pointer}
 .theme:hover{background:var(--surface2)}
 
-.wrap{max-width:1080px;margin:0 auto;padding:clamp(1.5rem,4vw,2.5rem) var(--pad)}
+.wrap{max-width:none;margin:0 auto;padding:clamp(1.5rem,4vw,2.5rem) var(--pad)}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,6vw,3.8rem);line-height:1.02;margin:0 0 .4rem}
 h2{font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.1;margin:0 0 .6rem}
 h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:1.8rem 0 .4rem}
@@ -125,11 +125,11 @@ mark.adv{background:var(--hl-adv);color:inherit;border-radius:3px;padding:0 .15e
 .self input{width:1.2rem;height:1.2rem;margin-top:.25rem;accent-color:var(--accent)}
 
 .credit{margin-top:2.5rem;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:1rem 1.3rem;font-size:.97rem;color:var(--muted)}
-.credit p{margin:.4rem 0;max-width:70ch}
+.credit p{margin:.4rem 0;max-width:none}
 .credit ul{margin:.4rem 0;padding-left:1.2rem}
 footer{border-top:1px solid var(--line);padding:1.5rem var(--pad) 2.5rem;color:var(--muted);font-size:.95rem}
-footer div{max-width:1080px;margin:0 auto}
-footer p{margin:.3rem 0;max-width:70ch}
+footer div{max-width:none;margin:0}
+footer p{margin:.3rem 0;max-width:none}
 </style>
 </head>
 <body>
