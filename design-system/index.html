@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Design system | Haunted Ohio</title>
+<link rel="icon" type="image/png" href="../assets/img/ho-icon.png">
+<link rel="stylesheet" href="../assets/css/ho-fonts.css">
+<link rel="stylesheet" href="../assets/css/ho-core.css">
+<script src="../assets/js/ho-ui.js"></script>
+<style>
+  .ds-hero{position:relative;overflow:hidden;padding:clamp(3rem,9vw,6rem) 0 clamp(2.5rem,6vw,4rem);border-bottom:1px solid var(--ho-line)}
+  .ds-hero .ho-container{position:relative;z-index:1;display:grid;grid-template-columns:auto 1fr;gap:clamp(1.2rem,4vw,3rem);align-items:center}
+  .ds-hero img{width:clamp(110px,18vw,190px);height:auto;border-radius:50%;box-shadow:0 0 70px rgba(217,184,108,.25)}
+  .ds-top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--ho-night) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--ho-line)}
+  .ds-top .ho-container{display:flex;align-items:center;gap:1rem;min-height:54px;flex-wrap:wrap}
+  .ds-top nav{display:flex;gap:.2rem;flex-wrap:wrap;margin-right:auto}
+  .ds-top nav a{color:var(--ho-text);text-decoration:none;padding:.35em .7em;border-radius:6px;font-size:.92rem}
+  .ds-top nav a:hover{background:var(--ho-surface-2)}
+  section.ds{padding:clamp(2.2rem,5vw,3.6rem) 0;border-bottom:1px solid var(--ho-line-soft)}
+  .ds h2{margin-bottom:.4rem}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));gap:.8rem;margin-top:1.4rem}
+  .swatch{border:1px solid var(--ho-line);border-radius:12px;overflow:hidden;background:var(--ho-surface);font-size:.82rem}
+  .swatch i{display:block;height:3.2rem}
+  .swatch b{display:block;padding:.5rem .7rem 0;font-size:.86rem}.swatch span{display:block;padding:0 .7rem .6rem;color:var(--ho-muted);font-family:var(--ho-mono)}
+  .row{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin-top:1.2rem}
+  .types .t{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;border-bottom:1px solid var(--ho-line-soft);padding:.7rem 0}
+  .types small{color:var(--ho-muted);font-family:var(--ho-mono);font-size:.78rem}
+  .icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(6.5rem,1fr));gap:.7rem;margin-top:1.4rem}
+  .icons div{display:grid;justify-items:center;gap:.4rem;padding:.9rem .4rem;border:1px solid var(--ho-line);border-radius:12px;background:var(--ho-surface);font-size:.74rem;color:var(--ho-muted)}
+  .icons .ho-icon{width:1.7rem;height:1.7rem;color:var(--ho-gold)}
+  .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16.5rem),1fr));gap:1.2rem;margin-top:1.4rem}
+  .games>*{min-width:0}
+  .gbox{border:1px solid var(--ho-line);border-radius:18px;overflow:hidden;background:var(--ho-night)}
+  .gbox .body{padding:1.2rem 1.4rem 1.5rem}
+  .gbox h3{font-size:1.9rem}
+  .switch{display:inline-flex;align-items:center;gap:.6rem;font:inherit;font-size:.92rem;background:none;color:var(--ho-text);border:1.5px solid var(--ho-line);border-radius:99px;padding:.2rem .8rem .2rem .3rem;min-height:38px;cursor:pointer}
+  .switch .tr{position:relative;width:2.6rem;height:1.45rem;border-radius:99px;background:var(--ho-muted)}
+  .switch .kn{position:absolute;top:.17rem;left:.17rem;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--ho-surface);transition:left .18s}
+  .switch[aria-checked="true"] .tr{background:var(--ho-spectral)}
+  .switch[aria-checked="true"] .kn{left:calc(100% - 1.27rem)}
+  @media (max-width:640px){.ds-hero .ho-container{grid-template-columns:1fr;justify-items:start}}
+</style>
+</head>
+<body class="ho-page ho-night-bg">
+<a class="ho-skip" href="#main">Skip to content</a>
+
+<header class="ds-top">
+  <div class="ho-container">
+    <a href="../" style="display:inline-flex;align-items:center;gap:.6rem;color:var(--ho-text);text-decoration:none;font:400 1.3rem var(--ho-display)"><img src="../assets/img/ho-icon.png" alt="" width="28" height="28" style="border-radius:50%">Haunted Ohio</a>
+    <nav aria-label="Sections"><a href="#color">Color</a><a href="#type">Type</a><a href="#buttons">Buttons</a><a href="#cards">Cards</a><a href="#ui">Components</a><a href="#games">Game identities</a><a href="#icons">Icons</a></nav>
+    <button class="switch" id="themeSw" type="button" role="switch" aria-checked="true" aria-label="Night theme"><span class="tr" aria-hidden="true"><span class="kn"></span></span><span id="themeLbl">Night</span></button>
+  </div>
+</header>
+
+<main id="main">
+<div class="ds-hero ho-grain">
+  <div class="ho-fog" aria-hidden="true"></div>
+  <div class="ho-container">
+    <img src="../assets/img/ho-logo.png" alt="Haunted Ohio badge: a moonlit Ohio skyline">
+    <div>
+      <p class="ho-eyebrow ho-reveal">Design system · review draft</p>
+      <h1 class="ho-h1 ho-glow-text ho-reveal d1" style="margin:.5rem 0 1rem">The Bureau Archive</h1>
+      <p class="ho-lede ho-reveal d2">One visual language for the Haunted Ohio website and every game. A paranormal investigation bureau’s digital archive: night ink, aged parchment, gold lettering from the badge, and ember for action. Each game keeps its own personality inside the same system.</p>
+      <div class="row ho-reveal d3"><a class="ho-btn ho-btn--lg" href="#games">See the four game identities</a><button class="ho-btn ho-btn--ghost ho-btn--lg" id="openDlg" type="button">Try the dialog</button></div>
+    </div>
+  </div>
+</div>
+
+<section class="ds" id="color"><div class="ho-container">
+  <p class="ho-eyebrow">01</p><h2 class="ho-h2">Color</h2>
+  <p class="ho-lede">Night is the default. Daylight is a secondary parchment theme; use the switch at the top right to compare. Every color is a token, so a theme change never touches the components.</p>
+  <div class="swatches" id="sw"></div>
+</div></section>
+
+<section class="ds" id="type"><div class="ho-container">
+  <p class="ho-eyebrow">02</p><h2 class="ho-h2">Typography</h2>
+  <div class="types" style="margin-top:1.2rem">
+    <div class="t"><span class="ho-h1" style="font-size:clamp(2.4rem,6vw,4.2rem)">Haunted Ohio</span><small>IM Fell English · display</small></div>
+    <div class="t"><span class="ho-h2">Ghost stories from the Queen City</span><small>Heading 2</small></div>
+    <div class="t"><span class="ho-h3">Something followed you home from the cemetery.</span><small>Heading 3</small></div>
+    <div class="t"><span class="ho-prose">Body copy is set in Atkinson Hyperlegible, designed for maximum character recognition at every size and on every screen. It stays calm, wide, and readable for long sessions on a school laptop.</span><small>Atkinson Hyperlegible · body</small></div>
+    <div class="t"><span style="font-family:var(--ho-type);font-size:1.2rem">CASE FILE #0047 · Cincinnati Music Hall</span><small>Special Elite · The Haunting Files</small></div>
+    <div class="t"><span style="font-family:var(--ho-cond);font-weight:700;font-size:1.7rem;letter-spacing:.04em">THE LAST LIGHT · OHIO, 2047</span><small>Barlow Condensed · The Last Light</small></div>
+  </div>
+</div></section>
+
+<section class="ds" id="buttons"><div class="ho-container">
+  <p class="ho-eyebrow">03</p><h2 class="ho-h2">Buttons</h2>
+  <div class="row">
+    <button class="ho-btn" type="button">Open the archive</button>
+    <button class="ho-btn ho-btn--ghost" type="button">How to play</button>
+    <button class="ho-btn ho-btn--quiet" type="button">Skip</button>
+    <button class="ho-btn ho-btn--sm" type="button">Small</button>
+    <button class="ho-btn" type="button" disabled>Locked</button>
+    <a class="ho-btn ho-btn--ghost" href="#buttons"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-arrow-left"/></svg>Back to Haunted Ohio</a>
+  </div>
+</div></section>
+
+<section class="ds" id="cards"><div class="ho-container">
+  <p class="ho-eyebrow">04</p><h2 class="ho-h2">Cards: case files</h2>
+  <p class="ho-lede">Sections of the site become folders in the archive. Cards lift and glow gently on hover.</p>
+  <div class="ho-grid" style="margin-top:1.6rem">
+    <a class="ho-card ho-card--folder" href="#cards"><span class="ho-card__icon"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-book"/></svg></span><p class="ho-card__kicker">Learn</p><h3 class="ho-card__title">What makes horror work</h3><p class="ho-card__text">What creative writing is, how a ghost story is built.</p></a>
+    <a class="ho-card ho-card--folder" href="#cards"><span class="ho-card__icon"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-case"/></svg></span><p class="ho-card__kicker">Game · Detective</p><h3 class="ho-card__title">The Haunting Files</h3><p class="ho-card__text">Evidence, witnesses, and a theory you can defend.</p></a>
+    <a class="ho-card ho-card--folder" href="#cards"><span class="ho-card__icon"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-tower"/></svg></span><p class="ho-card__kicker">Game · Survival</p><h3 class="ho-card__title">The Last Light</h3><p class="ho-card__text">Survive a silent Ohio in 2047.</p></a>
+    <div class="ho-paper"><span class="ho-stamp">Case #0047</span><p style="margin:.8rem 0 0">After a Saturday concert, an usher reports a figure in a gray coat on the upper balcony.</p></div>
+  </div>
+</div></section>
+
+<section class="ds" id="ui"><div class="ho-container">
+  <p class="ho-eyebrow">05</p><h2 class="ho-h2">Interface components</h2>
+  <div class="ho-tabs" role="tablist" style="margin-top:1.4rem"><button class="ho-tab" role="tab" aria-selected="true">Journal</button><button class="ho-tab" role="tab" aria-selected="false">Evidence</button><button class="ho-tab" role="tab" aria-selected="false">Pack</button></div>
+  <div class="row"><span class="ho-chip">Document</span><span class="ho-chip ho-chip--gold">Real history</span><span class="ho-chip ho-chip--veil">The Veil</span><span class="ho-badge"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-star"/></svg>Junior Investigator</span></div>
+  <div style="max-width:30rem;margin-top:1.4rem"><p class="ho-muted" style="margin:0 0 .4rem">Case progress · 3 of 7</p><div class="ho-progress" role="progressbar" aria-valuenow="43" aria-valuemin="0" aria-valuemax="100"><i style="--v:43%"></i></div></div>
+  <div style="max-width:34rem"><label class="ho-label" for="f1">Investigator name</label><input class="ho-field" id="f1" placeholder="Enter your name"><label class="ho-label" for="f2">Field notes</label><textarea class="ho-field" id="f2" rows="3" placeholder="What did you notice?"></textarea></div>
+  <div class="row"><button class="ho-btn ho-btn--ghost" id="toastBtn" type="button">Show a toast</button><button class="ho-btn ho-btn--ghost" id="loadBtn" type="button">Preview the loading screen</button></div>
+  <div class="ho-bureau" style="margin-top:1.8rem;border:1px solid var(--ho-line);border-radius:12px"><a href="../"><img src="../assets/img/ho-icon.png" alt="">Haunted Ohio</a><span class="ho-muted">/</span><span>The Haunting Files</span><span class="ho-bureau__sp"></span><a href="#ui"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-help"/></svg>How to play</a><a href="#ui"><svg class="ho-icon"><use href="../assets/img/ho-icons.svg#i-menu"/></svg>Menu</a></div>
+  <p class="ho-muted" style="margin-top:.5rem;font-size:.9rem">The bureau bar sits above every game so players can always get back to the site, open How to play, or pause.</p>
+</div></section>
+
+<section class="ds" id="games"><div class="ho-container">
+  <p class="ho-eyebrow">06</p><h2 class="ho-h2">Four game identities, one world</h2>
+  <p class="ho-lede">Each game re-maps the same tokens with <code>data-game</code>. Menus, buttons, cards, and dialogs all follow automatically.</p>
+  <div class="games">
+    <div class="gbox" data-game="files"><div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="">Haunted Ohio</a><span class="ho-bureau__sp"></span><span class="ho-chip ho-chip--gold">Recruit · 0 XP</span></div><div class="body"><p class="ho-eyebrow">Detective game</p><h3 class="ho-h2" style="color:var(--ho-text)">The Haunting Files</h3><p class="ho-muted">Evidence boards, typewritten case files, red string.</p><div class="ho-paper" style="font-family:var(--ho-type);font-size:.95rem"><span class="ho-stamp">Training case</span><p style="margin:.7rem 0 0">Location: Cincinnati Music Hall.</p></div><div class="row"><button class="ho-btn" type="button">Open the archive</button><button class="ho-btn ho-btn--ghost" type="button">How to play</button></div></div></div>
+    <div class="gbox" data-game="last-light"><div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="">Haunted Ohio</a><span class="ho-bureau__sp"></span><span class="ho-chip">Day 1 · Health 5</span></div><div class="body"><p class="ho-eyebrow">Survival game</p><h3 class="ho-h2" style="color:var(--ho-text);letter-spacing:.03em;text-transform:uppercase">The Last Light</h3><p class="ho-muted">Desolate Ohio, signal amber, hard choices.</p><div class="ho-card"><p class="ho-card__kicker">Radio</p><p class="ho-card__text">“…if you can hear this… do not go looking for the light…”</p></div><div class="row"><button class="ho-btn" type="button">Enter the silence</button><button class="ho-btn ho-btn--ghost" type="button">How to play</button></div></div></div>
+    <div class="gbox" data-game="veil"><div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="">Haunted Ohio</a><span class="ho-bureau__sp"></span><span class="ho-chip ho-chip--veil">The Veil</span></div><div class="body"><p class="ho-eyebrow">Paranormal adventure</p><h3 class="ho-h2" style="color:var(--ho-text)">The Veil</h3><p class="ho-muted">Gothic navy, spectral blue, muted gold.</p><div class="ho-card ho-card--folder"><p class="ho-card__kicker">Chapter 1</p><p class="ho-card__text">The First Sign</p></div><div class="row"><button class="ho-btn" type="button">Begin</button><button class="ho-btn ho-btn--ghost" type="button">Controls</button></div></div></div>
+    <div class="gbox" data-game="room214"><div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="">Haunted Ohio</a><span class="ho-bureau__sp"></span><span class="ho-chip ho-chip--gold">Room 214</span></div><div class="body"><p class="ho-eyebrow">Survival horror</p><h3 class="ho-h2" style="color:var(--ho-text)">Room 214</h3><p class="ho-muted">1970s hotel, amber lamps, faded burgundy.</p><div class="ho-paper" style="background:#d9c9a8"><span class="ho-stamp">Guest register</span><p style="margin:.7rem 0 0">Room 213. Room 214. Room 215.</p></div><div class="row"><button class="ho-btn" type="button">Check in</button><button class="ho-btn ho-btn--ghost" type="button">Controls</button></div></div></div>
+  </div>
+</div></section>
+
+<section class="ds" id="icons"><div class="ho-container">
+  <p class="ho-eyebrow">07</p><h2 class="ho-h2">Icon set</h2>
+  <p class="ho-lede">One stroke style, drawn for this project, tinted by the surrounding text color.</p>
+  <div class="icons" id="iconGrid"></div>
+</div></section>
+</main>
+
+<script>
+(function(){
+  var sw=document.getElementById('themeSw'), lbl=document.getElementById('themeLbl');
+  function paint(){var dark=HO.theme.get()==='dark';sw.setAttribute('aria-checked',dark?'true':'false');sw.setAttribute('aria-label',dark?'Night theme':'Daylight theme');lbl.textContent=dark?'Night':'Daylight';swatches()}
+  sw.addEventListener('click',function(){HO.theme.toggle();paint()});
+  function swatches(){
+    var names=['ink','night','surface','surface-2','line','text','muted','gold','ember','spectral','parch','red','ok','bad'];
+    var cs=getComputedStyle(document.documentElement);
+    document.getElementById('sw').innerHTML=names.map(function(n){var v=cs.getPropertyValue('--ho-'+n).trim();return '<div class="swatch"><i style="background:'+v+'"></i><b>--ho-'+n+'</b><span>'+v+'</span></div>'}).join('');
+  }
+  var icons='search compass moon sun book quill ghost key pin archive eye folder case tower bell lantern lesson flask gauge users chevron arrow-left arrow-right close check lock star help menu save settings'.split(' ');
+  document.getElementById('iconGrid').innerHTML=icons.map(function(n){return '<div>'+HO.icon(n)+'<span>'+n+'</span></div>'}).join('');
+  paint();
+  document.getElementById('toastBtn').addEventListener('click',function(){HO.toast('Evidence added: Township notice')});
+  document.getElementById('loadBtn').addEventListener('click',function(){HO.loader.show('Opening the archive');setTimeout(HO.loader.hide,2200)});
+  document.getElementById('openDlg').addEventListener('click',function(){
+    var d=HO.dialog({title:'How to play',html:'<p>One sentence of guidance goes here. The dialog traps focus, closes with Esc or a click outside, and returns focus to the button that opened it.</p><p><button class="ho-btn" type="button" id="dx">Got it</button></p>'});
+    d.body.querySelector('#dx').addEventListener('click',function(){d.close()});
+  });
+  document.querySelectorAll('.ho-tab').forEach(function(t){t.addEventListener('click',function(){document.querySelectorAll('.ho-tab').forEach(function(x){x.setAttribute('aria-selected','false')});t.setAttribute('aria-selected','true')})});
+})();
+</script>
+</body>
+</html>
