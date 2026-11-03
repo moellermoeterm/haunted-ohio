@@ -10,6 +10,10 @@ import { ROOT } from './lib.mjs';
 const FILES = ['index.html', 'haunting-files/index.html', 'last-light/index.html', 'show-dont-tell/index.html'];
 const BASE = path.join(path.dirname(new URL(import.meta.url).pathname), 'baseline', 'content.json');
 
+// Text that is allowed to change, with the reason. Keep this list short and honest.
+const ALLOWED_REMOVALS = new Set([
+  'Search pages, games, lessons ( / )', // search-box placeholder written during the redesign (not original course content); now "Search the archive"
+]);
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&rsquo;/g, '’').replace(/&lsquo;/g, '‘').replace(/&mdash;/g, '—').replace(/&ndash;/g, '–').replace(/&hellip;/g, '…').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&rarr;/g, '→');
 // A "text run" is 6+ words of plain prose with no markup or code punctuation in it.
 const RUN = /[A-Za-z0-9][A-Za-z0-9 ,.!?;:—–\-()’“”‘\/&%#$@*…→]{30,}/g;
@@ -40,7 +44,7 @@ if (write) {
     const now = new Set(extract(f));
     // Text may be re-wrapped across elements, so a baseline run also counts as present if it is a substring of a current run.
     const joined = [...now].join('\n');
-    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t));
+    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t));
     const old = new Set(base[f]);
     const added = [...now].filter((t) => !old.has(t));
     console.log(`${lost.length ? 'FAIL' : 'ok  '}  ${f}: ${base[f].length} baseline runs, ${lost.length} missing, ${added.length} new`);
