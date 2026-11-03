@@ -27,6 +27,18 @@ const RETIRED_HUNT = [
 ];
 // Phase 6: these three Haunting Files lines are now assembled from case data (Case 1 renders them identically; a smoke test asserts the exact text).
 const NOW_ASSEMBLED = ['Case File #0047: Cincinnati Music Hall', 'Use what you learned about evidence, doubt, and atmosphere.', 'Whose account would you trust more about the open door, and why?'];
+// Phase 6: these Last Light sentences are now built from the stranger's name and pronouns and the scenario's places. For Scenario 1 they render
+// exactly as before; the smoke test "Scenario 1 still shows the original text" asserts every one of them on the live page.
+const LL_ASSEMBLED = [
+  '1 meds, -1 food. She may give you something in return.', '1 meds. She tells you what she knows.', 'Accusing her made her defensive.', 'Choose the tells that make you doubt her story.',
+  'Follow it to Abandoned Cincinnati and Hollow Creek.', 'Keep your distance and watch the road with her.', 'Name at least two specific hazards (like the flooded stairs',
+  'Persuasive: you talk her into it for free.', 'Radioed Haven Ridge. They sent a runner with water.', 'Say what you found (a woman, a stranger, a signal).',
+  'Say where you are (the crossroads, the church, the road).', 'She is more afraid of something behind her than of you.', 'She snapped, then stopped herself.',
+  'Standing together, you notice she keeps checking the road behind her.', 'Step into the road and tell her she is not going anywhere', 'Talk to her at least twice, then you can make your decision.',
+  'Tell her you understand how frightening this is.', 'Wren waits. Your choice will cost something either way.', 'Wren will not answer direct questions.',
+  'Write about Wren. What did you notice', 'You keep your supplies. You may never learn what she knows.', 'You traded medicine to Wren for information.',
+];
+const isLLAssembled = (t) => LL_ASSEMBLED.some((p) => t.startsWith(p));
 const isAssembled = (t) => NOW_ASSEMBLED.some((p) => t.startsWith(p));
 const isRetired = (t) => RETIRED_HUNT.some((p) => t.startsWith(p));
 const EXTRA = {
@@ -65,7 +77,7 @@ if (write) {
     const now = new Set(extract(f));
     // Text may be re-wrapped across elements, so a baseline run also counts as present if it is a substring of a current run.
     const joined = [...now].join('\n');
-    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t) && !(f === 'index.html' && isRetired(t)) && !(f === 'haunting-files/index.html' && isAssembled(t)));
+    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t) && !(f === 'index.html' && isRetired(t)) && !(f === 'haunting-files/index.html' && isAssembled(t)) && !(f === 'last-light/index.html' && isLLAssembled(t)));
     const old = new Set(base[f]);
     const added = [...now].filter((t) => !old.has(t));
     console.log(`${lost.length ? 'FAIL' : 'ok  '}  ${f}: ${base[f].length} baseline runs, ${lost.length} missing, ${added.length} new`);
