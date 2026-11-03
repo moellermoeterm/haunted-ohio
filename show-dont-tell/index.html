@@ -4,56 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Show, Don’t Tell | Haunted Ohio</title>
-<link rel="icon" type="image/png" href="data:image/png;base64,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">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/img/ho-icon.png">
+<link rel="stylesheet" href="../assets/css/ho-fonts.css">
+<link rel="stylesheet" href="../assets/css/ho-core.css">
+<script src="../assets/js/ho-ui.js"></script>
 <style>
+/* Haunted Ohio design system tokens (assets/css/ho-core.css). Older names are aliases so every rule below themes automatically. */
 :root{
-  --bg:#EEF1EC; --surface:#FFFFFF; --surface2:#E0E7DF; --text:#14201B; --muted:#4C5F55; --line:#C4D0C6;
-  --accent:#1F6B52; --mark:#8A4B0B; --ok:#1B7A4B; --bad:#B23A2B; --header:rgba(238,241,236,.94);
-  --btn:#E58A3A; --btn-ink:#14201B;
-  --hl-feel:rgba(229,138,58,.38); --hl-adv:rgba(31,140,82,.30);
-  --pad:clamp(1rem,4vw,3.5rem);
-  --display:'IM Fell English','Iowan Old Style','Palatino Linotype',Georgia,serif;
-  --body:'Atkinson Hyperlegible','Segoe UI',system-ui,-apple-system,sans-serif;
-  color-scheme:light;
-  box-sizing:border-box;
+  --bg:var(--ho-night); --surface:var(--ho-surface); --surface2:var(--ho-surface-2); --text:var(--ho-text); --muted:var(--ho-muted); --line:var(--ho-line);
+  --accent:var(--ho-spectral); --mark:var(--ho-gold); --ok:var(--ho-ok); --bad:var(--ho-bad); --header:rgba(7,15,21,.86);
+  --btn:var(--ho-ember); --btn-ink:var(--ho-ember-ink);
+  --hl-feel:rgba(229,138,58,.42); --hl-adv:rgba(111,211,160,.34);
+  --pad:var(--ho-pad); --display:var(--ho-display); --body:var(--ho-body);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0C1411; --surface:#131F1A; --surface2:#1B2B24; --text:#E6E9DF; --muted:#9DB0A5; --line:#2C4237;
-    --accent:#8FD3B6; --mark:#F0A560; --ok:#6FD3A0; --bad:#F0806F; --header:rgba(12,20,17,.94);
-    --hl-feel:rgba(240,165,96,.40); --hl-adv:rgba(111,211,160,.32);
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0C1411; --surface:#131F1A; --surface2:#1B2B24; --text:#E6E9DF; --muted:#9DB0A5; --line:#2C4237;
-  --accent:#8FD3B6; --mark:#F0A560; --ok:#6FD3A0; --bad:#F0806F; --header:rgba(12,20,17,.94);
-  --hl-feel:rgba(240,165,96,.40); --hl-adv:rgba(111,211,160,.32);
-  color-scheme:dark;
-}
-*,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:5rem}
+:root[data-theme="light"]{--header:rgba(243,237,222,.9);--hl-feel:rgba(229,138,58,.42);--hl-adv:rgba(31,140,82,.30)}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:5.5rem}
 @media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
 body{margin:0;background:var(--bg);color:var(--text);font:1.0625rem/1.62 var(--body);-webkit-text-size-adjust:100%}
 a{color:var(--accent)}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.skip{position:absolute;left:-999px;top:0;background:var(--btn);color:var(--btn-ink);padding:.6rem 1rem;z-index:100}
+:focus-visible{outline:3px solid var(--ho-focus);outline-offset:2px}
+.skip{position:absolute;left:-999px;top:0;background:var(--btn);color:var(--btn-ink);padding:.6rem 1rem;z-index:100;font-weight:700}
 .skip:focus{left:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--muted)}
 
-.top{position:sticky;top:0;z-index:50;background:var(--header);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top-in{max-width:none;margin:0 auto;padding:.55rem var(--pad);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
-.mark{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--display);font-size:1.45rem;color:var(--text);text-decoration:none;margin-right:auto}
-.mark img{width:32px;height:32px;border-radius:6px}
-.back{padding:.4rem .7rem;border-radius:6px;color:var(--text);text-decoration:none}
-.back:hover{background:var(--surface2)}
-.theme{font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:6px;padding:.35rem .7rem;cursor:pointer}
-.theme:hover{background:var(--surface2)}
-.switch{display:inline-flex;align-items:center;gap:.5rem;font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:99px;padding:.2rem .75rem .2rem .3rem;cursor:pointer;min-height:38px}
-.switch:hover{background:var(--surface2)}
+/* header: the shared bureau bar */
+.top{position:sticky;top:0;z-index:50;background:var(--header);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);border-bottom:1px solid var(--line)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--ho-gold-dim) 50%,transparent);opacity:.55;pointer-events:none}
+.top-in{margin:0 auto;padding:.5rem var(--pad);display:flex;align-items:center;gap:.7rem}
+.mark{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--display);font-size:1.5rem;line-height:1;color:var(--text);text-decoration:none;white-space:nowrap}
+.mark img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 1px var(--ho-gold-dim),0 0 16px rgba(217,184,108,.25)}
+.crumb{color:var(--muted);display:inline-flex;align-items:center;gap:.7rem;white-space:nowrap}
+.crumb::before{content:"/";color:var(--ho-gold-dim)}
+.crumb b{font-family:var(--display);font-weight:400;font-size:1.2rem;color:var(--ho-gold)}
+.back{display:inline-flex;align-items:center;gap:.5rem;margin-left:auto;padding:.5em .9em;border-radius:99px;border:1.5px solid var(--line);color:var(--text);text-decoration:none;font-weight:700;font-size:.95rem;min-height:40px;transition:background .2s,border-color .2s}
+.back:hover{background:var(--surface2);border-color:var(--ho-gold-dim)}
+.back .ho-icon{width:1.05em;height:1.05em}
+.switch{display:inline-flex;align-items:center;gap:.5rem;font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:99px;padding:.2rem .8rem .2rem .3rem;cursor:pointer;min-height:40px;white-space:nowrap;transition:background .2s,border-color .2s}
+.switch:hover{background:var(--surface2);border-color:var(--ho-gold-dim)}
 .switch .track{position:relative;width:2.6rem;height:1.45rem;border-radius:99px;background:var(--muted);flex:none}
 .switch .knob{position:absolute;top:.17rem;left:.17rem;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--surface)}
 .switch[aria-checked="true"] .track{background:var(--accent)}
@@ -61,83 +50,115 @@ a{color:var(--accent)}
 .switch .state{font-weight:700;min-width:1.7rem}
 @media (prefers-reduced-motion: no-preference){.switch .knob{transition:left .18s}.switch .track{transition:background .18s}}
 
-.wrap{max-width:none;margin:0 auto;padding:clamp(1.5rem,4vw,2.5rem) var(--pad)}
-h1{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,6vw,3.8rem);line-height:1.02;margin:0 0 .4rem}
-h2{font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.1;margin:0 0 .6rem}
-h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:1.8rem 0 .4rem}
-.intro{max-width:44rem;color:var(--muted);font-size:1.15rem;margin:0}
+/* banner */
+.banner{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:radial-gradient(ellipse 55% 140% at 88% 0%,rgba(143,211,232,.20),transparent 65%),radial-gradient(ellipse 60% 100% at 0% 100%,rgba(217,184,108,.08),transparent 70%),linear-gradient(180deg,var(--ho-night-2),var(--bg))}
+.banner-in{position:relative;z-index:1;padding:clamp(2rem,6vw,4rem) var(--pad) clamp(1.4rem,3vw,2rem)}
+.banner .eyebrow{margin:0 0 .8rem;font:700 .78rem/1 var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--ho-gold)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2.7rem,7.5vw,5.4rem);line-height:.96;margin:0 0 .6rem;letter-spacing:-.005em;color:var(--text);text-shadow:0 0 34px rgba(143,211,232,.22)}
+.intro{max-width:40rem;color:var(--muted);font-size:1.18rem;margin:0}
+.banner-art{position:absolute;right:clamp(1rem,7vw,7rem);top:50%;transform:translateY(-50%);width:clamp(120px,20vw,250px);height:auto;opacity:.95;pointer-events:none}
+@media (max-width:700px){.banner-art{opacity:.35;right:-1rem}}
+@media (max-width:520px){.banner-art{display:none}}
 
-.progress{margin:1.4rem 0 1.6rem;max-width:44rem}
-.progress p{margin:0 0 .35rem;font-weight:700}
-.bar{height:12px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--btn)}
-@media (prefers-reduced-motion: no-preference){.bar i{transition:width .4s ease}}
+.progress{margin:1.7rem 0 0;max-width:36rem}
+.progress p{margin:0 0 .45rem;font-weight:700;color:var(--text)}
+.bar{position:relative;height:12px;border-radius:99px;background:var(--ho-night-2);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ho-gold-dim),var(--ho-gold));border-radius:inherit}
+.bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(0,0,0,.35) calc(10% - 1px) 10%);pointer-events:none}
+@media (prefers-reduced-motion: no-preference){.bar i{transition:width .5s var(--ho-ease)}}
 
-.layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:2rem;align-items:start}
+.wrap{margin:0 auto;padding:clamp(1.5rem,4vw,2.5rem) var(--pad) 1rem}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:2rem;align-items:start}
 .layout>*{min-width:0}
-.lessons{list-style:none;margin:0;padding:0;display:grid;gap:.35rem;position:sticky;top:5rem}
-.lessons a{display:flex;gap:.6rem;align-items:baseline;padding:.55rem .7rem;border:1.5px solid var(--line);border-left:5px solid var(--line);border-radius:8px;color:var(--text);text-decoration:none;line-height:1.3}
+
+/* lesson path: stepping stones */
+.lessons{list-style:none;margin:0;padding:0;display:grid;gap:.2rem;position:sticky;top:5.5rem}
+.lessons li{position:relative}
+.lessons li:not(:last-child)::after{content:"";position:absolute;left:1.74rem;top:2.7rem;bottom:-.3rem;width:1px;background:var(--line)}
+.lessons a{position:relative;z-index:1;display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border:1px solid transparent;border-radius:14px;color:var(--text);text-decoration:none;line-height:1.3;transition:background .2s,border-color .2s}
 .lessons a:hover{background:var(--surface2)}
-.lessons a[aria-current="page"]{background:var(--surface);border-color:var(--btn);border-left-color:var(--btn);font-weight:700}
-.lessons .n{font-family:var(--display);font-size:1.25rem;min-width:1.4rem}
+.lessons a[aria-current="page"]{background:var(--surface);border-color:var(--ho-gold-dim);box-shadow:var(--ho-shadow);font-weight:700}
+.lessons .n{flex:none;display:grid;place-items:center;width:2.1rem;height:2.1rem;border-radius:50%;border:1.5px solid var(--line);background:var(--ho-night-2);font-family:var(--display);font-size:1.1rem;color:var(--muted)}
+.lessons a[aria-current="page"] .n{background:var(--ho-gold);border-color:var(--ho-gold);color:#18120a}
+.lessons li.done .n{background:var(--ok);border-color:var(--ok);color:var(--ho-night)}
 .lessons .tick{margin-left:auto;color:var(--ok);font-weight:700}
 @media (max-width:820px){
   .layout{grid-template-columns:1fr;gap:1.2rem}
   .lessons{position:static;display:flex;overflow-x:auto;padding-bottom:.6rem;gap:.5rem;scroll-snap-type:x proximity}
   .lessons li{flex:0 0 auto;scroll-snap-align:start}
-  .lessons a{white-space:nowrap}
+  .lessons li::after{display:none}
+  .lessons a{white-space:nowrap;border-color:var(--line);background:var(--surface)}
 }
 
-.pane{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:clamp(1rem,3vw,1.8rem)}
+/* lesson pane */
+.pane{background:linear-gradient(180deg,var(--surface2),var(--surface) 30%);border:1px solid var(--line);border-radius:var(--ho-r-lg);padding:clamp(1.1rem,3vw,2rem);box-shadow:var(--ho-shadow)}
 .pane:focus{outline:none}
-.kicker{margin:0;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.85rem}
-.prose{max-width:66ch}
-.prose p{margin:.7rem 0}
-.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.4rem 0}
-.compare div{border:1.5px solid var(--line);border-radius:10px;padding:.8rem 1rem;background:var(--bg)}
-.compare .tell{border-left:5px solid var(--bad)}
-.compare .show{border-left:5px solid var(--ok)}
-.compare h4{margin:0 0 .3rem;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.compare p{margin:0;font-family:var(--display);font-size:1.2rem;line-height:1.4}
-.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.7rem 1rem;max-width:66ch;margin:1rem 0;border-radius:0 6px 6px 0;font-size:.98rem}
-.exercise{border-top:2px solid var(--line);margin-top:1.8rem;padding-top:.4rem}
-label.fl{display:block;font-weight:700;margin:.8rem 0 .35rem}
-textarea{width:100%;min-height:11rem;font:inherit;line-height:1.55;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.8rem;resize:vertical}
-textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
-.count{margin:.4rem 0;color:var(--muted);font-weight:700}
+.pane.is-in{animation:ho-rise .45s var(--ho-ease) both}
+.kicker{margin:0;color:var(--ho-gold);font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:.78rem}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4vw,2.7rem);line-height:1.05;margin:.3rem 0 .8rem}
+h2:focus{outline:none}
+h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:1.8rem 0 .4rem}
+.prose{max-width:68ch}
+.prose p{margin:.75rem 0}
+
+/* tell vs show: a flat note beside a lit page */
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.1rem;margin:1.6rem 0}
+.compare div{border-radius:var(--ho-r);padding:1rem 1.2rem}
+.compare h4{margin:0 0 .45rem;font:700 .78rem/1 var(--body);letter-spacing:.2em;text-transform:uppercase}
+.compare p{margin:0;font-family:var(--display);font-size:1.25rem;line-height:1.4}
+.compare .tell{background:var(--ho-night-2);border:1px dashed var(--line);border-left:4px solid var(--bad);color:var(--muted)}
+.compare .tell h4{color:var(--bad)}
+.compare .show{background:var(--ho-parch);color:var(--ho-parch-ink);border:1px solid var(--ho-gold-dim);border-left:4px solid var(--ho-gold);box-shadow:inset 0 0 30px rgba(120,90,40,.25),0 10px 30px rgba(0,0,0,.28),0 0 0 1px rgba(217,184,108,.2)}
+.compare .show h4{color:#7a5a14}
+.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.7rem 1rem;max-width:66ch;margin:1rem 0;border-radius:0 8px 8px 0;font-size:.98rem}
+
+/* exercise */
+.exercise{border-top:1px solid var(--line);margin-top:2rem;padding-top:.4rem;position:relative}
+.exercise::before{content:"";position:absolute;left:0;top:-1px;width:4rem;height:2px;background:var(--ho-gold)}
+label.fl{display:block;font-weight:700;margin:1rem 0 .4rem}
+textarea{width:100%;min-height:11rem;font:inherit;line-height:1.6;color:var(--text);background:var(--ho-night-2);border:1.5px solid var(--line);border-radius:var(--ho-r);padding:.9rem 1rem;resize:vertical;transition:border-color .2s,box-shadow .2s}
+textarea:hover{border-color:var(--ho-gold-dim)}
+textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(143,211,232,.22)}
+.count{margin:.5rem 0;color:var(--muted);font-weight:700}
 .count.ok{color:var(--ok)}
 .row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0}
-.btn{display:inline-block;font:inherit;font-weight:700;padding:.65rem 1.1rem;border-radius:8px;border:2px solid var(--btn);background:var(--btn);color:var(--btn-ink);text-decoration:none;cursor:pointer;line-height:1.25}
-.btn:hover{filter:brightness(1.07)}
-.btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
-.btn.ghost:hover{background:var(--surface2);filter:none}
-.btn[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
-:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#0C1411}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn[aria-pressed="true"]{color:#0C1411}}
-.btn[disabled],.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;filter:none;pointer-events:none}
-.nav2{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;font:700 1rem/1.2 var(--body);padding:.7em 1.25em;min-height:44px;border-radius:12px;border:1.5px solid var(--btn);background:var(--btn);color:var(--btn-ink);text-decoration:none;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.25),0 8px 20px rgba(229,138,58,.16);transition:transform .15s var(--ho-ease),box-shadow .2s,background .2s,border-color .2s}
+.btn:hover{background:var(--ho-ember-hi);border-color:var(--ho-ember-hi);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{background:var(--surface2);border-color:var(--ho-gold-dim)}
+.btn[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--ho-night)}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;pointer-events:none;transform:none}
+.nav2{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin-top:1.6rem;border-top:1px solid var(--line);padding-top:1.1rem}
 
+/* checkers */
 .report{margin-top:1rem}
-.shown{white-space:pre-wrap;background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.8rem;line-height:1.7}
+.shown{white-space:pre-wrap;background:var(--ho-night-2);border:1.5px solid var(--line);border-radius:var(--ho-r);padding:.9rem 1rem;line-height:1.75}
 mark.feel{background:var(--hl-feel);color:inherit;border-radius:3px;padding:0 .15em;text-decoration:underline wavy;text-underline-offset:3px}
 mark.adv{background:var(--hl-adv);color:inherit;border-radius:3px;padding:0 .15em;text-decoration:underline;text-underline-offset:3px}
 .legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0;font-size:.95rem}
 .checks{list-style:none;padding:0;margin:.8rem 0;display:grid;gap:.5rem}
-.checks li{display:flex;gap:.7rem;align-items:baseline;border:1.5px solid var(--line);border-radius:8px;padding:.5rem .8rem;background:var(--bg)}
+.checks li{display:flex;gap:.8rem;align-items:baseline;border:1.5px solid var(--line);border-radius:var(--ho-r);padding:.6rem .9rem;background:var(--ho-night-2)}
 .checks .tag{font-weight:700;min-width:3rem}
+.checks .pass{border-color:rgba(114,214,163,.5)}
 .checks .pass .tag{color:var(--ok)}
+.checks .fix{border-color:rgba(242,133,122,.5)}
 .checks .fix .tag{color:var(--bad)}
-.self{border:1.5px solid var(--line);border-radius:8px;padding:.6rem 1rem 1rem;margin:1.2rem 0}
-.self legend{font-weight:700;padding:0 .4rem}
+.self{border:1.5px solid var(--line);border-radius:var(--ho-r);padding:.6rem 1.1rem 1rem;margin:1.2rem 0;background:var(--ho-night-2)}
+.self legend{font-weight:700;padding:0 .4rem;color:var(--ho-gold)}
 .self label{display:flex;gap:.6rem;align-items:flex-start;margin:.5rem 0}
-.self input{width:1.2rem;height:1.2rem;margin-top:.25rem;accent-color:var(--accent)}
+.self input{width:1.2rem;height:1.2rem;margin-top:.25rem;accent-color:var(--ho-ember)}
 
-.credit{margin-top:2.5rem;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:1rem 1.3rem;font-size:.97rem;color:var(--muted)}
+/* credit + footer */
+.credit{margin-top:2.5rem;border:1px solid var(--line);border-left:4px solid var(--ho-gold-dim);border-radius:var(--ho-r);background:var(--surface);padding:1.1rem 1.4rem;font-size:.97rem;color:var(--muted)}
 .credit p{margin:.4rem 0;max-width:none}
 .credit ul{margin:.4rem 0;padding-left:1.2rem}
-footer{border-top:1px solid var(--line);padding:1.5rem var(--pad) 2.5rem;color:var(--muted);font-size:.95rem}
-footer div{max-width:none;margin:0}
-footer p{margin:.3rem 0;max-width:none}
+footer{border-top:1px solid var(--line);padding:2.4rem var(--pad) 3rem;color:var(--muted);font-size:.95rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.18))}
+.ft-in{display:flex;gap:1.6rem;align-items:flex-start}
+.ft-logo{flex:none;width:84px;height:84px;border-radius:50%;box-shadow:0 0 0 1px var(--ho-gold-dim),0 0 40px rgba(217,184,108,.18)}
+footer p{max-width:none;margin:.3rem 0}
+@media (max-width:640px){.crumb{display:none}.ft-in{flex-direction:column}.top-in{gap:.5rem}.mark{font-size:1.25rem}.back{padding:.4em .7em}}
+@media (max-width:560px){.back .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.back{padding:.5em .65em}.switch .state{display:none}}
 </style>
 </head>
 <body>
@@ -145,13 +166,20 @@ footer p{margin:.3rem 0;max-width:none}
 
 <header class="top">
   <div class="top-in">
-    <a class="mark" href="../" aria-label="Haunted Ohio home"><img id="logo" alt="" width="32" height="32"><span>Haunted Ohio</span></a>
-    <a class="back" href="../">Back to the course site</a>
+    <a class="mark" href="../" aria-label="Haunted Ohio home"><img id="logo" src="../assets/img/ho-icon.png" alt="" width="36" height="36"><span>Haunted Ohio</span></a>
+    <span class="crumb" aria-hidden="true"><b>Show, Don’t Tell</b></span>
+    <a class="back" href="../"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="../assets/img/ho-icons.svg#i-arrow-left"/></svg><span class="lbl">Back to the course site</span></a>
     <button class="switch" id="theme" type="button" role="switch" aria-checked="false" aria-label="Dark mode"><span class="track" aria-hidden="true"><span class="knob"></span></span><span aria-hidden="true">Dark mode</span><span class="state" aria-hidden="true">Off</span></button>
   </div>
 </header>
 
-<main class="wrap" id="main">
+<main id="main">
+<section class="banner">
+  <svg class="banner-art" viewBox="0 0 260 200" aria-hidden="true" focusable="false"><defs><radialGradient id="mn" cx="38%" cy="34%" r="75%"><stop offset="0" stop-color="#fffef6"/><stop offset=".55" stop-color="#e6eef5"/><stop offset="1" stop-color="#aebfd0"/></radialGradient></defs>
+<circle cx="150" cy="82" r="58" fill="url(#mn)"/><circle cx="168" cy="68" r="9" fill="#7f90a2" opacity=".25"/><circle cx="130" cy="100" r="12" fill="#7f90a2" opacity=".2"/>
+<path d="M205 24l5 14 14 5-14 5-5 14-5-14-14-5 14-5z" fill="#fff" opacity=".95"/>
+<g stroke="#d9b86c" stroke-width="1.6" stroke-linejoin="round" fill="rgba(143,211,232,.16)"><path d="M40 190l30-52 26 36z"/><path d="M96 174l34-26 16 42z"/><path d="M150 190l24-40 40 14-8 26z"/><path d="M70 138l20-18 6 54z" fill="rgba(217,184,108,.14)"/></g></svg>
+  <div class="banner-in">
   <h1>Show, Don’t Tell</h1>
   <p class="intro">Ten short lessons on making readers feel the story instead of being told how to feel. Each one ends with a small writing exercise.</p>
 
@@ -159,7 +187,10 @@ footer p{margin:.3rem 0;max-width:none}
     <p id="ptext" aria-live="polite">0 of 10 lessons complete</p>
     <div class="bar" id="bar" role="progressbar" aria-label="Lessons complete" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i id="fill"></i></div>
   </div>
+  </div>
+</section>
 
+<div class="wrap">
   <div class="layout">
     <nav aria-label="Lessons"><ol class="lessons" id="list"></ol></nav>
     <article class="pane" id="pane" tabindex="-1" aria-live="off"></article>
@@ -174,12 +205,16 @@ footer p{margin:.3rem 0;max-width:none}
       <li><a href="https://reedsy.com/blog/guide/theme/" target="_blank" rel="noopener">Theme</a></li>
     </ul>
   </aside>
+</div>
 </main>
 
 <footer>
-  <div>
+  <div class="ft-in">
+    <img class="ft-logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio badge" width="84" height="84" loading="lazy">
+    <div>
     <p>Haunted Ohio is a MoeTerm course at Archbishop Moeller High School.</p>
     <p>Anything you write here is stored only in this browser on this device. A shared or cleared browser can lose it. Use “Copy my writing” to keep what matters.</p>
+    </div>
   </div>
 </footer>
 
@@ -332,7 +367,7 @@ function paintProgress(){
 function paintList(){
   list.innerHTML=LESSONS.map(function(L,i){
     var n=i+1;
-    return '<li><a href="#lesson-'+n+'"'+(n===cur?' aria-current="page"':'')+'><span class="n">'+n+'</span><span>'+esc(L.t)+'</span>'+(state.done[n]?'<span class="tick" aria-label="complete">✓</span>':'')+'</a></li>';
+    return '<li'+(state.done[n]?' class="done"':'')+'><a href="#lesson-'+n+'"'+(n===cur?' aria-current="page"':'')+'><span class="n">'+n+'</span><span>'+esc(L.t)+'</span>'+(state.done[n]?'<span class="tick" aria-label="complete">✓</span>':'')+'</a></li>';
   }).join('');
   var a=$('a[aria-current]',list);
   if(a&&a.scrollIntoView){try{a.scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}}
@@ -366,6 +401,7 @@ function render(){
   h+='<div class="row"><button class="btn" type="button" id="done" aria-pressed="'+(!!state.done[n])+'">'+(state.done[n]?'Lesson complete ✓':'Mark lesson complete')+'</button><button class="btn ghost" type="button" id="copy">Copy my writing</button></div></section>';
   h+='<div class="nav2">'+(n>1?'<a class="btn ghost" href="#lesson-'+(n-1)+'">← Previous</a>':'<span class="btn ghost" aria-disabled="true">← Previous</span>')+(n<10?'<a class="btn ghost" href="#lesson-'+(n+1)+'">Next →</a>':'<span class="btn ghost" aria-disabled="true">Next →</span>')+'</div>';
   pane.innerHTML=h;
+  pane.classList.remove('is-in');void pane.offsetWidth;pane.classList.add('is-in');
 
   var ta=$('#writing');
   var saved=state.text[n];
