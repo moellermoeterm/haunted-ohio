@@ -7,7 +7,7 @@ import { run, eq, ok, ROOT } from './lib.mjs';
 const fixture = (name) => fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', name), 'utf8');
 
 const ROUTES = ['home', 'learn', 'games', 'prompts', 'draft', 'legend', 'dread', 'resources', 'cemetery', 'leaders', 'about'];
-const WIDTHS = [1920, 1366, 1024, 768, 390];
+const WIDTHS = [1920, 1366, 1280, 1024, 768, 390];
 const lsGet = (page, k) => page.evaluate((key) => localStorage.getItem(key), k);
 const noHScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
 
@@ -209,7 +209,7 @@ T('design-system: self-hosted fonts load, no external requests, theme switch wor
 });
 
 // ---------------------------------------------------------------- responsive
-T('responsive: no horizontal scroll on any page at five widths', async ({ base, newPage }) => {
+T('responsive: no horizontal scroll on any page at 1920, 1366, 1280, 1024, 768 and 390 px', async ({ base, newPage }) => {
   for (const w of WIDTHS) {
     const p = await newPage({ width: w, height: 800 });
     for (const u of ['', '#learn', '#games', '#prompts', '#draft', '#cemetery', 'show-dont-tell/#lesson-3', 'haunting-files/', 'last-light/', 'design-system/']) {
