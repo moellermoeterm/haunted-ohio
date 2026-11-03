@@ -1,0 +1,66 @@
+{
+ "v": 1,
+ "started": true,
+ "screen": "mission",
+ "xp": 41,
+ "name": "Fixture Survivor",
+ "bg": "mech",
+ "pers": "bold",
+ "str": "hands",
+ "weak": "trust",
+ "res": {
+  "food": 6,
+  "water": 6,
+  "meds": 2,
+  "batt": 4,
+  "fuel": 4
+ },
+ "hp": 5,
+ "day": 1,
+ "loc": "home",
+ "done": {},
+ "flags": {},
+ "clues": [],
+ "inv": [
+  "Flashlight",
+  "Multi-tool",
+  "Water bottle"
+ ],
+ "journal": [],
+ "log": [
+  {
+   "day": 1,
+   "t": "Survivor Fixture Survivor wakes in Haven Ridge. The radio is speaking."
+  }
+ ],
+ "story": {},
+ "ach": {
+  "tuned": true,
+  "doubt": true
+ },
+ "sound": true,
+ "m": {
+  "id": "signal",
+  "step": 3,
+  "done": false,
+  "freq": 964,
+  "pick": [
+   "a",
+   "b",
+   "c"
+  ],
+  "reason": "The message repeats the same warning in a calm voice and there is a train horn in the background so it may be a recording made by someone who knew more than they said or a person in danger with failing equipment.",
+  "right": 3,
+  "judged": true
+ },
+ "cp": null,
+ "cr": {
+  "name": "Fixture Survivor",
+  "bg": "mech",
+  "pers": "bold",
+  "str": "hands",
+  "weak": "trust"
+ },
+ "sel": "home",
+ "extra": ""
+}
