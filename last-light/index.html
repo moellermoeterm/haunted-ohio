@@ -198,6 +198,8 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 #caseSlot input{text-align:center}
 .sigtxt{word-break:break-word}
 </style>
+<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+<script src="../assets/js/ho-track.js"></script>
 </head>
 <body>
 <div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="" width="22" height="22">Haunted Ohio</a><span aria-hidden="true">/</span><span>The Last Light</span><span class="ho-bureau__sp"></span><a href="../#games">All games</a></div>
@@ -468,7 +470,7 @@ function finishM(title,minw){
  var t=(S.m.jtext||'').trim();
  if(wc(t)<(minw||25)){toast('Write at least '+(minw||25)+' words in your journal entry.');return}
  var bonus=10+(SENSE.test(t)?5:0)+(has('stud')?5:0);
- S.journal.push({day:S.day,title:title,text:t});S.done[S.m.id]=true;logIt('Completed: '+title+'.');
+ S.journal.push({day:S.day,title:title,text:t});S.done[S.m.id]=true;if(window.HO_track)HO_track('mission-complete');logIt('Completed: '+title+'.');
  xp(bonus,'Journal entry');S.m=null;S.screen='map';S.sel=null;save();render();window.scrollTo(0,0)
 }
 function journalStep(prompt,title){
@@ -749,6 +751,7 @@ document.addEventListener('change',function(ev){
 });
 function dl(name,text,type){try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}}
 render();
+if(window.HO_track)HO_track('game-opened-last-light');
 })();
 ;(function(){
 var HOW={"title": "How to play The Last Light", "intro": "Ohio, 2047. Survive, make choices you can live with, and write your way through the silence.", "steps": [["Start.", "Choose <i>Enter the silence</i>, then <i>New game</i>. Build your survivor: name, background, personality, strength, and weakness. These change what you can notice, what you can say, and what you start with."], ["Map.", "Tap a location to read about it. <i>Travel</i> costs 1 day: 1 food and 1 water. Some places stay locked until you finish an earlier mission."], ["Missions.", "Each mission is a short scene with choices. Your decisions are remembered and shape later scenes and your final story."], ["Watch your supplies.", "The bar at the top shows Day, Health, Food, Water, Meds, Batteries, and Fuel. Every day costs 1 food and 1 water. Run out and you lose health. If health runs out, the game ends. Check the <i>Pack</i> tab for your inventory and clues."], ["Journal.", "After each mission you write a short entry. You can add more any time (at least 20 words each)."], ["Final story.", "Unlocks after 3 journal entries. Write your own survival horror in ten beats of at least 15 words each. Invent your own character and world, then download it as a .txt file."]], "tips": ["XP rewards careful thinking and strong writing, not speed.", "Sound effects can be turned off in <i>Save and settings</i>.", "Your progress saves automatically in this browser. Export a save file to move to another device."]};

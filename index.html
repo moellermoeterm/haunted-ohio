@@ -491,6 +491,8 @@ details.howto li{margin:.35rem 0}
 .dz-frame{width:100%;min-height:760px;border:1px solid var(--line);border-radius:12px;background:#fff}
 @media (max-width:760px){.dz-head,.dz-two{grid-template-columns:1fr}.dz-pts{text-align:left}}
 </style>
+<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+<script src="assets/js/ho-track.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -1442,6 +1444,7 @@ var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#i
     document.title=(h==='home'?'':TITLES[h]+' | ')+'Haunted Ohio';
     window.scrollTo(0,0);
     window.dispatchEvent(new Event('resize'));
+    if(window.HO_page)HO_page(h==='home'?'/':'/'+h);
   }
   window.addEventListener('hashchange',route);
   route();
@@ -2444,7 +2447,7 @@ var PROMPT='';
     if(a=t.getAttribute('data-photo')){S(a).photo=t.checked;save();live();return}
     if(a=t.getAttribute('data-fact')){var p=a.split('|'),s=S(p[0]);s.facts=s.facts||[];var n=+p[1],i=s.facts.indexOf(n);
       if(t.checked){if(s.facts.length>=2){t.checked=false;HO.toast('Choose exactly two facts. Uncheck one to swap.');return}s.facts.push(n)}else if(i>-1)s.facts.splice(i,1);
-      save();var lab=t.closest('label');if(lab)lab.classList.toggle('sel',t.checked);live();if(sealed(STOPS.filter(function(x){return x.id===p[0]})[0].idx))track('hunt_stop_complete')}
+      save();var lab=t.closest('label');if(lab)lab.classList.toggle('sel',t.checked);live();if(sealed(STOPS.filter(function(x){return x.id===p[0]})[0].idx))track('stop-complete')}
   });
   root.addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
@@ -2476,8 +2479,8 @@ var PROMPT='';
   if(ti){ti.innerHTML=turninHTML();
     $('#subCopy').addEventListener('click',function(){copy($('#subText').value,this)});
     $('#subRefresh').addEventListener('click',function(){report();HO.toast('Report refreshed.')});
-    var fl=$('#formLink');if(fl)fl.addEventListener('click',function(){track('form_opened')});
-    var fs=$('#formShow');if(fs)fs.addEventListener('click',function(){var bx=$('#formBox');if(!bx.firstChild){var f=document.createElement('iframe');f.src=FORM_EMBED;f.title='Turn-in form';f.setAttribute('loading','lazy');f.setAttribute('referrerpolicy','no-referrer');f.className='dz-frame';bx.appendChild(f);var p=document.createElement('p');p.className='muted';p.innerHTML='If the form does not load, <a target="_blank" rel="noopener" href="'+esc(FORM_URL||FORM_EMBED)+'">open it in its own tab</a>.';bx.appendChild(p)}bx.hidden=!bx.hidden;track('form_opened')});
+    var fl=$('#formLink');if(fl)fl.addEventListener('click',function(){track('form-opened')});
+    var fs=$('#formShow');if(fs)fs.addEventListener('click',function(){var bx=$('#formBox');if(!bx.firstChild){var f=document.createElement('iframe');f.src=FORM_EMBED;f.title='Turn-in form';f.setAttribute('loading','lazy');f.setAttribute('referrerpolicy','no-referrer');f.className='dz-frame';bx.appendChild(f);var p=document.createElement('p');p.className='muted';p.innerHTML='If the form does not load, <a target="_blank" rel="noopener" href="'+esc(FORM_URL||FORM_EMBED)+'">open it in its own tab</a>.';bx.appendChild(p)}bx.hidden=!bx.hidden;track('form-opened')});
   }
   render();
 })();

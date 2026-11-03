@@ -227,6 +227,8 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 #caseSlot label{display:block;text-align:center;font-weight:700;margin-bottom:.4rem}
 #caseSlot input{text-align:center}
 </style>
+<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+<script src="../assets/js/ho-track.js"></script>
 </head>
 <body>
 <div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="" width="22" height="22">Haunted Ohio</a><span aria-hidden="true">/</span><span>The Haunting Files</span><span class="ho-bureau__sp"></span><a href="../#games">All games</a></div>
@@ -570,7 +572,7 @@ document.addEventListener('click',function(ev){
   var res=analyze(S.report||''),pass=res.filter(function(r){return r.ok}).length;
   T.fbReport='<div class="card" style="margin-top:1rem"><h3>Report review: '+pass+' of 6</h3><ul style="padding-left:1.1rem">'+res.map(function(r){return '<li>'+(r.ok?'<b style="color:var(--ok)">Pass.</b> ':'<b style="color:var(--warn)">Fix.</b> ')+r.l+(r.ok?'':'<br><span class="muted">'+r.tip+'</span>')+'</li>'}).join('')+'</ul>'+
    (pass>=4?'':'<p class="muted">Get at least 4 of 6 to file the report.</p>')+'</div>';
-  if(pass>=4&&!S.filed){S.filed=true;xp(pass*10,'Field report filed');award('closed')}
+  if(pass>=4&&!S.filed){S.filed=true;if(window.HO_track)HO_track('case-closed');xp(pass*10,'Field report filed');award('closed')}
   else if(pass>=4)toast('Report still passes.');
   save();render()}
  else if(a==='export'){download('haunting-files-save-'+(S.name||'investigator').replace(/\W+/g,'-')+(CASE>1?'-case-'+CASE:'')+'.json',JSON.stringify(S),'application/json')}
@@ -603,6 +605,7 @@ function download(name,text,type){
 }
 if(S.screen==='intro'&&!S.started){}
 render();
+if(window.HO_track)HO_track('game-opened-haunting-files');
 })();
 ;(function(){
 var HOW0={"title": "How to play The Haunting Files", "intro": "You are a junior investigator. The goal is not to find the scariest answer. It is to build a theory you can defend with evidence.", "steps": [["Start.", "Choose <i>Open the archive</i>, then <i>New case</i>. Enter your investigator name and read the case file, then press <i>I have read the file</i>."], ["Case file.", "Open each exhibit, decide what kind of evidence it is, and file it. Correct filings earn XP. A <i>Review</i> tag means read the explanation and try to understand why. File at least 6 exhibits, including both witness statements (E3 and E4)."], ["Interview room.", "Unlocks after you file E3 and E4. Compare the two statements line by line and select only the places where they truly conflict. Then write at least 20 words on whose account you trust about the open door."], ["Evidence board.", "Tap one exhibit, then another, to tie them with string. Choose <i>supports</i>, <i>contradicts</i>, or <i>explains</i> and say why in at least 6 words. Make at least 2 connections."], ["Theory.", "Pick the explanation you will defend, choose at least 2 exhibits that support it, write at least 30 words making your case, and say what new evidence would change your mind."], ["Field report.", "Write at least 80 words that put the reader on the balcony at 10:40 PM, say what you believe happened, and cite at least two exhibits by number, like E3. Press <i>Check my report</i>."], ["Final story.", "Write your own ghost story in beats, at least 15 words each. Invent your own place and mystery. Download it as a .txt file when you are ready."]], "tips": ["XP rewards good reasoning and strong writing, not speed or lucky guesses.", "Locked tabs tell you what to finish first.", "Your progress saves automatically in this browser. Use <i>Save and settings</i> to export a save file for another device.", "Exhibits are labeled real history or game material. Don’t treat game material as documented history."]};
