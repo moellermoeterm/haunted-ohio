@@ -90,7 +90,8 @@ T('home redesign: hero, case index, and field map', async ({ base, newPage }) =>
   const p = await newPage(); await p.goto(base + '#home');
   ok((await p.isVisible('.hero-moon')) && (await p.isVisible('.hero-city')), 'night sky and skyline render');
   eq((await p.$$('.where a')).length, 11, 'eleven case-index cards, none lost');
-  await p.click('#heroCue'); await p.waitForTimeout(900);
+  await p.click('#heroCue');
+  await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
   eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/', 'map pins link to existing places');
   eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/', 'map list links');
