@@ -243,6 +243,96 @@ T('haunting-files: a save made BEFORE the P4 restyle still loads and plays', asy
   eq(after.name, 'Fixture Student', 'name kept'); eq(after.links.length, 2, 'connections kept');
 });
 
+// ---------------------------------------------------------------- The Haunting Files: six cases (Phase 6)
+T('haunting-files: six cases, each with 9 exhibits of all six types, 3 real contradictions, 4 theories with a valid evidence map', async ({ base, newPage }) => {
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto(base + 'haunting-files/');
+  const cases = await p.evaluate(() => JSON.parse(JSON.stringify(window.HF_CASES)));
+  eq(Object.keys(cases).join(','), '1,2,3,4,5,6', 'cases 1 to 6 exist');
+  const names = []; const files = new Set(); const strongest = [];
+  for (const k of Object.keys(cases)) {
+    const c = cases[k]; names.push(c.name); files.add(c.file); strongest.push(c.strongest);
+    eq(c.ev.length, 9, 'case ' + k + ': nine exhibits');
+    eq(c.ev.map((e) => e.id).join(','), 'E1,E2,E3,E4,E5,E6,E7,E8,E9', 'case ' + k + ': exhibit ids');
+    eq([...new Set(c.ev.map((e) => e.type))].sort().join(','), 'claim,eye,fact,lore,mis,spec', 'case ' + k + ': all six evidence types');
+    eq(c.ev.filter((e) => e.type === 'eye').map((e) => e.id).join(','), 'E3,E4', 'case ' + k + ': E3 and E4 are the two witness statements');
+    ok(c.ev.every((e) => (e.src === 'real' || e.src === 'game') && e.why && e.body && e.title && e.kind), 'case ' + k + ': every exhibit is labeled and explained');
+    eq(c.contra.length, 5, 'case ' + k + ': five options'); eq(c.contra.filter((o) => o.ok).length, 3, 'case ' + k + ': exactly three real contradictions');
+    ok(new RegExp(c.checkRe, 'i').test(c.checkYes + ' ' + c.checkNo + ' ' + c.ev.find((e) => e.id === 'E5').body), 'case ' + k + ': the checkable detail is findable in E5');
+    eq(Object.keys(c.theories).length, 4, 'case ' + k + ': four theories'); ok(c.theories.sup, 'case ' + k + ': a supernatural option stays on the table');
+    for (const th of Object.values(c.theories)) { ok(th.n && th.d && th.ch && th.sup.length >= 2, 'theory text'); ok(th.sup.every((id) => c.ev.some((e) => e.id === id)), 'evidence map ids exist'); }
+    ok(c.theories[c.strongest], 'case ' + k + ': the strongest explanation is one of its theories');
+    ok(c.ev.filter((e) => e.src === 'real').length >= 1 && c.ev.filter((e) => e.src === 'real').length <= 2, 'case ' + k + ': only 1 or 2 exhibits are marked real history');
+    ok(!/s[eé]ance|ouija|spirit box|contact the dead|summon/i.test(JSON.stringify(c)), 'case ' + k + ': no spirit-contacting activity');
+  }
+  eq(new Set(names).size, 6, 'six different places'); eq(files.size, 6, 'six different file numbers'); ok(new Set(strongest).size >= 4, 'varied strongest explanations: ' + strongest);
+  eq(errs.length, 0, 'no page errors: ' + errs);
+});
+T('haunting-files: case code (?case=N, title field, random), per-case save slots, case shown in bar and saves', async ({ base, newPage }) => {
+  const p = await newPage();
+  await p.goto(base + 'haunting-files/?case=3'); await p.waitForTimeout(150);
+  ok(/Miami/.test(await p.textContent('#brief')), '?case=3 shows case 3 on the title screen'); eq(await p.inputValue('#caseCode'), '3', 'field shows the code');
+  await p.fill('#caseCode', '5'); await p.dispatchEvent('#caseCode', 'change'); await p.waitForTimeout(150);
+  ok(/Reformatory/.test(await p.textContent('#brief')), 'typing 5 switches to case 5'); eq(await p.inputValue('#caseCode'), '5', 'field keeps the code');
+  await p.click('[data-act="randcase"]'); const rc = +(await p.inputValue('#caseCode')); ok(rc >= 1 && rc <= 6, 'random gives 1 to 6: ' + rc);
+  await p.fill('#caseCode', '2'); await p.dispatchEvent('#caseCode', 'change');
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-act="begin"]'); await p.waitForTimeout(150);
+  ok(/Case 2/.test(await p.textContent('.casechip')), 'top bar shows the case code'); ok(/Golden Lamb/.test(await p.textContent('.paper h2')), 'case page is the Golden Lamb');
+  eq((await p.$$('.ex')).length, 9, 'nine exhibits');
+  await p.click('[data-act="readcase"]'); await p.click('.ex >> nth=0'); await p.click('[data-file] >> nth=0'); await p.waitForTimeout(100);
+  const s2 = JSON.parse(await lsGet(p, 'hf_save_v1_c2')); ok(s2 && s2.started && s2.case === 2, 'case 2 saves under hf_save_v1_c2 and records case: 2');
+  eq(await lsGet(p, 'hf_save_v1'), null, 'the original case-1 slot is untouched by other cases');
+  await p.goto(base + 'haunting-files/?case=4'); await p.click('[data-act="menu"]'); ok(!(await p.$('[data-act="resume"]')), 'case 4 has its own empty slot');
+  await p.goto(base + 'haunting-files/?case=2'); await p.click('[data-act="menu"]'); ok(await p.$('[data-act="resume"]'), 'case 2 still resumes');
+  await p.goto(base + 'haunting-files/'); await p.waitForTimeout(150); eq(await lsGet(p, 'hf_case'), '2', 'the last case played on this device is remembered'); ok(await p.$('[data-act="resume"]'), 'and its save resumes');
+});
+T('haunting-files: every case can be played from start to a filed report (no dead ends)', async ({ base, newPage }) => {
+  const words = (n) => Array.from({ length: n }, (_, i) => 'word' + i).join(' ');
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+    await p.goto(base + 'haunting-files/?case=' + k);
+    const c = await p.evaluate((n) => JSON.parse(JSON.stringify(window.HF_CASES[n])), k);
+    await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Player' + k); await p.click('[data-act="begin"]'); await p.waitForTimeout(100);
+    await p.click('[data-act="readcase"]');
+    for (const e of c.ev) { await p.click(`[data-ex="${e.id}"]`); await p.click(`[data-file="${e.type}"]`); }
+    eq(await p.$$eval('.ex .tick:not(.no)', (n) => n.length), 9, 'case ' + k + ': every exhibit filed correctly with the intended type');
+    await p.click('[data-go="interview"]'); await p.waitForTimeout(80);
+    for (const o of c.contra.filter((x) => x.ok)) await p.click(`[data-pick="${o.id}"]`);
+    await p.fill('[data-bind="contra.text"]', 'I trust the written record more because the facilities note, the log and the plan can be checked. ' + words(8)); await p.click('[data-act="submitcontra"]');
+    ok(/You found 3 of 3/.test(await p.textContent('.fb')), 'case ' + k + ': three real contradictions found');
+    await p.click('[data-go="board"]'); await p.waitForTimeout(80);
+    for (const [a, b] of [['E3', 'E4'], ['E4', 'E5']]) { await p.click(`[data-pin="${a}"]`); await p.click(`[data-pin="${b}"]`); await p.fill('#lkwhy', 'These two exhibits are connected because of this reason'); await p.click('[data-act="addlink"]'); }
+    await p.click('[data-go="theory"]'); await p.waitForTimeout(80);
+    await p.click(`[data-th="${c.strongest}"]`); for (const id of c.theories[c.strongest].sup.slice(0, 3)) await p.click(`[data-cite="${id}"]`);
+    await p.fill('[data-bind="th.why"]', 'I defend this explanation, but I know the other side could argue otherwise. ' + words(26)); await p.fill('[data-bind="th.change"]', 'A record that contradicts the facilities note would change my mind');
+    await p.click('[data-act="submittheory"]'); ok(/directly support/.test(await p.textContent('.fb')), 'case ' + k + ': the strongest explanation is supported by the exhibits cited');
+    await p.click('[data-go="report"]'); await p.waitForTimeout(80);
+    await p.fill('[data-bind="report"]', 'At 10:40 PM it was dim and cold, with an echo and a creak and a damp draft on the stairs. It might be that the facilities note E5 and the plan E6 explain it, which suggests an ordinary cause. ' + words(60));
+    await p.click('[data-act="checkreport"]'); const rp = await p.textContent('.card h3'); ok(/Report review: ([4-6]) of 6/.test(rp), 'case ' + k + ': the report can be filed: ' + rp);
+    eq(errs.length, 0, 'case ' + k + ': no page errors: ' + errs);
+    await p.context().close();
+  }
+});
+T('haunting-files: Case 1 still shows the original text now that it is assembled from case data', async ({ base, newPage }) => {
+  const seed = (screen) => (() => { try { localStorage.setItem('hf_save_v1', JSON.stringify({ v: 1, started: true, name: 'Old', screen: SCREEN, xp: 20, sel: null, cls: { E3: 'eye', E4: 'eye' }, coll: { E3: true, E4: true }, links: [], contra: { pick: [], text: '', done: false, score: 0 }, th: { choice: '', cites: [], why: '', change: '', done: true }, report: '', filed: true, story: {}, ach: {}, sound: true, readCase: true })); } catch (e) { /* ignore */ } }).toString().replace('SCREEN', JSON.stringify(screen));
+  const at = async (screen) => { const p = await newPage(); await p.addInitScript('(' + seed(screen) + ')()'); await p.goto(base + 'haunting-files/'); await p.waitForTimeout(200); return p; };
+  eq((await (await at('case')).textContent('.paper h2')).trim(), 'Case File #0047: Cincinnati Music Hall', 'case heading');
+  ok((await (await at('case')).textContent('.paper')).includes('After a Saturday concert, an usher reports a figure in a gray coat on the upper balcony. A stagehand says nobody was there. The balcony door was found open.'), 'reported event');
+  ok((await (await at('interview')).textContent('.wrap')).includes('Whose account would you trust more about the open door, and why?'), 'interview question');
+  ok((await (await at('final')).textContent('.wrap')).includes('Do not retell the Music Hall legend.'), 'final story line');
+});
+T('haunting-files: seeded shuffle is repeatable for a name and case; a pre-variant save keeps the original order', async ({ base, newPage }) => {
+  const order = async (p) => p.$$eval('[data-pick]', (e) => e.map((x) => x.getAttribute('data-pick')).join(''));
+  const start = async (p, url, name) => { await p.goto(base + url); await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); await p.click('[data-act="begin"]'); await p.waitForTimeout(100);
+    await p.click('[data-act="readcase"]'); for (const i of [2, 3]) { await p.click(`.ex >> nth=${i}`); await p.click('[data-file] >> nth=0'); } await p.click('[data-go="interview"]'); await p.waitForTimeout(100); };
+  const p = await newPage(); await start(p, 'haunting-files/?case=2', 'Ada'); const o1 = await order(p); eq(o1.length, 5, 'five options');
+  await p.reload(); await p.waitForTimeout(150); eq(await order(p), o1, 'same name and case give the same order after a reload');
+  const q = await newPage(); await q.addInitScript(() => { try { localStorage.setItem('hf_save_v1', JSON.stringify({ v: 1, started: true, name: 'Old', screen: 'interview', xp: 20, sel: null, cls: { E3: 'eye', E4: 'eye' }, coll: { E3: true, E4: true }, links: [], contra: { pick: [], text: '', done: false, score: 0 }, th: { choice: '', cites: [], why: '', change: '', done: false }, report: '', filed: false, story: {}, ach: {}, sound: true, readCase: true })); } catch (e) { /* ignore */ } });
+  await q.goto(base + 'haunting-files/'); await q.waitForTimeout(200); eq(await order(q), 'abcde', 'a save from before variants keeps the original order (case 1)');
+  ok(/Case 1/.test(await q.textContent('.casechip')), 'a pre-variant save is Case 1');
+  const names = new Set(); for (const n of ['Ada', 'Ben', 'Cy', 'Di', 'Ed', 'Flo']) { const r = await newPage(); await start(r, 'haunting-files/?case=1', n); names.add(await order(r)); } ok(names.size >= 2, 'different names get different orders: ' + [...names]);
+});
+
 // ---------------------------------------------------------------- The Last Light
 T('last-light: create survivor, open map, start mission, save, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'last-light/');
@@ -274,6 +364,164 @@ T('last-light: a save made BEFORE the P5 restyle still loads and plays', async (
   await p.click('[data-act="sig-dec"][data-v="investigate"]'); await p.waitForTimeout(200);
   const after = JSON.parse(await lsGet(p, 'tll_save_v1'));
   eq(after.name, 'Fixture Survivor', 'name kept'); eq(after.m.step, 4, 'mission moved on after the decision'); ok(after.flags.investigate, 'the choice was recorded'); ok(after.ach.tuned && after.ach.doubt, 'achievements kept');
+});
+
+// ---------------------------------------------------------------- The Last Light: six scenarios (Phase 6)
+const llSeed = (patch) => '(function(){try{var b=' + fixture('ll_save_pre_p5.json') + ';var p=' + JSON.stringify(patch) + ';for(var k in p)b[k]=p[k];localStorage.setItem("tll_save_v1",JSON.stringify(b))}catch(e){}})()';
+const lsText = (page) => page.evaluate(() => JSON.stringify(Object.keys(localStorage).map((k) => localStorage.getItem(k))));
+const llKey = () => Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d)?$/.test(x));
+T('last-light: six scenarios, each with its own map, signal and decoding puzzle, stranger, supply run and cause of The Silence', async ({ base, newPage }) => {
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto(base + 'last-light/');
+  const S = await p.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS)));
+  eq(Object.keys(S).join(','), '1,2,3,4,5,6', 'scenarios 1 to 6');
+  const uniq = (f) => new Set(Object.values(S).map(f)).size;
+  eq(uniq((s) => s.locs.home.n), 6, 'six different opening locations'); eq(uniq((s) => s.map.poly), 6, 'six different maps'); eq(uniq((s) => s.locs.cin.n), 6, 'six different supply-run places');
+  eq(uniq((s) => s.signal.freq), 6, 'six different frequencies'); eq(uniq((s) => s.signal.msg), 6, 'six different transmissions'); eq(uniq((s) => s.stranger.name), 6, 'six different strangers');
+  eq(uniq((s) => s.supply.items.box.clue), 6, 'six different clues about the cause of The Silence'); eq(uniq((s) => s.stranger.helpClue), 6, 'six different secrets the stranger can give up');
+  eq(uniq((s) => s.stranger.tells.never), 6, 'six different tells');
+  for (const [k, s] of Object.entries(S)) {
+    ok(s.signal.obs.filter((o) => o.ok).length >= 4 && s.signal.obs.filter((o) => !o.ok).length >= 2, 'scenario ' + k + ': observations include real clues and decoys');
+    ok(s.signal.freq >= 890 && s.signal.freq <= 1070, 'scenario ' + k + ': the dial range covers the frequency');
+    eq(Object.keys(s.stranger.tells).sort().join(','), 'badge,clay,never,nurse,road,story', 'scenario ' + k + ': six tells');
+    ok(/11:47/.test(s.supply.items.box.clue) || s.code === 1 || /Meridian/.test(s.supply.items.box.clue), 'scenario ' + k + ': the cause clue is a clue');
+    ok(!/s[eé]ance|ouija|spirit/i.test(JSON.stringify(s)), 'scenario ' + k + ': no spirit-contacting activity');
+  }
+  const t = await p.textContent('.title');
+  ok(/2047/.test(t) && /11:47 p\.m\. on October 31, 2026/.test(t), 'the title screen keeps 2047 and Oct 31, 2026 at 11:47 p.m.');
+  eq(errs.length, 0, 'no page errors: ' + errs);
+});
+T('last-light: case code (?case=N, title field, random), per-case save slots, case shown in bar and saves', async ({ base, newPage }) => {
+  const p = await newPage();
+  await p.goto(base + 'last-light/?case=4'); await p.waitForTimeout(150); eq(await p.inputValue('#caseCode'), '4', '?case=4 sets the field');
+  await p.fill('#caseCode', '6'); await p.dispatchEvent('#caseCode', 'change'); await p.waitForTimeout(100); eq(await p.inputValue('#caseCode'), '6', 'typing 6 switches the case');
+  await p.click('[data-act="randcase"]'); const rc = +(await p.inputValue('#caseCode')); ok(rc >= 1 && rc <= 6, 'random gives 1 to 6: ' + rc);
+  await p.fill('#caseCode', '3'); await p.dispatchEvent('#caseCode', 'change');
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:bold"]'); await p.click('[data-cr="str:hands"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(150);
+  ok(/Case 3/.test(await p.textContent('.casechip')), 'the bar shows the case code');
+  ok(/Ashgrove Silo/.test(await p.textContent('.mapbox')), 'the map is the scenario 3 map'); ok(/Columbus/.test(await p.textContent('.mapbox svg')), 'with its own labels');
+  const s3 = JSON.parse(await lsGet(p, 'tll_save_v1_c3')); ok(s3 && s3.started && s3.case === 3 && s3.vs, 'saved under tll_save_v1_c3 with case: 3 and a seed');
+  eq(await lsGet(p, 'tll_save_v1'), null, 'the original scenario-1 slot is untouched');
+  ok(/Survivor Tester wakes in Ashgrove Silo/.test(s3.log[0].t), 'the log names the scenario\'s opening location');
+  await p.goto(base + 'last-light/?case=5'); await p.click('[data-act="menu"]'); ok(!(await p.$('[data-act="resume"]')), 'scenario 5 has its own empty slot');
+  await p.goto(base + 'last-light/'); await p.waitForTimeout(100); eq(await lsGet(p, 'tll_case'), '5', 'the last case played is remembered');
+});
+T('last-light: every scenario\'s signal can be tuned, decoded and analysed from the UI', async ({ base, newPage }) => {
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+    await p.goto(base + 'last-light/?case=' + k);
+    const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k);
+    await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester' + k);
+    await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:bold"]'); await p.click('[data-cr="str:hands"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(100);
+    await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await p.waitForTimeout(80);
+    ok((await p.textContent('.panel')).includes(sc.signal.room), 'scenario ' + k + ': the radio room text');
+    await p.click('[data-act="sig-power"]'); await p.waitForTimeout(60);
+    let found = false; for (let f = 880; f <= 1080 && !found; f++) { await p.evaluate((v) => { const el = document.getElementById('tune'); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, f); found = !(await p.$eval('#lockbtn', (b) => b.disabled)); }
+    ok(found, 'scenario ' + k + ': there is a frequency where the signal comes in clearly');
+    await p.click('[data-act="sig-lock"]'); await p.waitForTimeout(60);
+    if (sc.signal.decode) {
+      if (sc.signal.decode.kind === 'shift') {
+        await p.evaluate((n) => { const el = document.getElementById('shift'); el.value = n + 1; el.dispatchEvent(new Event('input', { bubbles: true })); }, sc.signal.decode.shift);
+        await p.click('[data-act="sig-decode"]'); await p.waitForTimeout(60); ok(await p.$('#shift'), 'scenario ' + k + ': a wrong shift does not pass');
+        await p.evaluate((n) => { const el = document.getElementById('shift'); el.value = n; el.dispatchEvent(new Event('input', { bubbles: true })); }, sc.signal.decode.shift);
+      } else {
+        await p.fill('#ans', 'WRONG'); await p.click('[data-act="sig-decode"]'); await p.waitForTimeout(60); ok(await p.$('#ans'), 'scenario ' + k + ': a wrong answer does not pass');
+        await p.fill('#ans', sc.signal.decode.answer.toLowerCase());
+      }
+      await p.click('[data-act="sig-decode"]'); await p.waitForTimeout(60);
+    }
+    ok((await p.textContent('.tx')).includes(sc.signal.tx[0]), 'scenario ' + k + ': the decoded transmission is shown');
+    for (const o of sc.signal.obs.filter((x) => x.ok).slice(0, 3)) await p.click(`[data-sigpick="${o.id}"]`);
+    await p.fill('[data-bind="m.reason"]', 'I do not trust it fully because the details do not add up and the sender knew more than they said. extra words here to pass the minimum length for sure');
+    await p.click('[data-act="sig-judge"]'); ok(/You picked 3 useful details/.test(await p.textContent('.fb')), 'scenario ' + k + ': three useful details found');
+    await p.click('[data-act="sig-next"]'); await p.click('[data-act="sig-dec"][data-v="investigate"]'); ok(/Journal/.test(await p.textContent('.wrap')), 'scenario ' + k + ': reaches the journal step');
+    eq(errs.length, 0, 'scenario ' + k + ': no page errors: ' + errs);
+    await p.context().close();
+  }
+});
+T('last-light: every scenario\'s supply run and stranger can be completed (no dead ends)', async ({ base, newPage }) => {
+  const fbT = async (p, l) => { try { return await p.textContent('.fb', { timeout: 3000 }); } catch (e) { throw new Error('no .fb at ' + l + ': ' + (await p.textContent('body')).replace(/\s+/g, ' ').slice(0, 400)); } };
+  const words = (n) => Array.from({ length: n }, (_, i) => 'word' + i).join(' ');
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+    await p.goto(base + 'last-light/?case=' + k);
+    const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k);
+    await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester' + k);
+    await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:suspicious"]'); await p.click('[data-cr="str:eyes"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(100);
+    await p.evaluate(() => { const key = Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d)?$/.test(x)); const s = JSON.parse(localStorage.getItem(key)); s.done.signal = true; s.res.meds = 4; s.res.food = 9; s.res.water = 9; localStorage.setItem(key, JSON.stringify(s)); });
+    await p.reload(); await p.waitForTimeout(150);
+    if (await p.$('[data-act="resume"]')) await p.click('[data-act="resume"]'); else if (await p.$('[data-act="menu"]')) { await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); }
+    /* supply run */
+    await p.click('[data-loc="cin"]'); ok((await p.textContent('.panel')).includes(sc.locs.cin.d.slice(0, 30)), 'scenario ' + k + ': the supply-run place is described'); await p.click('[data-act="travel"]'); await p.waitForTimeout(60);
+    ok((await p.textContent('.panel')).includes(sc.supply.intro.slice(0, 40)), 'scenario ' + k + ': the supply-run intro'); await p.click('[data-act="sup-start"]');
+    ok((await p.textContent('.wrap')).includes(sc.supply.cooler.slice(0, 20)), 'scenario ' + k + ': sharp eyes shows the cooler line');
+    for (const id of ['box', 'lan']) await p.click(`[data-take="${id}"]`);
+    await p.click('[data-act="sup-pack"]'); await p.click('[data-act="sup-ev"][data-v="look"]'); await p.waitForTimeout(50);
+    await p.fill('[data-bind="m.warn"]', 'Avoid the ' + (sc.supply.haz || 'flood').split('|').slice(0, 3).join(' and the ') + '. Stay close to the walls, watch the floor, and keep your light low. Do not go upstairs alone, check every step first.');
+    await p.click('[data-act="sup-warn"]'); ok(/Write about the supply run/.test(await p.textContent('.wrap')), 'scenario ' + k + ': a warning that names two real hazards is accepted and the journal step opens');
+    const clues = await p.evaluate((key) => JSON.parse(localStorage.getItem(Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d)?$/.test(x)))).clues, 0);
+    ok(clues.includes(sc.supply.items.box.clue) && clues.includes(sc.supply.items.lan.clue) && clues.includes(sc.supply.notebook), 'scenario ' + k + ': the clues about the cause of The Silence are collected');
+    await p.fill('[data-bind="m.jtext"]', 'I took the clues and left the rest. ' + words(26)); await p.click('[data-act="savejournal"]'); await p.waitForTimeout(60);
+    /* stranger */
+    await p.click('[data-loc="hol"]'); await p.click('[data-act="travel"]'); await p.waitForTimeout(60);
+    ok((await p.textContent('.panel')).includes(sc.stranger.quote.slice(0, 20)), 'scenario ' + k + ': the stranger\'s opening'); await p.click('[data-act="str-start"]');
+    for (const id of ['brother', 'inspect', 'route']) { await p.click(`[data-act="str-ch"][data-v="${id}"]`); }
+    for (const tl of Object.values(sc.stranger.tells).slice(0, 2)) ok((await p.textContent('.wrap')).includes(tl.slice(0, 25)), 'scenario ' + k + ': tell shown: ' + tl.slice(0, 25));
+    await p.click('[data-act="str-next"]');
+    await p.fill('[data-bind="m.dlg"]', 'What happened on the road, and how are you holding up? ' + words(8)); await p.click('[data-act="str-say"]');
+    ok((await fbT(p, 'admit ' + k)).includes(sc.stranger.admit.slice(0, 20)), 'scenario ' + k + ': the secret comes out when asked gently'); await p.click('[data-act="str-next2"]');
+    await p.click('[data-sus] >> nth=0'); await p.fill('[data-bind="m.why"]', 'The details of the story do not fit together, so I doubt it. ' + words(20)); await p.click('[data-act="str-why"]');
+    await p.click('[data-act="str-dec"][data-v="help"]'); ok((await lsText(p)).includes(sc.stranger.helpClue.slice(0, 20)), 'scenario ' + k + ': helping gives up the scenario\'s secret');
+    await p.fill('[data-bind="m.radio"]', 'Found a stranger at ' + sc.stranger.placeTip.split(',')[0] + '. Send water and watch the road.');
+    await p.click('[data-act="str-radio"]'); ok(new RegExp('Write about ' + sc.stranger.name).test(await p.textContent('.wrap')), 'scenario ' + k + ': the radio message is accepted and the journal step names the stranger');
+    eq(errs.length, 0, 'scenario ' + k + ': no page errors: ' + errs);
+    await p.context().close();
+  }
+});
+T('last-light: Scenario 1 still shows the original text now that it is assembled from scenario data', async ({ base, newPage }) => {
+  const at = async (patch) => { const p = await newPage(); await p.addInitScript(llSeed(patch)); await p.goto(base + 'last-light/'); await p.waitForTimeout(200); return p; };
+  const text = async (p) => (await p.textContent('body')).replace(/\s+/g, ' ');
+  const must = (txt, s, label) => ok(txt.includes(s), label + ': ' + s);
+  const mission = (id, step, more) => ({ screen: 'mission', done: { signal: true }, m: Object.assign({ id, step }, more || {}) });
+  let p = await at(mission('signal', 3)); must(await text(p), 'Follow it to Abandoned Cincinnati and Hollow Creek. Both open on the map.', 'signal choice');
+  p = await at(mission('supply', 3)); await p.fill('[data-bind="m.warn"]', Array.from({ length: 25 }, (_, i) => 'plain' + i).join(' ')); await p.click('[data-act="sup-warn"]'); must(await text(p), 'Name at least two specific hazards (like the flooded stairs or the sagging ceiling).', 'warning feedback');
+  const str = (step, pers, more, patch) => at(Object.assign(mission('stranger', step, Object.assign({ node: 'start', talks: 2, trust: 0, tells: ['story', 'clay'] }, more || {})), { pers: pers || 'bold', str: 'quiet' }, patch || {}));
+  p = await str(1, 'bold'); let tx = await text(p); must(tx, 'Talk to her at least twice, then you can make your decision.', 'step 1'); must(tx, 'Step into the road and tell her she is not going anywhere until you hear the truth.', 'bold choice');
+  await p.click('[data-act="str-ch"][data-v="block"]'); must(await text(p), 'She is more afraid of something behind her than of you. Trust -1.', 'block note');
+  p = await str(1, 'cautious'); must(await text(p), 'Keep your distance and watch the road with her.', 'cautious choice'); await p.click('[data-act="str-ch"][data-v="watch"]'); must(await text(p), 'Standing together, you notice she keeps checking the road behind her.', 'watch note');
+  p = await str(1, 'empathetic'); must(await text(p), 'Tell her you understand how frightening this is.', 'empathetic choice');
+  p = await str(1, 'suspicious'); await p.click('[data-act="str-ch"][data-v="press"]'); must(await text(p), 'She snapped, then stopped herself. Trust -1.', 'press note');
+  p = await str(2); tx = await text(p); must(tx, 'Wren will not answer direct questions. Write what you will say to her:', 'step 2'); await p.fill('[data-bind="m.dlg"]', 'You are a liar and I know it, so why would anyone believe you today at all?'); await p.click('[data-act="str-say"]'); must(await text(p), 'Accusing her made her defensive. Trust -1. Rewrite your lines so they invite her to explain.', 'accusation');
+  p = await str(3); must(await text(p), 'Choose the tells that make you doubt her story. Then explain your decision.', 'step 3');
+  p = await str(4); tx = await text(p); must(tx, 'Wren waits. Your choice will cost something either way.', 'step 4'); must(tx, '-1 meds, -1 food. She may give you something in return.', 'help'); must(tx, '-1 meds. She tells you what she knows.', 'trade'); must(tx, 'You keep your supplies. You may never learn what she knows.', 'refuse');
+  p = await str(4, 'bold', {}, { str: 'voice' }); must(await text(p), 'Persuasive: you talk her into it for free.', 'persuasive');
+  p = await str(5); await p.fill('[data-bind="m.radio"]', 'hello there my friend how are you doing today'); await p.click('[data-act="str-radio"]'); tx = await text(p); must(tx, 'Say where you are (the crossroads, the church, the road).', 'radio place'); must(tx, 'Say what you found (a woman, a stranger, a signal).', 'radio found');
+  await p.fill('[data-bind="m.radio"]', 'Found a woman at the crossroads. Send water and watch the road.'); await p.click('[data-act="str-radio"]'); await p.click('[data-go="log"]'); must(await text(p), 'Radioed Haven Ridge. They sent a runner with water.', 'log');
+  p = await str(6); must(await text(p), 'Write about Wren. What did you notice, what did you choose, and what do you still not know?', 'journal prompt');
+  p = await at({ screen: 'final', done: { signal: true, supply: true, stranger: true }, journal: [{ day: 1, title: 'a', text: 'x' }, { day: 2, title: 'b', text: 'y' }, { day: 3, title: 'c', text: 'z' }], flags: { heard: true, traded: true } }); must(await text(p), 'You traded medicine to Wren for information.', 'final decisions');
+});
+
+// ---------------------------------------------------------------- Teacher tools (Phase 6)
+T('teacher: six links per game and a seating helper where touching seats never share a case code', async ({ base, newPage }) => {
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base)) reqs.push(r.url()); });
+  await p.goto(base + 'teacher/'); await p.waitForTimeout(200);
+  eq((await p.$$eval('#hfLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../haunting-files/?case=' + n).join(','), 'six Haunting Files links');
+  eq((await p.$$eval('#llLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../last-light/?case=' + n).join(','), 'six Last Light links');
+  for (const [rows, cols] of [[5, 6], [3, 3], [8, 12], [1, 4], [12, 1]]) {
+    await p.fill('#rows', String(rows)); await p.fill('#cols', String(cols)); await p.click('#make');
+    for (let i = 0; i < 3; i++) { await p.click('#shuffle'); }
+    const codes = await p.$$eval('.seat b', (e) => e.map((x) => +x.textContent)); eq(codes.length, rows * cols, 'one seat per place');
+    const g = (r, c) => (r < 0 || c < 0 || r >= rows || c >= cols ? 0 : codes[r * cols + c]);
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const v = g(r, c); ok(v >= 1 && v <= 6, 'valid code');
+      for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) { const w = g(r + dr, c + dc); ok(!w || w !== v, `seat ${r},${c} and its neighbor share code ${v} (${rows}x${cols})`); } }
+    if (rows * cols >= 6) ok(new Set(codes).size >= Math.min(6, rows * cols), 'all six codes are used in a big enough room');
+  }
+  await p.fill('#names', '<img src=x onerror=window.__xss=1>\nAda\nBen'); await p.fill('#rows', '2'); await p.fill('#cols', '3'); await p.click('#make');
+  ok(!(await p.evaluate(() => window.__xss)) && !(await p.$('.seat img')), 'pasted names are escaped, never injected as markup'); ok(/Ada/.test(await p.textContent('#plan')), 'names appear in the plan');
+  ok(!(await p.evaluate(() => Object.keys(localStorage).some((k) => /name|seat|teacher/i.test(k) || /Ada/.test(localStorage.getItem(k) || '')))), 'nothing is stored');
+  eq(reqs.length, 0, 'nothing is sent anywhere: ' + reqs.join(','));
+  await p.goto(base); await p.evaluate(() => { location.hash = '#leaders'; }); await p.waitForTimeout(300); ok(await p.isVisible('#leaders a[href="teacher/"]'), 'the leaders page links to the teacher tools');
+  eq(errs.length, 0, 'no page errors: ' + errs);
 });
 
 // ---------------------------------------------------------------- navigation between pages
@@ -308,6 +556,32 @@ T('responsive: no horizontal scroll on any page at 1920, 1366, 1280, 1024, 768 a
     for (const u of ['', '#learn', '#games', '#prompts', '#draft', '#cemetery', '#week', 'show-dont-tell/#lesson-3', 'haunting-files/', 'last-light/', 'design-system/']) {
       await p.goto(base + u); await p.waitForTimeout(120); ok(await noHScroll(p), `horizontal scroll at ${w}px on ${u || 'home'}`);
     }
+    await p.context().close();
+  }
+});
+
+T('responsive: the teacher page, every case and scenario in play, and the Dossier, at 1920, 1280 and 390 px, without console errors', async ({ base, newPage }) => {
+  for (const w of [1920, 1280, 390]) {
+    const p = await newPage({ width: w, height: 800 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push(m.text()); });
+    await p.goto(base + 'teacher/'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on teacher/`);
+    await p.fill('#rows', '8'); await p.fill('#cols', '12'); await p.click('#make'); ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1 || document.getElementById('plan').scrollWidth >= 0), 'the big seating grid scrolls inside its own box');
+    await p.goto(base + '#cemetery'); await p.click('#ct-hunt'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on the Dossier`);
+    await p.click('#ct-submit'); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on the turn-in tab`);
+    for (const k of [1, 2, 3, 4, 5, 6]) {
+      await p.goto(base + 'haunting-files/?case=' + k); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} title`);
+      await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-act="begin"]'); await p.waitForTimeout(80);
+      await p.click('.ex >> nth=2'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} case file`);
+      for (const s of ['E3', 'E4']) { await p.click(`[data-ex="${s}"]`); await p.click('[data-file="eye"]'); }
+      await p.click('[data-go="interview"]'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} interview`);
+      await p.click('[data-go="case"]'); await p.click('.ex >> nth=5'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} diagram exhibit`);
+      await p.evaluate(() => localStorage.clear());
+      await p.goto(base + 'last-light/?case=' + k); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} title`);
+      await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:bold"]'); await p.click('[data-cr="str:hands"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(100);
+      ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} map`);
+      await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await p.click('[data-act="sig-power"]'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} radio`);
+      await p.evaluate(() => localStorage.clear());
+    }
+    eq(errs.length, 0, `no console errors at ${w}px: ` + errs.slice(0, 3));
     await p.context().close();
   }
 });

@@ -193,16 +193,28 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 .how{border-color:var(--ho-gold-dim);border-radius:18px;background:linear-gradient(180deg,var(--panel2),var(--panel));animation:ho-rise .28s var(--ho-ease)}
 .how h2{color:var(--ho-gold)}
 @media(prefers-reduced-motion:reduce){body,.title .logo,.how{animation:none!important}.btn,.choice,.menu .btn{transition:none}}
+.casechip{font:700 .78rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:.3rem .65rem;color:var(--ho-gold,var(--text))}
+#caseSlot label{display:block;text-align:center;font-weight:700;margin-bottom:.4rem}
+#caseSlot input{text-align:center}
+.sigtxt{word-break:break-word}
 </style>
 </head>
 <body>
 <div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="" width="22" height="22">Haunted Ohio</a><span aria-hidden="true">/</span><span>The Last Light</span><span class="ho-bureau__sp"></span><a href="../#games">All games</a></div>
 <div id="app"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<script src="../assets/js/ho-variant.js"></script>
+<script src="scenarios/s1.js"></script>
+<script src="scenarios/s2.js"></script>
+<script src="scenarios/s3.js"></script>
+<script src="scenarios/s4.js"></script>
+<script src="scenarios/s5.js"></script>
+<script src="scenarios/s6.js"></script>
 <script>
 (function(){
 'use strict';
-var KEY='tll_save_v1',mem=null;
+var mem=null;
+function KEY(){return HOV.slot('tll_save_v1',CASE)}
 
 /* ---------- data ---------- */
 var BG=[
@@ -243,14 +255,24 @@ var ACH=[
  {id:'brief',n:'Short and clear',d:'Send a radio message in 20 words or fewer.'},
  {id:'author',n:'Storyteller',d:'Complete all 10 story beats.'}
 ];
-var SIG_OBS=[
- {id:'a',t:'The message repeats on a perfectly regular timer, 11 minutes 47 seconds apart.',ok:true,w:'A perfectly regular repeat suggests a recording or an automated transmitter, not a person calling live.'},
- {id:'b',t:'The speaker says "the light" but never explains what it is.',ok:true,w:'An unexplained "light" means the speaker assumes you already know. Who would assume that?'},
- {id:'c',t:'A train horn sounds in the background, though no trains have run since 2026.',ok:true,w:'No trains run, so either the recording is very old or someone is faking the setting.'},
- {id:'d',t:'The speaker sounds out of breath and keeps looking over their shoulder, judging by the pauses.',ok:true,w:'A rushed speaker suggests real fear, which fits a warning from someone in danger.'},
- {id:'e',t:'The signal is on the FM band.',ok:false,w:'The band tells you about the equipment, not about whether the message is honest.'},
- {id:'f',t:'The message is spoken in English.',ok:false,w:'Language tells you nothing about trust. It is not a clue.'}
-];
+/* The scenario (1 to 6) comes from ?case=N, then the last one played on this device, then 1. Scenario data lives in scenarios/s1.js to s6.js. */
+var CASE=HOV.pick('tll_case'),SC,SN,PN,LOCS={};
+var LOCMETA={home:{m:'signal'},cin:{m:'supply'},hol:{m:'stranger'},und:{m:'under',lock:'Locked. This location opens in the next stage of the game.'},moo:{m:'moon',lock:'Locked. This location opens in the next stage of the game.'},twr:{m:'tower',lock:'Locked. This location opens in the next stage of the game.'}};
+function useScenario(n){CASE=n;SC=LL_SCENARIOS[n];SN=SC.stranger;
+ PN=SN.g==='m'?{S:'He',s:'he',o:'him',p:'his',r:'himself'}:{S:'She',s:'she',o:'her',p:'her',r:'herself'};
+ LOCS={};Object.keys(LOCMETA).forEach(function(k){var o={},q;for(q in SC.locs[k])o[q]=SC.locs[k][q];for(q in LOCMETA[k])o[q]=LOCMETA[k][q];LOCS[k]=o});
+ ACH.forEach(function(x){if(x.id==='tells')x.d='Find 4 tells in '+SN.name+'\'s story.'});
+ window.LL_ACTIVE=SC;HOV.remember('tll_case',n)}
+useScenario(CASE);
+function sigObs(){var o=SC.signal.obs.slice(),x=(SC.signal.extra||SIG_EXTRA)[bgd().tag];if(x)o.push(x);return o}
+function DIAL(){return SC.signal.dialMsg||SC.signal.msg}
+function target(){return SC.signal.freq+(S.vs?(HOV.hash(S.vs+'|f')%9-4):0)}
+function shiftText(s,n){return s.replace(/[A-Z]/g,function(c){return String.fromCharCode((c.charCodeAt(0)-65-n+26)%26+65)})}
+/* seeded order: a new game (with a name) gets its own repeatable order of options; a save made before this feature keeps the original order */
+function ord(arr,tag){return S.vs?HOV.shuffle(arr,S.vs+'|'+tag):arr}
+function setCase(n){S.case=CASE;save();useScenario(n);S=load()||fresh();S.case=CASE;S.screen='title'}
+function itm(id){var b=ITEMS.filter(function(i){return i.id===id})[0],o=SC.supply.items[id],r={},k;for(k in b)r[k]=b[k];
+ if(typeof o==='string')r.n=o;else if(o){r.n=o.n;if(o.clue)r.clue=o.clue}return r}
 var SIG_EXTRA={
  radio:{id:'g',t:'The carrier drifts 0.2 MHz each cycle, like a weak transmitter on failing batteries.',ok:true,w:'A drifting carrier means a real, struggling transmitter is out there, not just a looping recording.'},
  hist:{id:'h',t:'"If you can hear this" matches the old emergency-broadcast style. Someone is copying the format.',ok:true,w:'Copying an old format suggests the sender wants to be taken as official, or is working from old materials.'},
@@ -258,27 +280,19 @@ var SIG_EXTRA={
  mil:{id:'k',t:'The cadence follows a "repeat until acknowledged" procedure.',ok:true,w:'That procedure is used by trained people who expect a reply, so someone organized is behind it.'}
 };
 var ITEMS=[
- {id:'food',n:'Canned food (4)',s:1,d:'+3 food',fx:{food:3}},
- {id:'tabs',n:'Water purification tablets',s:1,d:'+3 water',fx:{water:3}},
- {id:'kit',n:'First-aid kit',s:1,d:'+2 meds',fx:{meds:2}},
- {id:'batt',n:'Sealed battery pack',s:1,d:'+2 batteries',fx:{batt:2}},
- {id:'fuel',n:'Fuel can',s:2,d:'+2 fuel',fx:{fuel:2}},
- {id:'crank',n:'Hand-crank radio',s:2,d:'Radio no longer costs batteries',flag:'crank'},
- {id:'box',n:'Archive box: photos and maps',s:1,d:'A clue about the old city',clue:'The archive box has a 2026 map. One building is circled: "Meridian Systems, sub-level 3."'},
- {id:'lan',n:'Employee lanyard',s:1,d:'A clue about who worked here',clue:'The lanyard reads "Meridian Systems. Authorized: Level 3 and below."'},
- {id:'cool',n:'Sealed medical cooler',s:1,d:'+3 meds',fx:{meds:3},hid:true}
+ {id:'food',n:'',s:1,d:'+3 food',fx:{food:3}},
+ {id:'tabs',n:'',s:1,d:'+3 water',fx:{water:3}},
+ {id:'kit',n:'',s:1,d:'+2 meds',fx:{meds:2}},
+ {id:'batt',n:'',s:1,d:'+2 batteries',fx:{batt:2}},
+ {id:'fuel',n:'',s:2,d:'+2 fuel',fx:{fuel:2}},
+ {id:'crank',n:'',s:2,d:'Radio no longer costs batteries',flag:'crank'},
+ {id:'box',n:'',s:1,d:'A clue about the old city',clue:1},
+ {id:'lan',n:'',s:1,d:'A clue about who worked here',clue:1},
+ {id:'cool',n:'',s:1,d:'+3 meds',fx:{meds:3},hid:true}
 ];
 var HAZ=/floor|stair|glass|flood|water|ceiling|noise|upstairs|dark|rot|mold|collapse|door|rust|crack|sharp|slippery|unstable/i;
 var VERBS=/avoid|don't|do not|stay|watch|use|bring|take|go|check|test|step|keep|never|stick/i;
 var SENSE=/dim|dark|shadow|glow|gleam|pale|gray|flicker|creak|echo|hum|whisper|hiss|footstep|rustle|silence|cold|chill|draft|damp|dust|musty|smell|stale|rust|shiver|taste|static|crack/i;
-var TELLS={
- clay:'Her boots are caked in red river-hill clay. She says she walked from flat, northern Toledo.',
- badge:'A hospital badge is clipped inside her jacket: "Riverside Mercy, Cincinnati. Night Shift."',
- story:'Her story about her brother changed: first a broken leg, then a fever and a cough.',
- road:'She keeps checking the road behind her, as if watching for someone.',
- never:'She said, "I\'ve never been south of Columbus in my life." That conflicts with the Cincinnati badge.',
- nurse:'When you asked gently, she admitted she is a nurse. She still has not said where from.'
-};
 var BEATS=[
  {k:'set',n:'Setting',p:'Describe your ruined place using at least three senses.'},
  {k:'char',n:'Main character and motivation',p:'Who are they, and what do they need more than anything?'},
@@ -293,14 +307,14 @@ var BEATS=[
 ];
 
 /* ---------- state ---------- */
-function fresh(){return {v:1,started:false,screen:'title',xp:0,name:'',bg:'',pers:'',str:'',weak:'',
+function fresh(){return {v:1,case:CASE,vs:'',started:false,screen:'title',xp:0,name:'',bg:'',pers:'',str:'',weak:'',
  res:{food:6,water:6,meds:2,batt:3,fuel:2},hp:5,day:1,loc:'home',done:{},flags:{},clues:[],inv:['Flashlight','Multi-tool','Water bottle'],
  journal:[],log:[],story:{},ach:{},sound:true,m:null,cp:null,cr:{name:'',bg:'',pers:'',str:'',weak:''},sel:null,extra:''}}
-var S=load()||fresh();
+var S=load()||fresh();S.case=CASE;
 var AC=null,NOISE=null,NG=null;
 
-function load(){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v)}catch(e){}return mem}
-function save(){mem=S;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}catch(e){}return mem}
+function save(){mem=S;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function wc(t){t=(t||'').trim();return t?t.split(/\s+/).length:0}
 function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]},S)}
@@ -343,7 +357,7 @@ function hud(){
  var tabs=[['map','Map'],['pack','Pack'],['journal','Journal'],['log','Mission log'],['me','Survivor'],['final','Final story']];
  var cur=S.screen==='mission'?'map':S.screen;
  return '<header class="hud"><div class="hud-in"><a class="brand" href="#" data-act="menu"><img src="../assets/img/ho-logo.png" alt="">The Last Light</a>'+
-  '<div class="meters" aria-label="Resources"><span class="m">Day <b>'+S.day+'</b></span><span class="m'+(S.hp<=2?' low':'')+'">Health <b>'+S.hp+'</b></span>'+
+  '<span class="casechip" title="Your case code">Case '+CASE+'</span><div class="meters" aria-label="Resources"><span class="m">Day <b>'+S.day+'</b></span><span class="m'+(S.hp<=2?' low':'')+'">Health <b>'+S.hp+'</b></span>'+
   RES.map(function(r){return '<span class="m'+low(r[0])+'">'+r[1]+' <b>'+S.res[r[0]]+'</b></span>'}).join('')+'</div>'+
   '<button class="btn ghost sm" data-howto>How to play</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
   '<nav class="tabs" aria-label="Sections">'+tabs.map(function(t){var lock=t[0]==='final'&&!finalOk();return '<button class="tab'+(lock?' locked':'')+'" data-go="'+t[0]+'"'+(cur===t[0]?' aria-current="page"':'')+'>'+t[1]+(lock?' (locked)':'')+'</button>'}).join('')+'</nav></header>'
@@ -356,7 +370,7 @@ var SCREENS={
 title:function(){return '<section class="title"><svg class="skyline" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true"><path d="M0 200V120h40V90h30v40h30V60h26v70h40V100h36v30h30V70h24v60h50V40h30v90h40V110h30v20h30V80h28v50h40V95h34v35h40V55h26v75h40V105h30v25h50V85h30v45h40V120h40v80z" fill="#07090a"/></svg>'+
  '<img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><div class="signal-line"></div><h1>The Last Light</h1><p class="tag">The world went silent. Something is still calling.</p>'+
  '<p class="muted" style="max-width:32rem">Ohio, 2047. Twenty-one years ago, at 11:47 p.m. on October 31, 2026, The Silence took every signal, every grid, and most of the people. Tonight, your radio is speaking again.</p>'+
- '<div class="case-slot" id="caseSlot"></div>'+
+ '<div class="case-slot" id="caseSlot"><label for="caseCode">Case code (1 to 6)</label><div class="row" style="justify-content:center"><input id="caseCode" type="number" min="1" max="6" step="1" inputmode="numeric" value="'+CASE+'" style="max-width:6rem"><button class="btn ghost sm" type="button" data-act="randcase">Random case</button></div><p class="muted" style="margin:.4rem 0 0" aria-live="polite">Your leader may give you a code. Each code is a different story with its own map, signal, stranger and supply run.</p></div>'+
  '<div class="row"><button class="btn" data-act="menu">Enter the silence</button><button class="btn ghost" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="../">Back to Haunted Ohio</a></div></section>'},
 
 menu:function(){return '<div class="wrap"><div class="menu"><div style="text-align:center"><img src="../assets/img/ho-logo.png" style="width:84px;height:84px;border-radius:50%" alt=""><h2 style="margin-top:.5rem">The Last Light</h2></div>'+
@@ -388,9 +402,9 @@ map:function(){
    info+='</div>'}
  var done=mdone();
  return hud()+'<div class="wrap"><h2>Ohio, 2047</h2><p class="muted">Locations: choose where to go. Every trip costs a day of food and water.</p>'+
-  '<div class="mapbox"><svg viewBox="0 0 400 420" aria-hidden="true"><polygon points="40,60 150,50 200,70 260,55 350,40 358,150 350,230 320,300 280,370 210,400 110,385 40,370" fill="#121a12" stroke="#4a5d46" stroke-width="2"/>'+
-  '<g fill="#59635a" font-size="11"><text x="52" y="46">Toledo</text><text x="270" y="34">Cleveland</text><text x="150" y="196">Columbus</text></g></svg>'+marks+'</div>'+info+
-  (done>=3?'<div class="fb good"><b>The signal leads somewhere underground.</b> The next stage of the game opens that path. For now, your story is ready: the final story is unlocked once you have 3 journal entries.</div>':'')+'</div>'
+  '<div class="mapbox"><svg viewBox="0 0 400 420" aria-hidden="true"><polygon points="'+SC.map.poly+'" fill="#121a12" stroke="#4a5d46" stroke-width="2"/>'+
+  '<g fill="#59635a" font-size="11">'+SC.map.labels.map(function(l){return '<text x="'+l[0]+'" y="'+l[1]+'">'+esc(l[2])+'</text>'}).join('')+'</g></svg>'+marks+'</div>'+info+
+  (done>=3?'<div class="fb good"><b>'+esc(SC.leads)+'</b> The next stage of the game opens that path. For now, your story is ready: the final story is unlocked once you have 3 journal entries.</div>':'')+'</div>'
 },
 
 mission:function(){return hud()+'<div class="wrap">'+(MISSIONS[S.m&&S.m.id]||function(){return '<p>No mission.</p>'})()+'</div>'},
@@ -426,7 +440,7 @@ final:function(){
  var dec=[];
  if(F.heard)dec.push(F.investigate?'You chose to investigate the signal.':(F.ignored?'You ignored the signal.':'You checked your supplies first.'));
  if(F.warned)dec.push('You posted a warning for future survivors.');
- if(F.helped)dec.push('You helped Wren.');if(F.traded)dec.push('You traded medicine to Wren for information.');if(F.refused)dec.push('You turned Wren away.');
+ if(F.helped)dec.push('You helped '+SN.name+'.');if(F.traded)dec.push('You traded medicine to '+SN.name+' for information.');if(F.refused)dec.push('You turned '+SN.name+' away.');
  var jr=S.journal.map(function(j){return '<li><b>Day '+j.day+':</b> '+esc(j.title)+'</li>'}).join('');
  var beats=BEATS.map(function(b,i){var p='story.'+b.k;return '<div class="panel" style="margin-bottom:.8rem"><h3>'+(i+1)+'. '+b.n+'</h3><p class="muted">'+esc(b.p)+'</p><textarea style="min-height:110px" data-bind="'+p+'" aria-label="'+b.n+'">'+esc(S.story[b.k]||'')+'</textarea>'+count(p,15)+'</div>'}).join('');
  return hud()+'<div class="wrap"><h2>Final story: write your own survival horror</h2><p>Use what you lived through: the choices, the doubt, the silence. Invent your own character and world. Do not retell the game.</p>'+
@@ -446,14 +460,6 @@ over:function(){return '<div class="wrap" style="max-width:640px;margin-top:3rem
 };
 
 /* ---------- map data ---------- */
-var LOCS={
- home:{n:'Haven Ridge',i:'H',x:17,y:52,m:'signal',d:'Your settlement. The radio room is in the old grain elevator. Tonight the receiver is picking up something.'},
- cin:{n:'Abandoned Cincinnati',i:'C',x:15,y:86,m:'supply',d:'A drowned skyline over the river. Pharmacies, stores, and offices still hold supplies, if the floors hold you.'},
- hol:{n:'Hollow Creek',i:'W',x:63,y:62,m:'stranger',d:'A rural crossroads with a burned-out gas station and a church on the hill. Smoke rose from your settlement; someone followed it.'},
- und:{n:'Site Nine',i:'U',x:31,y:70,m:'under',d:'An underground facility.',lock:'Locked. This location opens in the next stage of the game.'},
- moo:{n:'Moonville Tunnel',i:'M',x:57,y:82,m:'moon',d:'An abandoned railroad tunnel in the hills, wrapped in old stories.',lock:'Locked. This location opens in the next stage of the game.'},
- twr:{n:'Radio Tower',i:'T',x:42,y:46,m:'tower',d:'A tall tower east of Haven Ridge.',lock:'Locked. This location opens in the next stage of the game.'}
-};
 function locState(k){var o=LOCS[k];if(o.lock)return 'lock';if(S.done[o.m])return 'here';if(k==='cin'||k==='hol'){if(!S.done.signal)return 'lock'}return 'todo'}
 
 /* ---------- missions ---------- */
@@ -469,43 +475,52 @@ function journalStep(prompt,title){
  return '<div class="panel"><h3>Journal</h3><p>'+prompt+'</p><textarea data-bind="m.jtext" aria-label="Journal entry">'+esc((S.m&&S.m.jtext)||'')+'</textarea>'+count('m.jtext',25)+'<p style="margin-top:.6rem"><button class="btn" data-act="savejournal" data-title="'+esc(title)+'">Save entry and return to map</button></p></div>'
 }
 function garble(clar){
- var msg='IF YOU CAN HEAR THIS, DO NOT GO LOOKING FOR THE LIGHT',g='#%&*?/\\=+~|',o='';
+ var msg=DIAL(),g='#%&*?/\\=+~|',o='';
  for(var i=0;i<msg.length;i++){var ch=msg[i];o+=(ch===' '||Math.random()<clar)?ch:g[Math.floor(Math.random()*g.length)]}
  return o
 }
-function clarity(f){var tol=S.str==='hands'?120:90;return Math.max(0,1-Math.abs(f-964)/tol)}
+function decodeUI(){var m=S.m,d=SC.signal.decode;
+ if(d.kind==='shift'){var sh=m.shift||0;
+  return '<div class="radio"><p>'+esc(d.intro)+'</p><div class="sigtxt" id="sigtxt2" aria-live="polite">'+esc(shiftText(SC.signal.dialMsg,sh))+'</div>'+
+   '<label for="shift">Shift: <b id="shiftv">'+sh+'</b></label><input id="shift" type="range" min="0" max="25" step="1" value="'+sh+'" data-shift="1"></div>'+
+   '<p style="margin-top:.8rem"><button class="btn" data-act="sig-decode">This is the message</button></p>'}
+ return '<div class="radio"><p>'+esc(d.intro)+'</p><div class="sigtxt">'+esc(SC.signal.dialMsg)+'</div>'+(d.hint?'<p class="muted">'+esc(d.hint)+'</p>':'')+
+  '<label for="ans">Your answer</label><input id="ans" type="text" data-bind="m.ans" autocomplete="off" value="'+esc(m.ans||'')+'"></div>'+
+  '<p style="margin-top:.8rem"><button class="btn" data-act="sig-decode">Check the code word</button></p>'}
+function clarity(f){var tol=S.str==='hands'?120:90;return Math.max(0,1-Math.abs(f-target())/tol)}
 
 var MISSIONS={
 signal:function(){
  var m=S.m,st=m.step;
  var head='<h2>The Signal</h2>';
- if(st===0)return head+'<div class="panel"><p>It is past two in the morning. The grain elevator hums with the wind. On the old receiver, a needle twitches that has not moved in years.</p>'+
-  '<div class="tx"><p>[STATIC] ... if you can hear this ... do not go looking for the light ...</p></div>'+
+ if(st===0)return head+'<div class="panel"><p>'+esc(SC.signal.room)+'</p>'+
+  '<div class="tx"><p>'+esc(SC.signal.first)+'</p></div>'+
   '<p>It repeats. Someone, or something, is out there. Powering the receiver for a careful listen '+(has('mech')||S.flags.crank?'costs nothing for you.':'costs 1 battery.')+'</p>'+
   '<button class="choice" data-act="sig-power">Power the radio and tune in'+(has('mech')||S.flags.crank?'':'<small>-1 battery</small>')+'</button>'+
   '<button class="choice" data-act="backmap">Leave the radio room for now</button></div>';
+ if(st===1&&m.sub==='decode')return head+decodeUI();
  if(st===1){var f=m.freq||900,c=clarity(f);
   return head+'<div class="radio"><div class="freq" id="freq">'+(f/10).toFixed(1)+' MHz</div><div class="meter" aria-hidden="true"><i id="clar" style="width:'+Math.round(c*100)+'%"></i></div>'+
    '<label for="tune">Turn the dial until the message comes in clearly.</label><input id="tune" type="range" min="880" max="1080" step="1" value="'+f+'" data-tune="1">'+
-   '<div class="sigtxt" id="sigtxt" aria-live="off">'+(c>=.9?'IF YOU CAN HEAR THIS, DO NOT GO LOOKING FOR THE LIGHT':garble(c))+'</div>'+
-   (has('radio')?'<p class="muted" style="margin-top:.6rem">Radio operator: strong stations in this region cluster in the mid-90s.</p>':'')+'</div>'+
+   '<div class="sigtxt" id="sigtxt" aria-live="off">'+(c>=.9?esc(DIAL()):garble(c))+'</div>'+
+   (has('radio')?'<p class="muted" style="margin-top:.6rem">'+esc(SC.signal.hint)+'</p>':'')+'</div>'+
    '<p style="margin-top:.8rem"><button class="btn" id="lockbtn" data-act="sig-lock"'+(c>=.9?'':' disabled')+'>Lock the signal</button></p>'}
  if(st===2){
-  var obs=SIG_OBS.slice();if(SIG_EXTRA[bgd().tag])obs.push(SIG_EXTRA[bgd().tag]);
-  obs.sort(function(a,b){return a.id<b.id?-1:1});
+  var obs=sigObs();
+  obs=S.vs?ord(obs,'obs'):obs.sort(function(a,b){return a.id<b.id?-1:1});
   var picks=obs.map(function(o){var on=(m.pick||[]).indexOf(o.id)>-1;
    var r=m.judged?(o.ok?(on?'<b> Good catch.</b>':'<b> You missed this.</b>'):(on?'<b> Not a useful clue.</b>':'')):'';
    return '<label class="pick'+(on?' sel':'')+'"><input type="checkbox" data-sigpick="'+o.id+'"'+(on?' checked':'')+(m.judged?' disabled':'')+'><span>'+esc(o.t)+r+(m.judged&&o.ok?'<br><span class="muted">'+esc(o.w)+'</span>':'')+'</span></label>'}).join('');
   var fb='';
   if(m.judged)fb='<div class="fb"><b>You picked '+m.right+' useful detail'+(m.right===1?'':'s')+'.</b> The pattern points two ways: a recording from someone who knew more than they said, or a person in danger with failing equipment. Neither proves the message is a trap, and neither proves it is safe.</div>';
-  return head+'<div class="tx"><p>[CLEAR] If you can hear this, do not go looking for the light.</p><p>[CLEAR] Repeat. If you can hear this, do not go looking for the light.</p><p>[BACKGROUND] A low horn, like a train.</p></div>'+
+  return head+'<div class="tx">'+SC.signal.tx.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+'</div>'+
    '<h3>What stands out? (Choose everything that raises a question.)</h3>'+picks+
    '<h3 style="margin-top:1rem">Can this transmission be trusted?</h3><p class="muted">Explain using at least two of the details you chose.</p><textarea data-bind="m.reason" aria-label="Your reasoning">'+esc(m.reason||'')+'</textarea>'+count('m.reason',25)+
    (m.judged?'':'<p style="margin-top:.6rem"><button class="btn" data-act="sig-judge">Submit analysis</button></p>')+fb+
    (m.judged?'<p><button class="btn" data-act="sig-next">Decide what to do</button></p>':'')}
  if(st===3)return head+'<div class="panel"><p>The message loops again. Your settlement is asleep. You are the only one who has heard it.</p>'+
   (m.checked?'<div class="fb"><b>You count what you have:</b> '+RES.map(function(r){return r[1]+' '+S.res[r[0]]}).join(', ')+'. Every trip costs 1 food and 1 water.</div>':'')+
-  '<button class="choice" data-act="sig-dec" data-v="investigate">Investigate the signal<small>Follow it to Abandoned Cincinnati and Hollow Creek. Both open on the map.</small></button>'+
+  '<button class="choice" data-act="sig-dec" data-v="investigate">Investigate the signal<small>Follow it to '+esc(SC.locs.cin.n)+' and '+esc(SC.locs.hol.n)+'. Both open on the map.</small></button>'+
   '<button class="choice" data-act="sig-dec" data-v="ignore">Ignore it, for now<small>Stay safe. You may close off future signals tied to this one.</small></button>'+
   (m.checked?'':'<button class="choice" data-act="sig-dec" data-v="supplies">Check your supplies first<small>Take stock, then decide. It costs nothing but time.</small></button>')+'</div>';
  if(st===4)return head+journalStep('Record what you heard and what you decided. Say what you noticed, what you feel, and why you chose it.','The Signal');
@@ -515,17 +530,17 @@ signal:function(){
 supply:function(){
  var m=S.m,st=m.step,cap=has('eng')?7:6;
  var head='<h2>The Supply Run</h2>';
- if(st===0)return head+'<div class="panel"><p>A pharmacy and grocery on the first floor of a leaning office tower. The river has taken the street. Water ripples across the lobby tile, and something above you ticks and settles.</p>'+
-  '<p>You can carry <b>'+cap+' slots</b>. You cannot take everything.</p>'+(has('out')?'<p class="muted">Outdoorsman: the back stairs are flooded and the ceiling in the east aisle sags. Both are dangerous.</p>':'')+
+ if(st===0)return head+'<div class="panel"><p>'+esc(SC.supply.intro)+'</p>'+
+  '<p>You can carry <b>'+cap+' slots</b>. You cannot take everything.</p>'+(has('out')?'<p class="muted">'+esc(SC.supply.outdoors)+'</p>':'')+
   '<button class="btn" data-act="sup-start">Go inside</button></div>';
  if(st===1){
-  var items=ITEMS.filter(function(i){return !i.hid||S.str==='eyes'});
+  var items=ITEMS.filter(function(i){return !i.hid||S.str==='eyes'}).map(function(i){return itm(i.id)});if(S.vs)items=ord(items,'items');
   var used=(m.take||[]).reduce(function(a,id){return a+itm(id).s},0);
-  return head+'<p>Slots used: <b>'+used+' / '+cap+'</b></p>'+(S.str==='eyes'?'<p class="muted">Sharp eyes: you spot a sealed medical cooler behind the counter.</p>':'')+
+  return head+'<p>Slots used: <b>'+used+' / '+cap+'</b></p>'+(S.str==='eyes'?'<p class="muted">'+esc(SC.supply.cooler)+'</p>':'')+
    '<div class="grid3">'+items.map(function(i){var on=(m.take||[]).indexOf(i.id)>-1,full=!on&&used+i.s>cap;
     return '<button class="opt'+(on?' on':'')+'" data-take="'+i.id+'"'+(full?' disabled style="opacity:.45"':'')+'><b>'+i.n+'</b><small>'+i.s+' slot'+(i.s>1?'s':'')+'. '+i.d+'</small></button>'}).join('')+'</div>'+
    '<p style="margin-top:1rem"><button class="btn" data-act="sup-pack"'+((m.take||[]).length?'':' disabled')+'>Leave with this pack</button></p>'}
- if(st===2)return head+'<div class="panel"><p>As you head for the door, something shifts on the floor above. Dust sifts down through your flashlight beam.</p>'+
+ if(st===2)return head+'<div class="panel"><p>'+esc(SC.supply.upstairs)+'</p>'+
   '<button class="choice" data-act="sup-ev" data-v="look"'+(S.res.batt<1?' disabled':'')+'>Climb up and investigate with your flashlight<small>-1 battery</small></button>'+
   (S.str==='quiet'?'<button class="choice" data-act="sup-ev" data-v="sneak">Slip upstairs on silent feet<small>Quiet footsteps: no cost</small></button>':'')+
   '<button class="choice" data-act="sup-ev" data-v="leave">Leave now, quietly</button></div>';
@@ -539,43 +554,42 @@ supply:function(){
 stranger:function(){
  var m=S.m,st=m.step,head='<h2>The Stranger</h2>';
  var tells=m.tells||[];
- if(st===0)return head+'<div class="panel"><p>At the crossroads, a woman steps out from the burned-out gas station with her hands open and visible. Her jacket is torn. She looks like she has not slept.</p>'+
-  '<div class="tx"><p>"I\'m Wren. I walked here from Toledo. Six days. My brother broke his leg falling off a roof. He\'s at the church. Please, I need medicine."</p></div>'+
-  (S.flags.warned?'<p class="muted">She glances at your pack. "Someone left a note on a door in Cincinnati. It kept my cousin off a bad floor. Was that you?" Trust +1.</p>':'')+
-  '<button class="btn" data-act="str-start">Talk to Wren</button></div>';
+ if(st===0)return head+'<div class="panel"><p>'+esc(SN.open)+'</p>'+
+  '<div class="tx"><p>'+esc(SN.quote)+'</p></div>'+
+  (S.flags.warned?'<p class="muted">'+esc(SN.warned)+'</p>':'')+
+  '<button class="btn" data-act="str-start">Talk to '+esc(SN.name)+'</button></div>';
  if(st===1){
   var node=m.node||'start',N=strNode(node);
   var ch=N.ch.map(function(c){return '<button class="choice" data-act="str-ch" data-v="'+c.id+'"'+(c.off?' disabled':'')+'>'+esc(c.t)+(c.s?'<small>'+c.s+'</small>':'')+'</button>'}).join('');
-  var found=tells.length?'<div class="panel" style="margin-top:1rem"><h3>What you have noticed</h3><ul style="padding-left:1.1rem">'+tells.map(function(t){return '<li>'+esc(TELLS[t])+'</li>'}).join('')+'</ul></div>':'';
-  return head+'<div class="tx"><p>'+N.say+'</p></div>'+(N.note?'<p class="muted">'+N.note+'</p>':'')+'<p class="muted">Trust: '+(m.trust||0)+'. Talk to her at least twice, then you can make your decision.</p>'+ch+
+  var found=tells.length?'<div class="panel" style="margin-top:1rem"><h3>What you have noticed</h3><ul style="padding-left:1.1rem">'+tells.map(function(t){return '<li>'+esc(SN.tells[t])+'</li>'}).join('')+'</ul></div>':'';
+  return head+'<div class="tx"><p>'+N.say+'</p></div>'+(N.note?'<p class="muted">'+N.note+'</p>':'')+'<p class="muted">Trust: '+(m.trust||0)+'. Talk to '+PN.o+' at least twice, then you can make your decision.</p>'+ch+
    (m.talks>=2?'<button class="btn" data-act="str-next">I\'m ready to decide</button>':'')+found}
- if(st===2)return head+'<div class="panel"><p>Wren will not answer direct questions. Write what you will say to her: <b>2 to 3 lines</b>. Get more truth <b>without accusing her</b>. Use at least one question.</p>'+
+ if(st===2)return head+'<div class="panel"><p>'+esc(SN.name)+' will not answer direct questions. Write what you will say to '+PN.o+': <b>2 to 3 lines</b>. Get more truth <b>without accusing '+PN.o+'</b>. Use at least one question.</p>'+
   '<textarea data-bind="m.dlg" aria-label="Your dialogue">'+esc(m.dlg||'')+'</textarea>'+count('m.dlg',15)+'<p style="margin-top:.6rem"><button class="btn" data-act="str-say">Say it to Wren</button></p>'+(m.dlgfb||'')+'</div>';
  if(st===3){
   var pk=(m.sus||[]);
-  return head+'<div class="panel"><h3>Do you trust her?</h3><p>Choose the tells that make you doubt her story. Then explain your decision.</p>'+
-   (tells.length?tells.map(function(t){var on=pk.indexOf(t)>-1;return '<label class="pick'+(on?' sel':'')+'"><input type="checkbox" data-sus="'+t+'"'+(on?' checked':'')+'><span>'+esc(TELLS[t])+'</span></label>'}).join(''):'<p class="muted">You have not noticed any tells.</p>')+
+  return head+'<div class="panel"><h3>Do you trust '+PN.o+'?</h3><p>Choose the tells that make you doubt '+PN.p+' story. Then explain your decision.</p>'+
+   (tells.length?tells.map(function(t){var on=pk.indexOf(t)>-1;return '<label class="pick'+(on?' sel':'')+'"><input type="checkbox" data-sus="'+t+'"'+(on?' checked':'')+'><span>'+esc(SN.tells[t])+'</span></label>'}).join(''):'<p class="muted">You have not noticed any tells.</p>')+
    '<textarea data-bind="m.why" aria-label="Your reasoning" style="margin-top:.5rem">'+esc(m.why||'')+'</textarea>'+count('m.why',25)+'<p style="margin-top:.6rem"><button class="btn" data-act="str-why">Continue to the decision</button></p></div>'}
- if(st===4)return head+'<div class="panel"><p>Wren waits. Your choice will cost something either way.</p>'+
-  '<button class="choice" data-act="str-dec" data-v="help"'+(S.res.meds<1?' disabled':'')+'>Help her fully<small>-1 meds, -1 food. She may give you something in return.</small></button>'+
-  '<button class="choice" data-act="str-dec" data-v="trade"'+(S.str==='voice'?'':(S.res.meds<1?' disabled':''))+'>Trade for information<small>'+(S.str==='voice'?'Persuasive: you talk her into it for free.':'-1 meds. She tells you what she knows.')+'</small></button>'+
-  '<button class="choice" data-act="str-dec" data-v="refuse">Send her away<small>You keep your supplies. You may never learn what she knows.</small></button></div>';
- if(st===5)return head+'<div class="panel"><h3>Radio Haven Ridge</h3><p>Your settlement is waiting for word. You have a few seconds of battery. Send a message of <b>20 words or fewer</b>. It must say <b>what you found</b>, <b>where you are</b>, and <b>what you need</b> or what to watch for.</p>'+
+ if(st===4)return head+'<div class="panel"><p>'+esc(SN.name)+' waits. Your choice will cost something either way.</p>'+
+  '<button class="choice" data-act="str-dec" data-v="help"'+(S.res.meds<1?' disabled':'')+'>Help '+PN.o+' fully<small>-1 meds, -1 food. '+PN.S+' may give you something in return.</small></button>'+
+  '<button class="choice" data-act="str-dec" data-v="trade"'+(S.str==='voice'?'':(S.res.meds<1?' disabled':''))+'>Trade for information<small>'+(S.str==='voice'?'Persuasive: you talk '+PN.o+' into it for free.':'-1 meds. '+PN.S+' tells you what '+PN.s+' knows.')+'</small></button>'+
+  '<button class="choice" data-act="str-dec" data-v="refuse">Send '+PN.o+' away<small>You keep your supplies. You may never learn what '+PN.s+' knows.</small></button></div>';
+ if(st===5)return head+'<div class="panel"><h3>Radio '+esc(SC.locs.home.n)+'</h3><p>Your settlement is waiting for word. You have a few seconds of battery. Send a message of <b>20 words or fewer</b>. It must say <b>what you found</b>, <b>where you are</b>, and <b>what you need</b> or what to watch for.</p>'+
   '<textarea style="min-height:90px" data-bind="m.radio" aria-label="Radio message">'+esc(m.radio||'')+'</textarea>'+count('m.radio',5,20)+'<p style="margin-top:.6rem"><button class="btn" data-act="str-radio">Transmit</button></p>'+(m.radiofb||'')+'</div>';
- if(st===6)return head+journalStep('Write about Wren. What did you notice, what did you choose, and what do you still not know?','The Stranger');
+ if(st===6)return head+journalStep('Write about '+SN.name+'. What did you notice, what did you choose, and what do you still not know?','The Stranger');
  return head
 }
 };
-function itm(id){return ITEMS.filter(function(i){return i.id===id})[0]}
 function strNode(n){
  var m=S.m,P=S.pers,B=bgd().tag,t=function(id){return (m.tells||[]).indexOf(id)>-1};
  var ch=[],say='',note='';
- if(n==='start'){say='"Please. Every hour matters. What do you want to know?"';
-  ch=[{id:'brother',t:'Ask what is wrong with her brother.'},{id:'inspect',t:'Look at her more closely.'},{id:'route',t:'Ask where she slept on the way.'}];
+ if(n==='start'){say=SN.start;
+  ch=[{id:'brother',t:SN.ch.brother},{id:'inspect',t:SN.ch.inspect},{id:'route',t:SN.ch.route}];
   if(P==='suspicious')ch.push({id:'press',t:'"Your story has holes. Start over."',s:'Suspicious'});
-  if(P==='empathetic')ch.push({id:'comfort',t:'Tell her you understand how frightening this is.',s:'Empathetic'});
-  if(P==='bold')ch.push({id:'block',t:'Step into the road and tell her she is not going anywhere until you hear the truth.',s:'Bold'});
-  if(P==='cautious')ch.push({id:'watch',t:'Keep your distance and watch the road with her.',s:'Cautious'});
+  if(P==='empathetic')ch.push({id:'comfort',t:'Tell '+PN.o+' you understand how frightening this is.',s:'Empathetic'});
+  if(P==='bold')ch.push({id:'block',t:'Step into the road and tell '+PN.o+' '+PN.s+' is not going anywhere until you hear the truth.',s:'Bold'});
+  if(P==='cautious')ch.push({id:'watch',t:'Keep your distance and watch the road with '+PN.o+'.',s:'Cautious'});
  }else{say=m.say||'';ch=[{id:'again',t:'Ask something else.'}]}
  if(n!=='start'){say=m.say;note=m.note;ch=strNode('start').ch}
  ch.forEach(function(c){c.off=!!(m.used&&m.used[c.id])});
@@ -585,17 +599,17 @@ function strTalk(id){
  var m=S.m;m.used=m.used||{};if(m.used[id])return;m.used[id]=true;m.tells=m.tells||[];m.talks=(m.talks||0)+1;m.trust=m.trust||(S.flags.warned?1:0);
  function tell(k){if(m.tells.indexOf(k)<0){m.tells.push(k);if(m.tells.length>=4)award('tells')}}
  var say='',note='';
- if(id==='brother'){tell('story');say='"He has... a fever now. It\'s in his chest. He coughs. It\'s the infection from his leg, I think. He\'s getting worse."';note='Earlier she said a broken leg. Now she describes a fever and a cough.'}
+ if(id==='brother'){tell('story');say=SN.brother.say;note=SN.brother.note}
  else if(id==='inspect'){
   if(S.weak!=='trust')tell('clay');tell('badge');
-  say='"Why are you staring? I\'m just tired."';
-  note=(S.weak==='trust'?'You notice the badge clipped inside her jacket. Your trusting nature makes you skim over the rest. ':'You notice her boots, caked in red clay, and a hospital badge inside her jacket. ')+(has('med')?'Medical assistant: the way she touches the badge is practiced, like someone who wore it every shift. ':'')+(has('mil')?'Military family: she stands where she can see both exits.':'');
+  say=SN.inspect.say;
+  note=(S.weak==='trust'?SN.inspect.trust:SN.inspect.full)+(has('med')?SN.inspect.med:'')+(has('mil')?SN.inspect.mil:'');
   if(has('mil'))tell('road')}
- else if(id==='route'){tell('never');if(S.weak==='trust'&&m.tells.indexOf('clay')<0)tell('clay');say='"I slept in barns. I\'ve never been south of Columbus in my life. I don\'t know this country."';note='Keep that line in mind.'}
- else if(id==='press'){m.trust--;tell('story');say='"You think I\'m lying? Fine. My brother... it\'s his leg, his chest, I don\'t know. I\'m not a doctor!"';note='She snapped, then stopped herself. Trust -1.'}
- else if(id==='comfort'){m.trust++;tell('road');say='"Thank you. I... haven\'t been spoken to kindly in a long time." She glances back down the road.';note='Empathy lowers her guard. Trust +1.'}
- else if(id==='block'){m.trust--;tell('road');say='"Move! They could be right behind me." She catches herself.';note='She is more afraid of something behind her than of you. Trust -1.'}
- else if(id==='watch'){tell('road');say='"You see it too. Nothing. Yet."';note='Standing together, you notice she keeps checking the road behind her.'}
+ else if(id==='route'){tell('never');if(S.weak==='trust'&&m.tells.indexOf('clay')<0)tell('clay');say=SN.route.say;note=SN.route.note}
+ else if(id==='press'){m.trust--;tell('story');say=SN.press.say;note=PN.S+' snapped, then stopped '+PN.r+'. Trust -1.'}
+ else if(id==='comfort'){m.trust++;tell('road');say=SN.comfort.say;note='Empathy lowers '+PN.p+' guard. Trust +1.'}
+ else if(id==='block'){m.trust--;tell('road');say=SN.block.say;note=PN.S+' is more afraid of something behind '+PN.o+' than of you. Trust -1.'}
+ else if(id==='watch'){tell('road');say=SN.watch.say;note='Standing together, you notice '+PN.s+' keeps checking the road behind '+PN.o+'.'}
  m.say=say;m.note=note;m.node='x';
 }
 
@@ -622,10 +636,10 @@ document.addEventListener('click',function(ev){
  else if(a==='start'){var c=S.cr;
   if((c.name||'').trim().length<2){toast('Enter a name for your survivor.');return}
   if(!c.bg||!c.pers||!c.str||!c.weak){toast('Choose a background, personality, strength, and weakness.');return}
-  S.name=c.name.trim();S.bg=c.bg;S.pers=c.pers;S.str=c.str;S.weak=c.weak;
+  S.name=c.name.trim();S.vs=String(HOV.hash(CASE+'|'+S.name.toLowerCase()));S.bg=c.bg;S.pers=c.pers;S.str=c.str;S.weak=c.weak;
   var b=bgd();Object.keys(b.res).forEach(function(k){S.res[k]+=b.res[k]});
   if(c.weak==='thirst')S.res.water=Math.max(0,S.res.water-1);if(c.weak==='nerves')S.res.batt=Math.max(0,S.res.batt-1);
-  S.started=true;S.screen='map';S.sel='home';logIt('Survivor '+S.name+' wakes in Haven Ridge. The radio is speaking.');save();render();window.scrollTo(0,0)}
+  S.started=true;S.screen='map';S.sel='home';logIt('Survivor '+S.name+' '+SC.wake);save();render();window.scrollTo(0,0)}
  else if(a==='travel'){
   var k=S.sel,o=LOCS[k];if(locState(k)==='lock'||S.done[o.m])return;
   if(k!=='home'){S.cp=null;S.cp=snap();advance(1);logIt('Traveled to '+o.n+'.');if(S.screen==='over'){save();render();return}}
@@ -638,9 +652,12 @@ document.addEventListener('click',function(ev){
  else if(a==='sig-power'){
   if(!has('mech')&&!S.flags.crank){if(S.res.batt<1){toast('No batteries. Find some, or a hand-crank radio.');return}S.res.batt--}
   m.step=1;m.freq=900;staticOn();staticSet(1);save();render()}
- else if(a==='sig-lock'){staticOff();blip(520,.2);award('tuned');xp(10,'Signal locked');m.step=2;save();render()}
+ else if(a==='sig-lock'){staticOff();blip(520,.2);if(SC.signal.decode){m.sub='decode';m.shift=0;m.ans='';save();render();return}award('tuned');xp(10,'Signal locked');m.step=2;save();render()}
+ else if(a==='sig-decode'){var dd=SC.signal.decode,okd=dd.kind==='shift'?shiftText(SC.signal.dialMsg,m.shift||0)===SC.signal.msg:(m.ans||'').trim().toUpperCase()===dd.answer;
+  if(!okd){toast(dd.kind==='shift'?'That still does not read as plain English. Keep sliding.':'Not yet. Check each number or word against the key.');return}
+  blip(520,.2);award('tuned');xp(15,'Signal locked and decoded');m.sub=null;m.step=2;save();render()}
  else if(a==='sig-judge'){
-  var obs=SIG_OBS.slice();if(SIG_EXTRA[bgd().tag])obs.push(SIG_EXTRA[bgd().tag]);
+  var obs=sigObs();
   var pk=m.pick||[],right=obs.filter(function(o){return o.ok&&pk.indexOf(o.id)>-1}).length,wrong=obs.filter(function(o){return !o.ok&&pk.indexOf(o.id)>-1}).length;
   if(wc(m.reason)<25){toast('Explain your reasoning in at least 25 words.');return}
   m.right=right;m.judged=true;xp(Math.max(0,right-wrong)*7+10,'Signal analysis');if(right>=3)award('doubt');save();render()}
@@ -656,17 +673,17 @@ document.addEventListener('click',function(ev){
   var take=m.take||[];take.forEach(function(id){var i=itm(id);
    if(i.fx)Object.keys(i.fx).forEach(function(k){S.res[k]+=i.fx[k]});
    if(i.flag)S.flags[i.flag]=true;if(i.clue)clue(i.clue);S.inv.push(i.n)});
-  logIt('Packed '+take.length+' items from Abandoned Cincinnati.');award('bag');xp(15,'Smart packing');m.step=2;save();render()}
+  logIt('Packed '+take.length+' items from '+SC.locs.cin.n+'.');award('bag');xp(15,'Smart packing');m.step=2;save();render()}
  else if(a==='sup-ev'){var v2=el.dataset.v;
-  if(v2==='look'){S.res.batt--;clue('A survivor\'s notebook upstairs: "They told us not to follow the light. We went anyway."');logIt('Found a survivor\'s notebook upstairs.');xp(10,'You investigated')}
-  else if(v2==='sneak'){clue('A survivor\'s notebook upstairs: "They told us not to follow the light. We went anyway."');logIt('Slipped upstairs and found a notebook.');xp(10,'Quiet and careful')}
+  if(v2==='look'){S.res.batt--;clue(SC.supply.notebook);logIt('Found a survivor\'s notebook upstairs.');xp(10,'You investigated')}
+  else if(v2==='sneak'){clue(SC.supply.notebook);logIt('Slipped upstairs and found a notebook.');xp(10,'Quiet and careful')}
   else{logIt('Left the noise upstairs alone.')}
   m.step=3;save();render()}
  else if(a==='sup-warn'){
-  var w=(m.warn||'').trim(),n=wc(w),hz=(w.match(new RegExp(HAZ.source,'gi'))||[]).filter(function(x,i,arr){return arr.indexOf(x)===i}).length,vb=VERBS.test(w);
+  var w=(m.warn||'').trim(),n=wc(w),hz=(w.match(new RegExp(HAZ.source+(SC.supply.haz?'|'+SC.supply.haz:''),'gi'))||[]).filter(function(x,i,arr){return arr.indexOf(x)===i}).length,vb=VERBS.test(w);
   if(n<20||n>60){toast('Write between 20 and 60 words.');return}
   var ok=hz>=2&&vb;
-  m.warnfb='<div class="fb '+(ok?'good':'bad')+'"><b>'+(ok?'Posted. Future survivors can use this.':'Not clear enough yet.')+'</b> '+(hz>=2?'You named real hazards.':'Name at least two specific hazards (like the flooded stairs or the sagging ceiling).')+' '+(vb?'You gave them something to do.':'Tell them what to do, not only what to fear: use verbs like avoid, stay, or check.')+'</div>';
+  m.warnfb='<div class="fb '+(ok?'good':'bad')+'"><b>'+(ok?'Posted. Future survivors can use this.':'Not clear enough yet.')+'</b> '+(hz>=2?'You named real hazards.':'Name at least two specific hazards ('+SC.supply.hazEx+').')+' '+(vb?'You gave them something to do.':'Tell them what to do, not only what to fear: use verbs like avoid, stay, or check.')+'</div>';
   if(ok){S.flags.warned=true;award('warn');xp(20,'Useful warning');logIt('Posted a warning on the door.');m.step=4}
   else m.warnfb+='<p class="muted">Edit your warning and post it again.</p>';
   save();render()}
@@ -675,45 +692,47 @@ document.addEventListener('click',function(ev){
  else if(a==='str-ch'){strTalk(el.dataset.v);save();render()}
  else if(a==='str-next'){m.step=2;save();render()}
  else if(a==='str-say'){
-  if(m.dlgdone){toast('Wren already answered.');return}
+  if(m.dlgdone){toast(SN.name+' already answered.');return}
   var d=(m.dlg||'').trim();
   if(wc(d)<15){toast('Write at least 15 words.');return}
   var acc=/\b(liar|lying|lied|fake|you're lying|you are lying|bullshit)\b/i.test(d),q=/\?/.test(d);
   if(!q){m.dlgfb='<div class="fb bad">Include at least one question. Questions invite answers.</div>';save();render();return}
-  if(acc){m.trust--;m.dlgfb='<div class="fb bad"><b>She shuts down.</b> Accusing her made her defensive. Trust -1. Rewrite your lines so they invite her to explain.</div>';save();render();return}
+  if(acc){m.trust--;m.dlgfb='<div class="fb bad"><b>'+PN.S+' shuts down.</b> Accusing '+PN.o+' made '+PN.o+' defensive. Trust -1. Rewrite your lines so they invite '+PN.o+' to explain.</div>';save();render();return}
   if((m.tells||[]).indexOf('nurse')<0){m.tells.push('nurse')}
   m.dlgdone=true;m.trust++;xp(15,'Dialogue with subtext');
-  m.dlgfb='<div class="fb good"><b>It works.</b> Wren exhales: "...Okay. I\'m a nurse. I wasn\'t always honest with you, because honesty has cost me before." Trust +1.</div><p><button class="btn" data-act="str-next2">Continue</button></p>';
+  m.dlgfb='<div class="fb good"><b>It works.</b> '+esc(SN.name)+' exhales: '+esc(SN.admit)+' Trust +1.</div><p><button class="btn" data-act="str-next2">Continue</button></p>';
   save();render()}
  else if(a==='str-next2'){m.step=3;save();render()}
  else if(a==='str-why'){if(wc(m.why)<25){toast('Explain your decision in at least 25 words.');return}xp(15,'You reasoned it out');m.step=4;save();render()}
  else if(a==='str-dec'){var v3=el.dataset.v,F2=S.flags;
-  if(v3==='help'){S.res.meds--;S.res.food--;F2.helped=true;S.res.batt+=1;logIt('Helped Wren. She gave you a battery and a name: Site Nine.');clue('Wren whispers a name: "Site Nine." She will not say more.')}
-  else if(v3==='trade'){if(S.str!=='voice')S.res.meds--;F2.traded=true;logIt('Traded with Wren for information.');clue('Wren warns: "Do not follow the signal to the tower. It is bait."')}
-  else{F2.refused=true;logIt('Turned Wren away.')}
+  if(v3==='help'){S.res.meds--;S.res.food--;F2.helped=true;S.res.batt+=1;logIt(SN.helpLog);clue(SN.helpClue)}
+  else if(v3==='trade'){if(S.str!=='voice')S.res.meds--;F2.traded=true;logIt('Traded with '+SN.name+' for information.');clue(SN.tradeClue)}
+  else{F2.refused=true;logIt('Turned '+SN.name+' away.')}
   if(S.res.food<0)S.res.food=0;if(S.res.meds<0)S.res.meds=0;
   m.step=5;save();render()}
  else if(a==='str-radio'){
   var r=(m.radio||'').trim(),n2=wc(r);
   if(n2<5){toast('Say something useful in at least 5 words.');return}
-  var tooLong=n2>20,place=/crossroads|hollow|creek|church|gas station|station|north|south|east|west|road/i.test(r),found=/woman|wren|stranger|nurse|survivor|person|signal|girl|someone/i.test(r),need=/need|send|bring|wait|warn|watch|stay|come|trust|help|do not|don't/i.test(r);
+  var tooLong=n2>20,place=new RegExp(SN.placeRe,'i').test(r),found=new RegExp(SN.foundRe,'i').test(r),need=/need|send|bring|wait|warn|watch|stay|come|trust|help|do not|don't/i.test(r);
   var pass=!tooLong&&place&&found&&need;
   m.radiofb='<div class="fb '+(pass?'good':'bad')+'"><b>'+(tooLong?'Too long: '+n2+' words. The battery will die. Cut to 20 or fewer.':(pass?'Message sent in '+n2+' words.':'The message is missing something.'))+'</b> '+
-   (place?'You said where.':'Say where you are (the crossroads, the church, the road).')+' '+(found?'You said what you found.':'Say what you found (a woman, a stranger, a signal).')+' '+(need?'You said what you need or what to watch for.':'Say what you need or what to watch for.')+'</div>';
-  if(pass){S.res.water+=1;award('brief');xp(20,'Clear under pressure');logIt('Radioed Haven Ridge. They sent a runner with water.');m.step=6}
+   (place?'You said where.':'Say where you are ('+SN.placeTip+').')+' '+(found?'You said what you found.':'Say what you found ('+SN.foundTip+').')+' '+(need?'You said what you need or what to watch for.':'Say what you need or what to watch for.')+'</div>';
+  if(pass){S.res.water+=1;award('brief');xp(20,'Clear under pressure');logIt('Radioed '+SC.locs.home.n+'. They sent a runner with water.');m.step=6}
   save();render()}
  /* settings */
- else if(a==='export'){dl('last-light-save-'+(S.name||'survivor').replace(/\W+/g,'-')+'.json',JSON.stringify(S),'application/json')}
- else if(a==='exportstory'){dl('my-survival-story.txt','The Last Light: story by '+(S.name||'Survivor')+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n'),'text/plain')}
+ else if(a==='export'){dl('last-light-save-'+(S.name||'survivor').replace(/\W+/g,'-')+(CASE>1?'-case-'+CASE:'')+'.json',JSON.stringify(S),'application/json')}
+ else if(a==='exportstory'){dl('my-survival-story.txt','The Last Light: story by '+(S.name||'Survivor')+'\nCase '+CASE+': '+SC.name+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n'),'text/plain')}
+ else if(a==='randcase'){setCase(HOV.random());render()}
  else if(a==='reset'){if(confirm('Erase all progress? This cannot be undone.')){S=fresh();S.screen='menu';save();render()}}
 });
 document.addEventListener('input',function(ev){
  var el=ev.target;
+ if(el.dataset&&el.dataset.shift){var shv=+el.value;S.m.shift=shv;document.getElementById('shiftv').textContent=shv;document.getElementById('sigtxt2').textContent=shiftText(SC.signal.dialMsg,shv);save();return}
  if(el.dataset&&el.dataset.tune){
   var f=+el.value,c=clarity(f);S.m.freq=f;staticSet(1-c);
   document.getElementById('freq').textContent=(f/10).toFixed(1)+' MHz';
   document.getElementById('clar').style.width=Math.round(c*100)+'%';
-  document.getElementById('sigtxt').textContent=c>=.9?'IF YOU CAN HEAR THIS, DO NOT GO LOOKING FOR THE LIGHT':garble(c);
+  document.getElementById('sigtxt').textContent=c>=.9?DIAL():garble(c);
   document.getElementById('lockbtn').disabled=c<.9;save();return}
  if(el.dataset&&el.dataset.bind){
   setP(el.dataset.bind,el.value);save();
@@ -725,7 +744,8 @@ document.addEventListener('change',function(ev){
  var el=ev.target;
  if(el.dataset.sigpick){var m=S.m;m.pick=m.pick||[];var i=m.pick.indexOf(el.dataset.sigpick);if(el.checked&&i<0)m.pick.push(el.dataset.sigpick);if(!el.checked&&i>-1)m.pick.splice(i,1);save();render()}
  else if(el.dataset.sus){var m2=S.m;m2.sus=m2.sus||[];var j=m2.sus.indexOf(el.dataset.sus);if(el.checked&&j<0)m2.sus.push(el.dataset.sus);if(!el.checked&&j>-1)m2.sus.splice(j,1);save();render()}
- else if(el.id==='imp'&&el.files&&el.files[0]){var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number'||!o.res)throw 0;S=o;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Last Light save.')}};fr.readAsText(el.files[0])}
+ else if(el.id==='caseCode'){var cn=HOV.valid(el.value);if(cn===CASE)return;if(cn){setCase(cn);render();var ci=document.getElementById('caseCode');if(ci)ci.focus()}else{toast('Case codes are 1 to 6.')}}
+ else if(el.id==='imp'&&el.files&&el.files[0]){var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number'||!o.res)throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();useScenario(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Last Light save.')}};fr.readAsText(el.files[0])}
 });
 function dl(name,text,type){try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}}
 render();

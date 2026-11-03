@@ -25,13 +25,34 @@ const RETIRED_HUNT = [
   'Who you asked (name and role)', 'You haven’t stamped a finish time yet', 'Your leaders will tell you where to send this',
   'email addresses, comma separated', 'missions are marked complete. Finish the rest',
 ];
+// Phase 6: these three Haunting Files lines are now assembled from case data (Case 1 renders them identically; a smoke test asserts the exact text).
+const NOW_ASSEMBLED = ['Case File #0047: Cincinnati Music Hall', 'Use what you learned about evidence, doubt, and atmosphere.', 'Whose account would you trust more about the open door, and why?'];
+// Phase 6: these Last Light sentences are now built from the stranger's name and pronouns and the scenario's places. For Scenario 1 they render
+// exactly as before; the smoke test "Scenario 1 still shows the original text" asserts every one of them on the live page.
+const LL_ASSEMBLED = [
+  '1 meds, -1 food. She may give you something in return.', '1 meds. She tells you what she knows.', 'Accusing her made her defensive.', 'Choose the tells that make you doubt her story.',
+  'Follow it to Abandoned Cincinnati and Hollow Creek.', 'Keep your distance and watch the road with her.', 'Name at least two specific hazards (like the flooded stairs',
+  'Persuasive: you talk her into it for free.', 'Radioed Haven Ridge. They sent a runner with water.', 'Say what you found (a woman, a stranger, a signal).',
+  'Say where you are (the crossroads, the church, the road).', 'She is more afraid of something behind her than of you.', 'She snapped, then stopped herself.',
+  'Standing together, you notice she keeps checking the road behind her.', 'Step into the road and tell her she is not going anywhere', 'Talk to her at least twice, then you can make your decision.',
+  'Tell her you understand how frightening this is.', 'Wren waits. Your choice will cost something either way.', 'Wren will not answer direct questions.',
+  'Write about Wren. What did you notice', 'You keep your supplies. You may never learn what she knows.', 'You traded medicine to Wren for information.',
+];
+const isLLAssembled = (t) => LL_ASSEMBLED.some((p) => t.startsWith(p));
+const isAssembled = (t) => NOW_ASSEMBLED.some((p) => t.startsWith(p));
 const isRetired = (t) => RETIRED_HUNT.some((p) => t.startsWith(p));
+const EXTRA = {
+  'haunting-files/index.html': [1, 2, 3, 4, 5, 6].map((n) => `haunting-files/cases/c${n}.js`),
+  'last-light/index.html': [1, 2, 3, 4, 5, 6].map((n) => `last-light/scenarios/s${n}.js`).filter((f) => fs.existsSync(path.join(ROOT, f))),
+};
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&rsquo;/g, '’').replace(/&lsquo;/g, '‘').replace(/&mdash;/g, '—').replace(/&ndash;/g, '–').replace(/&hellip;/g, '…').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&rarr;/g, '→');
 // A "text run" is 6+ words of plain prose with no markup or code punctuation in it.
 const RUN = /[A-Za-z0-9][A-Za-z0-9 ,.!?;:—–\-()’“”‘\/&%#$@*…→]{30,}/g;
 
 export function extract(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  // Data that moved out of a page into its own file (Phase 6: cases and scenarios) still counts as that page's text.
+  for (const x of EXTRA[file] || []) s += '\n' + fs.readFileSync(path.join(ROOT, x), 'utf8');
   s = s.replace(/<style[\s\S]*?<\/style>/g, ' ').replace(/base64,[A-Za-z0-9+/=]{40,}/g, ' ').replace(/<svg[\s\S]*?<\/svg>/g, ' ');
   s = decode(s);
   const out = new Set();
@@ -56,7 +77,7 @@ if (write) {
     const now = new Set(extract(f));
     // Text may be re-wrapped across elements, so a baseline run also counts as present if it is a substring of a current run.
     const joined = [...now].join('\n');
-    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t) && !(f === 'index.html' && isRetired(t)));
+    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t) && !(f === 'index.html' && isRetired(t)) && !(f === 'haunting-files/index.html' && isAssembled(t)) && !(f === 'last-light/index.html' && isLLAssembled(t)));
     const old = new Set(base[f]);
     const added = [...now].filter((t) => !old.has(t));
     console.log(`${lost.length ? 'FAIL' : 'ok  '}  ${f}: ${base[f].length} baseline runs, ${lost.length} missing, ${added.length} new`);
