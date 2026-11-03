@@ -183,6 +183,25 @@ T('last-light: create survivor, open map, start mission, save, how-to', async ({
   await p.goto(base + 'last-light/'); await p.click('[data-act="menu"]'); ok(await p.$('[data-act="resume"]'), 'Continue after reload');
 });
 
+T('last-light: a save made BEFORE the P5 restyle still loads and plays', async ({ base, newPage }) => {
+  // tests/fixtures/ll_save_pre_p5.json was written by the pre-restyle build (commit 74f12a8): survivor "Fixture Survivor", day 1,
+  // The Signal mission finished up to the decision (radio tuned, analysis submitted), 41 XP, two achievements.
+  const fx = fixture('ll_save_pre_p5.json'), saved = JSON.parse(fx);
+  const p = await newPage();
+  await p.addInitScript(([k, v]) => { if (!localStorage.getItem(k)) localStorage.setItem(k, v); }, ['tll_save_v1', fx]);
+  await p.goto(base + 'last-light/'); await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); await p.waitForTimeout(250);
+  const meters = (await p.textContent('.meters')).replace(/\s+/g, ' ');
+  for (const [lab, val] of [['Day', saved.day], ['Health', saved.hp], ['Food', saved.res.food], ['Water', saved.res.water], ['Meds', saved.res.meds], ['Batteries', saved.res.batt], ['Fuel', saved.res.fuel]]) ok(meters.includes(lab + ' ' + val), `meter ${lab} ${val} restored: ${meters}`);
+  ok((await p.$$('[data-act="sig-dec"]')).length === 3, 'the saved mission decision (3 choices) is showing');
+  await p.click('[data-go="me"]'); const me = await p.textContent('#app'); ok(me.includes('Fixture Survivor') && me.includes(saved.xp + ' XP'), 'survivor sheet shows the saved name and XP');
+  await p.click('[data-go="pack"]'); ok((await p.textContent('#app')).includes('Pack and resources'), 'pack opens');
+  await p.click('[data-go="map"]'); await p.waitForTimeout(150);   // with a mission under way, Map returns to the mission
+  // play on: make the decision the save was waiting on
+  await p.click('[data-act="sig-dec"][data-v="investigate"]'); await p.waitForTimeout(200);
+  const after = JSON.parse(await lsGet(p, 'tll_save_v1'));
+  eq(after.name, 'Fixture Survivor', 'name kept'); eq(after.m.step, 4, 'mission moved on after the decision'); ok(after.flags.investigate, 'the choice was recorded'); ok(after.ach.tuned && after.ach.doubt, 'achievements kept');
+});
+
 // ---------------------------------------------------------------- navigation between pages
 T('navigation: every game links back to the site; site links reach every game', async ({ base, newPage }) => {
   const p = await newPage();
