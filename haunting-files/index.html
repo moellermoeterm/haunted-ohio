@@ -227,7 +227,7 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 #caseSlot label{display:block;text-align:center;font-weight:700;margin-bottom:.4rem}
 #caseSlot input{text-align:center}
 </style>
-<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 <script src="../assets/js/ho-track.js"></script>
 </head>
 <body>
@@ -295,7 +295,7 @@ function load(){try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}
 function save(){mem=S;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
 /* seeded order: a new game (with a name) gets its own repeatable shuffle of answer options; a save made before this feature keeps the original order */
 function ord(arr,tag){return S.vs?HOV.shuffle(arr,S.vs+'|'+tag):arr}
-function setCase(n){S.case=CASE;save();useCase(n);S=load()||fresh();S.case=CASE;S.screen='title'}
+function setCase(n){S.case=CASE;if(S.started)save();useCase(n);S=load()||fresh();S.case=CASE;S.screen='title'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function wc(t){t=(t||'').trim();return t?t.split(/\s+/).length:0}
 function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]},S)}

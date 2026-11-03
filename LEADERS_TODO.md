@@ -3,9 +3,9 @@
 This file is for course leaders. It is **not linked from the site**. Search the code for `TODO(Leaders)` or the words "Leaders: fill in" to find every spot below; students see a visible "Leaders: fill in" note wherever one is still open.
 
 ## 1. Switch on analytics (GoatCounter)
-- [ ] Create a free GoatCounter site and note its code (the part before `.goatcounter.com`).
-- [ ] Replace `YOUR_CODE` with that code in the snippet in the `<head>` of **all six pages**: `index.html`, `show-dont-tell/index.html`, `haunting-files/index.html`, `last-light/index.html`, `teacher/index.html`, `design-system/index.html`.
-  The line looks like `<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" ...>`. Until you do, nothing is counted (by design).
+- [x] Create a free GoatCounter site. **Done: code `ohmoellermoeterm`.**
+- [x] Put the code in the snippet in the `<head>` of **all six pages**: `index.html`, `show-dont-tell/index.html`, `haunting-files/index.html`, `last-light/index.html`, `teacher/index.html`, `design-system/index.html`. **Done**, one snippet per page (tested).
+- Still to do on your side: in GoatCounter, make sure the site's allowed domain includes the GitHub Pages address, and check the dashboard shows views after the deploy.
 - What is counted: page views (each home tab is its own page) and seven fixed events (game opened, lesson complete, mission complete, stop complete, case closed, form opened). Never names, typed text, saves or scores.
 
 ## 2. The Spring Grove turn-in form (`index.html`, top of the Dossier script)
