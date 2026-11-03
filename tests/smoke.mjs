@@ -151,7 +151,7 @@ T('the week: nav menu, home card, map markers, escaped rendering', async ({ base
 
 // ---------------------------------------------------------------- Spring Grove Dossier (Phase 5)
 T('dossier: four sealed files + finale, legends tab intact, GPS off, form placeholders flagged, no network to a form', async ({ base, newPage }) => {
-  const p = await newPage(); const ext = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !r.url().startsWith('data:')) ext.push(r.url()); });
+  const p = await newPage(); const ext = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !r.url().startsWith('data:') && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) ext.push(r.url()); });
   await p.addInitScript(() => { try { if (!localStorage.getItem('ho-hunt')) localStorage.setItem('ho-hunt', '{"old":"untouched"}'); } catch (e) { /* ignore */ } });
   await p.goto(base + '#cemetery'); await p.waitForTimeout(300);
   eq((await p.$$('#cp-legends article.legend')).length, 4, 'legends tab still has its four legends');
@@ -503,7 +503,7 @@ T('last-light: Scenario 1 still shows the original text now that it is assembled
 
 // ---------------------------------------------------------------- Teacher tools (Phase 6)
 T('teacher: six links per game and a seating helper where touching seats never share a case code', async ({ base, newPage }) => {
-  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base)) reqs.push(r.url()); });
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
   await p.goto(base + 'teacher/'); await p.waitForTimeout(200);
   eq((await p.$$eval('#hfLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../haunting-files/?case=' + n).join(','), 'six Haunting Files links');
   eq((await p.$$eval('#llLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../last-light/?case=' + n).join(','), 'six Last Light links');
@@ -524,6 +524,56 @@ T('teacher: six links per game and a seating helper where touching seats never s
   eq(errs.length, 0, 'no page errors: ' + errs);
 });
 
+// ---------------------------------------------------------------- analytics (Phase 7)
+const GC_STUB = "window.goatcounter=window.goatcounter||{};window.__gc=window.__gc||[];window.goatcounter.count=function(o){window.__gc.push(JSON.parse(JSON.stringify(o)))};";
+const withGC = async (p, mode) => {
+  /* mode 'stub': GoatCounter loads (a recording stub) and the placeholder code is swapped for a test code; mode 'blocked': the script is blocked */
+  await p.route(/gc\.zgo\.at/, (r) => (mode === 'blocked' ? r.abort() : r.fulfill({ contentType: 'text/javascript', body: GC_STUB })));
+  if (mode === 'stub') await p.route((u) => /\/$|\.html$/.test(u.pathname), async (route) => { const resp = await route.fetch(); route.fulfill({ response: resp, body: (await resp.text()).replace('YOUR_CODE', 'test') }); });
+};
+T('analytics: every page carries the GoatCounter snippet (placeholder code) and the guarded tracker', async ({ base, newPage }) => {
+  for (const u of ['', 'show-dont-tell/', 'haunting-files/', 'last-light/', 'teacher/', 'design-system/']) {
+    const p = await newPage(); await p.goto(base + u);
+    const s = await p.$eval('script[data-goatcounter]', (e) => ({ d: e.getAttribute('data-goatcounter'), s: e.getAttribute('data-goatcounter-settings'), a: e.async, src: e.getAttribute('src') }));
+    eq(s.d, 'https://YOUR_CODE.goatcounter.com/count', 'endpoint placeholder on ' + (u || 'home')); eq(JSON.parse(s.s).no_onload, true, 'no_onload on ' + (u || 'home')); ok(s.a && s.src === '//gc.zgo.at/count.js', 'async script on ' + (u || 'home'));
+    ok(await p.evaluate(() => typeof window.HO_track === 'function' && typeof window.HO_page === 'function'), 'tracker loaded on ' + (u || 'home'));
+  }
+});
+T('analytics: nothing breaks, and nothing is sent, when GoatCounter is blocked or not set up', async ({ base, newPage }) => {
+  for (const mode of ['blocked', 'placeholder']) {
+    const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+    if (mode === 'blocked') await withGC(p, 'blocked'); else await p.route(/gc\.zgo\.at/, (r) => r.fulfill({ contentType: 'text/javascript', body: GC_STUB }));
+    for (const u of ['', '#week', 'haunting-files/', 'last-light/', 'show-dont-tell/#lesson-2', 'teacher/']) { await p.goto(base + u); await p.waitForTimeout(150); }
+    await p.goto(base + 'show-dont-tell/#lesson-2'); await p.click('#done'); await p.goto(base + 'haunting-files/'); await p.click('[data-act="menu"]');
+    eq(errs.length, 0, mode + ': no page errors: ' + errs);
+    if (mode === 'placeholder') eq(await p.evaluate(() => (window.__gc || []).length), 0, 'with the YOUR_CODE placeholder nothing is counted');
+  }
+});
+T('analytics: each home tab is its own page; only fixed events are sent; names and typed text are never sent', async ({ base, newPage }) => {
+  const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  const calls = async () => p.evaluate(() => window.__gc || []);
+  await p.goto(base); await p.waitForTimeout(150);
+  for (const h of ['#learn', '#games', '#week', '#cemetery', '#leaders', '#about']) { await p.evaluate((x) => { location.hash = x; }, h); await p.waitForTimeout(120); }
+  const paths = (await calls()).map((c) => c.path); for (const x of ['/', '/learn', '/games', '/week', '/cemetery', '/leaders', '/about']) ok(paths.includes(x), 'page counted: ' + x + ' in ' + paths);
+  /* the Dossier: type a name and a story line, finish a stop, open the form */
+  await p.evaluate(() => { location.hash = '#cemetery'; }); await p.click('#ct-hunt'); await p.fill('#dzSquad', 'SECRETSQUADNAME'); await p.fill('#ff-s1', 'SECRETANSWER');
+  await p.check('[data-photo="s1"]'); await p.click('[data-test="s1|eyes"]'); await p.click('[data-pill="s1|res"][data-val="3"]'); await p.fill('#en-s1', 'It felt watched from the left today'); await p.fill('#mn-s1', 'The cold bronze smelled of wet moss.');
+  await p.click('[data-pill="s1|verdict"][data-val="Need more data"]'); await p.click('label.pick:has-text("The eyes are glass.") input'); await p.click('label.pick:has-text("Cincinnati Magazine reports") input'); await p.waitForTimeout(100);
+  ok((await calls()).some((c) => c.path === 'event/stop-complete' && c.event === true), 'a completed stop is counted as an event');
+  /* a lesson and the games */
+  await p.goto(base + 'show-dont-tell/#lesson-2'); await p.waitForTimeout(100); await p.fill('#writing', 'SECRETLESSONTEXT'); await p.click('#done'); await p.waitForTimeout(100);
+  ok((await calls()).some((c) => c.path === 'event/lesson-complete'), 'lesson complete is counted'); ok((await calls()).some((c) => c.path === '/show-dont-tell'), 'the lessons page is counted');
+  await p.goto(base + 'haunting-files/'); await p.waitForTimeout(100); ok((await calls()).some((c) => c.path === 'event/game-opened-haunting-files'), 'game opened (Haunting Files)'); ok((await calls()).some((c) => c.path === '/haunting-files'), 'its page is counted');
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'SECRETNAME'); await p.click('[data-act="begin"]');
+  await p.goto(base + 'last-light/'); await p.waitForTimeout(100); ok((await calls()).some((c) => c.path === 'event/game-opened-last-light'), 'game opened (Last Light)');
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'SECRETSURVIVOR'); await p.waitForTimeout(100);
+  const all = (await calls()); const everyPath = all.map((c) => c.path);
+  for (const c of all) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z-]+)$/.test(c.path), 'path matches the fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event are sent: ' + Object.keys(c)); }
+  ok(!/SECRET/i.test(JSON.stringify(all)), 'no typed text or names in anything sent: ' + JSON.stringify(everyPath));
+  await p.goto(base + 'last-light/'); await p.evaluate(() => { window.HO_track('SECRET'); window.HO_page('/evil path?x=SECRET'); }); eq((await calls()).filter((c) => /SECRET|evil/i.test(JSON.stringify(c))).length, 0, 'unknown events and odd paths are dropped');
+  eq(errs.length, 0, 'no page errors: ' + errs);
+});
+
 // ---------------------------------------------------------------- navigation between pages
 T('navigation: every game links back to the site; site links reach every game', async ({ base, newPage }) => {
   const p = await newPage();
@@ -538,7 +588,7 @@ T('navigation: every game links back to the site; site links reach every game', 
 // ---------------------------------------------------------------- design system
 T('design-system: self-hosted fonts load, no external requests, theme switch works', async ({ base, newPage }) => {
   const p = await newPage(); const ext = [];
-  p.on('request', (r) => { const u = r.url(); if (!u.startsWith(base) && !u.startsWith('data:')) ext.push(u); });
+  p.on('request', (r) => { const u = r.url(); if (!u.startsWith(base) && !u.startsWith('data:') && !/gc\.zgo\.at|goatcounter\.com/.test(u)) ext.push(u); });
   await p.goto(base + 'design-system/'); await p.waitForTimeout(500);
   const fonts = await p.evaluate(async () => { await document.fonts.ready; return ['IM Fell English', 'Atkinson Hyperlegible', 'Special Elite', 'Barlow Condensed', 'Share Tech Mono'].map((f) => document.fonts.check('16px "' + f + '"')); });
   ok(fonts.every(Boolean), 'all five families load from assets/fonts: ' + fonts);
