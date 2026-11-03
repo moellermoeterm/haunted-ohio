@@ -6,7 +6,7 @@ import path from 'node:path';
 import { run, eq, ok, ROOT } from './lib.mjs';
 const fixture = (name) => fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', name), 'utf8');
 
-const ROUTES = ['home', 'learn', 'games', 'prompts', 'draft', 'legend', 'dread', 'resources', 'cemetery', 'leaders', 'about'];
+const ROUTES = ['home', 'learn', 'games', 'prompts', 'draft', 'legend', 'dread', 'resources', 'cemetery', 'week', 'leaders', 'about'];
 const WIDTHS = [1920, 1366, 1280, 1024, 768, 390];
 const lsGet = (page, k) => page.evaluate((key) => localStorage.getItem(key), k);
 const noHScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
@@ -76,8 +76,8 @@ T('home: Draft Lab and other tools render without errors', async ({ base, newPag
 // ---------------------------------------------------------------- home redesign (P2)
 T('home redesign: grouped navigation menus open, close, and are keyboard friendly', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base);
-  eq((await p.$$('.nav-group')).length, 3, 'three menu groups (Learn, Create, About)');
-  eq((await p.$$('.nav-link')).length, 2, 'two direct links (Games, Field Work)');
+  eq((await p.$$('.nav-group')).length, 4, 'four menu groups (Learn, Create, Field Work, About)');
+  eq((await p.$$('.nav-link')).length, 1, 'one direct link (Games)');
   await p.click('#siteNav .nav-btn >> nth=1');
   eq((await p.$$eval('#menu-create a', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#prompts,#draft,#legend,#dread', 'Create menu links');
   ok(await p.isVisible('#menu-create'), 'menu visible');
@@ -92,12 +92,12 @@ T('home redesign: grouped navigation menus open, close, and are keyboard friendl
 T('home redesign: hero, case index, and field map', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#home');
   ok((await p.isVisible('.hero-moon')) && (await p.isVisible('.hero-city')), 'night sky and skyline render');
-  eq((await p.$$('.where a')).length, 11, 'eleven case-index cards, none lost');
+  eq((await p.$$('.where a')).length, 12, 'twelve case-index cards (the eleven originals plus The Week)');
   await p.click('#heroCue');
   await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
-  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/', 'map pins link to existing places');
-  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/', 'map list links');
+  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#week,#week,haunting-files/,#cemetery,last-light/,#week', 'map pins link to existing places and The Week');
+  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/,#week,#week,#week,#week', 'map list links');
 });
 T('home redesign: game links open with the branded loading screen', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#games');
@@ -117,6 +117,36 @@ T('home redesign: night by default, daylight on demand, phone menu', async ({ ba
   await m.click('#menu-learn a[href="#resources"]'); await m.waitForTimeout(250);
   ok(!(await m.isVisible('#siteNav')), 'nav closes after choosing'); ok(await m.isVisible('#resources'), 'navigated');
   const d = await newPage({ width: 1440, height: 900 }); await d.goto(base); ok(!(await d.isVisible('#navToggle')), 'no menu button on desktop');
+});
+
+// ---------------------------------------------------------------- The Week (Phase 4)
+T('the week: four days built from one data object, TODOs visible, notes saved (ho-week)', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + '#week'); await p.waitForTimeout(250);
+  eq((await p.$$('.wk-day')).length, 4, 'four days');
+  eq((await p.$$eval('.wk-dow', (e) => e.map((x) => x.textContent))).join(','), 'Monday,Tuesday,Wednesday,Thursday', 'Monday to Thursday');
+  eq((await p.$$('.wk-date .todo-in')).length, 4, 'each undated day shows a visible "Leaders: fill in the date" note');
+  ok((await p.$$('.todo')).length >= 8, 'visible "Leaders: fill in" items for every unverified detail');
+  ok((await p.$$('.wk-hist')).length >= 3 && (await p.$$('.wk-lore')).length >= 2, 'real-history boxes and separately labeled lore boxes');
+  const lore = await p.$$eval('.wk-lore h4', (e) => e.map((x) => x.textContent)); ok(lore.every((t) => /lore|legend/i.test(t)), 'lore is labeled as lore/legend: ' + lore);
+  const txt = await p.textContent('#weekRoot'); ok(!/s[eé]ance|ouija/i.test(txt), 'no spirit-contacting activities'); ok(/No ghost-hunting/.test(txt), 'explicit no-ghost-hunting line');
+  await p.fill('#notes-wed', 'The bell tower smelled like cold stone.'); await p.reload(); await p.waitForTimeout(250);
+  eq(await p.inputValue('#notes-wed'), 'The bell tower smelled like cold stone.', 'field notes persist');
+  eq(JSON.parse(await lsGet(p, 'ho-week')).wed, 'The bell tower smelled like cold stone.', 'saved under ho-week');
+  for (const a of await p.$$eval('.wk-links a', (e) => e.map((x) => x.getAttribute('href')))) ok(/^(#[a-z]+|[a-z-]+\/(#lesson-\d+)?)$/.test(a), 'link is relative: ' + a);
+});
+T('the week: nav menu, home card, map markers, escaped rendering', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base);
+  await p.click('#siteNav .nav-btn >> nth=2'); ok(await p.isVisible('#menu-field a[href="#week"]'), 'The Week is in the Field Work menu');
+  await p.click('#menu-field a[href="#week"]'); await p.waitForTimeout(300); ok(await p.isVisible('#week'), 'nav opens The Week');
+  await p.goto(base); ok(await p.isVisible('.where a[href="#week"]'), 'home card');
+  for (const d of ['mon', 'tue', 'wed', 'thu']) ok((await p.$$(`.fm-svg a[data-day="${d}"]`)).length >= 1, 'map marker for ' + d);
+  await p.evaluate(() => { document.querySelector('.fm-svg a[data-day="thu"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); });
+  await p.waitForTimeout(500); ok(p.url().endsWith('#week'), 'marker opens The Week');
+  await p.addInitScript(() => { window.__inject = true; });
+  await p.evaluate(() => { try { localStorage.setItem('ho-week', JSON.stringify({ mon: '<img src=x onerror=window.__xss=1>' })); } catch (e) { /* ignore */ } });
+  await p.goto(base + '#week'); await p.reload(); await p.waitForTimeout(250);
+  ok(!(await p.evaluate(() => window.__xss)), 'saved text is never injected as markup');
+  eq(await p.inputValue('#notes-mon'), '<img src=x onerror=window.__xss=1>', 'shown as plain text in the box');
 });
 
 // ---------------------------------------------------------------- Show, Don't Tell
@@ -231,7 +261,7 @@ T('design-system: self-hosted fonts load, no external requests, theme switch wor
 T('responsive: no horizontal scroll on any page at 1920, 1366, 1280, 1024, 768 and 390 px', async ({ base, newPage }) => {
   for (const w of WIDTHS) {
     const p = await newPage({ width: w, height: 800 });
-    for (const u of ['', '#learn', '#games', '#prompts', '#draft', '#cemetery', 'show-dont-tell/#lesson-3', 'haunting-files/', 'last-light/', 'design-system/']) {
+    for (const u of ['', '#learn', '#games', '#prompts', '#draft', '#cemetery', '#week', 'show-dont-tell/#lesson-3', 'haunting-files/', 'last-light/', 'design-system/']) {
       await p.goto(base + u); await p.waitForTimeout(120); ok(await noHScroll(p), `horizontal scroll at ${w}px on ${u || 'home'}`);
     }
     await p.context().close();
