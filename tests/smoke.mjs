@@ -529,20 +529,20 @@ const GC_STUB = "window.goatcounter=window.goatcounter||{};window.__gc=window.__
 const withGC = async (p, mode) => {
   /* mode 'stub': GoatCounter loads (a recording stub) and the placeholder code is swapped for a test code; mode 'blocked': the script is blocked */
   await p.route(/gc\.zgo\.at/, (r) => (mode === 'blocked' ? r.abort() : r.fulfill({ contentType: 'text/javascript', body: GC_STUB })));
-  if (mode === 'stub') await p.route((u) => /\/$|\.html$/.test(u.pathname), async (route) => { const resp = await route.fetch(); route.fulfill({ response: resp, body: (await resp.text()).replace('YOUR_CODE', 'test') }); });
+  /* the real code is already in the pages, so the stub needs no rewriting */
 };
-T('analytics: every page carries the GoatCounter snippet (placeholder code) and the guarded tracker', async ({ base, newPage }) => {
+T('analytics: every page carries the GoatCounter snippet (real code) once, and the guarded tracker', async ({ base, newPage }) => {
   for (const u of ['', 'show-dont-tell/', 'haunting-files/', 'last-light/', 'teacher/', 'design-system/']) {
     const p = await newPage(); await p.goto(base + u);
     const s = await p.$eval('script[data-goatcounter]', (e) => ({ d: e.getAttribute('data-goatcounter'), s: e.getAttribute('data-goatcounter-settings'), a: e.async, src: e.getAttribute('src') }));
-    eq(s.d, 'https://YOUR_CODE.goatcounter.com/count', 'endpoint placeholder on ' + (u || 'home')); eq(JSON.parse(s.s).no_onload, true, 'no_onload on ' + (u || 'home')); ok(s.a && s.src === '//gc.zgo.at/count.js', 'async script on ' + (u || 'home'));
-    ok(await p.evaluate(() => typeof window.HO_track === 'function' && typeof window.HO_page === 'function'), 'tracker loaded on ' + (u || 'home'));
+    eq(s.d, 'https://ohmoellermoeterm.goatcounter.com/count', 'the real GoatCounter endpoint on ' + (u || 'home')); eq(JSON.parse(s.s).no_onload, true, 'no_onload on ' + (u || 'home')); ok(s.a && s.src === '//gc.zgo.at/count.js', 'async script on ' + (u || 'home'));
+    eq(await p.$$eval('script[data-goatcounter]', (e) => e.length), 1, 'exactly one GoatCounter snippet on ' + (u || 'home')); ok(await p.evaluate(() => typeof window.HO_track === 'function' && typeof window.HO_page === 'function'), 'tracker loaded on ' + (u || 'home'));
   }
 });
 T('analytics: nothing breaks, and nothing is sent, when GoatCounter is blocked or not set up', async ({ base, newPage }) => {
   for (const mode of ['blocked', 'placeholder']) {
     const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
-    if (mode === 'blocked') await withGC(p, 'blocked'); else await p.route(/gc\.zgo\.at/, (r) => r.fulfill({ contentType: 'text/javascript', body: GC_STUB }));
+    if (mode === 'blocked') await withGC(p, 'blocked'); else { await p.route(/gc\.zgo\.at/, (r) => r.fulfill({ contentType: 'text/javascript', body: GC_STUB })); await p.route((u) => /\/$|\.html$/.test(u.pathname), async (route) => { const resp = await route.fetch(); route.fulfill({ response: resp, body: (await resp.text()).replace('ohmoellermoeterm', 'YOUR_CODE') }); }); }
     for (const u of ['', '#week', 'haunting-files/', 'last-light/', 'show-dont-tell/#lesson-2', 'teacher/']) { await p.goto(base + u); await p.waitForTimeout(150); }
     await p.goto(base + 'show-dont-tell/#lesson-2'); await p.click('#done'); await p.goto(base + 'haunting-files/'); await p.click('[data-act="menu"]');
     eq(errs.length, 0, mode + ': no page errors: ' + errs);

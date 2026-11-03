@@ -198,7 +198,7 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 #caseSlot input{text-align:center}
 .sigtxt{word-break:break-word}
 </style>
-<script data-goatcounter="https://YOUR_CODE.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 <script src="../assets/js/ho-track.js"></script>
 </head>
 <body>
@@ -272,7 +272,7 @@ function target(){return SC.signal.freq+(S.vs?(HOV.hash(S.vs+'|f')%9-4):0)}
 function shiftText(s,n){return s.replace(/[A-Z]/g,function(c){return String.fromCharCode((c.charCodeAt(0)-65-n+26)%26+65)})}
 /* seeded order: a new game (with a name) gets its own repeatable order of options; a save made before this feature keeps the original order */
 function ord(arr,tag){return S.vs?HOV.shuffle(arr,S.vs+'|'+tag):arr}
-function setCase(n){S.case=CASE;save();useScenario(n);S=load()||fresh();S.case=CASE;S.screen='title'}
+function setCase(n){S.case=CASE;if(S.started)save();useScenario(n);S=load()||fresh();S.case=CASE;S.screen='title'}
 function itm(id){var b=ITEMS.filter(function(i){return i.id===id})[0],o=SC.supply.items[id],r={},k;for(k in b)r[k]=b[k];
  if(typeof o==='string')r.n=o;else if(o){r.n=o.n;if(o.clue)r.clue=o.clue}return r}
 var SIG_EXTRA={
