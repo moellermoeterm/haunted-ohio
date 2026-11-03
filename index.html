@@ -443,6 +443,53 @@ details.howto li{margin:.35rem 0}
 .fm-svg .pin.stop .ring{stroke:var(--ho-ember)}
 .fm-svg .pin text.day{font-size:10px;letter-spacing:.14em;fill:var(--ho-gold)}
 .fm-note{margin:.6rem 0 0;color:var(--muted);font-size:.85rem}
+
+/* spring grove dossier */
+.dz-head{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.4rem;align-items:start;margin:1.2rem 0 1rem}
+.dz-title{font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);margin:.2rem 0 .5rem;line-height:1.05}
+.dz-arch{border-left:3px solid var(--ho-gold-dim);padding:.2rem 0 .2rem .9rem;margin:.6rem 0;color:var(--muted);font-style:italic;max-width:62ch}
+.dz-arch b{font-style:normal;color:var(--ho-gold)}
+.dz-score{border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;background:var(--surface);text-align:center}
+.dz-big{font-family:var(--body);font-weight:700;font-size:3.4rem;line-height:1;color:var(--ho-gold)}
+.dz-rank{font-weight:700;margin:.4rem 0}
+.dz-bar{height:10px;border-radius:99px;background:var(--ho-night-2);border:1px solid var(--line);overflow:hidden}
+.dz-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ho-gold-dim),var(--ho-gold))}
+.dz-squad{border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;background:var(--surface);margin-bottom:1rem}
+.dz-squad h4,.dz-step h4{margin:0 0 .5rem;font-family:var(--display);font-weight:400;font-size:1.3rem}
+.dz-squad h4 small,.dz-step h4 small{font:400 .85rem var(--body);color:var(--muted);margin-left:.5rem}
+.dz-step h5{margin:.2rem 0 .4rem;font:700 .8rem/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ho-gold)}
+.dz-roles{margin-top:.8rem;color:var(--muted)}.dz-roles summary{cursor:pointer;font-weight:700;color:var(--text)}.dz-roles ul{margin:.4rem 0;padding-left:1.1rem}
+.dz-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0 1.4rem}
+.dz-badge{font-size:.82rem;font-weight:700;border:1.5px dashed var(--line);border-radius:99px;padding:.15rem .8rem;color:var(--muted);opacity:.75}
+.dz-badge.on{opacity:1;border:1.5px solid var(--ho-gold);color:var(--ho-gold);background:rgba(217,184,108,.1);box-shadow:0 0 14px rgba(217,184,108,.18)}
+.dz-stops{display:grid;gap:1rem}
+.dz-stop{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--surface2),var(--surface) 30%);overflow:hidden}
+.dz-stop>summary{display:flex;align-items:center;gap:1rem;padding:.9rem 1.2rem;cursor:pointer;list-style:none;flex-wrap:wrap}
+.dz-stop>summary::-webkit-details-marker{display:none}
+.dz-stop[open]>summary{border-bottom:1px solid var(--line)}
+.dz-num{flex:none;display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:50%;border:1.5px solid var(--ho-gold-dim);background:var(--ho-night-2);font-family:var(--display);font-size:1.2rem;color:var(--ho-gold)}
+.dz-sn{flex:1 1 14rem;display:grid}.dz-sn b{font-family:var(--display);font-weight:400;font-size:1.35rem;line-height:1.1}.dz-sn small{color:var(--muted)}
+.dz-chips{display:flex;gap:.3rem;flex-wrap:wrap}.dz-chip{font-size:.75rem;border:1px solid var(--line);border-radius:99px;padding:0 .6rem;color:var(--muted)}.dz-chip.on{border-color:var(--ok);color:var(--ok)}
+.dz-pts{font-weight:700;min-width:4.5rem;text-align:right}
+.dz-in{padding:0 1.2rem 1.3rem}
+.dz-page{background:var(--ho-parch);color:var(--ho-parch-ink);font-family:var(--display);padding:.9rem 1.1rem;border-radius:6px;margin:.6rem 0 1rem;box-shadow:inset 0 0 30px rgba(120,90,40,.25)}
+.dz-page p{margin:0}
+.dz-step{border-top:1px dashed var(--line);padding-top:.9rem;margin-top:.9rem}
+.dz-lead{display:block;width:max-content;max-width:100%;font-size:.82rem;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:0 .7rem;margin-bottom:.4rem}.dz-lead b{color:var(--ho-gold)}
+.dz-desc{margin:.5rem 0}
+.dz-check{display:flex;gap:.5rem;align-items:center;font-weight:400;margin:.6rem 0}
+.dz-check input{width:1.2rem;height:1.2rem}
+.dz-fb{min-height:1.4em;margin:.4rem 0 0;color:var(--ho-gold);font-style:italic}
+.dz-hook{margin:.4rem 0 0}
+.dz-timer{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.dz-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.2rem}.dz-two>div{min-width:0}.dz-two input[type=text]{width:100%;box-sizing:border-box}
+.dz-log{border:1px solid var(--line);border-radius:12px;padding:.7rem 1rem;margin:.6rem 0}
+.dz-sheet{background:var(--ho-parch);color:var(--ho-parch-ink);border-radius:6px;padding:1rem 1.2rem;box-shadow:inset 0 0 40px rgba(120,90,40,.28),0 8px 24px rgba(0,0,0,.35)}
+.dz-sheet label{color:var(--ho-parch-ink)}.dz-sheet textarea{background:#f3ead0;color:var(--ho-parch-ink);border-color:#b5a174}
+.dz-label{font:700 .8rem/1 var(--body);letter-spacing:.2em;color:#7a2c31;margin-bottom:.6rem}
+.dz-form{border-top:1px solid var(--line);margin-top:1.4rem;padding-top:1rem}
+.dz-frame{width:100%;min-height:760px;border:1px solid var(--line);border-radius:12px;background:#fff}
+@media (max-width:760px){.dz-head,.dz-two{grid-template-columns:1fr}.dz-pts{text-align:left}}
 </style>
 </head>
 <body>
@@ -1133,37 +1180,11 @@ details.howto li{margin:.35rem 0}
     </div>
 
     <div role="tabpanel" id="cp-hunt" aria-labelledby="ct-hunt" hidden>
-      <div class="game">
-        <label class="lbl" for="hTeam" style="margin-top:0">Team name</label>
-        <input type="text" id="hTeam" autocomplete="off" placeholder="Pick something that sounds good on a podcast">
-        <div class="lbl">Team members</div>
-        <div class="memgrid" id="hMems"></div>
-        <div class="row">
-          <button type="button" class="btn" id="hStart">Start the hunt</button>
-          <button type="button" class="btn ghost" id="hEnd">Finish the hunt</button>
-        </div>
-        <p class="muted" id="hTimes" style="margin:0"></p>
-        <p class="muted" style="margin:.6rem 0 0">Keep your photos and audio on your phone and bring them with you. Stamp a time or write the file name in each mission so we can match them later.</p>
-      </div>
-      <p class="count" id="huntCount" style="margin-top:1.4rem"></p>
-      <div class="bar" id="bar" role="progressbar" aria-label="Missions complete" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="barfill"></div></div>
-      <div id="missions"></div>
-      <div class="row"><button type="button" class="btn ghost small" id="hReset">Start over</button></div>
+      <div id="dossier"></div>
     </div>
 
     <div role="tabpanel" id="cp-submit" aria-labelledby="ct-submit" hidden>
-      <div class="prose">
-        <p>When your team is done, check the report below, then send it to your leaders. Only one person per team needs to turn it in.</p>
-      </div>
-      <ul id="subCheck" class="muted" style="max-width:62ch"></ul>
-      <label class="lbl" for="subText">Your team’s report</label>
-      <textarea id="subText" rows="16" readonly></textarea>
-      <div class="row">
-        <button type="button" class="btn" id="subMail" hidden>Email my leaders</button>
-        <button type="button" class="btn ghost" id="subCopy">Copy report</button>
-        <button type="button" class="btn ghost" id="subRefresh">Refresh report</button>
-      </div>
-      <p class="fb" id="subNote">Your leaders will tell you where to send this. For now, copy the report and paste it where they say.</p>
+      <div id="turnin"></div>
     </div>
   </div>
 </section>
@@ -2097,299 +2118,367 @@ var PROMPT='';
   rows();
 })();
 
-/* spring grove hunt */
+/* spring grove dossier: Case File #0048 */
 (function(){
   tabs($('#cemTabs'));
-  var LEADERS=''; /* leaders' email addresses, comma separated. Leave empty until you decide how reports are collected. */
-  var KEY='ho-hunt';
-  var SUN=['Bright sun','Hazy','Overcast','Shade','Low sun'],WIND=['Calm','Breeze','Strong'],SND=['Quiet','Moderate','Loud'];
-  var RATE=['0','1','2','3','4','5'],YN=['Yes','No'];
+
+  /* =====================================================================================================
+     LEADERS: EDIT THIS BLOCK. Nothing else in this file needs to change.
+     ===================================================================================================== */
+  var FORM_URL='';       /* TODO(Leaders): the link to your turn-in form, starting with https:// . Empty hides the button and shows a note. */
+  var FORM_EMBED='';     /* TODO(Leaders): the form's embed address, starting with https:// . Shown in a frame only when a student presses "Show the form here". */
+  var GPS_CHECKIN=false; /* OPTIONAL "I am at this stop" check. OFF by default. When on, it runs on the student's device only and shows pass or fail. The location is never stored or sent. */
+  var STOP_PLACES={};    /* TODO(Leaders), only if GPS_CHECKIN is true. Example: {s1:{lat:39.0,lng:-84.0,radiusM:60}, s2:{...}, s3:{...}, s4:{...}} */
+  /* Field Facts: one on-site question per stop. `accept` = answers you will accept, lowercase, any of them matching counts
+     (a student's answer is accepted if it contains one of these). While `accept` is EMPTY, any non-empty answer earns the points. */
+  var FIELD_FACTS={
+    s1:{q:'Look closely at the monument. Copy one name or date that is carved on it.',accept:[]},   /* TODO(Leaders): fill in after your walk-through */
+    s2:{q:'Stand where you can see the front of the mausoleum. Count the steps up to its door and write the number.',accept:[]},   /* TODO(Leaders): fill in after your walk-through */
+    s3:{q:'Find the nearest section marker or sign. Copy what it says.',accept:[]},   /* TODO(Leaders): fill in after your walk-through */
+    s4:{q:'Find a monument in Section 16 with a date from the 1800s. Copy the name and the year.',accept:[]}   /* TODO(Leaders): fill in after your walk-through */
+  };
+  /* ===================================================================================================== */
+
+  var KEY='ho-hunt2';
+  var ROLES=['Skeptic','Historian','Sensory Scout','Recorder','Storyteller'];
   var VERD=['Natural explanation','Still unexplained','Need more data'];
-  var H=store.get(KEY,null)||{team:'',mem:['','','','',''],start:'',end:'',v:{},done:{}};
-  H.mem=(H.mem&&H.mem.length===5)?H.mem:['','','','',''];H.v=H.v||{};H.done=H.done||{};
-  function save(){store.set(KEY,H)}
-  function names(){var a=H.mem.map(function(x){return x.trim()}).filter(Boolean);return a.length?a:['Member 1']}
-  function nowTime(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+  var SUN=['Bright sun','Hazy','Overcast','Shade','Low sun'],WIND=['Calm','Breeze','Strong'],SND=['Quiet','Moderate','Loud'];
+  var RANKS=[[0,'Observer'],[50,'Fieldworker'],[110,'Investigator'],[170,'Senior Investigator'],[225,'Archivist']];
+  var SENSES={
+    sight:/\b(saw|see|seen|look|looked|glint|glow|shadow|dim|pale|gray|grey|green|bronze|bright|color|shine|shone|flicker|moss|ivy|dark)\w*/i,
+    sound:/\b(hear|heard|sound|whisper|hum|buzz|rustle|creak|echo|silence|silent|quiet|birdsong|wind|bell|crunch|click|voice|murmur|drone|siren|rattle)\w*/i,
+    smell:/\b(smell|smelled|scent|musty|earthy|soil|pine|mulch|smoke|stale|flowers|lilac)\w*/i,
+    touch:/\b(cold|cool|warm|rough|smooth|chill|breeze|wet|dry|grit|gritty|prickly|bark|hot|heat|damp|cobweb|brush|slick)\w*/i,
+    taste:/\b(taste|tasted|metallic|dusty|salty|bitter|sour)\w*/i
+  };
+  var FEEL={};('angry sad scared afraid terrified nervous anxious excited worried upset furious frightened jealous guilty ashamed embarrassed depressed miserable horrified creepy spooky scary eerie uneasy lonely felt feel feeling feels').split(' ').forEach(function(w){FEEL[w]=1});
+  var HEDGE=/\b(might|could|may|maybe|only|not enough|one reading|more data|control|doesn't prove|does not prove|can't|cannot|small|difference|compare|compared)\b/i;
 
-  function daylog(){
-    var f=[];
-    [['1','Start of the hunt'],['2','Midpoint'],['3','End of the hunt']].forEach(function(p){
-      f.push({t:'h',label:p[1]});
-      f.push({k:'t'+p[0],t:'stamp',label:'Time'});
-      f.push({k:'a'+p[0],t:'text',label:'Human activity'});
-      f.push({k:'s'+p[0],t:'choice',label:'Sun and lighting',opts:SUN});
-      f.push({k:'n'+p[0],t:'area',rows:2,label:'Sensory changes'});
-    });
-    return f;
-  }
-  function survey(){
-    var f=[],nm=names();
-    ['A','B','C'].forEach(function(sp){
-      f.push({t:'h',label:'Spot '+sp});
-      f.push({k:'sp'+sp,t:'text',label:'Where is it?'});
-      nm.forEach(function(n,i){f.push({k:'r'+sp+i,t:'rate',label:'Spot '+sp+', '+n+' (0 = not watched, 5 = very watched)'})});
-    });
-    return f;
-  }
-  function envf(){
-    var f=[];
-    [['h','Haunted spot'],['c','Control spot (somewhere with no legend)']].forEach(function(p){
-      var x=p[0];
-      f.push({t:'h',label:p[1]});
-      f.push({k:x+'l',t:'text',label:'Location'});
-      f.push({k:x+'t',t:'num',label:'Temperature (degrees F)'});
-      f.push({k:x+'w',t:'choice',label:'Wind',opts:WIND});
-      f.push({k:x+'s',t:'choice',label:'Approximate sound level',opts:SND});
-      f.push({k:x+'n',t:'area',rows:2,label:'Notes'});
-    });
-    f.push({k:'diff',t:'calc',fn:function(v){
-      var a=parseFloat(v.m11_ht),b=parseFloat(v.m11_ct);
-      if(isNaN(a)||isNaN(b))return 'Enter both temperatures to compare them.';
-      var d=Math.round((a-b)*10)/10;
-      return (d===0?'The two spots are the same temperature.':'The haunted spot is '+Math.abs(d)+' degrees '+(d<0?'colder':'warmer')+' than the control spot.')+' Is that big enough to explain a chill, or small enough to be normal?';
-    }});
-    return f;
-  }
-  function verdicts(){
-    var f=[];
-    [['b','Breuer’s eyes'],['d','Dexter Mausoleum'],['g','Section 53'],['v','Section 16']].forEach(function(p){
-      f.push({t:'h',label:p[1]});
-      f.push({k:p[0]+'v',t:'choice',label:p[1]+': your verdict',opts:VERD});
-      f.push({k:p[0]+'s',t:'area',rows:2,label:p[1]+': story seed (one sentence)'});
-    });
-    return f;
-  }
-
-  var MISSIONS=[
-    {id:'m1',grp:'Lot 100: C.C. Breuer’s monument',title:'Watching Eyes',
-     desc:'Approach the bust from three angles: left, center, and right. Photograph or sketch each view, and stamp the time (or write the photo name) for each.',
-     fields:[{k:'L',t:'stamp',label:'Left view'},{k:'C',t:'stamp',label:'Center view'},{k:'R',t:'stamp',label:'Right view'},
-       {k:'rate',t:'rate',label:'How strongly did you feel watched? (0 = not at all, 5 = very)'},
-       {k:'n',t:'area',rows:3,label:'One detail you could use in a story'}]},
-    {id:'m2',grp:'Lot 100: C.C. Breuer’s monument',title:'Reflection Test',
-     desc:'From 6 to 10 feet away, hold your phone flashlight (on low) across the bust’s face. Take two photos: flashlight off, then on.',
-     fields:[{k:'off',t:'stamp',label:'Photo with flashlight OFF'},{k:'on',t:'stamp',label:'Photo with flashlight ON'},
-       {k:'yn',t:'yn',label:'Do reflections plausibly explain the eyes seeming to move?'},{k:'n',t:'area',rows:3,label:'Notes'}]},
-    {id:'m3',grp:'Dexter Mausoleum',title:'Sit Test',
-     desc:'Sit on the mausoleum steps for 1 minute, then stand and scan for 2 minutes. Your leaders will confirm where you’re allowed to sit.',
-     fields:[{k:'tm',t:'timer',label:'Sit test timer',phases:[{n:'Sit still',s:60},{n:'Stand and scan',s:120}]},
-       {k:'t',t:'stamp',label:'Time'},{k:'n',t:'area',rows:4,label:'Observations: sounds, movement, feelings'}]},
-    {id:'m4',grp:'Dexter Mausoleum',title:'Eye-Glow Check',
-     desc:'From a safe distance, try different angles with your phone flashlight (on low) to see whether glare or reflections make colored glints. Photograph any you find. Never shine a light at people.',
-     fields:[{k:'p',t:'stamp',label:'Photo time or name'},{k:'c',t:'checks',label:'Colors you saw',opts:['White','Blue','Red','Green','Yellow','None']},
-       {k:'n',t:'area',rows:3,label:'What explains the reflection?'}]},
-    {id:'m5',grp:'Section 53',title:'Ankle Grabber Walk',
-     desc:'Walk the reported path alone and with a partner, at a normal pace and a slow pace. Place a ribbon at ankle height and walk past it.',
-     fields:[{k:'w',t:'checks',label:'Walks completed',opts:['Alone, normal pace','Alone, slow pace','With partner, normal pace','With partner, slow pace']},
-       {k:'r',t:'choice',label:'Ribbon result',opts:['Untouched','Twisted','Moved']},{k:'n',t:'area',rows:3,label:'Notes'}]},
-    {id:'m6',grp:'Section 53',title:'Vegetation and Ground Check',
-     desc:'Look for anything that could touch an ankle: low branches, vines, uneven ground, hidden hazards. Photograph the best candidates.',
-     fields:[{k:'f',t:'checks',label:'What you found',opts:['Low branches','Vines or roots','Uneven ground','Loose stones','Tall grass','Nothing']},
-       {k:'p',t:'stamp',label:'Photo time or name'},{k:'n',t:'area',rows:3,label:'Possible natural causes'}]},
-    {id:'m7',grp:'Section 16',title:'Disembodied Voices Audit',
-     desc:'Sit silently for 3 minutes and record ambient audio. No talking. Note any voices, which direction they came from, and how clear they were.',
-     fields:[{k:'tm',t:'timer',label:'Silent listening timer',phases:[{n:'Silence',s:180}]},
-       {k:'a',t:'stamp',label:'Audio file name or time'},{k:'v',t:'yn',label:'Did you hear voices?'},
-       {k:'d',t:'choice',label:'Direction',opts:['North','South','East','West','Not sure']},
-       {k:'c',t:'choice',label:'Clarity',opts:['Faint','Clear','Can’t tell']},{k:'n',t:'area',rows:3,label:'Notes'}]},
-    {id:'m8',grp:'Section 16',title:'Shadow Figure Test',
-     desc:'Have a teammate create controlled shadows behind or near a monument while you watch from a fixed point. Photograph your setup.',
-     fields:[{k:'p',t:'stamp',label:'Photo time or name'},{k:'yn',t:'yn',label:'Could the shadows be mistaken for figures?'},{k:'n',t:'area',rows:3,label:'Notes'}]},
-    {id:'m9',grp:'Across the cemetery',title:'Daylight Pattern Log',
-     desc:'Three times during the hunt, record what people are doing, what the sun is doing, and how the place feels. Most reported sightings happen in daylight, so this matters.',
-     fields:daylog()},
-    {id:'m10',grp:'Across the cemetery',title:'Feeling of Being Watched Survey',
-     desc:'At three isolated spots, each team member privately rates how watched they feel. Don’t compare until everyone has scored.',
-     fields:survey},
-    {id:'m11',grp:'Across the cemetery',title:'Environmental Data Check',
-     desc:'At one “haunted” spot and one control spot, record temperature, wind, and approximate sound level.',
-     fields:envf()},
-    {id:'m12',grp:'Across the cemetery',title:'Oral History and Source Check',
-     desc:'Ask one staff member or volunteer, or read an on-site plaque: “Are there any stories staff commonly tell about this area?”',
-     fields:[{k:'w',t:'text',label:'Who you asked (name and role), or which plaque'},{k:'n',t:'area',rows:4,label:'Paraphrase of the response'}]},
-    {id:'m13',grp:'Across the cemetery',title:'Steal One Line',
-     desc:'At each of the four legends, write one sentence you could drop into your own ghost story. Use a sense you haven’t used yet.',
-     fields:[{k:'b',t:'area',rows:2,label:'Breuer’s eyes'},{k:'d',t:'area',rows:2,label:'Dexter Mausoleum'},{k:'g',t:'area',rows:2,label:'Section 53'},{k:'v',t:'area',rows:2,label:'Section 16'}]},
-    {id:'m14',grp:'Across the cemetery',title:'Close the Case',
-     desc:'For each legend, choose your verdict, then plant a story seed: one sentence that keeps what you learned and adds what you couldn’t explain.',
-     fields:verdicts()}
+  /* ---- the four stops. The two "pages" of each file (what people say / what the record says) are read from the legends tab, so the legends stay in one place. ---- */
+  var STOPS=[
+    {id:'s1',name:'The Watching Bust',short:'Breuer',idx:0,
+     intro:'File one. A bronze face that seems to watch. Look at it from three sides before you decide what it is doing.',
+     tests:[
+      {id:'eyes',title:'Watching Eyes',desc:'Approach the bust from three angles: left, center, and right. Photograph or sketch each view, and stamp the time (or write the photo name) for each.',res:{label:'How strongly did you feel watched? (0 = not at all, 5 = very)',opts:['0','1','2','3','4','5']}},
+      {id:'refl',title:'Reflection Test',desc:'From 6 to 10 feet away, hold your phone flashlight (on low) across the bust’s face. Take two photos: flashlight off, then on.',res:{label:'Do reflections plausibly explain the eyes seeming to move?',opts:['Yes','No']}}],
+     facts:[
+      {t:'The eyes are glass.',r:1},
+      {t:'Cincinnati Magazine reports that Breuer was a salesman and real estate investor, not an optometrist.',r:1},
+      {t:'The monument is in Lot 100 and carries a bronze bust.',r:1},
+      {t:'The eyes are Breuer’s real eyes, preserved in glass at his request.',r:0},
+      {t:'Breuer was an optometrist.',r:0},
+      {t:'The eyes follow every visitor.',r:0}]},
+    {id:'s2',name:'The House the Dead Never Finished',short:'Dexter',idx:1,
+     intro:'File two. A mausoleum that was never completed. Unfinished things attract stories.',
+     tests:[
+      {id:'sit',title:'Sit Test',desc:'Sit on the mausoleum steps for 1 minute, then stand and scan for 2 minutes. Your leaders will confirm where you’re allowed to sit.',timer:[{n:'Sit still',s:60},{n:'Stand and scan',s:120}],res:{label:'Did anything unusual happen?',opts:['Yes','No']}},
+      {id:'glow',title:'Eye-Glow Check',desc:'From a safe distance, try different angles with your phone flashlight (on low) to see whether glare or reflections make colored glints. Photograph any you find. Never shine a light at people.',res:{label:'Colors you saw',opts:['White','Blue','Red','Green','Yellow','None'],multi:true}}],
+     facts:[
+      {t:'The mausoleum is a Gothic Revival building from the late 1860s.',r:1},
+      {t:'It was built for the family of Edmund Dexter, a Cincinnati liquor distributor.',r:1},
+      {t:'Construction stopped in 1869 and it was never finished.',r:1},
+      {t:'Two white dogs run past the steps.',r:0},
+      {t:'The dogs’ eyes glow.',r:0},
+      {t:'The dogs are really wolves.',r:0}]},
+    {id:'s3',name:'What Caught the Groundskeeper',short:'Section 53',idx:2,
+     intro:'File three. One groundskeeper, one report, nothing written down. Find out what could actually catch an ankle.',
+     tests:[
+      {id:'walk',title:'Ankle Grabber Walk',desc:'Walk the reported path alone and with a partner, at a normal pace and a slow pace. Place a ribbon at ankle height and walk past it.',res:{label:'Ribbon result',opts:['Untouched','Twisted','Moved']}},
+      {id:'veg',title:'Vegetation and Ground Check',desc:'Look for anything that could touch an ankle: low branches, vines, uneven ground, hidden hazards. Photograph the best candidates.',res:{label:'What you found',opts:['Low branches','Vines or roots','Uneven ground','Loose stones','Tall grass','Nothing'],multi:true}}],
+     facts:[
+      {t:'The story rests on a single report passed along in local ghost lore.',r:1},
+      {t:'No one has documented it.',r:1},
+      {t:'The cemetery’s own staff say Spring Grove isn’t haunted.',r:1},
+      {t:'Something grabbed a groundskeeper’s pant leg.',r:0},
+      {t:'The same thing has grabbed many visitors.',r:0},
+      {t:'It only happens in Section 53.',r:0}]},
+    {id:'s4',name:'The Listening Section',short:'Section 16',idx:3,
+     intro:'File four. A quiet section with real history in it. Listen first. Then ask what the record says.',
+     tests:[
+      {id:'voice',title:'Disembodied Voices Audit',desc:'Sit silently for 3 minutes and record ambient audio. No talking. Note any voices, which direction they came from, and how clear they were.',timer:[{n:'Silence',s:180}],res:{label:'Did you hear voices?',opts:['Yes','No']}},
+      {id:'shadow',title:'Shadow Figure Test',desc:'Have a teammate create controlled shadows behind or near a monument while you watch from a fixed point. Photograph your setup.',res:{label:'Could the shadows be mistaken for figures?',opts:['Yes','No']}}],
+     facts:[
+      {t:'Section 16 is the resting place of William Kirk.',r:1},
+      {t:'Kirk’s death in 1884 sparked the Cincinnati Courthouse Riots.',r:1},
+      {t:'Staff say most reported sightings happen during regular daytime hours.',r:1},
+      {t:'Visitors hear voices in this section.',r:0},
+      {t:'Visitors see figures here.',r:0},
+      {t:'Kirk’s ghost is the one people hear.',r:0}]}
   ];
-  function F(m){return typeof m.fields==='function'?m.fields():m.fields}
-  function findField(id){
-    for(var i=0;i<MISSIONS.length;i++){var fs=F(MISSIONS[i]);for(var j=0;j<fs.length;j++){if(MISSIONS[i].id+'_'+fs[j].k===id)return fs[j]}}
-    return null;
+  var SAID=[], REC=[], HOOK=[];
+
+  var H=store.get(KEY,null)||{};
+  H.v=2;H.squad=H.squad||'';H.mem=(H.mem&&H.mem.length===5)?H.mem:['','','','',''];H.s=H.s||{};H.f=H.f||{};H.day=H.day||[{},{},{}];H.open=H.open||{};if(H.open.s1===undefined)H.open.s1=true;
+  function save(){store.set(KEY,H)}
+  function S(id){return H.s[id]||(H.s[id]={})}
+  function track(n){try{if(window.HO_track)window.HO_track(n)}catch(e){}}
+  function wcount(s){return words(s||'')}
+  function sensesIn(s){var o=[];Object.keys(SENSES).forEach(function(k){if(SENSES[k].test(s||''))o.push(k)});return o}
+  function feelsIn(s){var o=[];(String(s||'').toLowerCase().match(/[a-z’']+/g)||[]).forEach(function(w){if(FEEL[w.replace(/’/g,"'")])o.push(w)});return o}
+  function members(){return H.mem.map(function(x){return x.trim()}).filter(Boolean)}
+  function lead(stopI,role){var m=members(),k=ROLES.indexOf(role),j=((k-stopI)%5+5)%5;return j<m.length?m[j]:'Everyone'}
+  function leadTag(stopI,role,extra){return '<span class="dz-lead" data-lead="'+stopI+'|'+esc(role)+'">Lead: <b>'+esc(role)+'</b> · <span class="who">'+esc(lead(stopI,role))+'</span>'+(extra?' · '+esc(extra):'')+'</span>'}
+  function roleBits(){
+    $$('[data-lead]').forEach(function(el){var p=el.getAttribute('data-lead').split('|');var w=el.querySelector('.who');if(w)w.textContent=lead(+p[0],p[1])});
+    var ul=$('#dzRolesUl');if(ul)ul.innerHTML=STOPS.map(function(st,i){return '<li><b>Stop '+(i+1)+'</b>: '+ROLES.map(function(r){return esc(r)+' = '+esc(lead(i,r))}).join(' · ')+'</li>'}).join('');
   }
-  function pills(id,opts,val,multi){
-    return '<div class="pills" role="group" aria-labelledby="l_'+id+'">'+opts.map(function(o){
+  function seededSort(arr,seed){return arr.map(function(x,i){var h=0,s=seed+':'+i;for(var c=0;c<s.length;c++)h=(h*31+s.charCodeAt(c))|0;return [h,x]}).sort(function(a,b){return a[0]-b[0]}).map(function(p){return p[1]})}
+
+  /* ---- scoring (never rewards speed) ---- */
+  function recOK(id){var s=S(id),a=(s.field||'').trim().toLowerCase();if(!a)return false;var acc=FIELD_FACTS[id].accept||[];if(!acc.length)return true;return acc.some(function(x){return a.indexOf(String(x).toLowerCase())>-1})}
+  function stopPts(i){
+    var st=STOPS[i],s=S(st.id),p={rec:recOK(st.id)?10:0,photo:s.photo?5:0,exp:0,seal:0,note:0};
+    if(s.test&&s.res&&s.res.length&&wcount(s.expNotes)>=5)p.exp=10;
+    var good=0;(s.facts||[]).forEach(function(n){if(st.facts[n]&&st.facts[n].r)good++});
+    p.seal=(s.verdict?5:0)+good*5;
+    var sn=sensesIn(s.margin).length;p.note=sn>=2?10:(sn===1?5:0);
+    p.total=p.rec+p.photo+p.exp+p.seal+p.note;return p;
+  }
+  function sealed(i){var st=STOPS[i],s=S(st.id),p=stopPts(i);return p.rec>0&&p.exp>0&&!!s.verdict&&(s.facts||[]).length===2}
+  function finPts(){
+    var f=H.f,p={ctl:0,why:0,fifth:0},t1=parseFloat(f.ht),t2=parseFloat(f.ct);
+    if(!isNaN(t1)&&!isNaN(t2)&&(f.hl||'').trim()&&(f.cl||'').trim())p.ctl=10;
+    if(wcount(f.why)>=10)p.why=HEDGE.test(f.why)?10:5;
+    var l=(f.fifth||'').trim(),n=wcount(l);
+    if(n>=6&&n<=60)p.fifth+=8; if(n>=6&&sensesIn(l).length>=1)p.fifth+=6; if(n>=6&&!feelsIn(l).length)p.fifth+=6;
+    p.total=p.ctl+p.why+p.fifth;return p;
+  }
+  function daylogOK(){return H.day.every(function(d){return d&&(d.t||'').trim()&&d.s&&wcount(d.n)>=3})}
+  function badges(){
+    var b=[];
+    STOPS.forEach(function(st,i){b.push({id:'seal'+i,n:'Seal: '+st.short,on:sealed(i),d:'Finish the Record, the Experiment, and the Seal at '+st.name+'.'})});
+    var good2=0;STOPS.forEach(function(st,i){var s=S(st.id),g=0;(s.facts||[]).forEach(function(n){if(st.facts[n]&&st.facts[n].r)g++});if(g===2&&(s.verdict===VERD[0]||s.verdict===VERD[2]))good2++});
+    b.push({id:'daylight',n:'Daylight Witness',on:daylogOK(),d:'Fill in all three entries of the Daylight Pattern Log.'});
+    b.push({id:'skeptic',n:'Skeptic’s Seal',on:good2>=2,d:'Reach a careful verdict (natural explanation, or need more data) backed by two record facts at two or more stops.'});
+    b.push({id:'eagle',n:'Eagle Eye',on:STOPS.every(function(st){return S(st.id).photo}),d:'Take a photo at every stop.'});
+    b.push({id:'fifth',n:'The Fifth File',on:finPts().fifth>=14,d:'Write an opening line that uses a sense and tells no feelings.'});
+    return b;
+  }
+  function total(){var t=0;STOPS.forEach(function(st,i){t+=stopPts(i).total});return t+finPts().total}
+  function rank(t){var r=RANKS[0],nx=null;for(var i=0;i<RANKS.length;i++){if(t>=RANKS[i][0]){r=RANKS[i];nx=RANKS[i+1]||null}}return {name:r[1],next:nx}}
+  var MAXPTS=STOPS.length*50+40;
+
+  /* ---- Archivist feedback (calm, dry, never gory) ---- */
+  function fbRecord(id){var s=S(id),a=(s.field||'').trim();if(!a)return '';if(recOK(id))return (FIELD_FACTS[id].accept.length?'Logged. That matches the record on site.':'Logged. Your leaders will check this against what is on site.');return 'Not quite. Look again; the answer is on site.'}
+  function fbNote(id){var s=S(id),n=sensesIn(s.margin);if(!(s.margin||'').trim())return '';if(n.length>=2)return 'Two senses ('+n.join(' and ')+'). The Archivist underlines it.';if(n.length===1)return 'One sense so far ('+n[0]+'). Add one more you have not used yet.';return 'No sense details found yet. What did you see, hear, smell, or touch?'}
+  function fbSeal(i){var st=STOPS[i],s=S(st.id),f=s.facts||[];if(!s.verdict&&!f.length)return '';var good=0;f.forEach(function(n){if(st.facts[n]&&st.facts[n].r)good++});
+    if(f.length<2)return 'Choose two facts to support your verdict.';
+    if(good===2)return sealed(i)?'Sealed. The record carries more weight than the rumor.':'Two record facts. Finish the Record and the Experiment to seal this file.';
+    if(good===1)return 'One fact is from the record; the other is only what people say. A rumor is a lead, not proof.';
+    return 'Both of those are what people say. Look for facts that come from the record.'}
+  function fbFifth(){var l=(H.f.fifth||'').trim();if(!l)return '';var n=wcount(l),s=sensesIn(l),f=feelsIn(l);
+    if(n<6)return 'An opening line needs a little more. Six words, at least.';
+    var o=[];o.push(s.length?'A sense detail ('+s[0]+'): good.':'No sense detail yet. Let the reader see, hear, or smell something.');
+    o.push(f.length?'It tells the reader a feeling ("'+f[0]+'"). Show it through something the character does or notices.':'No feeling words. It shows instead of tells.');
+    if(n>60)o.push('That is a paragraph. An opening line can be shorter.');
+    return o.join(' ')}
+  function fbCtl(){var f=H.f,a=parseFloat(f.ht),b=parseFloat(f.ct);if(isNaN(a)||isNaN(b))return 'Enter both temperatures to compare them.';
+    var d=Math.round((a-b)*10)/10;return (d===0?'The two spots are the same temperature.':'The haunted spot is '+Math.abs(d)+' degrees '+(d<0?'colder':'warmer')+' than the control spot.')+' Is that big enough to explain a chill, or small enough to be normal?'}
+
+  /* ---- rendering ---- */
+  function pills(key,opts,val,multi){
+    return '<div class="pills" role="group">'+opts.map(function(o){
       var on=multi?(val||[]).indexOf(o)>-1:String(val)===String(o);
-      return '<button type="button" class="pill" data-'+(multi?'tg':'set')+'="'+id+'" data-val="'+esc(o)+'" aria-pressed="'+(on?'true':'false')+'">'+esc(o)+'</button>';
-    }).join('')+'</div>';
+      return '<button type="button" class="pill" data-k="'+esc(key+'|'+o)+'" data-pill="'+esc(key)+'" data-val="'+esc(o)+'" data-multi="'+(multi?1:0)+'" aria-pressed="'+(on?'true':'false')+'">'+esc(o)+'</button>'}).join('')+'</div>';
   }
-  function fieldHTML(m,f){
-    if(f.t==='h')return '<h4 style="margin-top:1.4rem">'+esc(f.label)+'</h4>';
-    var id=m.id+'_'+f.k,val=H.v[id];
-    if(f.t==='calc')return '<p class="fb" id="c_'+id+'"></p>';
-    if(f.t==='timer')return '<div class="lbl" id="l_'+id+'">'+esc(f.label)+'</div><div class="tdisp" id="td_'+id+'">'+(val?esc(val):'Ready')+'</div><div class="row" style="margin-top:.2rem"><button type="button" class="btn small" data-tstart="'+id+'">Start</button><button type="button" class="btn ghost small" data-tstop="'+id+'">Stop</button></div>';
-    var lbl;
-    if(f.t==='text'||f.t==='area'||f.t==='stamp'||f.t==='num')lbl='<label class="lbl" for="x_'+id+'">'+esc(f.label)+'</label>';
-    else lbl='<div class="lbl" id="l_'+id+'">'+esc(f.label)+'</div>';
-    var v=esc(val===undefined?'':val);
-    if(f.t==='text')return lbl+'<input type="text" id="x_'+id+'" data-f="'+id+'" value="'+v+'">';
-    if(f.t==='num')return lbl+'<input type="text" inputmode="decimal" id="x_'+id+'" data-f="'+id+'" value="'+v+'">';
-    if(f.t==='area')return lbl+'<textarea id="x_'+id+'" data-f="'+id+'" rows="'+(f.rows||3)+'">'+v+'</textarea>';
-    if(f.t==='stamp')return lbl+'<div class="stamprow"><input type="text" id="x_'+id+'" data-f="'+id+'" value="'+v+'" placeholder="Time or file name"><button type="button" class="btn ghost small" data-stamp="'+id+'">Stamp now</button></div>';
-    if(f.t==='yn')return lbl+pills(id,YN,val,false);
-    if(f.t==='rate')return lbl+pills(id,RATE,val,false);
-    if(f.t==='choice')return lbl+pills(id,f.opts,val,false);
-    if(f.t==='checks')return lbl+pills(id,f.opts,val,true);
-    return '';
+  function stopHTML(i){
+    var st=STOPS[i],s=S(st.id),L=(SAID[i]?1:0),open=H.open[st.id];
+    var page=s.page||'say';
+    var test=s.test?st.tests.filter(function(t){return t.id===s.test})[0]:null;
+    var h='<details class="dz-stop" id="dz-'+st.id+'" data-stop="'+st.id+'"'+(open?' open':'')+'><summary><span class="dz-num">'+(i+1)+'</span><span class="dz-sn"><b>'+esc(st.name)+'</b><small>'+esc((REC[i]&&REC[i].where)||'')+'</small></span><span class="dz-chips" id="chips-'+st.id+'"></span><span class="dz-pts" id="pts-'+st.id+'"></span></summary><div class="dz-in">';
+    h+='<p class="dz-arch"><b>The Archivist:</b> “'+esc(st.intro)+'”</p>';
+    h+='<div class="dz-pages"><div class="pills" role="group" aria-label="File pages"><button type="button" class="pill" data-page="'+st.id+'|say" aria-pressed="'+(page==='say')+'">What people say</button><button type="button" class="pill" data-page="'+st.id+'|rec" aria-pressed="'+(page==='rec')+'">What the record says</button></div>'+
+      '<div class="dz-page paper-ish"><p>'+esc(page==='say'?SAID[i]:REC[i].rec)+'</p></div></div>';
+    /* 1 the record */
+    h+='<section class="dz-step"><h4>1. The Record <small>Field Fact</small></h4>'+leadTag(i,'Historian')+'<label for="ff-'+st.id+'">'+esc(FIELD_FACTS[st.id].q)+'</label><input type="text" id="ff-'+st.id+'" data-field="'+st.id+'|field" value="'+esc(s.field||'')+'" autocomplete="off">'+
+      (FIELD_FACTS[st.id].accept.length?'':'<p class="todo-in">Leaders: fill in after your walk-through (accepted answers).</p>')+
+      '<label class="dz-check"><input type="checkbox" data-photo="'+st.id+'"'+(s.photo?' checked':'')+'> I took a photo of this (keep it on your phone)</label>'+
+      (GPS_CHECKIN&&STOP_PLACES[st.id]?'<p><button type="button" class="btn ghost small" data-gps="'+st.id+'">I’m at this stop</button> <span class="muted" id="gps-'+st.id+'"></span></p>':'')+
+      '<p class="dz-fb" id="fbr-'+st.id+'" aria-live="polite"></p></section>';
+    /* 2 the experiment */
+    h+='<section class="dz-step"><h4>2. The Experiment</h4>'+leadTag(i,'Skeptic','Recorder writes it down')+'<div class="lbl" style="margin-top:.5rem">Choose one test</div>'+
+      '<div class="pills" role="group">'+st.tests.map(function(t){return '<button type="button" class="pill" data-test="'+st.id+'|'+t.id+'" aria-pressed="'+(s.test===t.id)+'">'+esc(t.title)+'</button>'}).join('')+'</div>';
+    if(test){
+      h+='<p class="dz-desc">'+esc(test.desc)+'</p>';
+      if(test.timer)h+='<div class="dz-timer"><div class="tdisp" id="td-'+st.id+'" aria-live="off">Ready</div><button type="button" class="btn small" data-tstart="'+st.id+'">Start timer</button> <button type="button" class="btn ghost small" data-tstop="'+st.id+'">Stop</button></div>';
+      h+='<div class="lbl" style="margin-top:.8rem">'+esc(test.res.label)+'</div>'+pills(st.id+'|res',test.res.opts,s.res&&test.res.multi?s.res:(s.res&&s.res[0]),!!test.res.multi);
+      h+='<label for="es-'+st.id+'" style="margin-top:.8rem">Photo or audio: time or file name</label><div class="stamprow"><input type="text" id="es-'+st.id+'" data-field="'+st.id+'|stamp" value="'+esc(s.stamp||'')+'" placeholder="Time or file name"><button type="button" class="btn ghost small" data-stamp="'+st.id+'">Stamp now</button></div>';
+      h+='<label for="en-'+st.id+'" style="margin-top:.8rem">What happened? What does it suggest?</label><textarea id="en-'+st.id+'" data-field="'+st.id+'|expNotes" rows="3">'+esc(s.expNotes||'')+'</textarea>';
+    }
+    h+='</section>';
+    /* 3 margin note */
+    h+='<section class="dz-step"><h4>3. Margin Note</h4>'+leadTag(i,'Sensory Scout')+'<label for="mn-'+st.id+'">Write one sentence you could drop into your own ghost story. Use at least two senses.</label><textarea id="mn-'+st.id+'" data-field="'+st.id+'|margin" rows="2">'+esc(s.margin||'')+'</textarea>'+(HOOK[i]?'<p class="muted dz-hook">A writer’s hook: '+esc(HOOK[i])+'</p>':'')+'<p class="dz-fb" id="fbn-'+st.id+'" aria-live="polite"></p></section>';
+    /* 4 the seal */
+    var order=seededSort(st.facts.map(function(f,n){return n}),st.id);
+    h+='<section class="dz-step"><h4>4. The Seal</h4>'+leadTag(i,'Storyteller')+'<div class="lbl" style="margin-top:.5rem">Your verdict</div>'+pills(st.id+'|verdict',VERD,s.verdict,false)+
+      '<div class="lbl" style="margin-top:.8rem">Choose the two facts that best support your verdict</div><div class="dz-facts">'+order.map(function(n){var on=(s.facts||[]).indexOf(n)>-1;return '<label class="pick'+(on?' sel':'')+'"><input type="checkbox" data-fact="'+st.id+'|'+n+'"'+(on?' checked':'')+'><span>'+esc(st.facts[n].t)+'</span></label>'}).join('')+'</div>'+
+      '<p class="dz-fb" id="fbs-'+st.id+'" aria-live="polite"></p></section>';
+    return h+'</div></details>';
   }
-  function bodyHTML(m){return '<p style="margin:.4rem 0 .2rem">'+esc(m.desc)+'</p>'+F(m).map(function(f){return fieldHTML(m,f)}).join('')}
+  function finaleHTML(){
+    var f=H.f,h='<details class="dz-stop dz-fin" id="dz-fin" data-stop="fin"'+(H.open.fin?' open':'')+'><summary><span class="dz-num">★</span><span class="dz-sn"><b>The Fifth File</b><small>Finale: the control spot and your own story</small></span><span class="dz-chips" id="chips-fin"></span><span class="dz-pts" id="pts-fin"></span></summary><div class="dz-in">';
+    h+='<p class="dz-arch"><b>The Archivist:</b> “The fifth file is blank. It is labeled with your squad’s name. What goes in it is yours.”</p>';
+    h+='<section class="dz-step"><h4>Control-spot comparison</h4><p class="dz-desc">At one “haunted” spot and one control spot, record temperature, wind, and approximate sound level. A control spot is somewhere with no legend.</p><div class="dz-two">';
+    [['h','Haunted spot'],['c','Control spot (somewhere with no legend)']].forEach(function(p){var x=p[0];
+      h+='<div><h5>'+esc(p[1])+'</h5><label for="f-'+x+'l">Location</label><input type="text" id="f-'+x+'l" data-fin="'+x+'l" value="'+esc(f[x+'l']||'')+'"><label for="f-'+x+'t">Temperature (degrees F)</label><input type="text" inputmode="decimal" id="f-'+x+'t" data-fin="'+x+'t" value="'+esc(f[x+'t']||'')+'"><div class="lbl">Wind</div>'+pills('fin|'+x+'w',WIND,f[x+'w'],false)+'<div class="lbl">Approximate sound level</div>'+pills('fin|'+x+'s',SND,f[x+'s'],false)+'</div>'});
+    h+='</div><p class="dz-fb" id="fbc" aria-live="polite"></p><label for="f-why">What does this difference prove, and what does it not prove?</label><textarea id="f-why" data-fin="why" rows="3">'+esc(f.why||'')+'</textarea></section>';
+    h+='<section class="dz-step"><h4>Daylight Pattern Log <small>optional: earns the Daylight Witness badge</small></h4><p class="dz-desc">Three times during the hunt, record what people are doing, what the sun is doing, and how the place feels. Most reported sightings happen in daylight, so this matters.</p>';
+    [['Start of the hunt'],['Midpoint'],['End of the hunt']].forEach(function(p,n){var d=H.day[n]||{};
+      h+='<div class="dz-log"><h5>'+esc(p[0])+'</h5><label for="dl-t'+n+'">Time</label><div class="stamprow"><input type="text" id="dl-t'+n+'" data-day="'+n+'|t" value="'+esc(d.t||'')+'"><button type="button" class="btn ghost small" data-daystamp="'+n+'">Stamp now</button></div><div class="lbl">Sun and lighting</div>'+pills('day|'+n+'|s',SUN,d.s,false)+'<label for="dl-n'+n+'">Sensory changes</label><textarea id="dl-n'+n+'" data-day="'+n+'|n" rows="2">'+esc(d.n||'')+'</textarea></div>'});
+    h+='</section>';
+    h+='<section class="dz-step dz-fifth"><h4>The Fifth File <small>for '+esc(H.squad||'your squad')+'</small></h4><div class="dz-sheet"><div class="dz-label">FILE 5 · '+esc((H.squad||'Your squad').toUpperCase())+'</div><label for="f-fifth">The opening line of your story</label><textarea id="f-fifth" data-fin="fifth" rows="3" placeholder="Start in the middle of a moment.">'+esc(f.fifth||'')+'</textarea></div><p class="dz-fb" id="fbf" aria-live="polite"></p></section>';
+    return h+'</div></details>';
+  }
+  function headerHTML(){
+    var h='<div class="dz-head"><div><p class="ho-eyebrow">Case File #0048</p><h3 class="dz-title">The Spring Grove Dossier</h3><p class="dz-arch"><b>The Archivist:</b> “A legend that only works in the dark isn’t evidence. We investigate in daylight.”</p></div>';
+    h+='<div class="dz-score"><div class="dz-big" id="dzTotal">0</div><div class="muted">of '+MAXPTS+' points</div><div class="dz-rank" id="dzRank"></div><div class="dz-bar" role="progressbar" aria-label="Dossier points" aria-valuemin="0" aria-valuemax="'+MAXPTS+'" aria-valuenow="0" id="dzBar"><i id="dzBarI"></i></div><p class="muted" style="margin:.4rem 0 0;font-size:.85rem">Points reward careful work, never speed.</p></div></div>';
+    h+='<div class="dz-squad"><h4>Your squad <small>up to five people. Saved only in this browser.</small></h4><label for="dzSquad">Squad name</label><input type="text" id="dzSquad" data-squad="name" value="'+esc(H.squad)+'" autocomplete="off" placeholder="Pick something that sounds good on a podcast">'+
+      '<div class="lbl">Members</div><div class="memgrid">'+H.mem.map(function(m,i){return '<input type="text" aria-label="Member '+(i+1)+' name" data-squad="mem'+i+'" value="'+esc(m)+'" autocomplete="off" placeholder="Member '+(i+1)+'">'}).join('')+'</div>'+
+      '<details class="dz-roles"><summary>Roles rotate at every stop</summary><ul id="dzRolesUl">'+STOPS.map(function(st,i){return '<li><b>Stop '+(i+1)+'</b>: '+ROLES.map(function(r){return esc(r)+' = '+esc(lead(i,r))}).join(' · ')+'</li>'}).join('')+'</ul></details></div>';
+    h+='<div class="dz-badges" id="dzBadges" aria-label="Badges"></div>';
+    return h;
+  }
   function render(){
-    var box=$('#missions'),h='',grp='';
-    MISSIONS.forEach(function(m){
-      if(m.grp!==grp){grp=m.grp;h+='<h3>'+esc(grp)+'</h3>'}
-      h+='<div class="mission'+(H.done[m.id]?' done':'')+'" id="mc_'+m.id+'"><div class="mhead"><h4 style="margin:0;font-family:var(--display);font-size:1.45rem;font-weight:400">'+esc(m.title)+'</h4><button type="button" class="pill" data-done="'+m.id+'" aria-pressed="'+(H.done[m.id]?'true':'false')+'">'+(H.done[m.id]?'Complete':'Mark complete')+'</button></div><div id="mb_'+m.id+'">'+bodyHTML(m)+'</div></div>';
+    var box=$('#dossier');if(!box)return;var y=window.scrollY,fk=window.__dzFocus;
+    box.innerHTML=headerHTML()+'<div class="dz-stops">'+STOPS.map(function(st,i){return stopHTML(i)}).join('')+finaleHTML()+'</div><div class="row"><button type="button" class="btn ghost small" id="dzReset">Start over</button></div>';
+    live();window.scrollTo(0,y);
+    if(fk){var el=box.querySelector('[data-k="'+fk.replace(/"/g,'\\"')+'"]');if(el)el.focus()}
+  }
+  function live(){
+    var t=total(),r=rank(t),pct=Math.min(100,Math.round(t/MAXPTS*100));
+    var e;
+    if(e=$('#dzTotal'))e.textContent=t;
+    if(e=$('#dzRank'))e.textContent='Rank: '+r.name+(r.next?' · next at '+r.next[0]:'');
+    if(e=$('#dzBarI'))e.style.width=pct+'%';
+    if(e=$('#dzBar'))e.setAttribute('aria-valuenow',t);
+    if(e=$('#dzBadges'))e.innerHTML=badges().map(function(b){return '<span class="dz-badge'+(b.on?' on':'')+'" title="'+esc(b.d)+'">'+(b.on?'✓ ':'')+esc(b.n)+'</span>'}).join('');
+    STOPS.forEach(function(st,i){
+      var p=stopPts(i),c=$('#chips-'+st.id),pt=$('#pts-'+st.id);
+      if(c)c.innerHTML=[['Record',p.rec>0],['Experiment',p.exp>0],['Note',p.note>0],['Seal',sealed(i)]].map(function(x){return '<span class="dz-chip'+(x[1]?' on':'')+'">'+x[0]+'</span>'}).join('');
+      if(pt)pt.textContent=p.total+' / 50';
+      var a=$('#fbr-'+st.id);if(a)a.textContent=fbRecord(st.id);
+      a=$('#fbn-'+st.id);if(a)a.textContent=fbNote(st.id);
+      a=$('#fbs-'+st.id);if(a)a.textContent=fbSeal(i);
     });
-    box.innerHTML=h;calcs();progress();
-  }
-  function calcs(){
-    MISSIONS.forEach(function(m){F(m).forEach(function(f){if(f.t==='calc'){var e=$('#c_'+m.id+'_'+f.k);if(e)e.textContent=f.fn(H.v)}})});
-  }
-  function progress(){
-    var n=MISSIONS.filter(function(m){return H.done[m.id]}).length,pc=Math.round(100*n/MISSIONS.length);
-    $('#huntCount').textContent=n+' of '+MISSIONS.length+' missions complete';
-    $('#barfill').style.width=pc+'%';$('#bar').setAttribute('aria-valuenow',pc);
-  }
-  function times(){
-    var t=[];if(H.start)t.push('Started '+H.start);if(H.end)t.push('Finished '+H.end);
-    $('#hTimes').textContent=t.join('. ');
-    $('#hStart').textContent=H.start?'Restart the clock':'Start the hunt';
+    var fp=finPts(),c2=$('#chips-fin'),p2=$('#pts-fin');
+    if(c2)c2.innerHTML=[['Control',fp.ctl>0&&fp.why>0],['Fifth File',fp.fifth>=14]].map(function(x){return '<span class="dz-chip'+(x[1]?' on':'')+'">'+x[0]+'</span>'}).join('');
+    if(p2)p2.textContent=fp.total+' / 40';
+    if(e=$('#fbc'))e.textContent=fbCtl();
+    if(e=$('#fbf'))e.textContent=fbFifth();
+    report();
   }
 
-  /* timers */
-  var TM={id:null,iv:null};
-  function beep(){
-    try{var C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=660;g.gain.value=0.15;o.start();setTimeout(function(){o.stop();c.close()},350)}catch(e){}
-    try{if(navigator.vibrate)navigator.vibrate(200)}catch(e){}
-  }
-  function fmt(s){return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2)}
-  function stopTimer(label){
-    clearInterval(TM.iv);TM.iv=null;
-    if(TM.id&&label){var d=$('#td_'+TM.id);if(d)d.textContent=label}
-    TM.id=null;
-  }
-  function startTimer(id){
-    var f=findField(id);if(!f)return;stopTimer('Stopped');
-    TM.id=id;var pi=0,left=f.phases[0].s,d=$('#td_'+id);
-    function show(){d.textContent=f.phases[pi].n+': '+fmt(left)}
-    show();
-    TM.iv=setInterval(function(){
-      left--;
-      if(left<=0){
-        beep();pi++;
-        if(pi>=f.phases.length){clearInterval(TM.iv);TM.iv=null;TM.id=null;H.v[id]='Finished at '+nowTime();save();d.textContent='Done. '+H.v[id];return}
-        left=f.phases[pi].s;
-      }
-      show();
-    },1000);
-  }
-
-  /* events */
-  var box=$('#missions');
-  box.addEventListener('input',function(e){
-    var id=e.target.getAttribute('data-f');if(!id)return;
-    H.v[id]=e.target.value;save();calcs();
-  });
-  box.addEventListener('click',function(e){
-    var b=e.target.closest('button');if(!b)return;
-    var set=b.getAttribute('data-set'),tg=b.getAttribute('data-tg'),st=b.getAttribute('data-stamp'),dn=b.getAttribute('data-done'),ts=b.getAttribute('data-tstart'),tp=b.getAttribute('data-tstop');
-    if(set){
-      var val=b.getAttribute('data-val');H.v[set]=(H.v[set]===val)?'':val;
-      $$('.pill',b.parentNode).forEach(function(x){x.setAttribute('aria-pressed',x.getAttribute('data-val')===H.v[set]?'true':'false')});
-      save();calcs();
-    }else if(tg){
-      var v=b.getAttribute('data-val'),a=Array.isArray(H.v[tg])?H.v[tg]:[],i=a.indexOf(v);
-      if(i>-1)a.splice(i,1);else a.push(v);
-      H.v[tg]=a;b.setAttribute('aria-pressed',i>-1?'false':'true');save();
-    }else if(st){
-      H.v[st]=nowTime();var x=$('#x_'+st);if(x)x.value=H.v[st];save();
-    }else if(dn){
-      H.done[dn]=!H.done[dn];b.setAttribute('aria-pressed',H.done[dn]?'true':'false');b.textContent=H.done[dn]?'Complete':'Mark complete';
-      $('#mc_'+dn).classList.toggle('done',!!H.done[dn]);save();progress();
-    }else if(ts){startTimer(ts)}
-    else if(tp){stopTimer('Stopped')}
-  });
-
-  /* team block */
-  var mems=$('#hMems');
-  mems.innerHTML=H.mem.map(function(n,i){return '<input type="text" aria-label="Team member '+(i+1)+'" data-mi="'+i+'" placeholder="Member '+(i+1)+(i>0?' (optional)':'')+'" value="'+esc(n)+'">'}).join('');
-  mems.addEventListener('input',function(e){var i=e.target.getAttribute('data-mi');if(i!==null){H.mem[+i]=e.target.value;save()}});
-  mems.addEventListener('change',function(){var m=MISSIONS[9];$('#mb_m10').innerHTML=bodyHTML(m)});
-  var team=$('#hTeam');team.value=H.team;team.addEventListener('input',function(){H.team=team.value;save()});
-  $('#hStart').addEventListener('click',function(){
-    H.start=nowTime();H.end='';
-    if(!H.v.m9_t1){H.v.m9_t1=H.start;var x=$('#x_m9_t1');if(x)x.value=H.start}
-    save();times();
-  });
-  $('#hEnd').addEventListener('click',function(){
-    H.end=nowTime();
-    if(!H.v.m9_t3){H.v.m9_t3=H.end;var x=$('#x_m9_t3');if(x)x.value=H.end}
-    save();times();
-  });
-  var hr=$('#hReset'),ht=null;
-  hr.addEventListener('click',function(){
-    if(hr.getAttribute('data-arm')!=='1'){hr.setAttribute('data-arm','1');hr.textContent='Click again to erase the whole hunt';ht=setTimeout(function(){hr.removeAttribute('data-arm');hr.textContent='Start over'},4000);return}
-    clearTimeout(ht);hr.removeAttribute('data-arm');hr.textContent='Start over';stopTimer();
-    H={team:'',mem:['','','','',''],start:'',end:'',v:{},done:{}};save();
-    team.value='';$$('input',mems).forEach(function(i){i.value=''});times();render();
-  });
-
-  /* turn it in */
-  function report(){
-    var L=[],n=MISSIONS.filter(function(m){return H.done[m.id]}).length;
-    L.push('HAUNTED OHIO: SPRING GROVE FIELD INVESTIGATION');
-    L.push('Team: '+(H.team.trim()||'(no name yet)'));
-    L.push('Members: '+(H.mem.map(function(x){return x.trim()}).filter(Boolean).join(', ')||'(none listed)'));
-    L.push('Start: '+(H.start||'not stamped')+'   End: '+(H.end||'not stamped'));
-    L.push('Missions marked complete: '+n+' of '+MISSIONS.length);L.push('');
-    MISSIONS.forEach(function(m){
-      var out=[];
-      F(m).forEach(function(f){
-        if(f.t==='h'||f.t==='calc')return;
-        var v=H.v[m.id+'_'+f.k];if(Array.isArray(v))v=v.join(', ');
-        if(v!==undefined&&v!==null&&String(v).trim()!=='')out.push('   '+f.label+': '+String(v).trim());
-      });
-      L.push((H.done[m.id]?'[x] ':'[ ] ')+m.title+' ('+m.grp+')');
-      if(out.length)L=L.concat(out);else L.push('   (nothing recorded)');
-      L.push('');
-    });
+  /* ---- turn-in ---- */
+  var httpsOK=function(u){return /^https:\/\/[^\s]+$/.test(u||'')};
+  function reportText(){
+    var t=total(),r=rank(t),L=[];
+    L.push('THE SPRING GROVE DOSSIER · CASE FILE #0048');
+    L.push('Squad: '+(H.squad||'(no name yet)'));L.push('Members: '+(members().join(', ')||'(none listed)'));
+    L.push('Points: '+t+' of '+MAXPTS+' · Rank: '+r.name);
+    L.push('Badges: '+(badges().filter(function(b){return b.on}).map(function(b){return b.n}).join(', ')||'none yet'));L.push('');
+    STOPS.forEach(function(st,i){var s=S(st.id),p=stopPts(i),test=st.tests.filter(function(x){return x.id===s.test})[0];
+      L.push('STOP '+(i+1)+': '+st.name+' ('+((REC[i]&&REC[i].where)||'')+') · '+p.total+'/50'+(sealed(i)?' · SEALED':''));
+      L.push('  Field Fact: '+(s.field||'(blank)')+' · photo: '+(s.photo?'yes':'no'));
+      L.push('  Experiment: '+(test?test.title+' → '+(Array.isArray(s.res)?s.res.join(', '):(s.res||'no result'))+(s.stamp?' ['+s.stamp+']':'')+'. '+(s.expNotes||''):'(not done)'));
+      L.push('  Seal: '+(s.verdict||'(no verdict)')+'. Facts: '+((s.facts||[]).map(function(n){return st.facts[n].t}).join(' | ')||'(none chosen)'));
+      L.push('  Margin note: '+(s.margin||'(blank)'));L.push('')});
+    var f=H.f;
+    L.push('FINALE · '+finPts().total+'/40');
+    L.push('  Haunted spot: '+(f.hl||'?')+', '+(f.ht||'?')+' F, wind '+(f.hw||'?')+', sound '+(f.hs||'?'));
+    L.push('  Control spot: '+(f.cl||'?')+', '+(f.ct||'?')+' F, wind '+(f.cw||'?')+', sound '+(f.cs||'?'));
+    L.push('  '+fbCtl());L.push('  What it proves and does not: '+(f.why||'(blank)'));
+    L.push('  THE FIFTH FILE ('+(H.squad||'squad')+'): '+(f.fifth||'(blank)'));
     return L.join('\n');
   }
-  function refreshSub(){
-    var n=MISSIONS.filter(function(m){return H.done[m.id]}).length,c=[];
-    if(!H.team.trim())c.push('Add your team name on the hunt page.');
-    if(!H.mem.some(function(x){return x.trim()}))c.push('List your team members on the hunt page.');
-    if(n<MISSIONS.length)c.push(n+' of '+MISSIONS.length+' missions are marked complete. Finish the rest, or turn it in as is if your leaders say so.');
-    if(!H.end)c.push('You haven’t stamped a finish time yet.');
-    $('#subCheck').innerHTML=c.length?c.map(function(x){return '<li>'+esc(x)+'</li>'}).join(''):'<li>Everything is filled in. Nice work.</li>';
-    $('#subText').value=report();
+  function turninHTML(){
+    var h='<div class="prose"><p>When your squad is done, check the report below, then copy it and turn it in. Only one person per squad needs to. Nothing is sent from this page: copying and submitting is your choice.</p></div><ul id="subCheck" class="muted" style="max-width:62ch"></ul>'+
+      '<label class="lbl" for="subText">Your squad’s Dossier Report</label><textarea id="subText" rows="18" readonly></textarea><div class="row"><button type="button" class="btn ghost" id="subCopy">Copy report</button><button type="button" class="btn ghost" id="subRefresh">Refresh report</button></div>';
+    h+='<div class="dz-form"><h4>Turn it in</h4>';
+    if(httpsOK(FORM_URL))h+='<p><a class="btn" id="formLink" href="'+esc(FORM_URL)+'" target="_blank" rel="noopener">Open the turn-in form</a></p>';
+    else h+='<p><span class="btn" aria-disabled="true" style="opacity:.5">Open the turn-in form</span> <span class="todo-in">Leaders: fill in FORM_URL</span></p>';
+    if(httpsOK(FORM_EMBED))h+='<p><button type="button" class="btn ghost" id="formShow">Show the form here</button></p><div id="formBox" hidden></div>';
+    else h+='<p class="muted"><span class="todo-in">Leaders: fill in FORM_EMBED</span> to show the form on this page.</p>';
+    return h+'</div>';
   }
-  $('#ct-submit').addEventListener('click',refreshSub);
-  $('#subRefresh').addEventListener('click',refreshSub);
-  $('#subCopy').addEventListener('click',function(){refreshSub();copy($('#subText').value,this)});
-  if(LEADERS){
-    var mb=$('#subMail');mb.hidden=false;
-    $('#subNote').textContent='“Email my leaders” copies your report and opens your email app. If nothing opens, paste the report into an email to '+LEADERS+'.';
-    mb.addEventListener('click',function(){
-      refreshSub();var r=$('#subText').value;copy(r,mb);
-      var subj='Spring Grove hunt: '+(H.team.trim()||'team report'),body=encodeURIComponent(r);
-      if(body.length>1800)body=encodeURIComponent('My full report was copied to my clipboard. Paste it here.\n\nTeam: '+(H.team.trim()||''));
-      try{window.location.href='mailto:'+LEADERS+'?subject='+encodeURIComponent(subj)+'&body='+body}catch(e){}
-    });
+  function report(){
+    var ta=$('#subText');if(ta)ta.value=reportText();
+    var ul=$('#subCheck');if(!ul)return;var miss=[];
+    if(!H.squad.trim())miss.push('Give your squad a name.');
+    STOPS.forEach(function(st,i){if(!sealed(i))miss.push('Stop '+(i+1)+' ('+st.name+') is not sealed yet.')});
+    if(finPts().fifth<14)miss.push('The Fifth File is not finished.');
+    ul.innerHTML=miss.length?miss.map(function(m){return '<li>'+esc(m)+'</li>'}).join(''):'<li>Everything is filled in. Copy your report and turn it in.</li>';
   }
 
-  render();times();refreshSub();
+  /* ---- timers, stamps, location check ---- */
+  var TM=null;
+  function tstop(){if(TM){clearInterval(TM.iv);TM=null}}
+  function tstart(id){
+    tstop();var st=STOPS.filter(function(x){return x.id===id})[0],s=S(id),t=st.tests.filter(function(x){return x.id===s.test})[0];if(!t||!t.timer)return;
+    var ph=0,left=t.timer[0].s,d=$('#td-'+id);
+    function show(){if(d)d.textContent=t.timer[ph].n+': '+Math.floor(left/60)+':'+('0'+(left%60)).slice(-2)}
+    show();TM={iv:setInterval(function(){left--;if(left<=0){ph++;if(ph>=t.timer.length){clearInterval(TM.iv);TM=null;if(d)d.textContent='Done';try{window.navigator.vibrate&&window.navigator.vibrate(200)}catch(e){}return}left=t.timer[ph].s}show()},1000)};
+  }
+  function haversine(a,b,c,d){var R=6371000,p=Math.PI/180,x=(c-a)*p,y=(d-b)*p,q=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*p)*Math.cos(c*p)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(q))}
+  function gps(id){
+    var out=$('#gps-'+id),pl=STOP_PLACES[id];if(!out||!pl)return;
+    if(!navigator.geolocation){out.textContent='This device cannot check location.';return}
+    out.textContent='Checking…';
+    navigator.geolocation.getCurrentPosition(function(p){var ok=haversine(p.coords.latitude,p.coords.longitude,pl.lat,pl.lng)<=(pl.radiusM||60);out.textContent=ok?'You are at the stop.':'You do not seem to be at the stop yet.'},function(){out.textContent='Location is not available. That is fine; keep going.'},{maximumAge:60000,timeout:10000});
+  }
+
+  /* ---- events ---- */
+  var root=$('#dossier');
+  function nowTime(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+  root.addEventListener('input',function(e){
+    var t=e.target,a;
+    if(a=t.getAttribute('data-field')){var p=a.split('|');S(p[0])[p[1]]=t.value}
+    else if(a=t.getAttribute('data-fin'))H.f[a]=t.value;
+    else if(a=t.getAttribute('data-day')){var q=a.split('|');H.day[+q[0]]=H.day[+q[0]]||{};H.day[+q[0]][q[1]]=t.value}
+    else if(a=t.getAttribute('data-squad')){if(a==='name')H.squad=t.value;else{H.mem[+a.slice(3)]=t.value;roleBits()}if(a==='name'){var lab=$('.dz-fifth small');if(lab)lab.textContent='for '+(H.squad||'your squad');var lb=$('.dz-label');if(lb)lb.textContent='FILE 5 · '+(H.squad||'Your squad').toUpperCase()}}
+    else return;
+    save();live();
+  });
+  root.addEventListener('change',function(e){
+    var t=e.target,a;
+    if(a=t.getAttribute('data-photo')){S(a).photo=t.checked;save();live();return}
+    if(a=t.getAttribute('data-fact')){var p=a.split('|'),s=S(p[0]);s.facts=s.facts||[];var n=+p[1],i=s.facts.indexOf(n);
+      if(t.checked){if(s.facts.length>=2){t.checked=false;HO.toast('Choose exactly two facts. Uncheck one to swap.');return}s.facts.push(n)}else if(i>-1)s.facts.splice(i,1);
+      save();var lab=t.closest('label');if(lab)lab.classList.toggle('sel',t.checked);live();if(sealed(STOPS.filter(function(x){return x.id===p[0]})[0].idx))track('hunt_stop_complete')}
+  });
+  root.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var a;
+    if(a=b.getAttribute('data-pill')){
+      window.__dzFocus=b.getAttribute('data-k');var val=b.getAttribute('data-val'),multi=b.getAttribute('data-multi')==='1',p=a.split('|');
+      if(p[0]==='fin'){H.f[p[1]]=val}
+      else if(p[0]==='day'){var n=+p[1];H.day[n]=H.day[n]||{};H.day[n][p[2]]=val}
+      else{var s=S(p[0]);if(p[1]==='res'){if(multi){s.res=s.res||[];var i=s.res.indexOf(val);if(i>-1)s.res.splice(i,1);else s.res.push(val)}else s.res=[val]}else s[p[1]]=val}
+      save();render();window.__dzFocus=null;return}
+    if(a=b.getAttribute('data-page')){var q=a.split('|');S(q[0]).page=q[1];save();window.__dzFocus=null;render();return}
+    if(a=b.getAttribute('data-test')){var r=a.split('|'),s2=S(r[0]);if(s2.test!==r[1]){s2.test=r[1];s2.res=[]}save();tstop();render();return}
+    if(a=b.getAttribute('data-stamp')){var f=$('#es-'+a);if(f){f.value=nowTime();S(a).stamp=f.value;save();live()}return}
+    if(a=b.getAttribute('data-daystamp')){var g=$('#dl-t'+a);if(g){g.value=nowTime();H.day[+a]=H.day[+a]||{};H.day[+a].t=g.value;save();live()}return}
+    if(a=b.getAttribute('data-tstart')){tstart(a);return}
+    if(b.hasAttribute('data-tstop')){tstop();return}
+    if(a=b.getAttribute('data-gps')){gps(a);return}
+    if(b.id==='dzReset'){if(confirm('Erase this squad’s Dossier on this device and start over?')){tstop();H={v:2,squad:'',mem:['','','','',''],s:{},f:{},day:[{},{},{}],open:{}};save();render();HO.toast('Started over.')}}
+  });
+  root.addEventListener('toggle',function(e){var d=e.target;if(d&&d.getAttribute&&d.getAttribute('data-stop')){H.open[d.getAttribute('data-stop')]=d.open;save()}},true);
+
+  /* ---- start up: read the legends once, then draw ---- */
+  $$('#cp-legends article.legend').forEach(function(a,i){
+    var dt=$$('dt',a),dd=$$('dd',a),o={where:($('.where-l',a)||{}).textContent||'',say:'',rec:'',hook:''};
+    dt.forEach(function(d,k){var n=d.textContent;if(/legend/i.test(n))o.say=dd[k].textContent;else if(/record/i.test(n))o.rec=dd[k].textContent;else o.hook=dd[k].textContent});
+    SAID[i]=o.say;REC[i]=o;HOOK[i]=o.hook;
+  });
+  var ti=$('#turnin');
+  if(ti){ti.innerHTML=turninHTML();
+    $('#subCopy').addEventListener('click',function(){copy($('#subText').value,this)});
+    $('#subRefresh').addEventListener('click',function(){report();HO.toast('Report refreshed.')});
+    var fl=$('#formLink');if(fl)fl.addEventListener('click',function(){track('form_opened')});
+    var fs=$('#formShow');if(fs)fs.addEventListener('click',function(){var bx=$('#formBox');if(!bx.firstChild){var f=document.createElement('iframe');f.src=FORM_EMBED;f.title='Turn-in form';f.setAttribute('loading','lazy');f.setAttribute('referrerpolicy','no-referrer');f.className='dz-frame';bx.appendChild(f);var p=document.createElement('p');p.className='muted';p.innerHTML='If the form does not load, <a target="_blank" rel="noopener" href="'+esc(FORM_URL||FORM_EMBED)+'">open it in its own tab</a>.';bx.appendChild(p)}bx.hidden=!bx.hidden;track('form_opened')});
+  }
+  render();
 })();
 
 /* resources: genre explorer + character interview */

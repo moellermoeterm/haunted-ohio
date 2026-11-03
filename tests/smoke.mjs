@@ -149,6 +149,50 @@ T('the week: nav menu, home card, map markers, escaped rendering', async ({ base
   eq(await p.inputValue('#notes-mon'), '<img src=x onerror=window.__xss=1>', 'shown as plain text in the box');
 });
 
+// ---------------------------------------------------------------- Spring Grove Dossier (Phase 5)
+T('dossier: four sealed files + finale, legends tab intact, GPS off, form placeholders flagged, no network to a form', async ({ base, newPage }) => {
+  const p = await newPage(); const ext = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !r.url().startsWith('data:')) ext.push(r.url()); });
+  await p.addInitScript(() => { try { if (!localStorage.getItem('ho-hunt')) localStorage.setItem('ho-hunt', '{"old":"untouched"}'); } catch (e) { /* ignore */ } });
+  await p.goto(base + '#cemetery'); await p.waitForTimeout(300);
+  eq((await p.$$('#cp-legends article.legend')).length, 4, 'legends tab still has its four legends');
+  await p.click('#ct-hunt'); await p.waitForTimeout(200);
+  eq((await p.$$('#dossier details.dz-stop[data-stop^="s"]')).length, 4, 'four stops');
+  ok(await p.$('#dz-fin'), 'finale'); ok(/Case File #0048/.test(await p.textContent('#dossier')), 'case file number');
+  ok(/investigate in daylight/.test(await p.textContent('#dossier')), 'Archivist line');
+  eq((await p.$$('#dossier [data-gps]')).length, 0, 'GPS check-in is OFF by default');
+  ok((await p.$$('#dossier .todo-in')).length >= 4, 'Field Facts show "Leaders: fill in" while accepted answers are empty');
+  ok(!/speed|fastest|bonus|hurry/i.test(await p.textContent('#dossier')) || /never speed/.test(await p.textContent('#dossier')), 'no speed points');
+  await p.click('#ct-submit'); await p.waitForTimeout(200);
+  ok(/Leaders: fill in/.test(await p.textContent('#turnin')), 'turn-in shows FORM_URL / FORM_EMBED placeholders');
+  ok(/SPRING GROVE DOSSIER/.test(await p.inputValue('#subText')), 'Dossier Report is generated');
+  eq(ext.length, 0, 'nothing was requested from outside the site: ' + ext.join(','));
+  eq(await lsGet(p, 'ho-hunt'), '{"old":"untouched"}', 'the old ho-hunt key is left alone');
+});
+T('dossier: scoring (care, never speed), persistence under ho-hunt2, escaping', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + '#cemetery'); await p.click('#ct-hunt'); await p.waitForTimeout(200);
+  const pts = async () => (await p.textContent('#pts-s1')).trim();
+  eq(await pts(), '0 / 50', 'starts at zero');
+  await p.fill('#ff-s1', 'Breuer 1912'); eq(await pts(), '10 / 50', 'record = 10');
+  await p.check('[data-photo="s1"]'); eq(await pts(), '15 / 50', 'photo tick = +5');
+  await p.click('[data-test="s1|eyes"]'); await p.click('[data-pill="s1|res"][data-val="3"]');
+  await p.fill('#en-s1', 'It felt watched from the left'); await p.click('#dz-s1 [data-stamp="s1"]');
+  eq(await pts(), '25 / 50', 'experiment = 10 (a test, a result and real notes) and stamping the time adds nothing');
+  await p.fill('#mn-s1', 'The cold bronze smelled of wet moss.'); eq(await pts(), '35 / 50', 'margin note with two senses = 10');
+  await p.click('[data-pill="s1|verdict"][data-val="Need more data"]'); await p.waitForTimeout(100);
+  await p.click('label.pick:has-text("The eyes are glass.") input'); await p.click('label.pick:has-text("Cincinnati Magazine reports") input');
+  eq(await pts(), '50 / 50', 'seal = verdict 5 + two record-based facts');
+  await p.click('label.pick:has-text("Breuer was an optometrist.") input');
+  eq((await p.$$eval('#dz-s1 input[data-fact]:checked', (e) => e.length)), 2, 'only two facts can be chosen');
+  eq(await p.textContent('#dzTotal'), '50', 'total shows the points'); ok(/Fieldworker/.test(await p.textContent('#dzRank')), 'rank updates');
+  await p.fill('#dzSquad', '<img src=x onerror=window.__xss=1>'); await p.waitForTimeout(100);
+  const save = JSON.parse(await lsGet(p, 'ho-hunt2')); ok(save && save.s && save.s.s1.field === 'Breuer 1912', 'saved under ho-hunt2');
+  await p.reload(); await p.waitForTimeout(300); await p.click('#ct-hunt'); await p.waitForTimeout(150);
+  eq(await p.textContent('#pts-s1'), '50 / 50', 'points survive a reload');
+  eq(await p.inputValue('#dzSquad'), '<img src=x onerror=window.__xss=1>', 'shown as plain text'); ok(!(await p.evaluate(() => window.__xss)), 'no markup injection');
+  ok(!(await p.$('#dossier img[src="x"]')), 'no injected element');
+  await p.click('#ct-submit'); ok(/Squad: <img src=x/.test(await p.inputValue('#subText')), 'report carries the text as plain text');
+});
+
 // ---------------------------------------------------------------- Show, Don't Tell
 T('lessons: all 10 open; writing persists; checkers work', async ({ base, newPage }) => {
   const p = await newPage();
