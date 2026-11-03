@@ -25,13 +25,22 @@ const RETIRED_HUNT = [
   'Who you asked (name and role)', 'You haven’t stamped a finish time yet', 'Your leaders will tell you where to send this',
   'email addresses, comma separated', 'missions are marked complete. Finish the rest',
 ];
+// Phase 6: these three Haunting Files lines are now assembled from case data (Case 1 renders them identically; a smoke test asserts the exact text).
+const NOW_ASSEMBLED = ['Case File #0047: Cincinnati Music Hall', 'Use what you learned about evidence, doubt, and atmosphere.', 'Whose account would you trust more about the open door, and why?'];
+const isAssembled = (t) => NOW_ASSEMBLED.some((p) => t.startsWith(p));
 const isRetired = (t) => RETIRED_HUNT.some((p) => t.startsWith(p));
+const EXTRA = {
+  'haunting-files/index.html': [1, 2, 3, 4, 5, 6].map((n) => `haunting-files/cases/c${n}.js`),
+  'last-light/index.html': [1, 2, 3, 4, 5, 6].map((n) => `last-light/scenarios/s${n}.js`).filter((f) => fs.existsSync(path.join(ROOT, f))),
+};
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&rsquo;/g, '’').replace(/&lsquo;/g, '‘').replace(/&mdash;/g, '—').replace(/&ndash;/g, '–').replace(/&hellip;/g, '…').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&rarr;/g, '→');
 // A "text run" is 6+ words of plain prose with no markup or code punctuation in it.
 const RUN = /[A-Za-z0-9][A-Za-z0-9 ,.!?;:—–\-()’“”‘\/&%#$@*…→]{30,}/g;
 
 export function extract(file) {
   let s = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  // Data that moved out of a page into its own file (Phase 6: cases and scenarios) still counts as that page's text.
+  for (const x of EXTRA[file] || []) s += '\n' + fs.readFileSync(path.join(ROOT, x), 'utf8');
   s = s.replace(/<style[\s\S]*?<\/style>/g, ' ').replace(/base64,[A-Za-z0-9+/=]{40,}/g, ' ').replace(/<svg[\s\S]*?<\/svg>/g, ' ');
   s = decode(s);
   const out = new Set();
@@ -56,7 +65,7 @@ if (write) {
     const now = new Set(extract(f));
     // Text may be re-wrapped across elements, so a baseline run also counts as present if it is a substring of a current run.
     const joined = [...now].join('\n');
-    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t) && !(f === 'index.html' && isRetired(t)));
+    const lost = base[f].filter((t) => !now.has(t) && !joined.includes(t) && !ALLOWED_REMOVALS.has(t) && !(f === 'index.html' && isRetired(t)) && !(f === 'haunting-files/index.html' && isAssembled(t)));
     const old = new Set(base[f]);
     const added = [...now].filter((t) => !old.has(t));
     console.log(`${lost.length ? 'FAIL' : 'ok  '}  ${f}: ${base[f].length} baseline runs, ${lost.length} missing, ${added.length} new`);

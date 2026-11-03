@@ -223,16 +223,26 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 .how{border-color:var(--ho-gold-dim);border-radius:18px;background:linear-gradient(180deg,var(--steel2),var(--steel));animation:ho-rise .28s var(--ho-ease)}
 .how h2{color:var(--ho-gold)}
 @media(prefers-reduced-motion:reduce){body,.logo,.how{animation:none!important}.btn,.ex,.menu .btn{transition:none}}
+.casechip{font:700 .78rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:.3rem .65rem;color:var(--ho-gold,var(--text))}
+#caseSlot label{display:block;text-align:center;font-weight:700;margin-bottom:.4rem}
+#caseSlot input{text-align:center}
 </style>
 </head>
 <body>
 <div class="ho-bureau"><a href="../"><img src="../assets/img/ho-icon.png" alt="" width="22" height="22">Haunted Ohio</a><span aria-hidden="true">/</span><span>The Haunting Files</span><span class="ho-bureau__sp"></span><a href="../#games">All games</a></div>
 <div id="app"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<script src="../assets/js/ho-variant.js"></script>
+<script src="cases/c1.js"></script>
+<script src="cases/c2.js"></script>
+<script src="cases/c3.js"></script>
+<script src="cases/c4.js"></script>
+<script src="cases/c5.js"></script>
+<script src="cases/c6.js"></script>
 <script>
 (function(){
 'use strict';
-var KEY='hf_save_v1';
+function KEY(){return HOV.slot('hf_save_v1',CASE)}
 var mem=null;
 
 /* ---------- data ---------- */
@@ -244,50 +254,10 @@ var TYPES={
   spec:{n:'Speculation',d:'A guess or belief with no evidence behind it.'},
   mis:{n:'Possibly misleading',d:'Looks like evidence, but has an ordinary explanation.'}
 };
-var EV=[
- {id:'E1',title:'Landmark record',kind:'Public record',src:'real',type:'fact',
-  body:'<p>Cincinnati Music Hall opened in 1878 in the Over-the-Rhine neighborhood. It is a National Historic Landmark.</p><p class="muted">Anyone can check these details against public records.</p>',
-  why:'It is a basic, checkable fact about the building, confirmed by public records. It tells you nothing yet about ghosts. It only tells you the building is real, old, and well documented.'},
- {id:'E2',title:'Burial ground accounts',kind:'Historical accounts',src:'real',type:'claim',
-  body:'<p>Several local-history accounts describe the block as city burial ground before the hall was built. Historians disagree about how many graves were moved.</p>',
-  why:'This is documented, but disputed. People wrote it down, and historians still argue about the details, so treat it as a claim you would want to verify, not a settled fact.'},
- {id:'E3',title:'Statement: Dana R., usher',kind:'Witness statement',src:'game',type:'eye',
-  body:'<p><b>Dana R.</b> (usher, three seasons):</p><p>"The show ended around 10:30. I was on the main stair landing. The house lights were already down. I saw a tall man in a gray coat standing at the balcony rail, right in the middle. I called out and he did not turn. When I got up there the balcony door was standing wide open and the balcony was empty. It was about 10:40."</p>',
-  why:'This is what one person says she saw and heard. It matters, but it is a personal account, and the rest of the file will test it.'},
- {id:'E4',title:'Statement: Marcus T., stagehand',kind:'Witness statement',src:'game',type:'eye',
-  body:'<p><b>Marcus T.</b> (stagehand, eight seasons):</p><p>"I locked the balcony door at 10:15, after the last guests left the upper level. I had the only key on me. At 10:30 I switched on the balcony work lights to sweep. I was up there until about 10:50. Around 10:55 I heard footsteps behind me, but when I turned there was nobody. No one was on that balcony while I was there."</p>',
-  why:'Another personal account of what someone saw and heard. It conflicts with Dana in several places, which is exactly why it is worth examining.'},
- {id:'E5',title:'Maintenance log',kind:'Building record',src:'game',type:'claim',
-  body:'<p>10:20 PM. HVAC cycle started on upper level.</p><p>Note from facilities: "Balcony door latch sticks. Reported twice this season. Door swings open when air pressure changes. Work order pending."</p>',
-  why:'It is a written record, so it is documented, but it is only as reliable as the person who wrote it. It fits Marcus\'s account of a locked door and offers a possible reason the door was open.'},
- {id:'E6',title:'Floor plan: upper level',kind:'Architectural record',src:'game',type:'fact',
-  body:'<svg viewBox="0 0 300 190" width="100%" role="img" aria-label="Floor plan. A column stands between the main stair landing and the middle of the balcony rail."><rect x="20" y="14" width="260" height="46" fill="none" stroke="#2a2113" stroke-width="2"/><text x="150" y="42" text-anchor="middle" font-size="12" fill="#2a2113">BALCONY</text><line x1="20" y1="60" x2="280" y2="60" stroke="#2a2113" stroke-width="4"/><text x="40" y="76" font-size="10" fill="#2a2113">rail</text><rect x="272" y="28" width="8" height="18" fill="#c0303a"/><text x="226" y="22" font-size="10" fill="#c0303a">door (latch)</text><circle cx="150" cy="104" r="9" fill="#2a2113"/><text x="166" y="108" font-size="10" fill="#2a2113">column</text><rect x="115" y="140" width="70" height="30" fill="none" stroke="#2a2113" stroke-width="2"/><text x="150" y="159" text-anchor="middle" font-size="10" fill="#2a2113">stair landing</text><line x1="150" y1="140" x2="150" y2="62" stroke="#c0303a" stroke-width="2" stroke-dasharray="5 4"/></svg><p class="muted">The dashed line is the view from the landing to the middle of the rail. The column blocks it.</p>',
-  why:'A floor plan is a record you can measure and check. It is a verified fact in this case, and it raises a question about what Dana could really see from the landing.'},
- {id:'E7',title:'Ghost tour brochure',kind:'Lobby brochure',src:'game',type:'lore',
-  body:'<p>"Meet <b>The Man in the Gray Coat</b>, who has roamed the balcony for over a century. Staff say he appears after every sold-out concert."</p><p class="muted">No author. No sources. No dates.</p>',
-  why:'It is a story passed along with no named source and no evidence. A tour brochure is also selling something, which makes it more folklore than fact.'},
- {id:'E8',title:'Dana\'s blog post',kind:'Online post',src:'game',type:'spec',
-  body:'<p>Posted two weeks after the incident:</p><p>"I always knew this place was haunted. I SAW him. Now everyone believes me and the tour guides keep asking for my story."</p>',
-  why:'It is a belief stated as fact, and she says she always believed it before the incident. It was written after the event, and it shows she now gains attention from the story. That is a reason to read it carefully.'},
- {id:'E9',title:'Visitor photo, 10:42 PM',kind:'Photograph',src:'game',type:'mis',
-  body:'<div class="photo" role="img" aria-label="Dark photo of a balcony with one bright round spot"><span class="orb"></span></div><p>Taken with flash from the main floor. A bright round spot hovers near the balcony rail. The visitor says it is "a spirit orb."</p>',
-  why:'It looks like proof, but a flash can light up dust or moisture in the air and create a round bright spot. It has an ordinary explanation, so it cannot be treated as evidence of a spirit.'}
-];
-var EVMAP={};EV.forEach(function(e){EVMAP[e.id]=e});
-
-var CONTRA=[
- {id:'a',t:'Whether anyone was on the balcony. Dana saw a man at the rail. Marcus says no one was there.',ok:true},
- {id:'b',t:'Whether the balcony door was locked. Dana found it wide open. Marcus says he locked it and had the only key.',ok:true},
- {id:'c',t:'How well lit the area was. Dana says the lights were down. Marcus says he switched the balcony work lights on.',ok:true},
- {id:'d',t:'Whether both of them work at Music Hall.',ok:false},
- {id:'e',t:'The time. Dana saw the figure at about 10:40. Marcus heard footsteps at about 10:55.',ok:false}
-];
-var THEORIES={
- nat:{n:'Natural',d:'The door swung open on its own and nobody was there. Dana saw something ordinary from a bad angle.',sup:['E4','E5','E6','E9'],ch:'A natural theory still has to explain why Dana saw a figure at all (E3).'},
- psy:{n:'Psychological',d:'Dana expected a ghost and her mind filled in a figure in dim light from a partly blocked view.',sup:['E3','E6','E7','E8'],ch:'A psychological theory has to account for the open door, which Dana did not imagine (E3, E5).'},
- his:{n:'Historical',d:'The gray-coat legend grew out of real history, and it changes shape each time it is retold.',sup:['E1','E2','E7'],ch:'A historical theory explains where the legend came from, but not what happened on this particular night.'},
- sup:{n:'Supernatural',d:'Something unexplained was really there, and the ordinary explanations are not enough.',sup:['E2','E3','E7'],ch:'A supernatural theory has to rule out the sticking latch (E5) and the blocked sightline (E6) first.'}
-};
+/* The case (1 to 6) comes from ?case=N, then the last case played on this device, then 1. Case data lives in cases/c1.js to c6.js. */
+var CASE=HOV.pick('hf_case'),C=HF_CASES[CASE],EV,EVMAP,CONTRA,THEORIES;
+function useCase(n){CASE=n;C=HF_CASES[n];window.HF_ACTIVE=C;EV=C.ev;CONTRA=C.contra;THEORIES=C.theories;EVMAP={};EV.forEach(function(e){EVMAP[e.id]=e});HOV.remember('hf_case',n)}
+useCase(CASE);
 var STAGES=['Read the case file','File 6 exhibits (include both statements)','Solve the Interview Room','Make 2 connections on the board','Defend a theory','File your field report','Write your story'];
 var ACH=[
  {id:'first',n:'First clue',d:'File your first exhibit.'},
@@ -312,15 +282,18 @@ var BEATS=[
 var RANKS=[[0,'Recruit'],[60,'Junior Investigator'],[160,'Investigator'],[300,'Senior Investigator'],[450,'Lead Investigator']];
 
 /* ---------- state ---------- */
-function fresh(){return {v:1,started:false,name:'',screen:'title',xp:0,sel:null,cls:{},coll:{},links:[],
+function fresh(){return {v:1,case:CASE,vs:'',started:false,name:'',screen:'title',xp:0,sel:null,cls:{},coll:{},links:[],
   contra:{pick:[],text:'',done:false,score:0},th:{choice:'',cites:[],why:'',change:'',done:false},
   report:'',filed:false,story:{},ach:{},sound:true,readCase:false}}
-var S=load()||fresh();
+var S=load()||fresh();S.case=CASE;
 if(S.screen==='title'&&S.started){S.screen='title'}
 var T={linkFrom:null,pending:null,fbReport:null,fbTheory:null};
 
-function load(){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v)}catch(e){}return mem}
-function save(){mem=S;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}catch(e){}return mem}
+function save(){mem=S;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
+/* seeded order: a new game (with a name) gets its own repeatable shuffle of answer options; a save made before this feature keeps the original order */
+function ord(arr,tag){return S.vs?HOV.shuffle(arr,S.vs+'|'+tag):arr}
+function setCase(n){S.case=CASE;save();useCase(n);S=load()||fresh();S.case=CASE;S.screen='title'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function wc(t){t=(t||'').trim();return t?t.split(/\s+/).length:0}
 function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]},S)}
@@ -364,7 +337,7 @@ function nav(){
   var tabs=[['case','Case file'],['board','Evidence board'],['interview','Interview room'],['theory','Theory'],['report','Field report'],['final','Final story'],['profile','Profile']];
   var r=rank(),pct=r.max?100:Math.round((S.xp-r.lo)/(r.hi-r.lo)*100);
   return '<header class="bar"><div class="bar-in"><a class="brand" href="#" data-act="menu"><img src="../assets/img/ho-logo.png" alt="">The Haunting Files</a>'+
-   '<div class="rank"><b>'+esc(r.name)+'</b> &middot; '+S.xp+' XP<div class="xpbar"><i style="width:'+pct+'%"></i></div></div>'+
+   '<span class="casechip" title="Your case code">Case '+CASE+'</span><div class="rank"><b>'+esc(r.name)+'</b> &middot; '+S.xp+' XP<div class="xpbar"><i style="width:'+pct+'%"></i></div></div>'+
    '<button class="btn ghost sm" data-howto>How to play</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
    '<nav class="tabs" aria-label="Case sections">'+tabs.map(function(t){
      var lock=LOCKMSG[t[0]]&&!unlocked(t[0]);
@@ -376,8 +349,8 @@ function count(p,min){var n=wc(getP(p));return '<div class="count'+(n>=min?' ok'
 var SCREENS={
 title:function(){return '<section class="title"><img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><h1>The Haunting Files</h1>'+
  '<p class="tag">Every legend has a story. Every story leaves evidence.</p>'+
- '<div class="brief"><p>RESTRICTED ARCHIVE. Junior investigator access granted.</p><p>Case file #0047 has been reopened: Cincinnati Music Hall, upper balcony.</p><p>Two witnesses. One open door. Everyone has a different story.</p><p>Your job is to decide what you can actually prove.</p></div>'+
- '<div class="case-slot" id="caseSlot"></div>'+
+ '<div class="brief" id="brief"><p>RESTRICTED ARCHIVE. Junior investigator access granted.</p>'+C.brief.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+'</div>'+
+ '<div class="case-slot" id="caseSlot"><label for="caseCode">Case code (1 to 6)</label><div class="row" style="justify-content:center"><input id="caseCode" type="number" min="1" max="6" step="1" inputmode="numeric" value="'+CASE+'" style="max-width:6rem"><button class="btn ghost sm" type="button" data-act="randcase">Random case</button></div><p class="muted" style="margin:.4rem 0 0" aria-live="polite">Your leader may give you a code. Each code is a different case with its own evidence.</p></div>'+
  '<div class="row" style="justify-content:center"><button class="btn" data-act="menu">Open the archive</button><button class="btn ghost" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none" href="../">Back to Haunted Ohio</a></div></section>'},
 
 menu:function(){return '<div class="wrap"><div class="menu"><div style="text-align:center"><img class="logo" style="width:96px;height:96px" src="../assets/img/ho-logo.png" alt=""><h2 style="margin-top:.6rem">The Haunting Files</h2><span class="stamp">CLASSIFIED</span></div>'+
@@ -387,9 +360,9 @@ menu:function(){return '<div class="wrap"><div class="menu"><div style="text-ali
  '<button class="btn" data-go="settings">Save and settings</button>'+
  '<button class="btn" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none;text-align:center" href="../">Back to Haunted Ohio</a></div></div>'},
 
-intro:function(){return '<div class="wrap"><div class="paper" style="max-width:640px;margin:3rem auto"><span class="stamp">CASE #0047</span><h2 style="margin-top:.8rem">Welcome, Investigator</h2>'+
+intro:function(){return '<div class="wrap"><div class="paper" style="max-width:640px;margin:3rem auto"><span class="stamp">CASE #'+C.file+'</span><h2 style="margin-top:.8rem">Welcome, Investigator</h2>'+
  '<p>You have been given access to the Haunting Files. Each case is a real location, a real history, and a mystery that needs answers.</p>'+
- '<p>Your first assignment is a training case. It uses the real Cincinnati Music Hall, but the witness statements and most documents were written for this game. Each exhibit is labeled so you always know which is which.</p>'+
+ '<p>'+esc(C.intro)+'</p>'+
  '<label for="nm">Enter your investigator name</label><input id="nm" type="text" maxlength="24" data-bind="name" value="'+esc(S.name)+'" autocomplete="off">'+
  '<p style="margin-top:1rem"><button class="btn" data-act="begin">Begin the case</button></p></div></div>'},
 
@@ -399,8 +372,8 @@ case:function(){
    var c=S.cls[e.id],tick=c?'<span class="tick'+(c===e.type?'':' no')+'">'+(c===e.type?'Filed':'Review')+'</span>':'';
    return '<button class="ex'+(S.sel===e.id?' on':'')+'" data-ex="'+e.id+'">'+tick+'<b>'+e.id+'</b> '+esc(e.title)+'<small>'+esc(e.kind)+'</small></button>'}).join('');
  return nav()+'<div class="wrap"><div class="grid2 split">'+
- '<div class="paper"><span class="stamp">TRAINING CASE</span><h2 style="margin-top:.7rem">Case File #0047: Cincinnati Music Hall</h2>'+
- '<p><b>Location:</b> Cincinnati Music Hall, Over-the-Rhine.<br><b>Reported event:</b> After a Saturday concert, an usher reports a figure in a gray coat on the upper balcony. A stagehand says nobody was there. The balcony door was found open.</p>'+
+ '<div class="paper"><span class="stamp">TRAINING CASE</span><h2 style="margin-top:.7rem">Case File #'+C.file+': '+esc(C.name)+'</h2>'+
+ '<p><b>Location:</b> '+esc(C.loc)+'<br><b>Reported event:</b> '+esc(C.rep)+'</p>'+
  '<p><b>Your assignment:</b> Open each exhibit. Decide what kind of evidence it is and file it. Then find where the witnesses disagree, connect the clues, and decide what you can defend.</p>'+
  '<p class="muted">Real history and game material are labeled on every exhibit. Do not treat game material as documented history.</p>'+
  (S.readCase?'':'<button class="btn" data-act="readcase">I have read the file</button>')+'</div>'+
@@ -426,24 +399,24 @@ board:function(){
 
 interview:function(){
  var c=S.contra;
- var picks=CONTRA.map(function(o){var on=c.pick.indexOf(o.id)>-1;
+ var picks=ord(CONTRA,'contra').map(function(o){var on=c.pick.indexOf(o.id)>-1;
    var res=c.done?(o.ok?(on?'<b> Correct.</b>':'<b> You missed this one.</b>'):(on?'<b> Not a real contradiction.</b>':'')):'';
    return '<label class="pick'+(on?' sel':'')+'"><input type="checkbox" data-pick="'+o.id+'"'+(on?' checked':'')+(c.done?' disabled':'')+'><span>'+esc(o.t)+res+'</span></label>'}).join('');
  var fb='';
- if(c.done){var latch=/latch|maintenance|\blog\b|hvac|air pressure|draft/i.test(c.text);
-   fb='<div class="fb '+(c.score===3?'good':'')+'"><b>You found '+c.score+' of 3 real contradictions.</b> The time difference (10:40 and 10:55) describes two different moments, so it is not a conflict. Both witnesses working at the hall does not conflict either.'+
-   (latch?' You noticed the maintenance record about the latch. A door can swing open when air pressure changes, with no one opening it.':' Look again at E5. The maintenance log says the balcony latch sticks and the door swings open when air pressure changes.')+'</div>'}
+ if(c.done){var latch=new RegExp(C.checkRe,'i').test(c.text);
+   fb='<div class="fb '+(c.score===3?'good':'')+'"><b>You found '+c.score+' of 3 real contradictions.</b> '+esc(C.contraNote)+
+   ' '+esc(latch?C.checkYes:C.checkNo)+'</div>'}
  return nav()+'<div class="wrap"><h2>Interview room</h2><p class="muted">Compare the two statements line by line. Select only the places where they truly conflict.</p>'+
  '<div class="grid2"><div class="paper">'+EVMAP.E3.body+'</div><div class="paper">'+EVMAP.E4.body+'</div></div>'+
  '<h3 style="margin:1.2rem 0 .5rem">Where do they truly conflict? (Choose all that apply.)</h3>'+picks+
- '<h3 style="margin:1rem 0 .4rem">Whose account would you trust more about the open door, and why?</h3><p class="muted">Use evidence from the file. Aim for 20 words or more.</p>'+
+ '<h3 style="margin:1rem 0 .4rem">Whose account would you trust more about '+esc(C.trustQ)+', and why?</h3><p class="muted">Use evidence from the file. Aim for 20 words or more.</p>'+
  '<textarea data-bind="contra.text" aria-label="Your reasoning">'+esc(c.text)+'</textarea>'+count('contra.text',20)+
  (c.done?'':'<p style="margin-top:.6rem"><button class="btn" data-act="submitcontra">Submit findings</button></p>')+fb+'</div>'
 },
 
 theory:function(){
  var t=S.th,ids=Object.keys(S.coll);
- var th=Object.keys(THEORIES).map(function(k){var o=THEORIES[k];
+ var th=ord(Object.keys(THEORIES),'theory').map(function(k){var o=THEORIES[k];
    return '<label class="pick'+(t.choice===k?' sel':'')+'"><input type="radio" name="th" data-th="'+k+'"'+(t.choice===k?' checked':'')+'><span><b>'+o.n+'.</b> '+esc(o.d)+'</span></label>'}).join('');
  var cites=ids.map(function(id){var e=EVMAP[id],on=t.cites.indexOf(id)>-1;
    return '<label class="pick'+(on?' sel':'')+'"><input type="checkbox" data-cite="'+id+'"'+(on?' checked':'')+'><span><b>'+id+'</b> '+esc(e.title)+' <span class="muted">('+TYPES[S.cls[id]].n+')</span></span></label>'}).join('');
@@ -456,7 +429,7 @@ theory:function(){
 },
 
 report:function(){
- return nav()+'<div class="wrap"><h2>Field report</h2><div class="paper" style="margin-bottom:1rem"><span class="stamp">FORM 7</span><p style="margin-top:.6rem"><b>Assignment:</b> Write the opening of your field report (80 words or more). Put the reader on the balcony at 10:40 PM and describe what the witnesses would have experienced. Then state what you believe happened and cite at least two exhibits by number, like E5 or E6.</p></div>'+
+ return nav()+'<div class="wrap"><h2>Field report</h2><div class="paper" style="margin-bottom:1rem"><span class="stamp">FORM 7</span><p style="margin-top:.6rem"><b>Assignment:</b> '+esc(C.repAssign)+'</p></div>'+
  '<textarea style="min-height:220px" data-bind="report" aria-label="Field report">'+esc(S.report)+'</textarea>'+count('report',80)+
  '<p style="margin-top:.6rem" class="row"><button class="btn" data-act="checkreport">Check my report</button>'+(S.filed?'<span class="muted">Filed. You can keep improving it.</span>':'')+'</p>'+(T.fbReport||'')+'</div>'
 },
@@ -466,7 +439,7 @@ final:function(){
  var beats=BEATS.map(function(b,i){var p='story.'+b.k;
    return '<div class="card" style="margin-bottom:.8rem"><h3>'+(i+1)+'. '+b.n+'</h3><p class="muted">'+esc(b.p)+'</p><textarea style="min-height:110px" data-bind="'+p+'" aria-label="'+b.n+'">'+esc(S.story[b.k]||'')+'</textarea>'+count(p,15)+'</div>'}).join('');
  var inspo=Object.keys(S.coll).map(function(id){return '<li><b>'+id+'</b> '+esc(EVMAP[id].title)+'</li>'}).join('');
- return nav()+'<div class="wrap"><h2>Final story: write your own ghost story</h2><p>Use what you learned about evidence, doubt, and atmosphere. Draw inspiration from the case, but invent your own place, characters, and mystery. Do not retell the Music Hall legend.</p>'+
+ return nav()+'<div class="wrap"><h2>Final story: write your own ghost story</h2><p>Use what you learned about evidence, doubt, and atmosphere. Draw inspiration from the case, but invent your own place, characters, and mystery. Do not retell the '+esc(C.short)+' legend.</p>'+
  '<div class="grid2 split2"><div>'+beats+'</div><div class="card" style="position:sticky;top:7rem"><h3>Your progress</h3><p><b>'+done+' of 9</b> beats complete.</p><h3>Evidence you collected</h3><ul style="padding-left:1.1rem">'+inspo+'</ul>'+
  '<button class="btn" data-act="export-story"'+(done<1?' disabled':'')+'>Download my story (.txt)</button></div></div></div>'
 },
@@ -529,9 +502,9 @@ function analyze(t){
  return [
   {ok:wc(t)>=80,l:'At least 80 words',tip:'Add more detail about what the witnesses experienced.'},
   {ok:Object.keys(cites).length>=2,l:'Cites two or more exhibits by number',tip:'Name specific exhibits, like E5 or E6, to back up what you say.'},
-  {ok:Object.keys(sh).length>=3,l:'Uses three or more sensory details',tip:'Add what the balcony sounded, felt, or smelled like, not only how it looked.'},
+  {ok:Object.keys(sh).length>=3,l:'Uses three or more sensory details',tip:C.hintSense},
   {ok:weak<=2,l:'Avoids vague filler words',tip:'Swap words like "very", "really", "suddenly", and "scary" for a specific detail.'},
-  {ok:/\b\d{1,2}:\d{2}\b/.test(t),l:'Includes a time stamp',tip:'Investigators log times. Mention 10:40 or another time from the file.'},
+  {ok:/\b\d{1,2}:\d{2}\b/.test(t),l:'Includes a time stamp',tip:C.hintTime},
   {ok:/\b(may|might|appears|possible|possibly|likely|suggests|probably|could)\b/i.test(t),l:'Shows appropriate doubt',tip:'Good investigators say what the evidence suggests, not what they wish were true.'}
  ];
 }
@@ -576,7 +549,7 @@ document.addEventListener('click',function(ev){
  if(a==='menu'){S.screen='menu';save();render();window.scrollTo(0,0)}
  else if(a==='resume'){S.screen='case';save();render()}
  else if(a==='newgame'){if(S.started&&!confirm('Start a new case? This erases your current progress unless you exported it.'))return;var snd=S.sound;S=fresh();S.sound=snd;S.screen='intro';save();render()}
- else if(a==='begin'){if((S.name||'').trim().length<2){toast('Enter your investigator name.');return}S.started=true;S.screen='case';save();render();window.scrollTo(0,0)}
+ else if(a==='begin'){if((S.name||'').trim().length<2){toast('Enter your investigator name.');return}S.vs=String(HOV.hash(CASE+'|'+S.name.trim().toLowerCase()));S.started=true;S.screen='case';save();render();window.scrollTo(0,0)}
  else if(a==='readcase'){S.readCase=true;save();render();toast('Case file read. Open the exhibits.')}
  else if(a==='addlink'){
   var why=(document.getElementById('lkwhy').value||'').trim();
@@ -590,7 +563,7 @@ document.addEventListener('click',function(ev){
   if(wc(S.contra.text)<20){toast('Explain your reasoning in at least 20 words.');return}
   var pk=S.contra.pick,right=CONTRA.filter(function(o){return o.ok&&pk.indexOf(o.id)>-1}).length,wrong=CONTRA.filter(function(o){return !o.ok&&pk.indexOf(o.id)>-1}).length;
   var sc=Math.max(0,right-wrong);S.contra.score=sc;S.contra.done=true;
-  var latch=/latch|maintenance|\blog\b|hvac|air pressure|draft/i.test(S.contra.text);
+  var latch=new RegExp(C.checkRe,'i').test(S.contra.text);
   xp(sc*8+10+(latch?8:0),'Interview analysis');if(sc===3)award('hound');save();render()}
  else if(a==='submittheory'){submitTheory()}
  else if(a==='checkreport'){
@@ -600,10 +573,11 @@ document.addEventListener('click',function(ev){
   if(pass>=4&&!S.filed){S.filed=true;xp(pass*10,'Field report filed');award('closed')}
   else if(pass>=4)toast('Report still passes.');
   save();render()}
- else if(a==='export'){download('haunting-files-save-'+(S.name||'investigator').replace(/\W+/g,'-')+'.json',JSON.stringify(S),'application/json')}
+ else if(a==='export'){download('haunting-files-save-'+(S.name||'investigator').replace(/\W+/g,'-')+(CASE>1?'-case-'+CASE:'')+'.json',JSON.stringify(S),'application/json')}
  else if(a==='export-story'){
-  var txt='The Haunting Files: story by '+(S.name||'Investigator')+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n');
+  var txt='The Haunting Files: story by '+(S.name||'Investigator')+'\nCase '+CASE+': '+C.name+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n');
   download('my-ghost-story.txt',txt,'text/plain')}
+ else if(a==='randcase'){var rn=HOV.random();setCase(rn);render()}
  else if(a==='reset'){if(confirm('Erase all progress? This cannot be undone.')){S=fresh();S.screen='menu';save();render()}}
 });
 document.addEventListener('input',function(ev){
@@ -620,8 +594,9 @@ document.addEventListener('change',function(ev){
  if(el.dataset.pick){var p=S.contra.pick,i=p.indexOf(el.dataset.pick);if(el.checked&&i<0)p.push(el.dataset.pick);if(!el.checked&&i>-1)p.splice(i,1);save();render()}
  else if(el.dataset.th){S.th.choice=el.dataset.th;save();render()}
  else if(el.dataset.cite){var c=S.th.cites,j=c.indexOf(el.dataset.cite);if(el.checked&&j<0)c.push(el.dataset.cite);if(!el.checked&&j>-1)c.splice(j,1);save();render()}
+ else if(el.id==='caseCode'){var cn=HOV.valid(el.value);if(cn===CASE)return;if(cn){setCase(cn);render();var ci=document.getElementById('caseCode');if(ci)ci.focus()}else{toast('Case codes are 1 to 6.')}}
  else if(el.id==='imp'&&el.files&&el.files[0]){
-  var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number')throw 0;S=o;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Haunting Files save.')}};fr.readAsText(el.files[0])}
+  var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number')throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();useCase(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Haunting Files save.')}};fr.readAsText(el.files[0])}
 });
 function download(name,text,type){
  try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}
@@ -630,7 +605,8 @@ if(S.screen==='intro'&&!S.started){}
 render();
 })();
 ;(function(){
-var HOW={"title": "How to play The Haunting Files", "intro": "You are a junior investigator. The goal is not to find the scariest answer. It is to build a theory you can defend with evidence.", "steps": [["Start.", "Choose <i>Open the archive</i>, then <i>New case</i>. Enter your investigator name and read the case file, then press <i>I have read the file</i>."], ["Case file.", "Open each exhibit, decide what kind of evidence it is, and file it. Correct filings earn XP. A <i>Review</i> tag means read the explanation and try to understand why. File at least 6 exhibits, including both witness statements (E3 and E4)."], ["Interview room.", "Unlocks after you file E3 and E4. Compare the two statements line by line and select only the places where they truly conflict. Then write at least 20 words on whose account you trust about the open door."], ["Evidence board.", "Tap one exhibit, then another, to tie them with string. Choose <i>supports</i>, <i>contradicts</i>, or <i>explains</i> and say why in at least 6 words. Make at least 2 connections."], ["Theory.", "Pick the explanation you will defend, choose at least 2 exhibits that support it, write at least 30 words making your case, and say what new evidence would change your mind."], ["Field report.", "Write at least 80 words that put the reader on the balcony at 10:40 PM, say what you believe happened, and cite at least two exhibits by number, like E3. Press <i>Check my report</i>."], ["Final story.", "Write your own ghost story in beats, at least 15 words each. Invent your own place and mystery. Download it as a .txt file when you are ready."]], "tips": ["XP rewards good reasoning and strong writing, not speed or lucky guesses.", "Locked tabs tell you what to finish first.", "Your progress saves automatically in this browser. Use <i>Save and settings</i> to export a save file for another device.", "Exhibits are labeled real history or game material. Don’t treat game material as documented history."]};
+var HOW0={"title": "How to play The Haunting Files", "intro": "You are a junior investigator. The goal is not to find the scariest answer. It is to build a theory you can defend with evidence.", "steps": [["Start.", "Choose <i>Open the archive</i>, then <i>New case</i>. Enter your investigator name and read the case file, then press <i>I have read the file</i>."], ["Case file.", "Open each exhibit, decide what kind of evidence it is, and file it. Correct filings earn XP. A <i>Review</i> tag means read the explanation and try to understand why. File at least 6 exhibits, including both witness statements (E3 and E4)."], ["Interview room.", "Unlocks after you file E3 and E4. Compare the two statements line by line and select only the places where they truly conflict. Then write at least 20 words on whose account you trust about the open door."], ["Evidence board.", "Tap one exhibit, then another, to tie them with string. Choose <i>supports</i>, <i>contradicts</i>, or <i>explains</i> and say why in at least 6 words. Make at least 2 connections."], ["Theory.", "Pick the explanation you will defend, choose at least 2 exhibits that support it, write at least 30 words making your case, and say what new evidence would change your mind."], ["Field report.", "Write at least 80 words that put the reader on the balcony at 10:40 PM, say what you believe happened, and cite at least two exhibits by number, like E3. Press <i>Check my report</i>."], ["Final story.", "Write your own ghost story in beats, at least 15 words each. Invent your own place and mystery. Download it as a .txt file when you are ready."]], "tips": ["XP rewards good reasoning and strong writing, not speed or lucky guesses.", "Locked tabs tell you what to finish first.", "Your progress saves automatically in this browser. Use <i>Save and settings</i> to export a save file for another device.", "Exhibits are labeled real history or game material. Don’t treat game material as documented history."]};
+function HOWT(){var A=window.HF_ACTIVE,o=JSON.parse(JSON.stringify(HOW0));if(A&&A.code>1){o.steps.forEach(function(s){s[1]=s[1].replace('the balcony at 10:40 PM',A.scene).replace('the open door',A.trustQ)})}return o}
 var ov=null,prev=null;
 function close(){if(!ov)return;document.removeEventListener('keydown',key,true);ov.remove();ov=null;if(prev&&document.body.contains(prev)){try{prev.focus()}catch(e){}}prev=null}
 function key(e){
@@ -639,7 +615,7 @@ function key(e){
     if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
 }
 function open(opener){
-  close();prev=opener||document.activeElement;
+  var HOW=HOWT();close();prev=opener||document.activeElement;
   ov=document.createElement('div');ov.className='how-ov';
   ov.innerHTML='<div class="how" role="dialog" aria-modal="true" aria-labelledby="howT"><h2 id="howT" tabindex="-1">'+HOW.title+'</h2><p>'+HOW.intro+'</p><ol>'+HOW.steps.map(function(s){return '<li><b>'+s[0]+'</b> '+s[1]+'</li>'}).join('')+'</ol><h3>Good to know</h3><ul>'+HOW.tips.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><p><button class="btn" type="button" id="howClose">Got it</button></p></div>';
   document.body.appendChild(ov);

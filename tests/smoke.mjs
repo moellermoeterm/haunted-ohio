@@ -243,6 +243,96 @@ T('haunting-files: a save made BEFORE the P4 restyle still loads and plays', asy
   eq(after.name, 'Fixture Student', 'name kept'); eq(after.links.length, 2, 'connections kept');
 });
 
+// ---------------------------------------------------------------- The Haunting Files: six cases (Phase 6)
+T('haunting-files: six cases, each with 9 exhibits of all six types, 3 real contradictions, 4 theories with a valid evidence map', async ({ base, newPage }) => {
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto(base + 'haunting-files/');
+  const cases = await p.evaluate(() => JSON.parse(JSON.stringify(window.HF_CASES)));
+  eq(Object.keys(cases).join(','), '1,2,3,4,5,6', 'cases 1 to 6 exist');
+  const names = []; const files = new Set(); const strongest = [];
+  for (const k of Object.keys(cases)) {
+    const c = cases[k]; names.push(c.name); files.add(c.file); strongest.push(c.strongest);
+    eq(c.ev.length, 9, 'case ' + k + ': nine exhibits');
+    eq(c.ev.map((e) => e.id).join(','), 'E1,E2,E3,E4,E5,E6,E7,E8,E9', 'case ' + k + ': exhibit ids');
+    eq([...new Set(c.ev.map((e) => e.type))].sort().join(','), 'claim,eye,fact,lore,mis,spec', 'case ' + k + ': all six evidence types');
+    eq(c.ev.filter((e) => e.type === 'eye').map((e) => e.id).join(','), 'E3,E4', 'case ' + k + ': E3 and E4 are the two witness statements');
+    ok(c.ev.every((e) => (e.src === 'real' || e.src === 'game') && e.why && e.body && e.title && e.kind), 'case ' + k + ': every exhibit is labeled and explained');
+    eq(c.contra.length, 5, 'case ' + k + ': five options'); eq(c.contra.filter((o) => o.ok).length, 3, 'case ' + k + ': exactly three real contradictions');
+    ok(new RegExp(c.checkRe, 'i').test(c.checkYes + ' ' + c.checkNo + ' ' + c.ev.find((e) => e.id === 'E5').body), 'case ' + k + ': the checkable detail is findable in E5');
+    eq(Object.keys(c.theories).length, 4, 'case ' + k + ': four theories'); ok(c.theories.sup, 'case ' + k + ': a supernatural option stays on the table');
+    for (const th of Object.values(c.theories)) { ok(th.n && th.d && th.ch && th.sup.length >= 2, 'theory text'); ok(th.sup.every((id) => c.ev.some((e) => e.id === id)), 'evidence map ids exist'); }
+    ok(c.theories[c.strongest], 'case ' + k + ': the strongest explanation is one of its theories');
+    ok(c.ev.filter((e) => e.src === 'real').length >= 1 && c.ev.filter((e) => e.src === 'real').length <= 2, 'case ' + k + ': only 1 or 2 exhibits are marked real history');
+    ok(!/s[eé]ance|ouija|spirit box|contact the dead|summon/i.test(JSON.stringify(c)), 'case ' + k + ': no spirit-contacting activity');
+  }
+  eq(new Set(names).size, 6, 'six different places'); eq(files.size, 6, 'six different file numbers'); ok(new Set(strongest).size >= 4, 'varied strongest explanations: ' + strongest);
+  eq(errs.length, 0, 'no page errors: ' + errs);
+});
+T('haunting-files: case code (?case=N, title field, random), per-case save slots, case shown in bar and saves', async ({ base, newPage }) => {
+  const p = await newPage();
+  await p.goto(base + 'haunting-files/?case=3'); await p.waitForTimeout(150);
+  ok(/Miami/.test(await p.textContent('#brief')), '?case=3 shows case 3 on the title screen'); eq(await p.inputValue('#caseCode'), '3', 'field shows the code');
+  await p.fill('#caseCode', '5'); await p.dispatchEvent('#caseCode', 'change'); await p.waitForTimeout(150);
+  ok(/Reformatory/.test(await p.textContent('#brief')), 'typing 5 switches to case 5'); eq(await p.inputValue('#caseCode'), '5', 'field keeps the code');
+  await p.click('[data-act="randcase"]'); const rc = +(await p.inputValue('#caseCode')); ok(rc >= 1 && rc <= 6, 'random gives 1 to 6: ' + rc);
+  await p.fill('#caseCode', '2'); await p.dispatchEvent('#caseCode', 'change');
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-act="begin"]'); await p.waitForTimeout(150);
+  ok(/Case 2/.test(await p.textContent('.casechip')), 'top bar shows the case code'); ok(/Golden Lamb/.test(await p.textContent('.paper h2')), 'case page is the Golden Lamb');
+  eq((await p.$$('.ex')).length, 9, 'nine exhibits');
+  await p.click('[data-act="readcase"]'); await p.click('.ex >> nth=0'); await p.click('[data-file] >> nth=0'); await p.waitForTimeout(100);
+  const s2 = JSON.parse(await lsGet(p, 'hf_save_v1_c2')); ok(s2 && s2.started && s2.case === 2, 'case 2 saves under hf_save_v1_c2 and records case: 2');
+  eq(await lsGet(p, 'hf_save_v1'), null, 'the original case-1 slot is untouched by other cases');
+  await p.goto(base + 'haunting-files/?case=4'); await p.click('[data-act="menu"]'); ok(!(await p.$('[data-act="resume"]')), 'case 4 has its own empty slot');
+  await p.goto(base + 'haunting-files/?case=2'); await p.click('[data-act="menu"]'); ok(await p.$('[data-act="resume"]'), 'case 2 still resumes');
+  await p.goto(base + 'haunting-files/'); await p.waitForTimeout(150); eq(await lsGet(p, 'hf_case'), '2', 'the last case played on this device is remembered'); ok(await p.$('[data-act="resume"]'), 'and its save resumes');
+});
+T('haunting-files: every case can be played from start to a filed report (no dead ends)', async ({ base, newPage }) => {
+  const words = (n) => Array.from({ length: n }, (_, i) => 'word' + i).join(' ');
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+    await p.goto(base + 'haunting-files/?case=' + k);
+    const c = await p.evaluate((n) => JSON.parse(JSON.stringify(window.HF_CASES[n])), k);
+    await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Player' + k); await p.click('[data-act="begin"]'); await p.waitForTimeout(100);
+    await p.click('[data-act="readcase"]');
+    for (const e of c.ev) { await p.click(`[data-ex="${e.id}"]`); await p.click(`[data-file="${e.type}"]`); }
+    eq(await p.$$eval('.ex .tick:not(.no)', (n) => n.length), 9, 'case ' + k + ': every exhibit filed correctly with the intended type');
+    await p.click('[data-go="interview"]'); await p.waitForTimeout(80);
+    for (const o of c.contra.filter((x) => x.ok)) await p.click(`[data-pick="${o.id}"]`);
+    await p.fill('[data-bind="contra.text"]', 'I trust the written record more because the facilities note, the log and the plan can be checked. ' + words(8)); await p.click('[data-act="submitcontra"]');
+    ok(/You found 3 of 3/.test(await p.textContent('.fb')), 'case ' + k + ': three real contradictions found');
+    await p.click('[data-go="board"]'); await p.waitForTimeout(80);
+    for (const [a, b] of [['E3', 'E4'], ['E4', 'E5']]) { await p.click(`[data-pin="${a}"]`); await p.click(`[data-pin="${b}"]`); await p.fill('#lkwhy', 'These two exhibits are connected because of this reason'); await p.click('[data-act="addlink"]'); }
+    await p.click('[data-go="theory"]'); await p.waitForTimeout(80);
+    await p.click(`[data-th="${c.strongest}"]`); for (const id of c.theories[c.strongest].sup.slice(0, 3)) await p.click(`[data-cite="${id}"]`);
+    await p.fill('[data-bind="th.why"]', 'I defend this explanation, but I know the other side could argue otherwise. ' + words(26)); await p.fill('[data-bind="th.change"]', 'A record that contradicts the facilities note would change my mind');
+    await p.click('[data-act="submittheory"]'); ok(/directly support/.test(await p.textContent('.fb')), 'case ' + k + ': the strongest explanation is supported by the exhibits cited');
+    await p.click('[data-go="report"]'); await p.waitForTimeout(80);
+    await p.fill('[data-bind="report"]', 'At 10:40 PM it was dim and cold, with an echo and a creak and a damp draft on the stairs. It might be that the facilities note E5 and the plan E6 explain it, which suggests an ordinary cause. ' + words(60));
+    await p.click('[data-act="checkreport"]'); const rp = await p.textContent('.card h3'); ok(/Report review: ([4-6]) of 6/.test(rp), 'case ' + k + ': the report can be filed: ' + rp);
+    eq(errs.length, 0, 'case ' + k + ': no page errors: ' + errs);
+    await p.context().close();
+  }
+});
+T('haunting-files: Case 1 still shows the original text now that it is assembled from case data', async ({ base, newPage }) => {
+  const seed = (screen) => (() => { try { localStorage.setItem('hf_save_v1', JSON.stringify({ v: 1, started: true, name: 'Old', screen: SCREEN, xp: 20, sel: null, cls: { E3: 'eye', E4: 'eye' }, coll: { E3: true, E4: true }, links: [], contra: { pick: [], text: '', done: false, score: 0 }, th: { choice: '', cites: [], why: '', change: '', done: true }, report: '', filed: true, story: {}, ach: {}, sound: true, readCase: true })); } catch (e) { /* ignore */ } }).toString().replace('SCREEN', JSON.stringify(screen));
+  const at = async (screen) => { const p = await newPage(); await p.addInitScript('(' + seed(screen) + ')()'); await p.goto(base + 'haunting-files/'); await p.waitForTimeout(200); return p; };
+  eq((await (await at('case')).textContent('.paper h2')).trim(), 'Case File #0047: Cincinnati Music Hall', 'case heading');
+  ok((await (await at('case')).textContent('.paper')).includes('After a Saturday concert, an usher reports a figure in a gray coat on the upper balcony. A stagehand says nobody was there. The balcony door was found open.'), 'reported event');
+  ok((await (await at('interview')).textContent('.wrap')).includes('Whose account would you trust more about the open door, and why?'), 'interview question');
+  ok((await (await at('final')).textContent('.wrap')).includes('Do not retell the Music Hall legend.'), 'final story line');
+});
+T('haunting-files: seeded shuffle is repeatable for a name and case; a pre-variant save keeps the original order', async ({ base, newPage }) => {
+  const order = async (p) => p.$$eval('[data-pick]', (e) => e.map((x) => x.getAttribute('data-pick')).join(''));
+  const start = async (p, url, name) => { await p.goto(base + url); await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); await p.click('[data-act="begin"]'); await p.waitForTimeout(100);
+    await p.click('[data-act="readcase"]'); for (const i of [2, 3]) { await p.click(`.ex >> nth=${i}`); await p.click('[data-file] >> nth=0'); } await p.click('[data-go="interview"]'); await p.waitForTimeout(100); };
+  const p = await newPage(); await start(p, 'haunting-files/?case=2', 'Ada'); const o1 = await order(p); eq(o1.length, 5, 'five options');
+  await p.reload(); await p.waitForTimeout(150); eq(await order(p), o1, 'same name and case give the same order after a reload');
+  const q = await newPage(); await q.addInitScript(() => { try { localStorage.setItem('hf_save_v1', JSON.stringify({ v: 1, started: true, name: 'Old', screen: 'interview', xp: 20, sel: null, cls: { E3: 'eye', E4: 'eye' }, coll: { E3: true, E4: true }, links: [], contra: { pick: [], text: '', done: false, score: 0 }, th: { choice: '', cites: [], why: '', change: '', done: false }, report: '', filed: false, story: {}, ach: {}, sound: true, readCase: true })); } catch (e) { /* ignore */ } });
+  await q.goto(base + 'haunting-files/'); await q.waitForTimeout(200); eq(await order(q), 'abcde', 'a save from before variants keeps the original order (case 1)');
+  ok(/Case 1/.test(await q.textContent('.casechip')), 'a pre-variant save is Case 1');
+  const names = new Set(); for (const n of ['Ada', 'Ben', 'Cy', 'Di', 'Ed', 'Flo']) { const r = await newPage(); await start(r, 'haunting-files/?case=1', n); names.add(await order(r)); } ok(names.size >= 2, 'different names get different orders: ' + [...names]);
+});
+
 // ---------------------------------------------------------------- The Last Light
 T('last-light: create survivor, open map, start mission, save, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'last-light/');
