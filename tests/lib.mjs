@@ -38,6 +38,7 @@ export async function run(tests) {
   const browser = await chromium.launch();
   let fail = 0;
   for (const [name, fn] of tests) {
+    if (process.env.ONLY && !name.includes(process.env.ONLY)) continue;   // e.g. ONLY="BEFORE" npm run smoke
     const errs = [];
     const t0 = Date.now();
     try {

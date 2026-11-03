@@ -1,0 +1,65 @@
+{
+ "v": 1,
+ "started": true,
+ "name": "Fixture Student",
+ "screen": "interview",
+ "xp": 102,
+ "sel": "E6",
+ "cls": {
+  "E1": "fact",
+  "E2": "fact",
+  "E3": "fact",
+  "E4": "fact",
+  "E5": "fact",
+  "E6": "fact"
+ },
+ "coll": {
+  "E1": true,
+  "E2": true,
+  "E3": true,
+  "E4": true,
+  "E5": true,
+  "E6": true
+ },
+ "links": [
+  {
+   "a": "E1",
+   "b": "E2",
+   "k": "supports",
+   "why": "These two exhibits describe the same open door from different sides"
+  },
+  {
+   "a": "E3",
+   "b": "E4",
+   "k": "supports",
+   "why": "Both witnesses mention the balcony but not the same moment"
+  }
+ ],
+ "contra": {
+  "pick": [
+   "a",
+   "b",
+   "c"
+  ],
+  "text": "I trust the stagehand more because the maintenance log says the balcony latch sticks and the door swings open when air pressure changes.",
+  "done": true,
+  "score": 3
+ },
+ "th": {
+  "choice": "",
+  "cites": [],
+  "why": "",
+  "change": "",
+  "done": false
+ },
+ "report": "",
+ "filed": false,
+ "story": {},
+ "ach": {
+  "first": true,
+  "string": true,
+  "hound": true
+ },
+ "sound": true,
+ "readCase": true
+}

@@ -1,7 +1,10 @@
 // Smoke tests for the whole Haunted Ohio site. They rely on the stable "contract" (ids, data-* attributes,
 // hash routes, localStorage keys), not on visual styling, so they keep passing through a redesign.
 //   npm i && npx playwright install chromium && npm run smoke
-import { run, eq, ok } from './lib.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { run, eq, ok, ROOT } from './lib.mjs';
+const fixture = (name) => fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', name), 'utf8');
 
 const ROUTES = ['home', 'learn', 'games', 'prompts', 'draft', 'legend', 'dread', 'resources', 'cemetery', 'leaders', 'about'];
 const WIDTHS = [1920, 1366, 1024, 768, 390];
@@ -144,6 +147,26 @@ T('haunting-files: start a case, file an exhibit, save, resume, how-to', async (
   await p.click('[data-go="settings"]');
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="export"]')]);
   ok((await dl.suggestedFilename()).length > 0, 'export downloads a file');
+});
+
+T('haunting-files: a save made BEFORE the P4 restyle still loads and plays', async ({ base, newPage }) => {
+  // tests/fixtures/hf_save_pre_p4.json was written by the pre-restyle build (commit 886c460): 102 XP, 6 exhibits filed,
+  // 2 board connections, interview room solved. Injected once, then the game is resumed and played on.
+  const fx = fixture('hf_save_pre_p4.json'), saved = JSON.parse(fx);
+  const p = await newPage();
+  await p.addInitScript(([k, v]) => { if (!localStorage.getItem(k)) localStorage.setItem(k, v); }, ['hf_save_v1', fx]);
+  await p.goto(base + 'haunting-files/'); await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); await p.waitForTimeout(250);
+  ok((await p.textContent('.rank')).includes(saved.xp + ' XP'), 'XP restored: ' + (await p.textContent('.rank')));
+  await p.click('[data-go="profile"]'); const prof = await p.textContent('#app');
+  ok(prof.includes('Fixture Student') && prof.includes('Exhibits filed: 6 of 9'), 'profile shows the saved name and 6 filed exhibits');
+  await p.click('[data-go="board"]'); ok((await p.textContent('#app')).includes('Connections (2)'), 'both board connections restored');
+  await p.click('[data-go="interview"]'); ok((await p.textContent('#app')).includes('You found'), 'solved interview room restored');
+  ok(!(await p.textContent('[data-go="theory"]')).includes('locked'), 'Theory is unlocked, as it was in the old build');
+  // play on: file a seventh exhibit
+  await p.click('[data-go="case"]'); await p.click('.ex >> nth=6'); await p.click('[data-file] >> nth=0'); await p.waitForTimeout(200);
+  const after = JSON.parse(await lsGet(p, 'hf_save_v1'));
+  eq(Object.keys(after.cls).length, 7, 'seventh exhibit filed'); ok(after.xp > saved.xp, 'XP went up after playing on');
+  eq(after.name, 'Fixture Student', 'name kept'); eq(after.links.length, 2, 'connections kept');
 });
 
 // ---------------------------------------------------------------- The Last Light
