@@ -70,6 +70,51 @@ T('home: Draft Lab and other tools render without errors', async ({ base, newPag
   for (const r of ['draft', 'legend', 'dread', 'cemetery', 'resources', 'leaders', 'about']) { await p.goto(base + '#' + r); await p.waitForTimeout(150); }
 });
 
+// ---------------------------------------------------------------- home redesign (P2)
+T('home redesign: grouped navigation menus open, close, and are keyboard friendly', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base);
+  eq((await p.$$('.nav-group')).length, 3, 'three menu groups (Learn, Create, About)');
+  eq((await p.$$('.nav-link')).length, 2, 'two direct links (Games, Field Work)');
+  await p.click('#siteNav .nav-btn >> nth=1');
+  eq((await p.$$eval('#menu-create a', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#prompts,#draft,#legend,#dread', 'Create menu links');
+  ok(await p.isVisible('#menu-create'), 'menu visible');
+  await p.keyboard.press('Escape'); ok(!(await p.isVisible('#menu-create')), 'Esc closes the menu');
+  await p.focus('#siteNav .nav-btn >> nth=1'); await p.keyboard.press('ArrowDown');
+  eq(await p.evaluate(() => document.activeElement.getAttribute('href')), '#prompts', 'ArrowDown focuses the first item');
+  await p.keyboard.press('Enter'); await p.waitForTimeout(250);
+  ok(p.url().endsWith('#prompts') && (await p.isVisible('#prompts')), 'menu link navigates');
+  ok(!(await p.isVisible('#menu-create')), 'menu closes after choosing');
+  ok(await p.$('.nav-group.is-active'), 'the active group is marked');
+});
+T('home redesign: hero, case index, and field map', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + '#home');
+  ok((await p.isVisible('.hero-moon')) && (await p.isVisible('.hero-city')), 'night sky and skyline render');
+  eq((await p.$$('.where a')).length, 11, 'eleven case-index cards, none lost');
+  await p.click('#heroCue'); await p.waitForTimeout(900);
+  ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
+  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/', 'map pins link to existing places');
+  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/', 'map list links');
+});
+T('home redesign: game links open with the branded loading screen', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + '#games');
+  await p.click('#games a[href="last-light/"]'); ok(await p.$('.ho-loader'), 'loader appears');
+  await p.waitForURL('**/last-light/', { timeout: 4000 });
+});
+T('home redesign: night by default, daylight on demand, phone menu', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base);
+  eq(await p.evaluate(() => document.documentElement.getAttribute('data-theme')), 'dark', 'night is the default');
+  const bg1 = await p.evaluate(() => getComputedStyle(document.body).backgroundColor); await p.click('#theme');
+  eq(await p.evaluate(() => document.documentElement.getAttribute('data-theme')), 'light', 'daylight after the switch');
+  ok(bg1 !== (await p.evaluate(() => getComputedStyle(document.body).backgroundColor)), 'page color changes');
+  const m = await newPage({ width: 390, height: 844 }); await m.goto(base);
+  ok(await m.isVisible('#navToggle'), 'menu button on phones'); ok(!(await m.isVisible('#siteNav')), 'nav starts collapsed');
+  await m.click('#navToggle'); ok(await m.isVisible('#siteNav'), 'nav opens');
+  await m.click('#siteNav .nav-btn >> nth=0'); ok(await m.isVisible('#menu-learn'), 'group expands');
+  await m.click('#menu-learn a[href="#resources"]'); await m.waitForTimeout(250);
+  ok(!(await m.isVisible('#siteNav')), 'nav closes after choosing'); ok(await m.isVisible('#resources'), 'navigated');
+  const d = await newPage({ width: 1440, height: 900 }); await d.goto(base); ok(!(await d.isVisible('#navToggle')), 'no menu button on desktop');
+});
+
 // ---------------------------------------------------------------- Show, Don't Tell
 T('lessons: all 10 open; writing persists; checkers work', async ({ base, newPage }) => {
   const p = await newPage();
