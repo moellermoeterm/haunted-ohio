@@ -72,7 +72,7 @@
         if (e.shiftKey && doc.activeElement === first) { last.focus(); e.preventDefault(); } else if (!e.shiftKey && doc.activeElement === last) { first.focus(); e.preventDefault(); }
       }
       doc.addEventListener('keydown', keys, true);
-      var api = { el: box, close: function () { if (!bg.parentNode) return; doc.removeEventListener('keydown', keys, true); bg.remove(); shell.modalOpen = false; if (shell.input) shell.input.enable(true); if (o.onModal) o.onModal(false); if (m.onClose) m.onClose(); if (prev && prev.focus) prev.focus(); } };
+      var closed = false, api = { el: box, close: function () { if (closed || !bg.parentNode) return; closed = true; doc.removeEventListener('keydown', keys, true); bg.remove(); shell.modalOpen = false; if (shell.input) shell.input.enable(true); if (o.onModal) o.onModal(false); if (m.onClose) m.onClose(); if (prev && prev.focus) prev.focus(); } };
       setTimeout(function () { var f = box.querySelector('[data-autofocus]') || box.querySelector('input,textarea,select,button'); if (f) f.focus(); }, 30);
       return api;
     };
@@ -90,7 +90,8 @@
       var field = shell.caseField(body, function (n) { m.close(); goVariant(n); }); field.setAttribute('data-autofocus', '1');
       var m = shell.modal({ title: 'Choose a case', body: body });
     }
-    function goVariant(n) { if (n === variantNow) return; HOG.variant.remember(game, n); try { var u = new URL(root.location.href); u.searchParams.set('case', String(n)); root.location.href = u.toString(); } catch (e) { root.location.search = '?case=' + n; } }
+    var navigating = false;
+    function goVariant(n) { if (n === variantNow || navigating) return; navigating = true; HOG.variant.remember(game, n); try { var u = new URL(root.location.href); u.searchParams.set('case', String(n)); root.location.href = u.toString(); } catch (e) { root.location.search = '?case=' + n; } }
     shell.goVariant = goVariant;
 
     /* saves: list of six slots, open / export / delete, and import */

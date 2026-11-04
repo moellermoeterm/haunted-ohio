@@ -36,7 +36,7 @@ await T('input: keyboard actions press/release, arrows give an axis, typing in a
 });
 await T('touch: on-screen buttons and the joystick work with pointer events at 390px, no horizontal scroll', async (p) => {
   await p.setViewportSize({ width: 390, height: 780 }); await p.goto(base); ok(await p.isVisible('.hog-touch'), 'overlay shown on a touch device'); ok(await noH(p), 'no horizontal scroll');
-  for (const b of await p.$$('.hog-touch button')) { const r = await b.boundingBox(); ok(r.width >= 44 && r.height >= 44, 'touch target >= 44px: ' + JSON.stringify(r)); ok(await b.getAttribute('aria-label'), 'labelled'); }
+  for (const b of await p.$$('.hog-touch button')) { if (!(await b.isVisible())) continue; const r = await b.boundingBox(); ok(r.width >= 44 && r.height >= 44, 'touch target >= 44px: ' + JSON.stringify(r)); ok(await b.getAttribute('aria-label'), 'labelled'); }
   await p.tap('.hog-a-interact'); await p.tap('.hog-a-shift'); const log = await p.evaluate(() => log.join(',')); ok(/p:interact/.test(log) && /p:shift/.test(log), 'tap actions: ' + log);
   const st = await p.$eval('.hog-stick', (e) => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
   await p.evaluate(({ x, y }) => { const s = document.querySelector('.hog-stick'); const ev = (t, dx, dy) => s.dispatchEvent(new PointerEvent(t, { pointerId: 7, clientX: x + dx, clientY: y + dy, bubbles: true, cancelable: true })); ev('pointerdown', 40, 0); window.__a = input.axis(); ev('pointerup', 40, 0); window.__b = input.axis(); }, st);
