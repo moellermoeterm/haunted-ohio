@@ -15,6 +15,8 @@ const ALLOWED_REMOVALS = new Set([
   'Search pages, games, lessons ( / )', // search-box placeholder written during the redesign (not original course content); now "Search the archive"
   // Leaders' decision: the About page's overnight sentence changed from the Reformatory trip to Wednesday night at Hueston Woods.
   'Students registering for this course must be available for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield, Ohio, the location for the hit movie',
+  // Leaders' correction: Kirk was murdered Dec 24, 1883; the Courthouse Riots followed in March 1884 (Spring Grove legends tab).
+  'Section 16 is also the resting place of William Kirk, whose death in 1884 sparked the Cincinnati Courthouse Riots. That gives the area real history for a writer to work with.',
 ]);
 // Phase 5: the old 14-mission Spring Grove hunt and its "Turn it in" tab were replaced by "The Spring Grove Dossier, Case File #0048"
 // (Phase 5 spec). These prefixes are the old hunt's instructions and turn-in text only. The legends tab text is unchanged and must still

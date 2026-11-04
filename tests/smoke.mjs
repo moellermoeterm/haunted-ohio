@@ -165,7 +165,12 @@ T('dossier: four sealed files + finale, legends tab intact, GPS off, form placeh
   ok((await p.$$('#dossier .todo-in')).length >= 4, 'Field Facts show "Leaders: fill in" while accepted answers are empty');
   ok(!/speed|fastest|bonus|hurry/i.test(await p.textContent('#dossier')) || /never speed/.test(await p.textContent('#dossier')), 'no speed points');
   await p.click('#ct-submit'); await p.waitForTimeout(200);
-  ok(/Leaders: fill in/.test(await p.textContent('#turnin')), 'turn-in shows FORM_URL / FORM_EMBED placeholders');
+  ok(/Leaders: fill in/.test(await p.textContent('#turnin')), 'turn-in still shows the FORM_EMBED placeholder');
+  const fl = await p.$('#formLink'); ok(fl, 'turn-in form link is shown'); eq(await fl.getAttribute('target'), '_blank', 'form link opens in a new tab'); eq(await fl.getAttribute('rel'), 'noopener', 'form link has rel=noopener');
+  ok(/^https:\/\/forms\.cloud\.microsoft\//.test(await fl.getAttribute('href')), 'form link points at the Microsoft form');
+  ok(/FORM_EMBED/.test(await p.textContent('#turnin')) && !(await p.$('#formShow')), 'FORM_EMBED is still open: no embed button, plain link only');
+  const kirk = await p.textContent('#cemetery'); ok(/December 24, 1883/.test(kirk) && /March 1884/.test(kirk) && !/death in 1884/.test(kirk), 'Section 16 legend: Kirk murdered December 24, 1883; riots March 1884');
+  ok(/Dexter Mausoleum, Section 20/.test(kirk), 'Dexter Mausoleum stays in Section 20');
   ok(/SPRING GROVE DOSSIER/.test(await p.inputValue('#subText')), 'Dossier Report is generated');
   eq(ext.length, 0, 'nothing was requested from outside the site: ' + ext.join(','));
   eq(await lsGet(p, 'ho-hunt'), '{"old":"untouched"}', 'the old ho-hunt key is left alone');
