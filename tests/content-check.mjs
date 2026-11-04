@@ -17,6 +17,15 @@ const ALLOWED_REMOVALS = new Set([
   'Students registering for this course must be available for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield, Ohio, the location for the hit movie',
   // Leaders' correction: Kirk was murdered Dec 24, 1883; the Courthouse Riots followed in March 1884 (Spring Grove legends tab).
   'Section 16 is also the resting place of William Kirk, whose death in 1884 sparked the Cincinnati Courthouse Riots. That gives the area real history for a writer to work with.',
+  // Leaders' rewrite of the Spring Grove legends tab (four cards) and the field rules box; the new text is supplied word for word.
+  'A bronze bust on Breuer’s monument has eyes that seem to follow you. Some retellings say they’re his real eyes, preserved in glass at his request.',
+  'A groundskeeper working alone says something grabbed his pant leg.',
+  'Sit on the steps and two white dogs (some tellers say wolves) run past. Sometimes they stop and stare, glowing.',
+  'Stay on the paths. Respect all memorials. Follow teacher and staff instructions. Carry your phone and clipboard. Do not touch memorials unless you’re explicitly allowed to. Never shine a light at people.',
+  'The eyes are glass. Cincinnati Magazine reports that Breuer was a salesman and real estate investor, not the optometrist many retellings claim, so part of the legend has been wrong for a long time.',
+  'The mausoleum is a Gothic Revival building from the late 1860s, built for the family of Edmund Dexter, a Cincinnati liquor distributor. Construction stopped in 1869 and it was never finished. Tellers can’t agree on the animals, their number, or the color of their eyes.',
+  'This one rests on a single report passed along in local ghost lore. No one has documented it. Your job is to find out what could actually catch an ankle in that spot.',
+  'Visitors report hearing voices and seeing figures in this part of the cemetery.',
 ]);
 // Phase 5: the old 14-mission Spring Grove hunt and its "Turn it in" tab were replaced by "The Spring Grove Dossier, Case File #0048"
 // (Phase 5 spec). These prefixes are the old hunt's instructions and turn-in text only. The legends tab text is unchanged and must still

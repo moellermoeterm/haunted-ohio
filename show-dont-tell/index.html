@@ -55,7 +55,7 @@ a{color:var(--accent)}
 .banner-in{position:relative;z-index:1;padding:clamp(2rem,6vw,4rem) var(--pad) clamp(1.4rem,3vw,2rem)}
 .banner .eyebrow{margin:0 0 .8rem;font:700 .78rem/1 var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--ho-gold)}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(2.7rem,7.5vw,5.4rem);line-height:.96;margin:0 0 .6rem;letter-spacing:-.005em;color:var(--text);text-shadow:0 0 34px rgba(143,211,232,.22)}
-.intro{max-width:40rem;color:var(--muted);font-size:1.18rem;margin:0}
+.intro{max-width:min(100ch,100%);color:var(--muted);font-size:1.18rem;margin:0}
 .banner-art{position:absolute;right:clamp(1rem,7vw,7rem);top:50%;transform:translateY(-50%);width:clamp(120px,20vw,250px);height:auto;opacity:.95;pointer-events:none}
 @media (max-width:700px){.banner-art{opacity:.35;right:-1rem}}
 @media (max-width:520px){.banner-art{display:none}}
@@ -98,7 +98,7 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(2.7rem,7.5vw,5.4re
 h2{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4vw,2.7rem);line-height:1.05;margin:.3rem 0 .8rem}
 h2:focus{outline:none}
 h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:1.8rem 0 .4rem}
-.prose{max-width:68ch}
+.prose{max-width:min(100ch,100%)}
 .prose p{margin:.75rem 0}
 
 /* tell vs show: a flat note beside a lit page */
@@ -110,7 +110,7 @@ h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:1.8rem 0 .
 .compare .tell h4{color:var(--bad)}
 .compare .show{background:var(--ho-parch);color:var(--ho-parch-ink);border:1px solid var(--ho-gold-dim);border-left:4px solid var(--ho-gold);box-shadow:inset 0 0 30px rgba(120,90,40,.25),0 10px 30px rgba(0,0,0,.28),0 0 0 1px rgba(217,184,108,.2)}
 .compare .show h4{color:#7a5a14}
-.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.7rem 1rem;max-width:66ch;margin:1rem 0;border-radius:0 8px 8px 0;font-size:.98rem}
+.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.7rem 1rem;max-width:min(100ch,100%);margin:1rem 0;border-radius:0 8px 8px 0;font-size:.98rem}
 
 /* exercise */
 .exercise{border-top:1px solid var(--line);margin-top:2rem;padding-top:.4rem;position:relative}

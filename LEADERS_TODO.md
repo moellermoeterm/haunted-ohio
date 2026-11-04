@@ -15,6 +15,7 @@ This file is for course leaders. It is **not linked from the site**. Search the 
 ## 3. Spring Grove field work (`index.html`, `FIELD_FACTS`)
 - [ ] After your walk-through, fill in the accepted answers (lowercase; a student's answer counts if it contains one of them) for the four Field Facts: Breuer monument (Lot 100), Dexter Mausoleum, Section 53, Section 16. While empty, any non-empty answer earns the points.
 - [ ] Optional GPS check-in: leave `GPS_CHECKIN=false` unless you want it; if you turn it on, fill in `STOP_PLACES` with a latitude, longitude and radius for each stop. It runs on the student's device only and shows pass/fail text only.
+- [ ] Verify the Kirk plot location, the Breuer details and Section 53's exact spot on your walk-through.
 - [ ] Read the four legends and the "What the record says" text on the Legends tab. The Dossier reuses that text, and its supporting-fact choices (for example, the Cincinnati Magazine line about Breuer) come from it. Confirm these are the sources you want students to cite.
 
 ## 4. The Week page (`index.html`, `WEEK_DATA`)

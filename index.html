@@ -158,10 +158,10 @@ a{color:var(--accent)}
 h2{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.05;margin:0 0 .6rem}
 h3{font-family:var(--display);font-weight:400;font-size:1.8rem;line-height:1.15;margin:1.6rem 0 .5rem}
 h4{font-size:1.05rem;margin:1.4rem 0 .4rem}
-.intro{max-width:42rem;color:var(--muted);font-size:1.15rem;margin:0}
-.prose{max-width:66ch}
+.intro{max-width:min(100ch,100%);color:var(--muted);font-size:1.15rem;margin:0}
+.prose{max-width:min(100ch,100%)}
 .prose p{margin:.7rem 0}
-.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.8rem 1rem;max-width:66ch;margin:1.2rem 0;border-radius:0 6px 6px 0}
+.note{border-left:4px solid var(--btn);background:var(--surface2);padding:.8rem 1rem;max-width:min(100ch,100%);margin:1.2rem 0;border-radius:0 6px 6px 0}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem 2.5rem}
 .muted{color:var(--muted)}
 em.q{font-family:var(--display);font-size:1.15em}
@@ -183,7 +183,7 @@ em.q{font-family:var(--display);font-size:1.15em}
 details{border-top:1px solid var(--line)}
 details:last-of-type{border-bottom:1px solid var(--line)}
 summary{cursor:pointer;font-weight:700;padding:.8rem 0}
-details>div{padding:0 0 1rem;max-width:62ch}
+details>div{padding:0 0 1rem;max-width:min(100ch,100%)}
 details p{margin:.4rem 0}
 
 /* game shell */
@@ -212,7 +212,7 @@ textarea[readonly]{opacity:.85}
 .card-draw p{margin:.2rem 0 0;font-family:var(--display);font-size:1.35rem;line-height:1.25}
 .timer{font-family:var(--display);font-size:2.6rem;line-height:1;margin:.4rem 0}
 .chip{display:inline-block;background:var(--surface2);border:1.5px solid var(--btn);border-radius:99px;padding:.2rem .8rem;font-weight:700}
-.story p{margin:.6rem 0;max-width:62ch}
+.story p{margin:.6rem 0;max-width:min(100ch,100%)}
 .story .open{font-style:italic}
 
 /* prompt generator */
@@ -266,13 +266,16 @@ footer p{max-width:none;margin:.3rem 0}
 .pill{font:inherit;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:99px;padding:.35rem .85rem;cursor:pointer}
 .pill:hover{background:var(--surface2)}
 .pill[aria-pressed="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);font-weight:700}
-.legend{border-top:1px solid var(--line);padding:1.1rem 0}
-.legend h3{margin:.2rem 0 0}
-.where-l{color:var(--muted);margin:0 0 .5rem}
-.legend dl{display:grid;grid-template-columns:9rem 1fr;gap:.5rem 1.2rem;margin:.6rem 0}
-.legend dt{font-weight:700}
-.legend dd{margin:0;max-width:62ch}
-@media (max-width:640px){.legend dl{grid-template-columns:1fr}}
+.legends{display:grid;gap:1.2rem;margin:1.2rem 0}
+@media (min-width:1100px){.legends{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.legend{min-width:0;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--surface2),var(--surface) 30%);padding:1.1rem 1.3rem 1.3rem;box-shadow:var(--ho-shadow)}
+.legend h3{margin:.1rem 0 0}
+.where-l{color:var(--muted);font-weight:700;margin:0 0 .5rem}
+.legend dl{display:grid;gap:.35rem;margin:.8rem 0 0}
+.legend dt{font:700 .78rem/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--ho-gold);margin-top:.7rem}
+.legend dd{margin:0;max-width:none}
+.legend dd.lg-rec{background:var(--ho-parch);color:var(--ho-parch-ink);padding:.7rem .95rem;border-radius:6px;box-shadow:inset 0 0 30px rgba(120,90,40,.25)}
+.legend dd.lg-mis{border-left:3px solid var(--ho-gold-dim);padding:.2rem 0 .2rem .9rem}
 .memgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.5rem}
 .stamprow{display:flex;gap:.5rem;align-items:center}
 .stamprow input{flex:1;min-width:0}
@@ -300,7 +303,7 @@ footer p{max-width:none;margin:.3rem 0}
 .mono{width:5.5rem;height:5.5rem;border-radius:50%;background:var(--surface2);border:3px solid var(--btn);display:grid;place-items:center;font-family:var(--display);font-size:1.9rem}
 .leader h3{margin:0}
 .role{color:var(--muted);margin:.1rem 0 .6rem}
-.leader p{max-width:62ch}
+.leader p{max-width:min(100ch,100%)}
 .bio-soon{color:var(--muted);font-style:italic}
 @media (max-width:520px){.leader{grid-template-columns:1fr}}
 .pick[aria-pressed="true"]{background:var(--surface);border-left-color:var(--btn);border-color:var(--btn)}
@@ -312,7 +315,7 @@ footer p{max-width:none;margin:.3rem 0}
 .tree h4{margin:1rem 0 .3rem}
 .tree ul{margin:.3rem 0;padding-left:1.2rem}
 .tree li{margin:.25rem 0}
-.gloss{margin:.6rem 0;max-width:70ch}
+.gloss{margin:.6rem 0;max-width:min(100ch,100%)}
 .gloss dt{font-weight:700;margin-top:1rem}
 .gloss dd{margin:.15rem 0 0}
 
@@ -381,7 +384,7 @@ input[type=range],input[type=checkbox],input[type=radio]{accent-color:var(--ho-e
 /* how-to-play guides */
 details.howto{margin:.6rem 0 1.1rem;border:1.5px solid var(--line);border-radius:8px;padding:0 1rem;background:var(--surface)}
 details.howto summary{padding:.65rem 0}
-details.howto ol,details.howto ul{margin:.2rem 0 .9rem;padding-left:1.3rem;max-width:66ch}
+details.howto ol,details.howto ul{margin:.2rem 0 .9rem;padding-left:1.3rem;max-width:min(100ch,100%)}
 details.howto li{margin:.35rem 0}
 
 /* game cards */
@@ -448,7 +451,7 @@ details.howto li{margin:.35rem 0}
 /* spring grove dossier */
 .dz-head{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.4rem;align-items:start;margin:1.2rem 0 1rem}
 .dz-title{font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);margin:.2rem 0 .5rem;line-height:1.05}
-.dz-arch{border-left:3px solid var(--ho-gold-dim);padding:.2rem 0 .2rem .9rem;margin:.6rem 0;color:var(--muted);font-style:italic;max-width:62ch}
+.dz-arch{border-left:3px solid var(--ho-gold-dim);padding:.2rem 0 .2rem .9rem;margin:.6rem 0;color:var(--muted);font-style:italic;max-width:min(100ch,100%)}
 .dz-arch b{font-style:normal;color:var(--ho-gold)}
 .dz-score{border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;background:var(--surface);text-align:center}
 .dz-big{font-family:var(--body);font-weight:700;font-size:3.4rem;line-height:1;color:var(--ho-gold)}
@@ -1128,7 +1131,7 @@ details.howto li{margin:.35rem 0}
 <section class="sec view" data-view="cemetery" id="cemetery" hidden>
   <h2>Spring Grove field investigation</h2>
   <p class="intro">Spring Grove Cemetery and Arboretum in Cincinnati opened in 1845, and it has more than its share of ghost stories. Your team will test four of them like a paranormal investigator and a skeptic at the same time, then bring the best material home for your own horror stories.</p>
-  <p class="note"><strong>Field rules.</strong> Stay on the paths. Respect all memorials. Follow teacher and staff instructions. Carry your phone and clipboard. Do not touch memorials unless you’re explicitly allowed to. Never shine a light at people.</p>
+  <p class="note"><strong>Field rules.</strong> Stay on the paths. Respect every memorial. Never touch or mark one unless a leader says you may. No contacting spirits and no seance-style activities; we observe and test only. Never shine a light at people. No running. Follow teacher and staff instructions at all times. Carry your phone, and stay with your squad.</p>
 
   <div id="cemTabs">
     <div class="tabs" role="tablist" aria-label="Spring Grove">
@@ -1140,45 +1143,48 @@ details.howto li{margin:.35rem 0}
     <div role="tabpanel" id="cp-legends" aria-labelledby="ct-legends">
       <div class="prose"><p>Every haunted place has two stories: what people say, and what the record says. The best horror writers use both. Read the four case files before you go.</p></div>
 
-      <article class="legend">
-        <h3>The watching eyes</h3>
-        <p class="where-l">Lot 100, C.C. Breuer’s monument</p>
-        <dl>
-          <dt>The legend</dt><dd>A bronze bust on Breuer’s monument has eyes that seem to follow you. Some retellings say they’re his real eyes, preserved in glass at his request.</dd>
-          <dt>The record</dt><dd>The eyes are glass. Cincinnati Magazine reports that Breuer was a salesman and real estate investor, not the optometrist many retellings claim, so part of the legend has been wrong for a long time.</dd>
-          <dt>A writer’s hook</dt><dd>Why would a story about eyes keep getting retold even after the facts change?</dd>
-        </dl>
-      </article>
-
-      <article class="legend">
-        <h3>The white dogs</h3>
-        <p class="where-l">Dexter Mausoleum, Section 20</p>
-        <dl>
-          <dt>The legend</dt><dd>Sit on the steps and two white dogs (some tellers say wolves) run past. Sometimes they stop and stare, glowing.</dd>
-          <dt>The record</dt><dd>The mausoleum is a Gothic Revival building from the late 1860s, built for the family of Edmund Dexter, a Cincinnati liquor distributor. Construction stopped in 1869 and it was never finished. Tellers can’t agree on the animals, their number, or the color of their eyes.</dd>
-          <dt>A writer’s hook</dt><dd>A mansion for the dead that was never finished. What is still waiting to be completed?</dd>
-        </dl>
-      </article>
-
-      <article class="legend">
-        <h3>The ankle grabber</h3>
-        <p class="where-l">Section 53</p>
-        <dl>
-          <dt>The legend</dt><dd>A groundskeeper working alone says something grabbed his pant leg.</dd>
-          <dt>The record</dt><dd>This one rests on a single report passed along in local ghost lore. No one has documented it. Your job is to find out what could actually catch an ankle in that spot.</dd>
-          <dt>A writer’s hook</dt><dd>What does it feel like when you’re sure something touched you and nothing is there?</dd>
-        </dl>
-      </article>
-
-      <article class="legend">
-        <h3>Voices and figures</h3>
-        <p class="where-l">Section 16</p>
-        <dl>
-          <dt>The legend</dt><dd>Visitors report hearing voices and seeing figures in this part of the cemetery.</dd>
-          <dt>The record</dt><dd>Section 16 is also the resting place of William H. Kirk, who was murdered on December 24, 1883. The Cincinnati Courthouse Riots followed in March 1884, after a manslaughter verdict for one of the men charged. That gives the area real history for a writer to work with.</dd>
-          <dt>A writer’s hook</dt><dd>A place where one event changed a whole city. Who might still be listening?</dd>
-        </dl>
-      </article>
+      <div class="legends">
+        <article class="legend">
+          <h3>The watching eyes</h3>
+          <p class="where-l">Lot 100, Breuer monument</p>
+          <dl>
+            <dt>What the legend says (from the sources)</dt><dd>A bust of Charles C. Breuer sits on his monument, and its eyes look strikingly real. Visitors say the eyes follow you wherever you walk. Some even say they are Breuer’s own eyes, and a few retellings say the bust turns its head.</dd>
+            <dt>What the record says</dt><dd class="lg-rec">The eyes are made of glass, and the claim that they are his real eyes is not true. Breuer was a Cincinnati real estate businessman.</dd>
+            <dt>Your mission</dt><dd class="lg-mis">View the bust from the left, center, and right, then use your phone flashlight on low to test reflections.</dd>
+            <dt>A writer’s hook</dt><dd>Why would a story about eyes keep getting retold even after the facts change?</dd>
+          </dl>
+        </article>
+        <article class="legend">
+          <h3>The white dogs</h3>
+          <p class="where-l">Section 20, Dexter Mausoleum</p>
+          <dl>
+            <dt>What the legend says (from the sources)</dt><dd>If you sit on the steps of the mausoleum, two white dogs will appear. They may run past you, stop and stare quietly, or stop and growl. Some retellings say wolves, and the eye color changes from story to story.</dd>
+            <dt>What the record says</dt><dd class="lg-rec">Spring Grove lists the mausoleum in Section 20. It is a private family mausoleum for Edmund Dexter, an English-born liquor businessman, designed in 1869 in the Gothic Revival style and often mistaken for a chapel. One article puts the white wolves in Section 87, so the sources disagree.</dd>
+            <dt>Your mission</dt><dd class="lg-mis">Only sit or stand where a leader allows, and never climb or enter the gates. Stay still for 1 minute, scan for 2, and record sounds, movement, and what a bird or animal could look like.</dd>
+            <dt>A writer’s hook</dt><dd>A mansion for the dead that was never finished. What is still waiting to be completed?</dd>
+          </dl>
+        </article>
+        <article class="legend">
+          <h3>The ankle grabber</h3>
+          <p class="where-l">Section 53</p>
+          <dl>
+            <dt>What the legend says (from the sources)</dt><dd>A caretaker working alone felt something grab his pants leg, panicked, and fled. Later he returned expecting to find something he had caught his pants on, and found nothing that could explain it. Other retellings say ghostly hands reached up out of the ground.</dd>
+            <dt>What the record says</dt><dd class="lg-rec">No source names the man or gives a date. The story is passed along in ghost lore, and the details change from telling to telling.</dd>
+            <dt>Your mission</dt><dd class="lg-mis">Stay on the path and look for anything that could catch a pant leg or ankle: low branches, vines or roots, uneven ground, loose stones, or tall grass.</dd>
+            <dt>A writer’s hook</dt><dd>What does it feel like when you’re sure something touched you and nothing is there?</dd>
+          </dl>
+        </article>
+        <article class="legend">
+          <h3>Voices and figures</h3>
+          <p class="where-l">Section 16</p>
+          <dl>
+            <dt>What the legend says (from the sources)</dt><dd>Visitors report hearing voices they cannot trace to a source, and seeing wispy figures at the edge of their vision that seem to vanish.</dd>
+            <dt>What the record says</dt><dd class="lg-rec">Section 16 is the resting place of William H. Kirk, a Cincinnati horse dealer murdered on Christmas Eve 1883. After a jury returned only a manslaughter verdict for one of the men charged, public anger led to the Courthouse Riots of March 1884, which destroyed the Hamilton County courthouse and killed dozens of people.</dd>
+            <dt>Your mission</dt><dd class="lg-mis">Sit silently for 3 minutes with no talking, and record every sound, its direction, and how clear it was. Think about wind, traffic, aircraft, and people nearby. This is a real person’s grave, so be respectful.</dd>
+            <dt>A writer’s hook</dt><dd>A place where one event changed a whole city. Who might still be listening?</dd>
+          </dl>
+        </article>
+      </div>
 
       <p class="note">One more fact worth knowing: the cemetery’s own staff say Spring Grove isn’t haunted, and most reported sightings happen during regular daytime hours. That’s why this hunt takes place in daylight, and why your Daylight Pattern Log matters. Strange things are easy to believe in the dark. Can you find one that holds up in the sun?</p>
     </div>
