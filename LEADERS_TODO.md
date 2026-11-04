@@ -9,8 +9,8 @@ This file is for course leaders. It is **not linked from the site**. Search the 
 - What is counted: page views (each home tab is its own page) and seven fixed events (game opened, lesson complete, mission complete, stop complete, case closed, form opened). Never names, typed text, saves or scores.
 
 ## 2. The Spring Grove turn-in form (`index.html`, top of the Dossier script)
-- [ ] `FORM_URL`: the link to your form (must start with `https://`). Empty hides the button and shows a note.
-- [ ] `FORM_EMBED`: the form's embed address (starts with `https://`). Shown in a frame only when a student presses "Show the form here"; a plain link is the fallback. Check that your form allows being embedded.
+- [x] `FORM_URL`: **Done.** The Microsoft form link is set; the button opens it in a new tab (`target="_blank"`, `rel="noopener"`).
+- [ ] `FORM_EMBED`: **Still open on purpose.** The form needs a school sign-in, and I could not load it from here to confirm it works inside a frame, so I did not enable the "Show the form here" button. Students get the plain "Open the turn-in form" button. To try the embed, set `FORM_EMBED` to the form link plus `&embed=true`, open the page while signed in with a school account, and check that it loads; if it only shows a sign-in prompt or refuses, leave it empty.
 
 ## 3. Spring Grove field work (`index.html`, `FIELD_FACTS`)
 - [ ] After your walk-through, fill in the accepted answers (lowercase; a student's answer counts if it contains one of them) for the four Field Facts: Breuer monument (Lot 100), Dexter Mausoleum, Section 53, Section 16. While empty, any non-empty answer earns the points.
