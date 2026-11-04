@@ -190,11 +190,28 @@ T('dossier: four sealed files + finale, legends tab intact, GPS off, form placeh
   const fl = await p.$('#formLink'); ok(fl, 'turn-in form link is shown'); eq(await fl.getAttribute('target'), '_blank', 'form link opens in a new tab'); eq(await fl.getAttribute('rel'), 'noopener', 'form link has rel=noopener');
   ok(/^https:\/\/forms\.cloud\.microsoft\//.test(await fl.getAttribute('href')), 'form link points at the Microsoft form');
   ok(!/Leaders:/.test(await p.textContent('#turnin')) && !(await p.$('#turnin .todo-in')) && !(await p.$('#formShow')), 'Turn it in: no "Leaders:" note for students, no embed button while FORM_EMBED is empty');
-  const kirk = await p.textContent('#cemetery'); ok(/December 24, 1883/.test(kirk) && /March 1884/.test(kirk) && !/death in 1884/.test(kirk), 'Section 16 legend: Kirk murdered December 24, 1883; riots March 1884');
-  ok(/Dexter Mausoleum, Section 20/.test(kirk), 'Dexter Mausoleum stays in Section 20');
+  const kirk = await p.textContent('#cp-legends'); ok(/Christmas Eve 1883/.test(kirk) && /Courthouse Riots of March 1884/.test(kirk) && !/death in 1884/.test(kirk), 'Section 16 legend: Kirk murdered Christmas Eve 1883; riots March 1884');
+  ok(/Section 20, Dexter Mausoleum/.test(kirk) && /lists the mausoleum in Section 20/.test(kirk), 'Dexter Mausoleum stays in Section 20');
+  eq((await p.$$eval('#cp-legends article.legend', (a) => a.map((x) => [...x.querySelectorAll('dt')].map((d) => d.textContent).join('|')))).filter((v) => v === 'What the legend says (from the sources)|What the record says|Your mission|A writer’s hook').length, 4, 'each legend has the four labeled parts');
+  ok(/Stay on the paths\. Respect every memorial\..*Carry your phone, and stay with your squad\./.test(await p.textContent('#cemetery > .note')), 'new field rules box');
+  ok(/One more fact worth knowing: the cemetery’s own staff say/.test(kirk), 'closing note about staff and the daylight hunt is kept');
   ok(/SPRING GROVE DOSSIER/.test(await p.inputValue('#subText')), 'Dossier Report is generated');
   eq(ext.length, 0, 'nothing was requested from outside the site: ' + ext.join(','));
   eq(await lsGet(p, 'ho-hunt'), '{"old":"untouched"}', 'the old ho-hunt key is left alone');
+});
+T('legends tab: two-column grid from 1100px up, one column below, wide reading measure, no overflow', async ({ base, newPage }) => {
+  const p = await newPage({ width: 1280, height: 900 });
+  await p.goto(base + '#cemetery'); await p.waitForTimeout(250);
+  const cols = () => p.$eval('.legends', (e) => getComputedStyle(e).gridTemplateColumns.split(' ').length);
+  eq(await cols(), 2, 'two columns at 1280px');
+  const tops = await p.$$eval('.legends .legend', (a) => a.map((x) => Math.round(x.getBoundingClientRect().top)));
+  ok(tops[0] === tops[1] && tops[2] === tops[3] && tops[2] > tops[0], 'cards sit two per row: ' + tops);
+  ok(await noHScroll(p), 'no horizontal scroll at 1280px');
+  const intro = await p.$eval('#cemetery .intro', (e) => e.getBoundingClientRect().width); ok(intro > 700, 'intro paragraph uses the wider measure: ' + intro);
+  await p.setViewportSize({ width: 1920, height: 900 }); await p.waitForTimeout(100); eq(await cols(), 2, 'two columns at 1920px'); ok(await noHScroll(p), 'no horizontal scroll at 1920px');
+  await p.setViewportSize({ width: 1099, height: 900 }); await p.waitForTimeout(100); eq(await cols(), 1, 'one column at 1099px');
+  await p.setViewportSize({ width: 390, height: 800 }); await p.waitForTimeout(100); eq(await cols(), 1, 'one column at 390px'); ok(await noHScroll(p), 'no horizontal scroll at 390px');
+  ok(await p.$eval('.legends', (e) => e.scrollWidth <= e.clientWidth + 1), 'legend grid does not overflow at 390px');
 });
 T('dossier: scoring (care, never speed), persistence under ho-hunt2, escaping', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#cemetery'); await p.click('#ct-hunt'); await p.waitForTimeout(200);

@@ -86,8 +86,8 @@
 .ho-h1{font-size:var(--ho-fs-h1);line-height:.95;letter-spacing:.005em}
 .ho-h2{font-size:var(--ho-fs-h2);line-height:1.05}
 .ho-h3{font-size:var(--ho-fs-h3);line-height:1.15}
-.ho-lede{font-size:var(--ho-fs-lg);color:var(--ho-muted);max-width:44rem}
-.ho-prose{max-width:68ch}
+.ho-lede{font-size:var(--ho-fs-lg);color:var(--ho-muted);max-width:min(100ch,100%)}
+.ho-prose{max-width:min(100ch,100%)}
 .ho-prose p{margin:.75em 0}
 .ho-divider{display:flex;align-items:center;gap:var(--ho-3);color:var(--ho-gold-dim);margin:var(--ho-6) 0}
 .ho-divider::before,.ho-divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--ho-line),transparent)}
