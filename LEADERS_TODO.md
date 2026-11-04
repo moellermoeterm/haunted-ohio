@@ -34,7 +34,21 @@ I could only search the web; the venues' own sites (`events.miamioh.edu`, `golde
 - **Sarah Stubbs (The Golden Lamb)** is treated as legend on The Week page, not as history.
 
 ## 6. About page (`index.html`, About)
-- [ ] The About page says students must be available "for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield." The Week page (Monday to Thursday) has no overnight and no Mansfield stop. Please confirm which is right. I did not change the About text.
+- [x] The overnight sentence now reads: "Students registering for this course must be available for an overnight stay on Wednesday night at Hueston Woods, following the Ghosts and Gears tour at Miami University." **Done** (the Reformatory/Shawshank sentence was removed).
+- Other places that mention the Ohio State Reformatory are the Haunting Files Case 5 game case (`haunting-files/cases/c5.js`), plus a Mansfield map label in two Last Light scenarios (`last-light/scenarios/s2.js`, `s6.js`). None of them say students will visit or stay there, so they were left alone.
+
+## 6b. Wednesday night at Hueston Woods (`index.html`, `WEEK_DATA`, entry `wedn`)
+The Week page now has a "Wednesday night" entry after Wednesday. The only facts on it are that the overnight is at Hueston Woods after the Ghosts and Gears tour. Each item below shows students a "Leaders: fill in" note until you answer it and delete the line from that entry's `todo`. Its date follows Wednesday's (`dates.wed`). No real-history note was added because nothing about the park has been verified.
+- [ ] Lodging type
+- [ ] Address and how to get there
+- [ ] Check-in time and lights-out time
+- [ ] Meals (what is provided, who pays)
+- [ ] What to pack
+- [ ] Supervision and chaperone ratio
+- [ ] Rules for the overnight
+- [ ] Permission forms and medical information
+- [ ] Emergency contacts
+- [ ] Thursday morning schedule before the Golden Lamb lunch
 
 ## 7. Things to know
 - The Haunting Files cases and Last Light scenarios are plain data files you can edit: `haunting-files/cases/c1.js` to `c6.js` and `last-light/scenarios/s1.js` to `s6.js`. Case 1 and Scenario 1 are the original content, and saves made before variants existed load as Case 1 / Scenario 1.

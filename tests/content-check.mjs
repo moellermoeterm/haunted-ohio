@@ -13,6 +13,8 @@ const BASE = path.join(path.dirname(new URL(import.meta.url).pathname), 'baselin
 // Text that is allowed to change, with the reason. Keep this list short and honest.
 const ALLOWED_REMOVALS = new Set([
   'Search pages, games, lessons ( / )', // search-box placeholder written during the redesign (not original course content); now "Search the archive"
+  // Leaders' decision: the About page's overnight sentence changed from the Reformatory trip to Wednesday night at Hueston Woods.
+  'Students registering for this course must be available for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield, Ohio, the location for the hit movie',
 ]);
 // Phase 5: the old 14-mission Spring Grove hunt and its "Turn it in" tab were replaced by "The Spring Grove Dossier, Case File #0048"
 // (Phase 5 spec). These prefixes are the old hunt's instructions and turn-in text only. The legends tab text is unchanged and must still

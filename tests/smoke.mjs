@@ -122,9 +122,11 @@ T('home redesign: night by default, daylight on demand, phone menu', async ({ ba
 // ---------------------------------------------------------------- The Week (Phase 4)
 T('the week: four days built from one data object, TODOs visible, notes saved (ho-week)', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#week'); await p.waitForTimeout(250);
-  eq((await p.$$('.wk-day')).length, 4, 'four days');
-  eq((await p.$$eval('.wk-dow', (e) => e.map((x) => x.textContent))).join(','), 'Monday,Tuesday,Wednesday,Thursday', 'Monday to Thursday');
-  eq((await p.$$('.wk-date .todo-in')).length, 4, 'each undated day shows a visible "Leaders: fill in the date" note');
+  eq((await p.$$('.wk-day')).length, 5, 'four days plus the Wednesday-night overnight');
+  eq((await p.$$eval('.wk-dow', (e) => e.map((x) => x.textContent))).join(','), 'Monday,Tuesday,Wednesday,Wednesday night,Thursday', 'Monday to Thursday, with Wednesday night after Wednesday');
+  eq((await p.$$('.wk-date .todo-in')).length, 5, 'each undated day shows a visible "Leaders: fill in the date" note (Wednesday night uses Wednesday\'s date)');
+  const wn = await p.textContent('#day-wedn'); ok(/Hueston Woods/.test(wn) && /Leaders: fill in/.test(wn), 'overnight names Hueston Woods and has Leaders: fill in notes');
+  ok(!/Reformatory/.test(await p.textContent('#about')), 'About page no longer mentions the Reformatory trip');
   ok((await p.$$('.todo')).length >= 8, 'visible "Leaders: fill in" items for every unverified detail');
   ok((await p.$$('.wk-hist')).length >= 3 && (await p.$$('.wk-lore')).length >= 2, 'real-history boxes and separately labeled lore boxes');
   const lore = await p.$$eval('.wk-lore h4', (e) => e.map((x) => x.textContent)); ok(lore.every((t) => /lore|legend/i.test(t)), 'lore is labeled as lore/legend: ' + lore);
