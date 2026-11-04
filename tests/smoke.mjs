@@ -120,14 +120,20 @@ T('home redesign: night by default, daylight on demand, phone menu', async ({ ba
 });
 
 // ---------------------------------------------------------------- The Week (Phase 4)
-T('the week: four days built from one data object, TODOs visible, notes saved (ho-week)', async ({ base, newPage }) => {
+T('the week: five cards built from one data object, no leader notes shown, notes saved (ho-week)', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#week'); await p.waitForTimeout(250);
   eq((await p.$$('.wk-day')).length, 5, 'four days plus the Wednesday-night overnight');
   eq((await p.$$eval('.wk-dow', (e) => e.map((x) => x.textContent))).join(','), 'Monday,Tuesday,Wednesday,Wednesday night,Thursday', 'Monday to Thursday, with Wednesday night after Wednesday');
-  eq((await p.$$('.wk-date .todo-in')).length, 5, 'each undated day shows a visible "Leaders: fill in the date" note (Wednesday night uses Wednesday\'s date)');
-  const wn = await p.textContent('#day-wedn'); ok(/Hueston Woods/.test(wn) && /Leaders: fill in/.test(wn), 'overnight names Hueston Woods and has Leaders: fill in notes');
+  const wk = await p.textContent('#weekRoot');
+  ok(!/Leaders:/.test(wk) && !/For leaders/i.test(wk), 'no "Leaders:" text and no "For leaders" box anywhere on The Week');
+  eq((await p.$$('#weekRoot .todo-in, #weekRoot .wk-todo, #weekRoot .todo')).length, 0, 'no leader placeholders are rendered');
+  eq((await p.$$('.wk-date')).length, 0, 'no date line while dates are empty');
+  eq((await p.$$('.wk-shared')).length, 5, 'every day without a meeting spot and time ends with the shared-by-leaders line');
+  eq(await p.textContent('#day-mon .wk-shared'), 'Meeting spot, time, and cost will be shared by your course leaders.', 'exact shared line');
+  ok(/Hueston Woods/.test(await p.textContent('#day-wedn')), 'overnight names Hueston Woods');
+  ok(/A walking tour called “Nightmare on Elm Street” in Cincinnati’s Over-the-Rhine neighborhood\./.test(await p.textContent('#day-mon')) && !/American Legacy|Northern Row|tunnel/i.test(await p.textContent('#day-mon')), 'Monday claims only the confirmed sentence');
+  ok(!/bike tour|Outdoor Pursuit/i.test(await p.textContent('#day-wed')), 'Wednesday claims nothing unconfirmed');
   ok(!/Reformatory/.test(await p.textContent('#about')), 'About page no longer mentions the Reformatory trip');
-  ok((await p.$$('.todo')).length >= 8, 'visible "Leaders: fill in" items for every unverified detail');
   ok((await p.$$('.wk-hist')).length >= 3 && (await p.$$('.wk-lore')).length >= 2, 'real-history boxes and separately labeled lore boxes');
   const lore = await p.$$eval('.wk-lore h4', (e) => e.map((x) => x.textContent)); ok(lore.every((t) => /lore|legend/i.test(t)), 'lore is labeled as lore/legend: ' + lore);
   const txt = await p.textContent('#weekRoot'); ok(!/s[eé]ance|ouija/i.test(txt), 'no spirit-contacting activities'); ok(/No ghost-hunting/.test(txt), 'explicit no-ghost-hunting line');
@@ -135,6 +141,21 @@ T('the week: four days built from one data object, TODOs visible, notes saved (h
   eq(await p.inputValue('#notes-wed'), 'The bell tower smelled like cold stone.', 'field notes persist');
   eq(JSON.parse(await lsGet(p, 'ho-week')).wed, 'The bell tower smelled like cold stone.', 'saved under ho-week');
   for (const a of await p.$$eval('.wk-links a', (e) => e.map((x) => x.getAttribute('href')))) ok(/^(#[a-z]+|[a-z-]+\/(#lesson-\d+)?)$/.test(a), 'link is relative: ' + a);
+});
+T('the week: a value filled in appears by itself, and the shared line goes away', async ({ base, newPage }) => {
+  const p = await newPage();
+  await p.route('**/*', async (route) => {
+    const r = route.request();
+    if (r.resourceType() !== 'document' || /haunting-files|last-light|show-dont-tell|teacher|design-system/.test(r.url())) return route.continue();
+    const res = await route.fetch(); let body = await res.text();
+    body = body.replace("meet: '', time: '', cost: '', transport: '',", "meet: 'Test spot', time: '9:00 AM', cost: '$5', transport: 'Walk',").replace("dates: { mon: ''", "dates: { mon: 'Monday, June 8'");
+    await route.fulfill({ response: res, body });
+  });
+  await p.goto(base + '#week'); await p.waitForTimeout(250);
+  const mon = await p.textContent('#day-mon');
+  ok(/Meeting spot\s*Test spot/.test(mon) && /Time\s*9:00 AM/.test(mon) && /Cost\s*\$5/.test(mon) && /Transportation\s*Walk/.test(mon) && /Monday, June 8/.test(mon), 'filled-in fields and date appear: ' + mon.slice(0, 200));
+  eq((await p.$$('#day-mon .wk-shared')).length, 0, 'shared line is gone for a day with meeting spot and time');
+  eq((await p.$$('.wk-shared')).length, 4, 'the other four days still have it');
 });
 T('the week: nav menu, home card, map markers, escaped rendering', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base);
@@ -165,10 +186,10 @@ T('dossier: four sealed files + finale, legends tab intact, GPS off, form placeh
   ok((await p.$$('#dossier .todo-in')).length >= 4, 'Field Facts show "Leaders: fill in" while accepted answers are empty');
   ok(!/speed|fastest|bonus|hurry/i.test(await p.textContent('#dossier')) || /never speed/.test(await p.textContent('#dossier')), 'no speed points');
   await p.click('#ct-submit'); await p.waitForTimeout(200);
-  ok(/Leaders: fill in/.test(await p.textContent('#turnin')), 'turn-in still shows the FORM_EMBED placeholder');
+  ;
   const fl = await p.$('#formLink'); ok(fl, 'turn-in form link is shown'); eq(await fl.getAttribute('target'), '_blank', 'form link opens in a new tab'); eq(await fl.getAttribute('rel'), 'noopener', 'form link has rel=noopener');
   ok(/^https:\/\/forms\.cloud\.microsoft\//.test(await fl.getAttribute('href')), 'form link points at the Microsoft form');
-  ok(/FORM_EMBED/.test(await p.textContent('#turnin')) && !(await p.$('#formShow')), 'FORM_EMBED is still open: no embed button, plain link only');
+  ok(!/Leaders:/.test(await p.textContent('#turnin')) && !(await p.$('#turnin .todo-in')) && !(await p.$('#formShow')), 'Turn it in: no "Leaders:" note for students, no embed button while FORM_EMBED is empty');
   const kirk = await p.textContent('#cemetery'); ok(/December 24, 1883/.test(kirk) && /March 1884/.test(kirk) && !/death in 1884/.test(kirk), 'Section 16 legend: Kirk murdered December 24, 1883; riots March 1884');
   ok(/Dexter Mausoleum, Section 20/.test(kirk), 'Dexter Mausoleum stays in Section 20');
   ok(/SPRING GROVE DOSSIER/.test(await p.inputValue('#subText')), 'Dossier Report is generated');

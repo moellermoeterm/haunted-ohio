@@ -425,7 +425,8 @@ details.howto li{margin:.35rem 0}
 .wk-box{border:1px solid var(--line);border-left-width:4px;border-radius:12px;padding:.8rem 1.1rem;margin:.9rem 0;background:var(--ho-night-2)}
 .wk-box ul{margin:0;padding-left:1.2rem}.wk-box li{margin:.3rem 0}
 .wk-hist{border-left-color:var(--ok)}.wk-lore{border-left-color:var(--bad)}.wk-todo{border-left-color:var(--ho-warn)}
-.wk-todo ul{list-style:none;padding:0}
+.wk-facts{margin:.6rem 0 .9rem;display:grid;gap:.35rem}.wk-facts div{display:flex;flex-wrap:wrap;gap:.2rem .8rem}.wk-facts dt{font-weight:700;color:var(--ho-gold)}.wk-facts dd{margin:0}
+.wk-shared{margin:0;padding:.9rem 1.5rem;border-top:1px solid var(--line);color:var(--muted)}
 .todo{border:2px dashed var(--ho-warn);background:rgba(230,174,76,.10);border-radius:10px;padding:.45rem .8rem}
 .todo-in{display:inline-block;border:1.5px dashed var(--ho-warn);background:rgba(230,174,76,.12);border-radius:8px;padding:0 .5rem;font-size:.9rem;font-weight:700;color:var(--text)}
 .wk-respect{margin-top:1rem;color:var(--muted);border-top:1px solid var(--line);padding-top:.8rem}
@@ -1208,9 +1209,10 @@ details.howto li{margin:.35rem 0}
 <script>
 /* =====================================================================================================================
    THE WEEK: EDIT THIS OBJECT. Everything on the "The Week" page is built from it.
-   - Dates: fill in `dates` below. While a date is '' the page shows a visible "Leaders: fill in" note.
-   - Every "todo" line is shown to students as a "Leaders: fill in" box until you move the real answer into `what`/`details`
-     and delete the line. Nothing in a todo is a fact; do not leave guesses in this file.
+   - Nothing is shown to students until it has a value. Fill in `dates`, and each day's `meet`, `time`, `cost` and `transport`; each one
+     appears on the page automatically. A day shows "Meeting spot, time, and cost will be shared by your course leaders." until both
+     its `meet` and `time` are filled in. `history` and `lore` boxes appear as soon as they are not null.
+   - The "todo" lines are notes for leaders only and are never shown to students. Nothing in a todo is a fact; do not leave guesses here.
    - Facts below were checked against several independent public sources (listed in the comments). Primary sites (the venues'
      own pages) could not be opened when this was written, so please re-check each fact against them before the trip.
    ===================================================================================================================== */
@@ -1221,16 +1223,19 @@ window.WEEK_DATA = {
   days: [
     {
       id: 'mon', name: 'Monday', title: 'Nightmare on Elm Street tour', where: 'Cincinnati, Ohio',
+      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders): each one appears on the page automatically once filled in
       // SOURCES (found by web search; the operator's own page could not be opened):
       //   https://www.americanlegacytours.com/nightmareonelmst  (operator listing: tour name, Over-the-Rhine, start/end at Northern Row Brewery, 1800s brewery tunnels)
       //   https://www.tripadvisor.com/AttractionProductReview-g60993-d26342243-Nightmare_on_Elm_Street_Walking_Tour-Cincinnati_Ohio.html
       what: [
-        { text: 'A walking tour called “Nightmare on Elm Street” is run in Cincinnati’s Over-the-Rhine neighborhood by American Legacy Tours. Its public listing says it starts and ends at Northern Row Brewery and includes a stop in 1800s brewery tunnels.', confirm: true },
+        // Only this much is shown until the leaders confirm the rest. UNCONFIRMED (do not show): run by American Legacy Tours; starts and
+        // ends at Northern Row Brewery; includes a stop in 1800s brewery tunnels (all from the public listing above).
+        { text: 'A walking tour called “Nightmare on Elm Street” in Cincinnati’s Over-the-Rhine neighborhood.' },
       ],
       history: null,   // nothing verified yet; see todo
       lore: null,
       todo: [
-        'Confirm this is the tour you booked (the name matches a public Cincinnati walking tour).',
+        'Confirm this is the tour you booked, that American Legacy Tours runs it, that it starts and ends at Northern Row Brewery, and that it includes a stop in 1800s brewery tunnels. Until then the page says only that it is a walking tour in Over-the-Rhine.',
         'One verified fact about this place or tour, with its source, for a short real-history box.',
         'Meeting spot and time. Cost and how it is paid. Transportation and pick-up.',
       ],
@@ -1244,6 +1249,7 @@ window.WEEK_DATA = {
     },
     {
       id: 'tue', name: 'Tuesday', title: 'Spring Grove Cemetery & Arboretum', where: '4521 Spring Grove Avenue, Cincinnati, Ohio',
+      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders)
       // SOURCES (web search; consistent across them; the cemetery's own pages could not be opened):
       //   https://www.springgrove.org/history/            (charter January 21, 1845; first interment September 1, 1845)
       //   https://www.springgrove.org/locations/spring-grove-cemetery-arboretum/   (address; arboretum)
@@ -1275,13 +1281,15 @@ window.WEEK_DATA = {
     },
     {
       id: 'wed', name: 'Wednesday', title: 'Miami University: the “Ghosts and Gears” tour', where: 'Oxford, Ohio',
+      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders)
       // SOURCES (web search; Miami's own pages could not be opened):
       //   https://events.miamioh.edu/event/ghosts_and_gears_bike_tour   (Miami calendar listing of the Ghosts and Gears Bike Tour)
       //   https://oxfordobserver.org/7148/uncategorized/miami-outdoor-pursuit-center-hosts-ghosts-and-gears-bike-tour/  (run by Miami's Outdoor Pursuit Center)
       //   https://miamioh.edu/about-miami/history-traditions/timeline/old-miami/index.html   (chartered Feb 17, 1809; first classes Nov 1, 1824)
       //   https://miamioh.edu/University_Advancement/MiamiAlum/history_tradition/mysteries/peabody-hall-ghost.html  (Peabody Hall ghost story, presented as campus lore)
       what: [
-        { text: '“Ghosts and Gears” has been offered by Miami University’s Outdoor Pursuit Center as a Halloween-season bike tour around the Oxford campus, built from stories in the university archive.', confirm: true },
+        // UNCONFIRMED (do not show): bike tour; run by Miami's Outdoor Pursuit Center; Halloween-season; built from the university archive.
+        { text: 'The “Ghosts and Gears” tour at Miami University in Oxford.' },
       ],
       history: {
         label: 'Real history',
@@ -1312,7 +1320,7 @@ window.WEEK_DATA = {
     },
     {
       // The only facts here are the ones the course leaders gave: the overnight is at Hueston Woods, after the Ghosts and Gears tour.
-      // Nothing else about the park or the lodging has been verified, so every other detail is a visible "Leaders: fill in" item.
+      // Nothing else about the park or the lodging has been verified, so every other detail is a leaders-only todo.
       id: 'wedn', dateId: 'wed', name: 'Wednesday night', title: 'Overnight at Hueston Woods', where: 'Hueston Woods',
       what: [
         { text: 'After the “Ghosts and Gears” tour at Miami University, the class stays overnight at Hueston Woods.' },
@@ -1340,6 +1348,7 @@ window.WEEK_DATA = {
     },
     {
       id: 'thu', name: 'Thursday', title: 'Lunch at The Golden Lamb', where: '27 S. Broadway Street, Lebanon, Ohio',
+      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders)
       // SOURCES (web search; the inn's own pages could not be opened):
       //   https://www.goldenlamb.com/about-us/history-1/the-lebanon-house-4/   (Jonas Seaman, $4 license, "house of Public Entertainment", Lebanon)
       //   https://www.goldenlamb.com/news/does-the-golden-lamb-have-ghostly-uninvited-guests/  (ghost stories; the house historian's caution)
@@ -1631,19 +1640,23 @@ var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#i
   function box(b,cls){return b?'<div class="wk-box '+cls+'"><h4>'+esc(b.label)+'</h4><ul>'+b.items.map(li).join('')+'</ul></div>':''}
   var pills=D.days.map(function(d){return '<button class="pill" type="button" data-goto="day-'+esc(d.id)+'">'+esc(d.name)+'</button>'}).join('');
   var days=D.days.map(function(d){
-    var date=(D.dates&&D.dates[d.dateId||d.id])?esc(D.dates[d.dateId||d.id]):'<span class="todo-in">Leaders: fill in the date</span>';
-    var what=(d.what||[]).map(function(w){return '<p>'+esc(w.text)+(w.confirm?' <span class="todo-in">Leaders: confirm</span>':'')+'</p>'}).join('');
-    var todo=(d.todo&&d.todo.length)?'<div class="wk-box wk-todo"><h4>For leaders</h4><ul>'+d.todo.map(function(x){return '<li class="todo"><b>Leaders: fill in.</b> '+esc(x)+'</li>'}).join('')+'</ul></div>':'';
+    /* Nothing is shown for a field until it has a value. `todo` and `confirm` are notes for leaders and are never rendered. */
+    var dt=(D.dates&&D.dates[d.dateId||d.id])||'';
+    var date=dt?'<div class="wk-date">'+esc(dt)+'</div>':'';
+    var what=(d.what||[]).map(function(w){return '<p>'+esc(w.text)+'</p>'}).join('');
+    var facts=[['Meeting spot',d.meet],['Time',d.time],['Cost',d.cost],['Transportation',d.transport]].filter(function(f){return f[1]});
+    var factsH=facts.length?'<dl class="wk-facts">'+facts.map(function(f){return '<div><dt>'+f[0]+'</dt><dd>'+esc(f[1])+'</dd></div>'}).join('')+'</dl>':'';
+    var shared=(d.meet&&d.time)?'':'<p class="wk-shared">Meeting spot, time, and cost will be shared by your course leaders.</p>';
     var links=(d.links||[]).map(function(l){return '<li><a href="'+esc(l.href)+'">'+esc(l.label)+'</a></li>'}).join('');
     return '<article class="wk-day" id="day-'+esc(d.id)+'" aria-labelledby="day-'+esc(d.id)+'-h">'+
-      '<header class="wk-head"><div class="wk-dow">'+esc(d.name)+'</div><div class="wk-date">'+date+'</div></header>'+
-      '<div class="wk-body"><div class="wk-main"><h3 id="day-'+esc(d.id)+'-h">'+esc(d.title)+'</h3><p class="wk-where">'+esc(d.where)+'</p>'+what+
-      box(d.history,'wk-hist')+box(d.lore,'wk-lore')+todo+
+      '<header class="wk-head"><div class="wk-dow">'+esc(d.name)+'</div>'+date+'</header>'+
+      '<div class="wk-body"><div class="wk-main"><h3 id="day-'+esc(d.id)+'-h">'+esc(d.title)+'</h3><p class="wk-where">'+esc(d.where)+'</p>'+what+factsH+
+      box(d.history,'wk-hist')+box(d.lore,'wk-lore')+
       '<p class="wk-respect"><b>Respect and safety.</b> '+esc(d.respect)+'</p></div>'+
       '<aside class="wk-side"><div class="wk-mission"><b>Mission.</b> '+esc(d.mission)+'</div><h4>Go further</h4><ul class="wk-links">'+links+'</ul>'+
       '<div class="wk-notes"><label for="notes-'+esc(d.id)+'">Field notes: '+esc(d.name)+'</label><textarea id="notes-'+esc(d.id)+'" data-day="'+esc(d.id)+'" rows="7" placeholder="What did you see, hear, smell, and wonder?"></textarea>'+
       '<div class="row"><span class="count" aria-live="polite">0 words</span><button class="btn ghost small" type="button" data-copy="'+esc(d.id)+'">Copy my field notes</button></div>'+
-      '<p class="muted">Saved only in this browser on this device.</p></div></aside></div></article>';
+      '<p class="muted">Saved only in this browser on this device.</p></div></aside></div>'+shared+'</article>';
   }).join('');
   root.innerHTML='<div class="wk-pills" role="group" aria-label="Jump to a day">'+pills+'</div><div class="wk">'+days+'</div>';
   $$('textarea[data-day]',root).forEach(function(ta){
@@ -2427,9 +2440,8 @@ var PROMPT='';
       '<label class="lbl" for="subText">Your squad’s Dossier Report</label><textarea id="subText" rows="18" readonly></textarea><div class="row"><button type="button" class="btn ghost" id="subCopy">Copy report</button><button type="button" class="btn ghost" id="subRefresh">Refresh report</button></div>';
     h+='<div class="dz-form"><h4>Turn it in</h4>';
     if(httpsOK(FORM_URL))h+='<p><a class="btn" id="formLink" href="'+esc(FORM_URL)+'" target="_blank" rel="noopener">Open the turn-in form</a></p>';
-    else h+='<p><span class="btn" aria-disabled="true" style="opacity:.5">Open the turn-in form</span> <span class="todo-in">Leaders: fill in FORM_URL</span></p>';
+    else h+='<p><span class="btn" aria-disabled="true" style="opacity:.5">Open the turn-in form</span> <span class="muted">The turn-in form link will be shared by your course leaders.</span></p>';
     if(httpsOK(FORM_EMBED))h+='<p><button type="button" class="btn ghost" id="formShow">Show the form here</button></p><div id="formBox" hidden></div>';
-    else h+='<p class="muted"><span class="todo-in">Leaders: fill in FORM_EMBED</span> to show the form on this page.</p>';
     return h+'</div>';
   }
   function report(){
@@ -2508,7 +2520,7 @@ var PROMPT='';
     $('#subCopy').addEventListener('click',function(){copy($('#subText').value,this)});
     $('#subRefresh').addEventListener('click',function(){report();HO.toast('Report refreshed.')});
     var fl=$('#formLink');if(fl)fl.addEventListener('click',function(){track('form-opened')});
-    var fs=$('#formShow');if(fs)fs.addEventListener('click',function(){var bx=$('#formBox');if(!bx.firstChild){var f=document.createElement('iframe');f.src=FORM_EMBED;f.title='Turn-in form';f.setAttribute('loading','lazy');f.setAttribute('referrerpolicy','no-referrer');f.className='dz-frame';bx.appendChild(f);var p=document.createElement('p');p.className='muted';p.innerHTML='If the form does not load, <a target="_blank" rel="noopener" href="'+esc(FORM_URL||FORM_EMBED)+'">open it in its own tab</a>.';bx.appendChild(p)}bx.hidden=!bx.hidden;track('form-opened')});
+    var fs=$('#formShow');if(fs)fs.addEventListener('click',function(){var bx=$('#formBox');if(!bx.firstChild){var f=document.createElement('iframe');f.src=FORM_EMBED;f.title='Turn-in form';f.setAttribute('loading','lazy');f.setAttribute('referrerpolicy','no-referrer');f.className='dz-frame';bx.appendChild(f);var p=document.createElement('p');p.className='muted';p.id='formFail';p.hidden=true;p.innerHTML='The form could not be shown here. <a target="_blank" rel="noopener" href="'+esc(FORM_URL||FORM_EMBED)+'">Open it in its own tab</a>.';bx.appendChild(p);var up=false,fail=function(){if(!up)p.hidden=false};f.addEventListener('load',function(){up=true;p.hidden=true});f.addEventListener('error',fail);setTimeout(fail,10000)}bx.hidden=!bx.hidden;track('form-opened')});
   }
   render();
 })();
