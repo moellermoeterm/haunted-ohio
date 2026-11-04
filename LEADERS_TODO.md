@@ -1,6 +1,6 @@
 # Leaders: what still needs a human
 
-This file is for course leaders. It is **not linked from the site**. Search the code for `TODO(Leaders)` or the words "Leaders: fill in" to find every spot below; students see a visible "Leaders: fill in" note wherever one is still open.
+This file is for course leaders. It is **not linked from the site**. Search the code for `TODO(Leaders)` or the words "Leaders: fill in" to find every spot below; students no longer see "Leaders:" notes on The Week or the Spring Grove "Turn it in" tab (the Field Facts on the Dossier tab still show one). Every open item below stays open here, and the page fills in by itself once you set a value.
 
 ## 1. Switch on analytics (GoatCounter)
 - [x] Create a free GoatCounter site. **Done: code `ohmoellermoeterm`.**
@@ -10,7 +10,7 @@ This file is for course leaders. It is **not linked from the site**. Search the 
 
 ## 2. The Spring Grove turn-in form (`index.html`, top of the Dossier script)
 - [x] `FORM_URL`: **Done.** The Microsoft form link is set; the button opens it in a new tab (`target="_blank"`, `rel="noopener"`).
-- [ ] `FORM_EMBED`: **Still open on purpose.** The form needs a school sign-in, and I could not load it from here to confirm it works inside a frame, so I did not enable the "Show the form here" button. Students get the plain "Open the turn-in form" button. To try the embed, set `FORM_EMBED` to the form link plus `&embed=true`, open the page while signed in with a school account, and check that it loads; if it only shows a sign-in prompt or refuses, leave it empty.
+- [ ] `FORM_EMBED`: **Still open on purpose; students see no note about it.** (If you set it and the frame fails to load, a plain "open it in its own tab" note appears by itself.) The form needs a school sign-in, and I could not load it from here to confirm it works inside a frame, so I did not enable the "Show the form here" button. Students get the plain "Open the turn-in form" button. To try the embed, set `FORM_EMBED` to the form link plus `&embed=true`, open the page while signed in with a school account, and check that it loads; if it only shows a sign-in prompt or refuses, leave it empty.
 
 ## 3. Spring Grove field work (`index.html`, `FIELD_FACTS`)
 - [ ] After your walk-through, fill in the accepted answers (lowercase; a student's answer counts if it contains one of them) for the four Field Facts: Breuer monument (Lot 100), Dexter Mausoleum, Section 53, Section 16. While empty, any non-empty answer earns the points.
@@ -18,8 +18,9 @@ This file is for course leaders. It is **not linked from the site**. Search the 
 - [ ] Read the four legends and the "What the record says" text on the Legends tab. The Dossier reuses that text, and its supporting-fact choices (for example, the Cincinnati Magazine line about Breuer) come from it. Confirm these are the sources you want students to cite.
 
 ## 4. The Week page (`index.html`, `WEEK_DATA`)
+How it works now: each day has `meet`, `time`, `cost` and `transport` (empty), plus `dates`. Fill one in and it appears on that day's card by itself; a day whose `meet` and `time` are both filled in drops the line "Meeting spot, time, and cost will be shared by your course leaders." The `history` and `lore` boxes appear as soon as they are not null. The `todo` lines in `WEEK_DATA` are for you only and are never shown. Until you confirm them, Monday says only "A walking tour called “Nightmare on Elm Street” in Cincinnati’s Over-the-Rhine neighborhood." and Wednesday says only "The “Ghosts and Gears” tour at Miami University in Oxford."
 - [ ] Real dates for Monday to Thursday (`dates`). Written the way you want them shown.
-- [ ] **Monday (Cincinnati walking tour):** confirm this is the tour you booked ("Nightmare on Elm Street", American Legacy Tours; its public listing says it starts and ends at Northern Row Brewery). Meeting spot and time, cost and payment, transportation and pick-up. One verified fact with its source for the real-history box.
+- [ ] **Monday (Cincinnati walking tour):** confirm that American Legacy Tours runs it, that it starts and ends at Northern Row Brewery, and that it includes a stop in 1800s brewery tunnels (none of this is on the page until you do). Also confirm this is the tour you booked ("Nightmare on Elm Street", American Legacy Tours; its public listing says it starts and ends at Northern Row Brewery). Meeting spot and time, cost and payment, transportation and pick-up. One verified fact with its source for the real-history box.
 - [ ] **Tuesday (Spring Grove):** meeting spot, time, who leads each squad, parking and drop-off.
 - [ ] **Wednesday (Miami University / Oxford):** confirm this year's tour is still the "Ghosts and Gears" bike tour you booked. Meeting spot, time, cost and payment, bikes and helmets (rented or brought), any waiver, and the tour's own stops (do not copy from older years unless confirmed).
 - [ ] **Thursday (Lebanon / The Golden Lamb):** reservation name, time and party size, budget and who pays, menu or allergy information for families.
