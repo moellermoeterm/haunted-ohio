@@ -1089,7 +1089,7 @@ details.howto li{margin:.35rem 0}
     <dt>Grade levels</dt><dd>9–12</dd>
     <dt>Course maximum</dt><dd>39 students</dd>
   </dl>
-  <p class="note">Students registering for this course must be available for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield, Ohio, the location for the hit movie <em>The Shawshank Redemption</em>.</p>
+  <p class="note">Students registering for this course must be available for an overnight stay on Wednesday night at Hueston Woods, following the Ghosts and Gears tour at Miami University.</p>
 </section>
 
 <section class="sec view" data-view="legend" id="legend" hidden>
@@ -1309,6 +1309,34 @@ window.WEEK_DATA = {
         { label: 'Dread Meter', href: '#dread' },
       ],
       respect: 'Follow the guide and traffic rules. If you ride, wear a helmet and ride as directed. Respect residence halls and the people who live in them, and do not record or photograph students.',
+    },
+    {
+      // The only facts here are the ones the course leaders gave: the overnight is at Hueston Woods, after the Ghosts and Gears tour.
+      // Nothing else about the park or the lodging has been verified, so every other detail is a visible "Leaders: fill in" item.
+      id: 'wedn', dateId: 'wed', name: 'Wednesday night', title: 'Overnight at Hueston Woods', where: 'Hueston Woods',
+      what: [
+        { text: 'After the “Ghosts and Gears” tour at Miami University, the class stays overnight at Hueston Woods.' },
+      ],
+      history: null,   // no real-history note yet: nothing about the park has been verified
+      lore: null,
+      todo: [
+        'Lodging type (cabins, lodge, camping, or other).',
+        'Address and how to get there.',
+        'Check-in time and lights-out time.',
+        'Meals: what is provided, and who pays.',
+        'What to pack.',
+        'Supervision and the chaperone ratio.',
+        'Rules for the overnight.',
+        'Permission forms and medical information.',
+        'Emergency contacts.',
+        'The Thursday morning schedule before lunch at The Golden Lamb.',
+      ],
+      mission: 'Write down one thing you notice after dark that you could not have noticed in daylight, then describe it with no feeling words.',
+      links: [
+        { label: 'Lesson 3: Atmosphere and Setting', href: 'show-dont-tell/#lesson-3' },
+        { label: 'Dread Meter', href: '#dread' },
+      ],
+      respect: 'Follow your leaders’ instructions and the park’s rules, stay with your group, and keep voices down so everyone can rest. No ghost-hunting activities.',
     },
     {
       id: 'thu', name: 'Thursday', title: 'Lunch at The Golden Lamb', where: '27 S. Broadway Street, Lebanon, Ohio',
@@ -1603,7 +1631,7 @@ var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#i
   function box(b,cls){return b?'<div class="wk-box '+cls+'"><h4>'+esc(b.label)+'</h4><ul>'+b.items.map(li).join('')+'</ul></div>':''}
   var pills=D.days.map(function(d){return '<button class="pill" type="button" data-goto="day-'+esc(d.id)+'">'+esc(d.name)+'</button>'}).join('');
   var days=D.days.map(function(d){
-    var date=(D.dates&&D.dates[d.id])?esc(D.dates[d.id]):'<span class="todo-in">Leaders: fill in the date</span>';
+    var date=(D.dates&&D.dates[d.dateId||d.id])?esc(D.dates[d.dateId||d.id]):'<span class="todo-in">Leaders: fill in the date</span>';
     var what=(d.what||[]).map(function(w){return '<p>'+esc(w.text)+(w.confirm?' <span class="todo-in">Leaders: confirm</span>':'')+'</p>'}).join('');
     var todo=(d.todo&&d.todo.length)?'<div class="wk-box wk-todo"><h4>For leaders</h4><ul>'+d.todo.map(function(x){return '<li class="todo"><b>Leaders: fill in.</b> '+esc(x)+'</li>'}).join('')+'</ul></div>':'';
     var links=(d.links||[]).map(function(l){return '<li><a href="'+esc(l.href)+'">'+esc(l.label)+'</a></li>'}).join('');
