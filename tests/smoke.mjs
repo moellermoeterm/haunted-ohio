@@ -609,10 +609,18 @@ T('new games: The Veil and Room 214 are on the Games tab, open from it, and are 
   await p.goto(base + 'room-214/'); await p.waitForTimeout(150); ok(await p.isVisible('#r-form'), 'Room 214 title screen'); ok((await calls()).some((c) => c.path === 'event/game-opened-room-214'), 'Room 214 open is counted'); ok((await calls()).some((c) => c.path === '/room-214'), 'its page is counted');
   for (const c of await calls()) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z0-9-]+)$/.test(c.path), 'fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event: ' + Object.keys(c)); }
   eq(errs.length, 0, 'page errors: ' + errs);
-  /* the Preview badges: one constant controls them; the tooltip says what they mean */
-  await p.goto(base); eq((await p.$$('.pv-badge')).length, 4, 'four badges: two on the home cards, two on the Games tab'); eq(await p.getAttribute('.pv-badge >> nth=0', 'title'), 'Leaders are still testing this game.', 'tooltip');
-  ok((await p.$$eval('.where a[data-preview] strong', (e) => e.map((x) => x.textContent)).then((a) => a.every((s) => /Preview$/.test(s)))), 'home cards carry the badge'); ok(await p.isVisible('.where a[href="the-veil/"]') && await p.isVisible('.where a[href="room-214/"]'), 'home cards link to both games');
-  eq((await p.$$('.where a:not([data-preview]) .pv-badge')).length, 0, 'no other card has a badge');
+  /* the Preview badges: one constant (PREVIEW_BADGE in index.html) controls them, so the test follows the constant */
+  const badgesOn = /var PREVIEW_BADGE\s*=\s*true/.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'));
+  await p.goto(base); await p.waitForTimeout(150);
+  ok(await p.isVisible('.where a[href="the-veil/"]') && await p.isVisible('.where a[href="room-214/"]'), 'home cards link to both games');
+  if (badgesOn) {
+    eq((await p.$$('.pv-badge')).length, 4, 'four badges: two on the home cards, two on the Games tab'); eq(await p.getAttribute('.pv-badge >> nth=0', 'title'), 'Leaders are still testing this game.', 'tooltip');
+    ok((await p.$$eval('.where a[data-preview] strong', (e) => e.map((x) => x.textContent)).then((a) => a.every((s) => /Preview$/.test(s)))), 'home cards carry the badge');
+    eq((await p.$$('.where a:not([data-preview]) .pv-badge')).length, 0, 'no other card has a badge');
+  } else {
+    eq((await p.$$('.pv-badge')).length, 0, 'no Preview badges on the home page or the Games tab'); eq((await p.$$('[data-preview][title]')).length, 0, 'no tooltips left on the new game cards');
+    ok(!/Preview/.test(await p.textContent('.where')) && !/Preview/.test(await p.textContent('#games')), 'the word Preview is gone from the home cards and the Games tab');
+  }
   /* the site search finds both */
   await p.goto(base); await p.fill('#q', 'stealth hotel'); await p.waitForTimeout(250); ok(/Room 214/.test(await p.textContent('#results')), 'search finds Room 214'); await p.fill('#q', 'chapel bell'); await p.waitForTimeout(250); ok(/The Veil/.test(await p.textContent('#results')), 'search finds The Veil');
 });
