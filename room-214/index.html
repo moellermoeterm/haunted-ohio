@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-game="room214">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Room 214 | MoeTerm Haunted Ohio</title>
+<meta name="description" content="Room 214: sneak through a closed hotel by flashlight. Game material (fiction). Ages 14 to 18.">
+<link rel="icon" type="image/png" href="../assets/img/ho-icon.png">
+<link rel="stylesheet" href="../assets/css/ho-fonts.css">
+<link rel="stylesheet" href="../assets/css/ho-core.css">
+<link rel="stylesheet" href="../games-shared/hog-shell.css">
+<link rel="stylesheet" href="css/room214.css">
+<script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<main id="r-main">
+  <section id="r-title" class="r-title" aria-labelledby="r-h">
+    <h2 id="r-h">Room 214</h2>
+    <p class="r-lede">A closed hotel. A floor plan with a missing room.</p>
+    <p>It is after dark and you are sixteen and bored. You slip into the old hotel on a dare, with a flashlight and a dying battery. Something walks the halls. Stay quiet, stay hidden, find the room that is not on the plan, and write down what you find.</p>
+    <p class="r-small">Game material (fiction), for ages 14 to 18. Nothing here is graphic and nobody is hurt: if the Night Porter reaches you, he &ldquo;checks you out&rdquo; to your last checkpoint and you keep everything. Every sound has a caption, so it can be played on mute. Your name and writing stay in this browser and are never sent anywhere.</p>
+    <div id="r-resume" class="r-card" hidden></div>
+    <form id="r-form" class="r-card" autocomplete="off">
+      <label class="hog-label" for="r-name">Your name (for your journal)</label>
+      <input id="r-name" type="text" minlength="2" maxlength="24" required>
+      <div id="r-case"></div>
+      <div class="row"><button class="hog-btn primary" type="submit" id="r-begin">Sneak in</button></div>
+      <p id="r-err" class="r-err" role="alert"></p>
+    </form>
+  </section>
+  <section id="r-play" hidden aria-label="Game">
+    <div class="r-hud">
+      <p id="r-obj" class="r-obj" aria-live="polite"></p>
+      <p id="r-stats" class="r-stats" aria-label="Status"></p>
+      <div class="hog-tools"><button type="button" class="hog-btn" id="h-journal">Journal</button><button type="button" class="hog-btn" id="h-menu">Menu</button></div>
+    </div>
+    <div id="r-stage" class="hog-stage" role="application" aria-label="Room 214 game area. Use the arrow keys or the on-screen controls. The text above the game tells you what to do next, and every sound is captioned."></div>
+  </section>
+</main>
+<script src="../assets/js/ho-variant.js"></script>
+<script src="../assets/js/ho-track.js"></script>
+<script src="../games-shared/vendor/phaser.min.js"></script>
+<script src="../games-shared/hog-core.js"></script>
+<script src="../games-shared/hog-input.js"></script>
+<script src="../games-shared/hog-audio.js"></script>
+<script src="../games-shared/hog-shell.js"></script>
+<script src="js/data.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
