@@ -1502,7 +1502,7 @@ var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#i
 /* page links to the games and lessons open with a short branded loading screen */
 /* a small "Preview" badge on the new game cards while leaders are still testing them. Set PREVIEW_BADGE to false to remove every badge. */
 (function(){
-  var PREVIEW_BADGE = true;
+  var PREVIEW_BADGE = false;
   if(!PREVIEW_BADGE)return;
   var TIP='Leaders are still testing this game.';
   Array.prototype.slice.call(document.querySelectorAll('[data-preview]')).forEach(function(a){
