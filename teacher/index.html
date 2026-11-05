@@ -74,7 +74,11 @@ input[type=number]{width:6rem}textarea{width:100%;min-height:6rem}
   <div class="grid" id="hfLinks"></div>
   <h2>The Last Light: six scenario links</h2>
   <div class="grid" id="llLinks"></div>
-  <p class="note">A student can also type the code on the game&rsquo;s title screen, or pick Random case. The same code works in both games. Every student&rsquo;s progress stays in their own browser, in a separate save for each code.</p>
+  <h2>The Veil: six case links</h2>
+  <div class="grid" id="vlLinks"></div>
+  <h2>Room 214: six case links (ages 14 to 18)</h2>
+  <div class="grid" id="r2Links"></div>
+  <p class="note">A student can also type the code on the game&rsquo;s title screen, or pick Random case. The same code works in every game. Every student&rsquo;s progress stays in their own browser, in a separate save for each code.</p>
 
   <h2>Seating helper</h2>
   <div class="panel noprint">
@@ -97,6 +101,7 @@ input[type=number]{width:6rem}textarea{width:100%;min-height:6rem}
 </main>
 
 <script src="../assets/js/ho-variant.js"></script>
+<script src="../the-veil/js/data.js"></script><script src="../room-214/js/data.js"></script>
 <script src="../haunting-files/cases/c1.js"></script><script src="../haunting-files/cases/c2.js"></script><script src="../haunting-files/cases/c3.js"></script><script src="../haunting-files/cases/c4.js"></script><script src="../haunting-files/cases/c5.js"></script><script src="../haunting-files/cases/c6.js"></script>
 <script src="../last-light/scenarios/s1.js"></script><script src="../last-light/scenarios/s2.js"></script><script src="../last-light/scenarios/s3.js"></script><script src="../last-light/scenarios/s4.js"></script><script src="../last-light/scenarios/s5.js"></script><script src="../last-light/scenarios/s6.js"></script>
 <script>
@@ -116,6 +121,8 @@ function links(box,path,list,label){
     return '<div class="card"><b>Case '+n+'</b><span class="muted">'+esc(label(o))+'</span><div class="row"><a class="btn primary" href="'+path+'?case='+n+'">Open</a><button class="btn" type="button" data-copy="'+esc(abs(path+'?case='+n))+'">Copy link</button></div></div>'}).join('')}
 links($('#hfLinks'),'../haunting-files/',window.HF_CASES,function(o){return 'Case file #'+o.file+': '+o.name});
 links($('#llLinks'),'../last-light/',window.LL_SCENARIOS,function(o){return 'Opens in '+o.name});
+links($('#vlLinks'),'../the-veil/',window.HOG_VEIL.data.CASES,function(o){return o.chapel+' Chapel: '+o.night});
+links($('#r2Links'),'../room-214/',window.HOG_R214.data.CASES,function(o){return o.hotel+', '+o.town});
 document.addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;
   var u=b.getAttribute('data-copy');
   function done(){status('Link copied: '+u)}
