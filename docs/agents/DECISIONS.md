@@ -14,3 +14,10 @@ Format: `D-n` · date · decision · why. The owner was away and could not answe
 - **D-9 · Saves.** One localStorage key per game and variant slot via `HOV.slot`: `ho-veil`, `ho-veil_c2` … and `ho-room214`, `ho-room214_c2` …. Settings (mute, volume, low intensity, text size) are per device in `ho-veil_set` / `ho-room214_set`. Export/import is strict whitelist validation (see CONTRACTS.md).
 - **D-10 · Failure in Room 214 is "caught and returned to a checkpoint".** No death, blood or injury is ever shown or described.
 - **D-11 · Real history.** Nothing in either game is marked "Real history" unless verified by web search with a source in a code comment. Default label everywhere is "Game material".
+- **D-12 (updated) · 2026-11-05 · Room 214 WAS built, after The Veil was finished and hardened.** Both games are playable and tested. Room 214's browser coverage is narrower than The Veil's (see QA-REPORT-ROOM214.md).
+- **D-13 (updated) · The links change is made as the last step** on its own branch (`integration/links`, based on `main`, one commit: Games tab, teacher page, search, `ho-track.js` event names, tests). Its tests were run together with both games (`integration/links-test`).
+- **D-14 · PR structure.** Shared framework PR targets `main`. The Veil and Room 214 PRs target `integration/shared` so each diff shows only its game. The links PR targets `main` and depends on the others. The earlier small "Leaders notes" PR stays as it was. Nothing is merged.
+- **D-15 · Test gate.** The existing full suite (`tests/smoke.mjs` plus `content-check.mjs`) ran once, alone, on `integration/veil`, on `integration/room214`, and on `integration/links-test` (the last one is the gate for the links PR, since it changes existing pages and tests).
+- **D-16 · Hook ownership.** Each game event hook (`game.on(...)`) has exactly one owner; tests that need to observe an event wrap the existing handler instead of replacing it.
+- **D-17 · The Night Porter resets far from the checkpoint and is paused 6 seconds after a catch.** An earlier version could trap a player in a catch loop (found by the bot); the rule is now covered by a test.
+
