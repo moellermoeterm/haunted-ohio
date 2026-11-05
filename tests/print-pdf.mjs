@@ -37,7 +37,7 @@ const pdfPages = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page(?!s)/g)
 const LETTER = { format: 'Letter', margin: { top: '0.6in', bottom: '0.6in', left: '0.6in', right: '0.6in' }, printBackground: true, preferCSSPageSize: true };
 
 await T('turn-in tab: three ways to hand in (form, print or PDF, copy report) with clear keyboard-reachable buttons and the print-window note', async (p) => {
-  await open(p, SAMPLE); const t = await p.textContent('#turnin'); ok(/three ways/i.test(t), 'three ways'); ok(/Choose Save as PDF or your printer/.test(t), 'the print-window note');
+  await open(p, SAMPLE); const t = await p.textContent('#turnin'); ok(/three ways/i.test(t), 'three ways'); ok(/choose Save as PDF or your printer/.test(t), 'the print-window note');
   for (const id of ['#formLink', '#dzPrintA', '#dzPrintBlank', '#subCopy2']) ok(await p.isVisible(id), 'visible ' + id); eq((await p.textContent('#dzPrintA')).trim(), 'Print my answers (PDF)', 'label'); eq((await p.textContent('#dzPrintBlank')).trim(), 'Print a blank paper copy', 'label');
   await p.focus('#dzPrintA'); await p.keyboard.press('Tab'); eq(await p.evaluate(() => document.activeElement.id), 'dzPrintBlank', 'keyboard order'); ok(!/Leaders:/.test(t), 'no "Leaders:" text');
   await p.click('#ct-hunt'); await p.waitForTimeout(150); ok(await p.isVisible('#dzPrint2'), 'the hunt tab has Print my answers'); eq((await p.textContent('#dzPrint2')).trim(), 'Print my answers', 'label');
