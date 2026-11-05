@@ -43,7 +43,7 @@ await T('walk the first floor like a player: take the keycard, read the plan not
   eq(await p.evaluate(() => __r214Game.s.cpf), 1, 'checkpoint at the stairwell'); await p.reload(); await p.waitForSelector('#r-continue'); await p.click('#r-continue'); await p.waitForFunction(() => window.__r214Game); eq(await p.evaluate(() => __r214Game.pl.f), 1, 'resumes on floor 2');
 });
 await T('stealth: sneaking is silent and running makes a captioned ring, with sound OFF; a direction pulse appears', async (p) => {
-  await begin(p, 2); await calm(p); await p.click('#hog-mute'); eq(await p.evaluate(() => HOG.audio.isMuted()), true, 'muted'); await p.evaluate(() => { window.__noise = 0; __r214Game.on('noise', (n) => { if (n.src === 'player') window.__noise++; }); });
+  await begin(p, 2); await calm(p); await p.click('#hog-mute'); eq(await p.evaluate(() => HOG.audio.isMuted()), true, 'muted'); await p.evaluate(() => { window.__noise = 0; const g = __r214Game, old = g.hooks.noise; g.hooks.noise = (n) => { if (n.src === 'player') window.__noise++; old(n); }; });
   await walkTo(p, 5, 12, 'sneak'); eq(await p.evaluate(() => window.__noise), 0, 'sneaking makes no noise'); await walkTo(p, 5, 9, 'run'); ok((await p.evaluate(() => window.__noise)) >= 1, 'running makes noise');
   ok(/footsteps echo/.test(await p.textContent('#hog-captions')), 'running is captioned'); eq(await p.evaluate(() => __r214Game.rings.some((r) => r.level === 6)), true, 'a ring was made');
   await p.evaluate(() => { const g = __r214Game, po = g.por[0]; po.freeze = 0; g.pl.f = 0; g.pl.x = 10.5; g.pl.y = 5.5; po.x = 17.5; po.y = 5.5; po.state = 'patrol'; po.path = []; po.pi = 0; HOG.audio.setMute(true); });
