@@ -394,6 +394,7 @@ details.howto li{margin:.35rem 0}
 .gcard.ll{background:radial-gradient(circle at 18% 22%,#4a2a10 0,#0d0f0c 72%);border-color:#ff7a1a}
 .gcard.vl{background:radial-gradient(circle at 18% 22%,#1d3b52 0,#0a0f1c 72%);border-color:#8fb4d9}
 .gcard.r2{background:radial-gradient(circle at 18% 22%,#3a2a14 0,#050507 72%);border-color:#b58a4a}
+.pv-badge{display:inline-block;margin-left:.5rem;vertical-align:middle;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.05rem .55rem;border-radius:99px;border:1.5px solid var(--ho-warn);color:var(--ho-warn);background:rgba(230,174,76,.12)}
 .gcard:hover,.gcard:focus-visible{border-color:#fff}
 .gicon{flex:none;width:9.5rem;height:9.5rem}
 .gicon svg{display:block;width:100%;height:100%;overflow:visible}
@@ -598,6 +599,8 @@ details.howto li{margin:.35rem 0}
     <a class="ho-card ho-card--folder rv" style="--i:9" href="#leaders"><i class="ho-card__icon"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-users"/></svg></i><strong>Leaders</strong><span>Meet the three teachers running Haunted Ohio.</span></a>
     <a class="ho-card ho-card--folder rv" style="--i:10" href="show-dont-tell/"><i class="ho-card__icon"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-lesson"/></svg></i><strong>Show, Don’t Tell</strong><span>Ten short lessons on making readers feel the story.</span></a>
     <a class="ho-card ho-card--folder rv" style="--i:11" href="#about"><i class="ho-card__icon"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-eye"/></svg></i><strong>About</strong><span>The course, the field trips, and what to bring.</span></a>
+    <a class="ho-card ho-card--folder rv" style="--i:12" href="the-veil/" data-preview><i class="ho-card__icon"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-bell"/></svg></i><strong>The Veil</strong><span>Explore a closed chapel in two worlds, then write your own horror story.</span></a>
+    <a class="ho-card ho-card--folder rv" style="--i:13" href="room-214/" data-preview><i class="ho-card__icon"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-lantern"/></svg></i><strong>Room 214</strong><span>Sneak through a closed hotel by flashlight. Ages 14 to 18.</span></a>
   </div>
 </section>
 <section class="fieldmap rv" aria-labelledby="fmT">
@@ -865,11 +868,11 @@ details.howto li{margin:.35rem 0}
   </div>
   <p class="intro" style="margin-top:2rem">Two more games, made for tablets and keyboards, each with six versions. Every sound has a caption, and both end with something you write.</p>
   <div class="gamecards">
-    <a class="gcard vl" href="the-veil/">
+    <a class="gcard vl" href="the-veil/" data-preview>
       <span class="gicon"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><circle cx="38" cy="50" r="26" fill="none" stroke="#8fb4d9" stroke-width="4"/><circle cx="62" cy="50" r="26" fill="none" stroke="#d9b86c" stroke-width="4" stroke-dasharray="6 5"/><path d="M50 30v-5M43 66c0-11 3-19 7-19s7 8 7 19zM40 66h20" fill="#d9b86c" stroke="#6b5524" stroke-width="2"/></svg></span>
       <span class="gbody"><span class="gtag">Paranormal adventure</span><strong>The Veil</strong><span class="gdesc">Explore a closed chapel in two worlds, solve the bell and symbol puzzles, then write your own horror story. (Game material.)</span><span class="gcta">Step into the Veil &rarr;</span></span>
     </a>
-    <a class="gcard r2" href="room-214/">
+    <a class="gcard r2" href="room-214/" data-preview>
       <span class="gicon"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="26" y="12" width="48" height="78" rx="3" fill="#2a2018" stroke="#b58a4a" stroke-width="4"/><circle cx="62" cy="52" r="3.5" fill="#d9b86c"/><path d="M50 12v78" stroke="#b58a4a" stroke-width="2"/><text x="50" y="40" text-anchor="middle" font-size="16" font-weight="700" fill="#f0e2b6" font-family="system-ui,sans-serif">214</text><path d="M26 90h48" stroke="#ffd27a" stroke-width="3" opacity=".6"/></svg></span>
       <span class="gbody"><span class="gtag">Stealth horror &middot; ages 14 to 18</span><strong>Room 214</strong><span class="gdesc">Sneak through a closed hotel by flashlight, stay quiet, and find the room that is not on the plan. (Game material.)</span><span class="gcta">Sneak in &rarr;</span></span>
     </a>
@@ -1466,6 +1469,16 @@ themeLabel();
 var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#index');if(t)t.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})});
 
 /* page links to the games and lessons open with a short branded loading screen */
+/* a small "Preview" badge on the new game cards while leaders are still testing them. Set PREVIEW_BADGE to false to remove every badge. */
+(function(){
+  var PREVIEW_BADGE = true;
+  if(!PREVIEW_BADGE)return;
+  var TIP='Leaders are still testing this game.';
+  Array.prototype.slice.call(document.querySelectorAll('[data-preview]')).forEach(function(a){
+    var b=document.createElement('span');b.className='pv-badge';b.textContent='Preview';b.title=TIP;a.title=TIP;
+    var host=a.querySelector('.gtag')?a.querySelector('.gbody>strong'):a.querySelector('strong');if(host)host.appendChild(b);
+  });
+})();
 (function(){
   var LABEL={'haunting-files/':'Opening the case file','last-light/':'Entering the silence','show-dont-tell/':'Opening the lesson','the-veil/':'Opening the chapel gate','room-214/':'Sneaking in'};
   document.addEventListener('click',function(e){

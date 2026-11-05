@@ -92,7 +92,7 @@ T('home redesign: grouped navigation menus open, close, and are keyboard friendl
 T('home redesign: hero, case index, and field map', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#home');
   ok((await p.isVisible('.hero-moon')) && (await p.isVisible('.hero-city')), 'night sky and skyline render');
-  eq((await p.$$('.where a')).length, 12, 'twelve case-index cards (the eleven originals plus The Week)');
+  eq((await p.$$('.where a')).length, 14, 'fourteen case-index cards (the twelve originals plus The Veil and Room 214)');
   await p.click('#heroCue');
   await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
@@ -606,6 +606,10 @@ T('new games: The Veil and Room 214 are on the Games tab, open from it, and are 
   await p.goto(base + 'room-214/'); await p.waitForTimeout(150); ok(await p.isVisible('#r-form'), 'Room 214 title screen'); ok((await calls()).some((c) => c.path === 'event/game-opened-room-214'), 'Room 214 open is counted'); ok((await calls()).some((c) => c.path === '/room-214'), 'its page is counted');
   for (const c of await calls()) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z0-9-]+)$/.test(c.path), 'fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event: ' + Object.keys(c)); }
   eq(errs.length, 0, 'page errors: ' + errs);
+  /* the Preview badges: one constant controls them; the tooltip says what they mean */
+  await p.goto(base); eq((await p.$$('.pv-badge')).length, 4, 'four badges: two on the home cards, two on the Games tab'); eq(await p.getAttribute('.pv-badge >> nth=0', 'title'), 'Leaders are still testing this game.', 'tooltip');
+  ok((await p.$$eval('.where a[data-preview] strong', (e) => e.map((x) => x.textContent)).then((a) => a.every((s) => /Preview$/.test(s)))), 'home cards carry the badge'); ok(await p.isVisible('.where a[href="the-veil/"]') && await p.isVisible('.where a[href="room-214/"]'), 'home cards link to both games');
+  eq((await p.$$('.where a:not([data-preview]) .pv-badge')).length, 0, 'no other card has a badge');
   /* the site search finds both */
   await p.goto(base); await p.fill('#q', 'stealth hotel'); await p.waitForTimeout(250); ok(/Room 214/.test(await p.textContent('#results')), 'search finds Room 214'); await p.fill('#q', 'chapel bell'); await p.waitForTimeout(250); ok(/The Veil/.test(await p.textContent('#results')), 'search finds The Veil');
 });
