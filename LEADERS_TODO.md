@@ -1,6 +1,6 @@
 # Leaders: what still needs a human
 
-This file is for course leaders. It is **not linked from the site**. Search the code for `TODO(Leaders)` or the words "Leaders: fill in" to find every spot below; students no longer see "Leaders:" notes on The Week or the Spring Grove "Turn it in" tab (the Field Facts on the Dossier tab still show one). Every open item below stays open here, and the page fills in by itself once you set a value.
+This file is for course leaders. It is **not linked from the site**. Search the code for `TODO(Leaders)` or the words "Leaders: fill in" to find every spot below; students no longer see "Leaders:" notes on The Week, the home map list, the Spring Grove Dossier or "Turn it in" (the one note still shown to students is on the Leaders page itself). Every open item below stays open here, and the page fills in by itself once you set a value.
 
 ## 1. Switch on analytics (GoatCounter)
 - [x] Create a free GoatCounter site. **Done: code `ohmoellermoeterm`.**

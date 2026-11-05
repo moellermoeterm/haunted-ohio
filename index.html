@@ -615,7 +615,7 @@ details.howto li{margin:.35rem 0}
     </ul>
     <p class="ho-eyebrow" style="margin-top:1.6rem">The Week</p>
     <ul class="fm-list">
-      <li><a href="#week" data-day="mon"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Monday: Nightmare on Elm Street tour</b><small>Cincinnati (Leaders: confirm the tour and meeting spot).</small></span></a></li>
+      <li><a href="#week" data-day="mon"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Monday: Nightmare on Elm Street tour</b><small>Cincinnati.</small></span></a></li>
       <li><a href="#week" data-day="tue"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Tuesday: Spring Grove Cemetery</b><small>Cincinnati</small></span></a></li>
       <li><a href="#week" data-day="wed"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Wednesday: Miami University</b><small>Oxford: the “Ghosts and Gears” tour.</small></span></a></li>
       <li><a href="#week" data-day="thu"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Thursday: The Golden Lamb</b><small>Lebanon: lunch.</small></span></a></li>
@@ -2370,7 +2370,6 @@ var PROMPT='';
       '<div class="dz-page paper-ish"><p>'+esc(page==='say'?SAID[i]:REC[i].rec)+'</p></div></div>';
     /* 1 the record */
     h+='<section class="dz-step"><h4>1. The Record <small>Field Fact</small></h4>'+leadTag(i,'Historian')+'<label for="ff-'+st.id+'">'+esc(FIELD_FACTS[st.id].q)+'</label><input type="text" id="ff-'+st.id+'" data-field="'+st.id+'|field" value="'+esc(s.field||'')+'" autocomplete="off">'+
-      (FIELD_FACTS[st.id].accept.length?'':'<p class="todo-in">Leaders: fill in after your walk-through (accepted answers).</p>')+
       '<label class="dz-check"><input type="checkbox" data-photo="'+st.id+'"'+(s.photo?' checked':'')+'> I took a photo of this (keep it on your phone)</label>'+
       (GPS_CHECKIN&&STOP_PLACES[st.id]?'<p><button type="button" class="btn ghost small" data-gps="'+st.id+'">I’m at this stop</button> <span class="muted" id="gps-'+st.id+'"></span></p>':'')+
       '<p class="dz-fb" id="fbr-'+st.id+'" aria-live="polite"></p></section>';

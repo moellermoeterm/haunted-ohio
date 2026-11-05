@@ -183,7 +183,10 @@ T('dossier: four sealed files + finale, legends tab intact, GPS off, form placeh
   ok(await p.$('#dz-fin'), 'finale'); ok(/Case File #0048/.test(await p.textContent('#dossier')), 'case file number');
   ok(/investigate in daylight/.test(await p.textContent('#dossier')), 'Archivist line');
   eq((await p.$$('#dossier [data-gps]')).length, 0, 'GPS check-in is OFF by default');
-  ok((await p.$$('#dossier .todo-in')).length >= 4, 'Field Facts show "Leaders: fill in" while accepted answers are empty');
+  eq((await p.$$('#dossier .todo-in')).length, 0, 'no leader placeholder is rendered in the Dossier while accepted answers are empty');
+  ok(!/Leaders:/.test(await p.textContent('#dossier')), 'no "Leaders:" text in the Dossier for students');
+  eq(await p.textContent('.fm-list a[data-day="mon"] small'), 'Cincinnati.', 'home map list: Monday reads only "Cincinnati."');
+  ok(!/Leaders:/.test(await p.evaluate(() => [...document.querySelectorAll('.fm-list, .fm-svg')].map((e) => e.textContent).join(' '))), 'no "Leaders:" text in the home map or its list');
   ok(!/speed|fastest|bonus|hurry/i.test(await p.textContent('#dossier')) || /never speed/.test(await p.textContent('#dossier')), 'no speed points');
   await p.click('#ct-submit'); await p.waitForTimeout(200);
   ;
