@@ -616,6 +616,14 @@ T('new games: The Veil and Room 214 are on the Games tab, open from it, and are 
   /* the site search finds both */
   await p.goto(base); await p.fill('#q', 'stealth hotel'); await p.waitForTimeout(250); ok(/Room 214/.test(await p.textContent('#results')), 'search finds Room 214'); await p.fill('#q', 'chapel bell'); await p.waitForTimeout(250); ok(/The Veil/.test(await p.textContent('#results')), 'search finds The Veil');
 });
+T('no student-visible text anywhere on the site begins with "Leaders:" (all tabs, the Dossier, the turn-in tab, every page)', async ({ base, newPage }) => {
+  const p = await newPage(); const hits = [];
+  const scan = async (label) => { const r = await p.evaluate(() => { const o = []; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); for (let n = w.nextNode(); n; n = w.nextNode()) { const par = n.parentElement; if (!par || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(par.tagName)) continue; const t = n.textContent.replace(/\s+/g, ' ').trim(); if (/^Leaders?\s*:/i.test(t) || /\(Leaders?\s*:/i.test(t)) o.push(t.slice(0, 90)); } return o; }); r.forEach((x) => hits.push(label + ' => ' + x)); };
+  for (const r of ['', '#learn', '#games', '#prompts', '#draft', '#legend', '#dread', '#resources', '#week', '#leaders', '#about']) { await p.goto(base + r); await p.waitForTimeout(120); await scan(r || 'home'); }
+  await p.goto(base + '#cemetery'); await p.waitForTimeout(150); await scan('cemetery/legends'); await p.click('#ct-hunt'); await p.waitForTimeout(150); await p.evaluate(() => document.querySelectorAll('#dossier details').forEach((d) => (d.open = true))); await scan('cemetery/hunt'); await p.click('#ct-submit'); await p.waitForTimeout(120); await scan('cemetery/turn-in');
+  for (const u of ['show-dont-tell/', 'haunting-files/', 'last-light/', 'the-veil/', 'room-214/']) { await p.goto(base + u); await p.waitForTimeout(150); await scan(u); }
+  eq(hits.length, 0, 'text that starts with "Leaders:" is still visible: ' + hits.slice(0, 3).join(' | '));
+});
 T('analytics: each home tab is its own page; only fixed events are sent; names and typed text are never sent', async ({ base, newPage }) => {
   const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   const calls = async () => p.evaluate(() => window.__gc || []);
