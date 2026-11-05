@@ -2522,7 +2522,13 @@ var PROMPT='';
 
   /* ---- print or save as PDF: a paper copy of the answers. No libraries, no network, nothing stored or sent; built from the answers already on this device. ---- */
   var PRULES=['Stay on the paths.','Respect every memorial. Never touch or mark one unless a leader says you may.','No contacting spirits and no seance-style activities; we observe and test only.','Never shine a light at people.','No running.','Follow teacher and staff instructions at all times.','Carry your phone, and stay with your squad.'];
-  var PLEGENDS=['The Watching Eyes (Lot 100, Breuer monument)','The White Dogs (Section 20, Dexter Mausoleum)','The Ankle Grabber (Section 53)','Voices and Figures (Section 16)'];
+  /* The Microsoft Form, in order (36 questions in seven sections). Edit here if the form changes. */
+  var FORM_STOPS=['The Watching Bust','Dexter Mausoleum','The Groundskeeper','The Listening Section'];
+  var FORM_EXPERIMENT=[
+    {q:'From the left, center, and right, how did the eyes seem to move?',o:['They followed me from every side','Only from one angle','They did not seem to move','Not sure']},
+    {q:'During the 3-minute sit and scan, what did you notice most?',o:['Sounds','Movement','A feeling of being watched','Nothing unusual']},
+    {q:'What could most plausibly catch an ankle here?',o:['Branches or vines','Uneven ground','Loose stones','Tall grass','Nothing I found']},
+    {q:'After 3 silent minutes, did you hear anything like voices?',o:['Yes, clearly','Faint, probably natural','No','Not sure']}];
   function pel(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
   function pbox(on){return pel('span','ps-box'+(on?' on':''))}
   function pline(n){var f=document.createDocumentFragment();for(var i=0;i<(n||1);i++)f.appendChild(pel('div','ps-line'));return f}
@@ -2530,57 +2536,54 @@ var PROMPT='';
   function pq(num,label){var q=pel('div','ps-q');q.appendChild(pel('span','ps-qn',num));q.appendChild(pel('span',null,label));return q}
   function pchoice(opts,chosen){var r=pel('div','ps-choices');opts.forEach(function(o){var c=pel('span','ps-choice');c.appendChild(pbox(chosen.indexOf(o)>-1));c.appendChild(pel('span',null,o));r.appendChild(c)});return r}
   function pfield(label,val,lines){var d=pel('div','ps-sub');d.appendChild(pel('div','ps-small',label));d.appendChild(pans(val,lines));return d}
+  function plet(opts){return opts.map(function(o,k){return String.fromCharCode(65+k)+') '+o})}
   function buildSheet(blank){
     var sh=pel('div');sh.id='print-sheet';sh.setAttribute('aria-hidden','true');
     var sq=blank?'':(H.squad||'').trim(),tb=pel('table','ps-table'),tf=pel('tfoot','ps-foot'),tr=pel('tr'),td=pel('td',null,'Spring Grove Dossier, Case File #0048 · Squad: '+(sq||'____________________'));tr.appendChild(td);tf.appendChild(tr);tb.appendChild(tf);
     var tbody=pel('tbody'),btr=pel('tr'),bd=pel('td'),c=bd;btr.appendChild(bd);tbody.appendChild(btr);tb.appendChild(tbody);sh.appendChild(tb);
-    var sec,t=total(),r=rank(t),n=0;
-    /* 1. Squad Information */
-    sec=pel('section','ps-sec');sec.appendChild(pel('h1',null,'Spring Grove Dossier, Case File #0048'));sec.appendChild(pel('h2',null,'Squad Information'));
-    sec.appendChild(pq('1.','Squad name'));sec.appendChild(pans(sq,1));
-    sec.appendChild(pq('2.','Date'));sec.appendChild(pans(blank?'':new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),1));
-    sec.appendChild(pq('3.','Members and roles'));
-    for(var m=0;m<5;m++){var nm=blank?'':(H.mem[m]||'').trim();if(!blank&&!nm)continue;var row=pel('div','ps-sub');row.appendChild(pel('div','ps-small','Member '+(m+1)));row.appendChild(pans(nm,1));sec.appendChild(row)}
-    if(!blank&&!members().length)sec.appendChild(pline(2));
-    if(blank){sec.appendChild(pel('div','ps-small','Roles at each stop (write who has each role): Skeptic, Historian, Sensory Scout, Recorder, Storyteller.'));sec.appendChild(pline(3))}
-    else{var rl=pel('div','ps-small');STOPS.forEach(function(st,i){rl.appendChild(pel('div',null,'Stop '+(i+1)+': '+ROLES.map(function(x){return x+' = '+lead(i,x)}).join(' · ')))});sec.appendChild(rl)}
-    sec.appendChild(pq('4.','Points, rank and badges'));
-    if(blank){sec.appendChild(pel('div','ps-small','Points ________ of '+MAXPTS+'     Rank ______________________'));sec.appendChild(pline(1))}
-    else{sec.appendChild(pel('div',null,'Points: '+t+' of '+MAXPTS+' · Rank: '+r.name));sec.appendChild(pel('div','ps-small','Badges: '+(badges().filter(function(b){return b.on}).map(function(b){return b.n}).join(', ')||'none yet')))}
+    var sec,t=total(),r=rank(t),qn=0;
+    function Q(label){qn++;return pq(qn+'.',label)}
+    /* the title, date and score summary (not form questions) */
+    sec=pel('section','ps-sec');sec.appendChild(pel('h1',null,'Spring Grove Dossier, Case File #0048'));
+    var dt=blank?'':new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+    sec.appendChild(pel('div','ps-small','Date: '+(dt||'______________')+(blank?'     Points: ________ of '+MAXPTS+'     Rank: ______________':'     Points: '+t+' of '+MAXPTS+' · Rank: '+r.name)));
+    if(!blank)sec.appendChild(pel('div','ps-small','Badges: '+(badges().filter(function(b){return b.on}).map(function(b){return b.n}).join(', ')||'none yet')));
+    /* SECTION 1: Squad Information */
+    sec.appendChild(pel('h2',null,'Squad Information'));
+    sec.appendChild(Q('Squad name'));sec.appendChild(pans(sq,1));
+    sec.appendChild(Q("Squad members, with each person's role"));
+    var mem=blank?[]:H.mem.map(function(x,m){return {n:(x||'').trim(),m:m}}).filter(function(x){return x.n});
+    if(mem.length)mem.forEach(function(x){sec.appendChild(pans(x.n+' ('+STOPS.map(function(st,i){return 'Stop '+(i+1)+': '+ROLES[(x.m+i)%5]}).join(' · ')+')',1))});else sec.appendChild(pline(3));
+    sec.appendChild(Q('Who is submitting this form?'));sec.appendChild(pline(1));
     c.appendChild(sec);
-    /* 2 to 5. The four stops */
+    /* SECTIONS 2 to 5: the four stops (six questions each) */
     STOPS.forEach(function(st,i){
-      var sd=blank?{}:S(st.id),test=st.tests.filter(function(x){return x.id===sd.test})[0],k=0;sec=pel('section','ps-sec ps-stop');sec.setAttribute('data-ps-stop',st.id);
-      sec.appendChild(pel('h2',null,'Stop '+(i+1)+': '+st.name+((REC[i]&&REC[i].where)?' ('+REC[i].where+')':'')));
-      sec.appendChild(pq('1.','The Record: '+FIELD_FACTS[st.id].q));sec.appendChild(pans(sd.field,1));
-      var ph=pel('div','ps-sub');ph.appendChild(pbox(!!sd.photo));ph.appendChild(pel('span',null,'Squad photo taken'));sec.appendChild(ph);
-      sec.appendChild(pq('2.','The Experiment: which test did your squad choose?'));sec.appendChild(pchoice(st.tests.map(function(x){return x.title}),test?[test.title]:[]));
-      sec.appendChild(pq('3.',test?test.res.label:'Result of the test (use the question for the test you chose)'));sec.appendChild(pans(Array.isArray(sd.res)?sd.res.join(', '):(sd.res||''),1));
-      sec.appendChild(pfield('Photo or audio: time or file name',sd.stamp,1));
-      sec.appendChild(pq('4.','What happened? What does it suggest?'));sec.appendChild(pans(sd.expNotes,2));
-      sec.appendChild(pq('5.','Margin Note: one sentence for your own ghost story, using at least two senses'));sec.appendChild(pans(sd.margin,2));
-      sec.appendChild(pq('6.','The Seal: your verdict'));sec.appendChild(pchoice(VERD,sd.verdict?[sd.verdict]:[]));
-      sec.appendChild(pq('7.','The two facts that best support your verdict'));
+      var sd=blank?{}:S(st.id),ex=FORM_EXPERIMENT[i];sec=pel('section','ps-sec ps-stop');sec.setAttribute('data-ps-stop',st.id);
+      sec.appendChild(pel('h2',null,'Stop '+(i+1)+': '+FORM_STOPS[i]));
+      sec.appendChild(Q('Upload a photo of your squad at this stop, or of the monument.'));var pb=pel('div','ps-photo');pb.appendChild(pel('div',null,"Attach a printed photo here, or note the photo's file name."));sec.appendChild(pb);
+      sec.appendChild(Q('The Record.'));sec.appendChild(pans(sd.field,1));
+      sec.appendChild(Q('Experiment. '+ex.q));sec.appendChild(pchoice(plet(ex.o),[]));
+      sec.appendChild(Q('What is your verdict?'));sec.appendChild(pchoice(VERD,sd.verdict?[sd.verdict]:[]));
       var fs=(sd.facts||[]).map(function(x){return st.facts[x]&&st.facts[x].t}).filter(Boolean);
-      if(fs.length){fs.forEach(function(f){sec.appendChild(pans(f,1))});for(var z=fs.length;z<2;z++)sec.appendChild(pline(1))}else sec.appendChild(pline(2));
-      var pb=pel('div','ps-photo');pb.appendChild(pel('div',null,'Attach a printed photo here, or note the photo’s file name.'));sec.appendChild(pb);
+      sec.appendChild(Q('Give one fact you recorded that backs up your verdict.'));sec.appendChild(pans(fs[0],1));
+      sec.appendChild(Q('Margin Note. Write one sentence a future investigator could read as lore, using at least two senses (sight, sound, smell, touch).'));sec.appendChild(pans(sd.margin,2));
       c.appendChild(sec)});
-    /* 6. Reflection / Finale */
+    /* SECTION 6: Reflection / Finale */
     var f=blank?{}:H.f;sec=pel('section','ps-sec');sec.setAttribute('data-ps-stop','fin');sec.appendChild(pel('h2',null,'Reflection / Finale'));
-    var two=pel('div','ps-two');[['h','Haunted spot'],['c','Control spot (somewhere with no legend)']].forEach(function(pp){var x=pp[0],col=pel('div');col.appendChild(pel('h3',null,pp[1]));col.appendChild(pfield('Location',f[x+'l'],1));col.appendChild(pfield('Temperature (degrees F)',f[x+'t'],1));col.appendChild(pfield('Wind (calm, breeze, strong)',f[x+'w'],1));col.appendChild(pfield('Approximate sound level (quiet, moderate, loud)',f[x+'s'],1));two.appendChild(col)});sec.appendChild(two);
-    var a1=parseFloat(f.ht),a2=parseFloat(f.ct),diff=(isNaN(a1)||isNaN(a2))?'':String(Math.round((a1-a2)*10)/10);
-    sec.appendChild(pq('1.','The difference between the two temperatures (degrees F)'));sec.appendChild(pans(diff,1));
-    sec.appendChild(pq('2.','Is that difference big enough to explain a chill?'));sec.appendChild(pchoice(['Yes','No'],[]));
-    sec.appendChild(pq('3.','What does this difference prove, and what does it not prove? Give your reason.'));sec.appendChild(pans(f.why,3));
-    sec.appendChild(pq('4.','Show, don’t tell: rewrite one sentence from your hunt so it shows instead of tells, with no feeling words.'));sec.appendChild(pline(3));
-    sec.appendChild(pq('5.','The Fifth File: the opening line of your own story'));sec.appendChild(pans(f.fifth,3));
-    sec.appendChild(pq('6.','Which legend would make the best story, and why?'));sec.appendChild(pchoice(PLEGENDS,[]));sec.appendChild(pline(3));
+    var temps=(f.ht||f.ct)?('Haunted spot: '+(f.ht||'___')+' F · Control spot: '+(f.ct||'___')+' F'):'';
+    sec.appendChild(Q('What was the temperature in degrees F at a haunted spot and at a control spot with no legend? Give both numbers.'));sec.appendChild(pans(temps,1));
+    sec.appendChild(Q('Is the temperature difference big enough to explain a chill?'));sec.appendChild(pchoice(['Yes','No','Not sure'],[]));
+    sec.appendChild(Q('Why? Explain in one sentence.'));sec.appendChild(pans(f.why,2));
+    sec.appendChild(Q("Show, don't tell. Rewrite 'The cemetery was spooky' so the reader feels it without using the word spooky."));sec.appendChild(pline(2));
+    sec.appendChild(Q("The Fifth File. Write the opening line of your squad's own ghost story."));sec.appendChild(pans(f.fifth,2));
+    sec.appendChild(Q('Which legend would make the best story?'));sec.appendChild(pchoice(FORM_STOPS,[]));
+    sec.appendChild(Q('Why? Explain in one sentence.'));sec.appendChild(pline(2));
     c.appendChild(sec);
-    /* 7. Field Rules */
+    /* SECTION 7: Field Rules */
     sec=pel('section','ps-sec');sec.appendChild(pel('h2',null,'Field Rules'));
     var ul=pel('ul','ps-rules');PRULES.forEach(function(x){ul.appendChild(pel('li',null,x))});sec.appendChild(ul);
-    var cb=pel('div','ps-sub');cb.appendChild(pbox(false));cb.appendChild(pel('span',null,'We all followed the field rules.'));sec.appendChild(cb);
-    sec.appendChild(pq('','Optional: if anyone did not follow a rule, tell us what happened.'));sec.appendChild(pline(4));
+    sec.appendChild(Q('We all followed the field rules.'));sec.appendChild(pchoice(['Yes, all of us','Not all of us'],[]));
+    sec.appendChild(Q('If anyone did not follow a rule, tell us what happened. (Optional)'));sec.appendChild(pline(4));
     c.appendChild(sec);
     var ld=pel('div','ps-leader');ld.appendChild(pel('h3',null,'Leader use only'));ld.appendChild(pel('div',null,'Score: ________ / '+MAXPTS));ld.appendChild(pel('div','ps-small','Comments:'));ld.appendChild(pline(3));c.appendChild(ld);
     return sh;

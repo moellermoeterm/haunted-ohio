@@ -16,6 +16,31 @@ async function T(name, fn, viewport = { width: 1280, height: 900 }) {
   try { await fn(p); if (errs.length) throw new Error('errors: ' + errs.slice(0, 3).join(' | ')); eq(reqs.length, 0, 'network requests: ' + reqs.join(',')); pass++; console.log(`PASS  ${name}  (${Date.now() - t0} ms)`); }
   catch (e) { fail++; console.log('FAIL  ' + name + '\n      ' + String(e.message).split('\n').slice(0, 5).join('\n      ')); } finally { await ctx.close(); }
 }
+/* the Microsoft Form, in order: 36 questions in seven sections. The print sheet must show exactly these, in this order. */
+const STOPNAMES = ['The Watching Bust', 'Dexter Mausoleum', 'The Groundskeeper', 'The Listening Section'];
+const EXP = [
+  ['From the left, center, and right, how did the eyes seem to move?', ['They followed me from every side', 'Only from one angle', 'They did not seem to move', 'Not sure']],
+  ['During the 3-minute sit and scan, what did you notice most?', ['Sounds', 'Movement', 'A feeling of being watched', 'Nothing unusual']],
+  ['What could most plausibly catch an ankle here?', ['Branches or vines', 'Uneven ground', 'Loose stones', 'Tall grass', 'Nothing I found']],
+  ['After 3 silent minutes, did you hear anything like voices?', ['Yes, clearly', 'Faint, probably natural', 'No', 'Not sure']]];
+const FORM = [
+  { h: 'Squad Information', q: [['Squad name'], ["Squad members, with each person's role"], ['Who is submitting this form?']] },
+  ...STOPNAMES.map((n, i) => ({ h: `Stop ${i + 1}: ${n}`, q: [
+    ['Upload a photo of your squad at this stop, or of the monument.'], ['The Record.'],
+    ['Experiment. ' + EXP[i][0], EXP[i][1].map((o, k) => String.fromCharCode(65 + k) + ') ' + o)],
+    ['What is your verdict?', ['Natural explanation', 'Still unexplained', 'Need more data']], ['Give one fact you recorded that backs up your verdict.'],
+    ['Margin Note. Write one sentence a future investigator could read as lore, using at least two senses (sight, sound, smell, touch).']] })),
+  { h: 'Reflection / Finale', q: [
+    ['What was the temperature in degrees F at a haunted spot and at a control spot with no legend? Give both numbers.'], ['Is the temperature difference big enough to explain a chill?', ['Yes', 'No', 'Not sure']], ['Why? Explain in one sentence.'],
+    ["Show, don't tell. Rewrite 'The cemetery was spooky' so the reader feels it without using the word spooky."], ["The Fifth File. Write the opening line of your squad's own ghost story."],
+    ['Which legend would make the best story?', STOPNAMES], ['Why? Explain in one sentence.']] },
+  { h: 'Field Rules', q: [['We all followed the field rules.', ['Yes, all of us', 'Not all of us']], ['If anyone did not follow a rule, tell us what happened. (Optional)']] }];
+const FORM_Q = FORM.flatMap((s) => s.q);
+/* read the printed sheet back as {sections:[{h, q:[[label, options?]]}]} */
+const readSheet = (p) => p.evaluate(() => { const sh = document.getElementById('print-sheet'), out = []; let cur = null;
+  for (const e of sh.querySelectorAll('h2, .ps-q, .ps-choices')) { if (e.tagName === 'H2') { cur = { h: e.textContent, q: [] }; out.push(cur); } else if (e.classList.contains('ps-q')) cur.q.push([e.textContent.replace(/^\d+\./, '')]); else cur.q[cur.q.length - 1].push([...e.querySelectorAll('.ps-choice')].map((c) => c.textContent)); }
+  return out.map((s) => ({ h: s.h, q: s.q.map((x) => (x.length > 1 ? [x[0], x[1]] : [x[0]])) })); });
+
 /* a filled-in sample save: some answers contain markup and symbols that must print as plain text */
 const SAMPLE = {
   v: 2, squad: 'The Night Owls <b>&</b> Co', mem: ['Ana Lopez', 'Ben Carter', 'Cy Dunn', 'Di Evans', 'Ed Fox'], open: {},
@@ -55,14 +80,29 @@ await T('filled sample: every answer prints, markup prints as plain text, the sh
   await open(p, SAMPLE); await p.click('#dzPrintA'); await p.emulateMedia({ media: 'print' });
   const info = await p.evaluate(() => { const sh = document.getElementById('print-sheet'); return { text: sh.textContent, scripts: sh.querySelectorAll('script, img').length, xss: window.__xss || 0, stops: sh.querySelectorAll('[data-ps-stop]').length }; });
   eq(info.scripts, 0, 'no script or img element was created from student text'); eq(info.xss, 0, 'no script ran'); ok(info.text.includes('<script>window.__xss=1</script>') && info.text.includes('1844 &') && info.text.includes('The Night Owls <b>&</b> Co'), 'student text printed literally');
-  for (const w of ['Charles C. Breuer', 'IMG_0412.jpg', 'Need more data', 'By the Breuer bust', 'The bronze eyes caught', 'Ana Lopez', 'Spring Grove Dossier, Case File #0048', 'Field Rules', 'We all followed the field rules', 'Leader use only', 'Squad photo taken', 'Attach a printed photo here']) ok(info.text.includes(w), 'missing on the sheet: ' + w);
+  for (const w of ['Charles C. Breuer', 'Need more data', 'Haunted spot: 68 F', 'The bronze eyes caught', 'Ana Lopez (Stop 1: Skeptic', 'Spring Grove Dossier, Case File #0048', 'Field Rules', 'We all followed the field rules.', 'Leader use only', 'Attach a printed photo here']) ok(info.text.includes(w), 'missing on the sheet: ' + w);
   ok(!/Leaders:/.test(info.text), 'no "Leaders:" text'); eq(info.stops, 5, 'four stops and the finale');
   const pdf = await p.pdf(LETTER); fs.writeFileSync(path.join(OUT, 'sample-filled.pdf'), pdf); const pages = pdfPages(pdf); console.log('      filled sample pages:', pages); ok(pages >= 4 && pages <= 7, 'page count ' + pages); ok(pdf.slice(0, 5).toString() === '%PDF-', 'a PDF');
+});
+await T('the sheet matches the Microsoft Form exactly: 7 sections, 36 questions numbered 1 to 36, in order, with the same options (filled sample and blank copy)', async (p) => {
+  for (const blank of [false, true]) {
+    await open(p, SAMPLE); await p.click(blank ? '#dzPrintBlank' : '#dzPrintA'); const got = await readSheet(p);
+    eq(got.map((s) => s.h).join(' | '), FORM.map((s) => s.h).join(' | '), 'section headings and order');
+    got.forEach((s, i) => { eq(JSON.stringify(s.q), JSON.stringify(FORM[i].q), `questions in "${FORM[i].h}" (${blank ? 'blank' : 'filled'})`); });
+    const nums = await p.$$eval('#print-sheet .ps-qn', (e) => e.map((x) => x.textContent)); eq(nums.join(','), Array.from({ length: 36 }, (_, i) => (i + 1) + '.').join(','), 'question numbers 1 to 36'); eq(FORM_Q.length, 36, 'the form has 36 questions');
+    await p.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  }
+});
+await T('answers carry over where the Dossier asked the same thing: squad, members with roles, The Record, verdict (chosen option filled), one supporting fact, margin note, temperatures, why, the Fifth File', async (p) => {
+  await open(p, SAMPLE); await p.click('#dzPrintA'); const r = await p.evaluate(() => { const sh = document.getElementById('print-sheet'); return { on: [...sh.querySelectorAll('.ps-box.on')].map((b) => b.parentNode.textContent), text: sh.textContent }; });
+  eq(r.on.join('|'), 'Natural explanation|Need more data|Natural explanation|Still unexplained', 'the four verdicts, one filled per stop');
+  for (const w of ['The Night Owls <b>&</b> Co', 'Ben Carter (Stop 1: Historian', 'Charles C. Breuer, 1844', 'The eyes are glass.', 'The cold bronze smelled of wet moss', 'Haunted spot: 68 F · Control spot: 70 F', 'Two degrees is a small difference', 'The bronze eyes caught the last of the afternoon light']) ok(r.text.includes(w), 'missing: ' + w);
+  ok(!r.text.includes('Experiment notes') && !/IMG_0412/.test(r.text), 'Dossier-only items that are not on the form are not printed');
 });
 await T('blank copy: all answers are blank ruled lines, with fill-in lines for squad, members and roles; the PDF has 4 to 7 pages', async (p) => {
   await open(p, SAMPLE); await p.click('#dzPrintBlank'); await p.emulateMedia({ media: 'print' });
   const info = await p.evaluate(() => { const sh = document.getElementById('print-sheet'); return { text: sh.textContent, lines: sh.querySelectorAll('.ps-line').length, answers: sh.querySelectorAll('.ps-ans').length, onBoxes: sh.querySelectorAll('.ps-box.on').length }; });
-  ok(!/Charles|Ana Lopez|Night Owls|IMG_0412|By the Breuer/.test(info.text), 'no saved answer leaks into the blank copy'); eq(info.answers, 0, 'no filled answer blocks'); eq(info.onBoxes, 0, 'no checked boxes'); ok(info.lines >= 60, 'many ruled lines: ' + info.lines); ok(/Members and roles/.test(info.text) && /Squad name/.test(info.text), 'squad, members and roles to fill in');
+  ok(!/Charles|Ana Lopez|Night Owls|IMG_0412|Breuer bust|Haunted spot: 68|bronze eyes/.test(info.text), 'no saved answer leaks into the blank copy'); eq(info.answers, 0, 'no filled answer blocks'); eq(info.onBoxes, 0, 'no checked boxes'); ok(info.lines >= 35, 'many ruled lines: ' + info.lines); ok(/Squad members, with each person's role/.test(info.text) && /Squad name/.test(info.text) && /Who is submitting this form\?/.test(info.text), 'squad, members and submitter to fill in');
   const pdf = await p.pdf(LETTER); fs.writeFileSync(path.join(OUT, 'sample-blank.pdf'), pdf); const pages = pdfPages(pdf); console.log('      blank copy pages:', pages); ok(pages >= 4 && pages <= 7, 'page count ' + pages);
 });
 await T('layout in print media: black on white, no clipped text or overflow, each stop section fits one page and is set not to split, the leader box is last', async (p) => {
