@@ -1,24 +1,24 @@
 # STATUS
 
-Updated: 2026-11-05 (autonomous build, owner away). Nothing has been merged; nothing was pushed to `main`.
+Updated: 2026-11-05 (autonomous build, owner away). **Nothing has been merged. Nothing was pushed to `main`.** Every pull request is open for review.
 
 ## Done
-- Phase 0 to 2: plan, frozen contracts, decisions, vendored Phaser 3.90.0 (checksummed), shared core/input/audio+captions/shell. `integration/shared`.
-- Phase 3: **The Veil chapter 1 is fully playable** in all six variants (bot-verified): two worlds, bell puzzle, symbols puzzle, writing (2 field notes, case file, 9-beat story workshop with copy/download), saves with strict export/import. `integration/veil`.
-- Phase 4 for The Veil: QA bots, static security checks, UX/content/performance reviews, teacher guide (`the-veil/TEACHER-GUIDE.md`). See the reports in this folder.
+- **Shared framework** (`games-shared/`, `docs/agents/`, vendored Phaser 3.90.0, tests infrastructure): seeds and variants, strict saves with export/import, keyboard + touch input, audio with captions, UI shell. Branch `integration/shared`.
+- **The Veil, Chapter 1** (`the-veil/`): fully playable in all six variants (browser bots), two puzzles, writing, story workshop, teacher guide. Branch `integration/veil`.
+- **Room 214** (`room-214/`): playable in all six variants (headless bot finishes each; browser tests cover the first floor, safe, writing, ending, touch, keyboard, saves, performance), teacher guide. Branch `integration/room214`.
+- **Links** (Games tab, teacher page, search, anonymous event names): branch `integration/links` (one commit on top of `main`), tested together with both games on `integration/links-test`.
+- Reports: QA, security, UX, content and performance reports for both games in this folder.
 
-## Not done
-- **Room 214 is not built.** Only the design (`ROOM214-DESIGN.md`) exists. Decision D-12: per the brief, finish ONE game completely rather than two half-built ones.
-- The final "links" PR (Games tab, home page, teacher page, `ho-track.js` event names) is not made: it edits existing files and tests (the existing suite asserts exact card and link counts), so it needs the owner's review of how Room 214 will appear. The Veil is reachable at `/the-veil/` and with `?case=N`.
-- Real tablet / screen-reader testing.
+## Not done / known limits
+- No real tablet or screen reader was available (touch tested with Chromium emulation; accessibility checked in the DOM).
+- The game canvas is not screen-reader navigable (everything needed to progress is in the DOM; walking the map is visual). A text-only route is a good next step.
+- Room 214 has no full browser start-to-finish bot (the headless logic bot covers the whole game; see QA-REPORT-ROOM214.md).
+- The Veil has Chapter 1 only (the design supports more chapters).
 
-## Branches and last commits
-- `integration/shared`: shared framework + docs + Room 214 design.
-- `integration/veil`: everything in `integration/shared` + The Veil. (PR base for the Veil PR is `integration/shared` so the diff shows only the Veil.)
-- `claude/quirky-bell-yuxloq`: separate small PR "Hide remaining student-visible Leaders: notes" (#19), left OPEN.
-- Old `claude/the-veil-ch1` WIP: untouched; superseded.
+## Branches
+`integration/shared`, `integration/veil`, `integration/room214`, `integration/links` (+ `integration/links-test`), and the earlier `claude/quirky-bell-yuxloq` (PR "Hide remaining student-visible Leaders: notes"). See MORNING-SUMMARY.md for PR numbers. The old `claude/the-veil-ch1` WIP branch is untouched.
 
 ## How to continue
-1. `git fetch`; check out `integration/veil`; read PLAN.md, CONTRACTS.md, VEIL-DESIGN.md.
-2. Run: `node tests/new-games/core.test.mjs`, `veil-logic.test.mjs`, `static-security.test.mjs`, then `shell.test.mjs` and `veil-play.test.mjs` (browser, needs Playwright; `ln -s` the global playwright into `tests/node_modules`).
-3. Room 214: branch `integration/room214` from `integration/shared`, follow ROOM214-DESIGN.md. Reuse `HOG.*` for input, audio+captions, shell, saves and seeds; add `room-214/`.
+1. `git fetch`; read PLAN.md, CONTRACTS.md, DECISIONS.md.
+2. Tests (new games): `node tests/new-games/core.test.mjs`, `veil-logic.test.mjs`, `room214-logic.test.mjs`, `static-security.test.mjs` (no browser) and `shell.test.mjs`, `veil-play.test.mjs`, `room214-play.test.mjs` (Playwright; link the global `playwright` into `tests/node_modules`).
+3. Existing suite: `cd tests && node smoke.mjs && node content-check.mjs` (about 12 minutes; run alone).
