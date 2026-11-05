@@ -496,6 +496,37 @@ details.howto li{margin:.35rem 0}
 .dz-label{font:700 .8rem/1 var(--body);letter-spacing:.2em;color:#7a2c31;margin-bottom:.6rem}
 .dz-form{border-top:1px solid var(--line);margin-top:1.4rem;padding-top:1rem}
 .dz-frame{width:100%;min-height:760px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.dz-ways{margin:.4rem 0 0;padding-left:1.3rem;max-width:min(100ch,100%)}.dz-ways>li{margin:.7rem 0}.dz-ways .row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.4rem 0}
+/* print or save as PDF: a hidden #print-sheet is built from the saved answers only when a print button is pressed. Always light, black on white. */
+#print-sheet{display:none}
+@page{size:letter;margin:.6in;@bottom-right{content:"Page " counter(page) " of " counter(pages);font:9pt Arial,sans-serif;color:#000}}
+@media print{
+  html,body.printing{background:#fff!important;color:#000!important}
+  body.printing>*:not(#print-sheet){display:none!important}
+  body.printing #print-sheet{display:block;font:10.5pt/1.3 "Segoe UI",Arial,Helvetica,sans-serif;color:#000;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.printing *{animation:none!important;transition:none!important;box-shadow:none!important;text-shadow:none!important}
+  #print-sheet table.ps-table{width:100%;border-collapse:collapse}
+  #print-sheet .ps-foot td{border-top:1px solid #000;padding-top:3pt;font-size:9pt}
+  #print-sheet h1{font:700 17pt/1.15 Georgia,"Times New Roman",serif;margin:0 0 .08in}
+  #print-sheet h2{font:700 13pt/1.2 Georgia,"Times New Roman",serif;margin:0 0 .08in;padding-bottom:2pt;border-bottom:2px solid #000}
+  #print-sheet h3{font:700 11pt/1.2 Arial,sans-serif;margin:.1in 0 .03in}
+  #print-sheet .ps-sec{margin:0 0 .2in;break-inside:avoid;page-break-inside:avoid}
+  #print-sheet .ps-sub{break-inside:avoid;page-break-inside:avoid}
+  #print-sheet .ps-small{font-size:9.5pt}
+  #print-sheet .ps-q{margin:.07in 0 .02in;font-weight:700;break-after:avoid}
+  #print-sheet .ps-qn{display:inline-block;min-width:1.7em}
+  #print-sheet .ps-line{border-bottom:1px solid #000;height:1.5em}
+  #print-sheet .ps-ans{border-bottom:1px solid #000;padding:.08em 0 .12em;min-height:1.5em;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+  #print-sheet .ps-box{display:inline-block;width:.95em;height:.95em;border:1.5px solid #000;margin-right:.4em;vertical-align:-.12em;box-sizing:border-box}
+  #print-sheet .ps-box.on{background:#000}
+  #print-sheet .ps-choices{display:flex;flex-wrap:wrap;gap:.1in .3in}
+  #print-sheet .ps-choice{display:inline-block}
+  #print-sheet .ps-photo{border:1.5px solid #000;min-height:.95in;padding:.05in .08in;margin-top:.1in;font-size:9.5pt;break-inside:avoid}
+  #print-sheet .ps-two{display:grid;grid-template-columns:1fr 1fr;gap:.2in}
+  #print-sheet .ps-leader{border:2px solid #000;padding:.1in .14in;break-inside:avoid;page-break-inside:avoid}
+  #print-sheet .ps-rules{margin:.04in 0 .1in;padding-left:1.2em}
+  #print-sheet .ps-rules li{margin:.02in 0}
+}
 @media (max-width:760px){.dz-head,.dz-two{grid-template-columns:1fr}.dz-pts{text-align:left}}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
@@ -2418,7 +2449,7 @@ var PROMPT='';
   }
   function render(){
     var box=$('#dossier');if(!box)return;var y=window.scrollY,fk=window.__dzFocus;
-    box.innerHTML=headerHTML()+'<div class="dz-stops">'+STOPS.map(function(st,i){return stopHTML(i)}).join('')+finaleHTML()+'</div><div class="row"><button type="button" class="btn ghost small" id="dzReset">Start over</button></div>';
+    box.innerHTML=headerHTML()+'<div class="dz-stops">'+STOPS.map(function(st,i){return stopHTML(i)}).join('')+finaleHTML()+'</div><div class="row"><button type="button" class="btn ghost small" id="dzPrint2">Print my answers</button><button type="button" class="btn ghost small" id="dzReset">Start over</button></div>';
     live();window.scrollTo(0,y);
     if(fk){var el=box.querySelector('[data-k="'+fk.replace(/"/g,'\\"')+'"]');if(el)el.focus()}
   }
@@ -2471,10 +2502,13 @@ var PROMPT='';
   function turninHTML(){
     var h='<div class="prose"><p>When your squad is done, check the report below, then copy it and turn it in. Only one person per squad needs to. Nothing is sent from this page: copying and submitting is your choice.</p></div><ul id="subCheck" class="muted" style="max-width:62ch"></ul>'+
       '<label class="lbl" for="subText">Your squad’s Dossier Report</label><textarea id="subText" rows="18" readonly></textarea><div class="row"><button type="button" class="btn ghost" id="subCopy">Copy report</button><button type="button" class="btn ghost" id="subRefresh">Refresh report</button></div>';
-    h+='<div class="dz-form"><h4>Turn it in</h4>';
-    if(httpsOK(FORM_URL))h+='<p><a class="btn" id="formLink" href="'+esc(FORM_URL)+'" target="_blank" rel="noopener">Open the turn-in form</a></p>';
-    else h+='<p><span class="btn" aria-disabled="true" style="opacity:.5">Open the turn-in form</span> <span class="muted">The turn-in form link will be shared by your course leaders.</span></p>';
-    if(httpsOK(FORM_EMBED))h+='<p><button type="button" class="btn ghost" id="formShow">Show the form here</button></p><div id="formBox" hidden></div>';
+    h+='<div class="dz-form"><h4>Turn it in: three ways</h4><ol class="dz-ways">';
+    h+='<li><b>Open the turn-in form.</b>';
+    if(httpsOK(FORM_URL))h+='<div class="row"><a class="btn" id="formLink" href="'+esc(FORM_URL)+'" target="_blank" rel="noopener">Open the turn-in form</a></div>';
+    else h+='<div class="row"><span class="btn" aria-disabled="true" style="opacity:.5">Open the turn-in form</span> <span class="muted">The turn-in form link will be shared by your course leaders.</span></div>';
+    if(httpsOK(FORM_EMBED))h+='<div class="row"><button type="button" class="btn ghost" id="formShow">Show the form here</button></div><div id="formBox" hidden></div>';
+    h+='</li><li><b>Print or save as PDF</b> a paper copy of your answers to hand in.<div class="row"><button type="button" class="btn" id="dzPrintA">Print my answers (PDF)</button><button type="button" class="btn ghost" id="dzPrintBlank">Print a blank paper copy</button></div><p class="muted" style="margin:.2rem 0 0">In the print window, choose Save as PDF or your printer.</p></li>';
+    h+='<li><b>Copy report</b> and paste it where your leaders tell you.<div class="row"><button type="button" class="btn ghost" id="subCopy2">Copy report</button></div></li></ol>';
     return h+'</div>';
   }
   function report(){
@@ -2485,6 +2519,75 @@ var PROMPT='';
     if(finPts().fifth<14)miss.push('The Fifth File is not finished.');
     ul.innerHTML=miss.length?miss.map(function(m){return '<li>'+esc(m)+'</li>'}).join(''):'<li>Everything is filled in. Copy your report and turn it in.</li>';
   }
+
+  /* ---- print or save as PDF: a paper copy of the answers. No libraries, no network, nothing stored or sent; built from the answers already on this device. ---- */
+  var PRULES=['Stay on the paths.','Respect every memorial. Never touch or mark one unless a leader says you may.','No contacting spirits and no seance-style activities; we observe and test only.','Never shine a light at people.','No running.','Follow teacher and staff instructions at all times.','Carry your phone, and stay with your squad.'];
+  var PLEGENDS=['The Watching Eyes (Lot 100, Breuer monument)','The White Dogs (Section 20, Dexter Mausoleum)','The Ankle Grabber (Section 53)','Voices and Figures (Section 16)'];
+  function pel(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function pbox(on){return pel('span','ps-box'+(on?' on':''))}
+  function pline(n){var f=document.createDocumentFragment();for(var i=0;i<(n||1);i++)f.appendChild(pel('div','ps-line'));return f}
+  function pans(text,lines){var t=String(text==null?'':text).trim();return t?pel('div','ps-ans',t):pline(lines||1)}
+  function pq(num,label){var q=pel('div','ps-q');q.appendChild(pel('span','ps-qn',num));q.appendChild(pel('span',null,label));return q}
+  function pchoice(opts,chosen){var r=pel('div','ps-choices');opts.forEach(function(o){var c=pel('span','ps-choice');c.appendChild(pbox(chosen.indexOf(o)>-1));c.appendChild(pel('span',null,o));r.appendChild(c)});return r}
+  function pfield(label,val,lines){var d=pel('div','ps-sub');d.appendChild(pel('div','ps-small',label));d.appendChild(pans(val,lines));return d}
+  function buildSheet(blank){
+    var sh=pel('div');sh.id='print-sheet';sh.setAttribute('aria-hidden','true');
+    var sq=blank?'':(H.squad||'').trim(),tb=pel('table','ps-table'),tf=pel('tfoot','ps-foot'),tr=pel('tr'),td=pel('td',null,'Spring Grove Dossier, Case File #0048 · Squad: '+(sq||'____________________'));tr.appendChild(td);tf.appendChild(tr);tb.appendChild(tf);
+    var tbody=pel('tbody'),btr=pel('tr'),bd=pel('td'),c=bd;btr.appendChild(bd);tbody.appendChild(btr);tb.appendChild(tbody);sh.appendChild(tb);
+    var sec,t=total(),r=rank(t),n=0;
+    /* 1. Squad Information */
+    sec=pel('section','ps-sec');sec.appendChild(pel('h1',null,'Spring Grove Dossier, Case File #0048'));sec.appendChild(pel('h2',null,'Squad Information'));
+    sec.appendChild(pq('1.','Squad name'));sec.appendChild(pans(sq,1));
+    sec.appendChild(pq('2.','Date'));sec.appendChild(pans(blank?'':new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),1));
+    sec.appendChild(pq('3.','Members and roles'));
+    for(var m=0;m<5;m++){var nm=blank?'':(H.mem[m]||'').trim();if(!blank&&!nm)continue;var row=pel('div','ps-sub');row.appendChild(pel('div','ps-small','Member '+(m+1)));row.appendChild(pans(nm,1));sec.appendChild(row)}
+    if(!blank&&!members().length)sec.appendChild(pline(2));
+    if(blank){sec.appendChild(pel('div','ps-small','Roles at each stop (write who has each role): Skeptic, Historian, Sensory Scout, Recorder, Storyteller.'));sec.appendChild(pline(3))}
+    else{var rl=pel('div','ps-small');STOPS.forEach(function(st,i){rl.appendChild(pel('div',null,'Stop '+(i+1)+': '+ROLES.map(function(x){return x+' = '+lead(i,x)}).join(' · ')))});sec.appendChild(rl)}
+    sec.appendChild(pq('4.','Points, rank and badges'));
+    if(blank){sec.appendChild(pel('div','ps-small','Points ________ of '+MAXPTS+'     Rank ______________________'));sec.appendChild(pline(1))}
+    else{sec.appendChild(pel('div',null,'Points: '+t+' of '+MAXPTS+' · Rank: '+r.name));sec.appendChild(pel('div','ps-small','Badges: '+(badges().filter(function(b){return b.on}).map(function(b){return b.n}).join(', ')||'none yet')))}
+    c.appendChild(sec);
+    /* 2 to 5. The four stops */
+    STOPS.forEach(function(st,i){
+      var sd=blank?{}:S(st.id),test=st.tests.filter(function(x){return x.id===sd.test})[0],k=0;sec=pel('section','ps-sec ps-stop');sec.setAttribute('data-ps-stop',st.id);
+      sec.appendChild(pel('h2',null,'Stop '+(i+1)+': '+st.name+((REC[i]&&REC[i].where)?' ('+REC[i].where+')':'')));
+      sec.appendChild(pq('1.','The Record: '+FIELD_FACTS[st.id].q));sec.appendChild(pans(sd.field,1));
+      var ph=pel('div','ps-sub');ph.appendChild(pbox(!!sd.photo));ph.appendChild(pel('span',null,'Squad photo taken'));sec.appendChild(ph);
+      sec.appendChild(pq('2.','The Experiment: which test did your squad choose?'));sec.appendChild(pchoice(st.tests.map(function(x){return x.title}),test?[test.title]:[]));
+      sec.appendChild(pq('3.',test?test.res.label:'Result of the test (use the question for the test you chose)'));sec.appendChild(pans(Array.isArray(sd.res)?sd.res.join(', '):(sd.res||''),1));
+      sec.appendChild(pfield('Photo or audio: time or file name',sd.stamp,1));
+      sec.appendChild(pq('4.','What happened? What does it suggest?'));sec.appendChild(pans(sd.expNotes,2));
+      sec.appendChild(pq('5.','Margin Note: one sentence for your own ghost story, using at least two senses'));sec.appendChild(pans(sd.margin,2));
+      sec.appendChild(pq('6.','The Seal: your verdict'));sec.appendChild(pchoice(VERD,sd.verdict?[sd.verdict]:[]));
+      sec.appendChild(pq('7.','The two facts that best support your verdict'));
+      var fs=(sd.facts||[]).map(function(x){return st.facts[x]&&st.facts[x].t}).filter(Boolean);
+      if(fs.length){fs.forEach(function(f){sec.appendChild(pans(f,1))});for(var z=fs.length;z<2;z++)sec.appendChild(pline(1))}else sec.appendChild(pline(2));
+      var pb=pel('div','ps-photo');pb.appendChild(pel('div',null,'Attach a printed photo here, or note the photo’s file name.'));sec.appendChild(pb);
+      c.appendChild(sec)});
+    /* 6. Reflection / Finale */
+    var f=blank?{}:H.f;sec=pel('section','ps-sec');sec.setAttribute('data-ps-stop','fin');sec.appendChild(pel('h2',null,'Reflection / Finale'));
+    var two=pel('div','ps-two');[['h','Haunted spot'],['c','Control spot (somewhere with no legend)']].forEach(function(pp){var x=pp[0],col=pel('div');col.appendChild(pel('h3',null,pp[1]));col.appendChild(pfield('Location',f[x+'l'],1));col.appendChild(pfield('Temperature (degrees F)',f[x+'t'],1));col.appendChild(pfield('Wind (calm, breeze, strong)',f[x+'w'],1));col.appendChild(pfield('Approximate sound level (quiet, moderate, loud)',f[x+'s'],1));two.appendChild(col)});sec.appendChild(two);
+    var a1=parseFloat(f.ht),a2=parseFloat(f.ct),diff=(isNaN(a1)||isNaN(a2))?'':String(Math.round((a1-a2)*10)/10);
+    sec.appendChild(pq('1.','The difference between the two temperatures (degrees F)'));sec.appendChild(pans(diff,1));
+    sec.appendChild(pq('2.','Is that difference big enough to explain a chill?'));sec.appendChild(pchoice(['Yes','No'],[]));
+    sec.appendChild(pq('3.','What does this difference prove, and what does it not prove? Give your reason.'));sec.appendChild(pans(f.why,3));
+    sec.appendChild(pq('4.','Show, don’t tell: rewrite one sentence from your hunt so it shows instead of tells, with no feeling words.'));sec.appendChild(pline(3));
+    sec.appendChild(pq('5.','The Fifth File: the opening line of your own story'));sec.appendChild(pans(f.fifth,3));
+    sec.appendChild(pq('6.','Which legend would make the best story, and why?'));sec.appendChild(pchoice(PLEGENDS,[]));sec.appendChild(pline(3));
+    c.appendChild(sec);
+    /* 7. Field Rules */
+    sec=pel('section','ps-sec');sec.appendChild(pel('h2',null,'Field Rules'));
+    var ul=pel('ul','ps-rules');PRULES.forEach(function(x){ul.appendChild(pel('li',null,x))});sec.appendChild(ul);
+    var cb=pel('div','ps-sub');cb.appendChild(pbox(false));cb.appendChild(pel('span',null,'We all followed the field rules.'));sec.appendChild(cb);
+    sec.appendChild(pq('','Optional: if anyone did not follow a rule, tell us what happened.'));sec.appendChild(pline(4));
+    c.appendChild(sec);
+    var ld=pel('div','ps-leader');ld.appendChild(pel('h3',null,'Leader use only'));ld.appendChild(pel('div',null,'Score: ________ / '+MAXPTS));ld.appendChild(pel('div','ps-small','Comments:'));ld.appendChild(pline(3));c.appendChild(ld);
+    return sh;
+  }
+  function cleanupPrint(){var x=document.getElementById('print-sheet');if(x&&x.parentNode)x.parentNode.removeChild(x);document.body.classList.remove('printing')}
+  function openPrint(blank){cleanupPrint();document.body.appendChild(buildSheet(blank));document.body.classList.add('printing');try{window.print()}catch(e){cleanupPrint()}}
+  window.addEventListener('afterprint',cleanupPrint);
 
   /* ---- timers, stamps, location check ---- */
   var TM=null;
@@ -2538,6 +2641,7 @@ var PROMPT='';
     if(a=b.getAttribute('data-tstart')){tstart(a);return}
     if(b.hasAttribute('data-tstop')){tstop();return}
     if(a=b.getAttribute('data-gps')){gps(a);return}
+    if(b.id==='dzPrint2'){openPrint(false);return}
     if(b.id==='dzReset'){if(confirm('Erase this squad’s Dossier on this device and start over?')){tstop();H={v:2,squad:'',mem:['','','','',''],s:{},f:{},day:[{},{},{}],open:{}};save();render();HO.toast('Started over.')}}
   });
   root.addEventListener('toggle',function(e){var d=e.target;if(d&&d.getAttribute&&d.getAttribute('data-stop')){H.open[d.getAttribute('data-stop')]=d.open;save()}},true);
@@ -2552,6 +2656,9 @@ var PROMPT='';
   if(ti){ti.innerHTML=turninHTML();
     $('#subCopy').addEventListener('click',function(){copy($('#subText').value,this)});
     $('#subRefresh').addEventListener('click',function(){report();HO.toast('Report refreshed.')});
+    $('#subCopy2').addEventListener('click',function(){copy($('#subText').value,this)});
+    $('#dzPrintA').addEventListener('click',function(){openPrint(false)});
+    $('#dzPrintBlank').addEventListener('click',function(){openPrint(true)});
     var fl=$('#formLink');if(fl)fl.addEventListener('click',function(){track('form-opened')});
     var fs=$('#formShow');if(fs)fs.addEventListener('click',function(){var bx=$('#formBox');if(!bx.firstChild){var f=document.createElement('iframe');f.src=FORM_EMBED;f.title='Turn-in form';f.setAttribute('loading','lazy');f.setAttribute('referrerpolicy','no-referrer');f.className='dz-frame';bx.appendChild(f);var p=document.createElement('p');p.className='muted';p.id='formFail';p.hidden=true;p.innerHTML='The form could not be shown here. <a target="_blank" rel="noopener" href="'+esc(FORM_URL||FORM_EMBED)+'">Open it in its own tab</a>.';bx.appendChild(p);var up=false,fail=function(){if(!up)p.hidden=false};f.addEventListener('load',function(){up=true;p.hidden=true});f.addEventListener('error',fail);setTimeout(fail,10000)}bx.hidden=!bx.hidden;track('form-opened')});
   }
