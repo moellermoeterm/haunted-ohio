@@ -6,11 +6,11 @@
   var doc = root.document;
   var KEYS = {
     ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
-    KeyE: 'interact', Enter: 'interact', Space: 'interact', KeyV: 'shift', KeyH: 'hide', ShiftLeft: 'run', ShiftRight: 'run', KeyJ: 'journal', Escape: 'pause'
+    KeyE: 'interact', Enter: 'interact', Space: 'interact', KeyV: 'shift', KeyH: 'hide', ShiftLeft: 'run', ShiftRight: 'run', KeyJ: 'journal', Escape: 'pause', KeyF: 'light', KeyC: 'sneak', KeyT: 'throw'
   };
   var MOVE = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-  var LABEL = { interact: 'Act', shift: 'Veil', hide: 'Hide', run: 'Run', journal: 'Journal', pause: 'Menu' };
-  var KEYHINT = { interact: 'E', shift: 'V', hide: 'H', run: 'Shift', journal: 'J', pause: 'Esc' };
+  var LABEL = { interact: 'Act', shift: 'Veil', hide: 'Hide', run: 'Run', journal: 'Journal', pause: 'Menu', light: 'Light', sneak: 'Sneak', throw: 'Throw' };
+  var KEYHINT = { interact: 'E', shift: 'V', hide: 'H', run: 'Shift', journal: 'J', pause: 'Esc', light: 'F', sneak: 'C', throw: 'T' };
 
   function typing(t) { return !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable); }
 
