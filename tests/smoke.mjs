@@ -604,7 +604,7 @@ T('new games: The Veil and Room 214 are on the Games tab, open from it, and are 
   await p.click('#games a[href="the-veil/"]'); await p.waitForURL('**/the-veil/', { timeout: 5000 }); ok(await p.isVisible('#veil-form'), 'The Veil title screen'); await p.waitForTimeout(150);
   ok((await calls()).some((c) => c.path === 'event/game-opened-the-veil'), 'The Veil open is counted'); ok((await calls()).some((c) => c.path === '/the-veil'), 'its page is counted');
   await p.goto(base + 'room-214/'); await p.waitForTimeout(150); ok(await p.isVisible('#r-form'), 'Room 214 title screen'); ok((await calls()).some((c) => c.path === 'event/game-opened-room-214'), 'Room 214 open is counted'); ok((await calls()).some((c) => c.path === '/room-214'), 'its page is counted');
-  for (const c of await calls()) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z-]+)$/.test(c.path), 'fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event: ' + Object.keys(c)); }
+  for (const c of await calls()) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z0-9-]+)$/.test(c.path), 'fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event: ' + Object.keys(c)); }
   eq(errs.length, 0, 'page errors: ' + errs);
   /* the site search finds both */
   await p.goto(base); await p.fill('#q', 'stealth hotel'); await p.waitForTimeout(250); ok(/Room 214/.test(await p.textContent('#results')), 'search finds Room 214'); await p.fill('#q', 'chapel bell'); await p.waitForTimeout(250); ok(/The Veil/.test(await p.textContent('#results')), 'search finds The Veil');
