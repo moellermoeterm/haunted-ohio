@@ -92,7 +92,7 @@ T('home redesign: grouped navigation menus open, close, and are keyboard friendl
 T('home redesign: hero, case index, and field map', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#home');
   ok((await p.isVisible('.hero-moon')) && (await p.isVisible('.hero-city')), 'night sky and skyline render');
-  eq((await p.$$('.where a')).length, 12, 'twelve case-index cards (the eleven originals plus The Week)');
+  eq((await p.$$('.where a')).length, 14, 'fourteen case-index cards (the twelve originals plus The Veil and Room 214)');
   await p.click('#heroCue');
   await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
@@ -555,6 +555,8 @@ T('teacher: six links per game and a seating helper where touching seats never s
   await p.goto(base + 'teacher/'); await p.waitForTimeout(200);
   eq((await p.$$eval('#hfLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../haunting-files/?case=' + n).join(','), 'six Haunting Files links');
   eq((await p.$$eval('#llLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../last-light/?case=' + n).join(','), 'six Last Light links');
+  eq((await p.$$eval('#vlLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../the-veil/?case=' + n).join(','), 'six The Veil links');
+  eq((await p.$$eval('#r2Links a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../room-214/?case=' + n).join(','), 'six Room 214 links');
   for (const [rows, cols] of [[5, 6], [3, 3], [8, 12], [1, 4], [12, 1]]) {
     await p.fill('#rows', String(rows)); await p.fill('#cols', String(cols)); await p.click('#make');
     for (let i = 0; i < 3; i++) { await p.click('#shuffle'); }
@@ -596,6 +598,23 @@ T('analytics: nothing breaks, and nothing is sent, when GoatCounter is blocked o
     eq(errs.length, 0, mode + ': no page errors: ' + errs);
     if (mode === 'placeholder') eq(await p.evaluate(() => (window.__gc || []).length), 0, 'with the YOUR_CODE placeholder nothing is counted');
   }
+});
+T('new games: The Veil and Room 214 are on the Games tab, open from it, and are counted anonymously (fixed event names only)', async ({ base, newPage }) => {
+  const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const calls = async () => p.evaluate(() => window.__gc || []);
+  await p.goto(base + '#games'); await p.waitForTimeout(200); eq((await p.$$('#games .gcard')).length, 4, 'four game cards');
+  eq((await p.$$eval('#games .gcard', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,last-light/,the-veil/,room-214/', 'card links');
+  ok(/Game material/.test(await p.textContent('#games .gcard.vl')) && /Game material/.test(await p.textContent('#games .gcard.r2')), 'both are labelled Game material');
+  await p.click('#games a[href="the-veil/"]'); await p.waitForURL('**/the-veil/', { timeout: 5000 }); ok(await p.isVisible('#veil-form'), 'The Veil title screen'); await p.waitForTimeout(150);
+  ok((await calls()).some((c) => c.path === 'event/game-opened-the-veil'), 'The Veil open is counted'); ok((await calls()).some((c) => c.path === '/the-veil'), 'its page is counted');
+  await p.goto(base + 'room-214/'); await p.waitForTimeout(150); ok(await p.isVisible('#r-form'), 'Room 214 title screen'); ok((await calls()).some((c) => c.path === 'event/game-opened-room-214'), 'Room 214 open is counted'); ok((await calls()).some((c) => c.path === '/room-214'), 'its page is counted');
+  for (const c of await calls()) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z0-9-]+)$/.test(c.path), 'fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event: ' + Object.keys(c)); }
+  eq(errs.length, 0, 'page errors: ' + errs);
+  /* the Preview badges: one constant controls them; the tooltip says what they mean */
+  await p.goto(base); eq((await p.$$('.pv-badge')).length, 4, 'four badges: two on the home cards, two on the Games tab'); eq(await p.getAttribute('.pv-badge >> nth=0', 'title'), 'Leaders are still testing this game.', 'tooltip');
+  ok((await p.$$eval('.where a[data-preview] strong', (e) => e.map((x) => x.textContent)).then((a) => a.every((s) => /Preview$/.test(s)))), 'home cards carry the badge'); ok(await p.isVisible('.where a[href="the-veil/"]') && await p.isVisible('.where a[href="room-214/"]'), 'home cards link to both games');
+  eq((await p.$$('.where a:not([data-preview]) .pv-badge')).length, 0, 'no other card has a badge');
+  /* the site search finds both */
+  await p.goto(base); await p.fill('#q', 'stealth hotel'); await p.waitForTimeout(250); ok(/Room 214/.test(await p.textContent('#results')), 'search finds Room 214'); await p.fill('#q', 'chapel bell'); await p.waitForTimeout(250); ok(/The Veil/.test(await p.textContent('#results')), 'search finds The Veil');
 });
 T('analytics: each home tab is its own page; only fixed events are sent; names and typed text are never sent', async ({ base, newPage }) => {
   const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
