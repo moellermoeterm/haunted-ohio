@@ -11,7 +11,7 @@ Everything below is **merged to `main` and deployed** unless it says otherwise. 
 | 4 | #19 Hide remaining student-visible "Leaders:" notes (home map list, Dossier Field Facts) | `fe17968bff831ff01c21ed45e1654b1849d4bbc3` | success (run 25) |
 | 5 | #23 Links to both games (Games tab, home page, search, teacher page, anonymous event names) + **Preview badges** (`PREVIEW_BADGE = true`) | `e098aa5144dd2f864f5498d8857e3d0a3a56464a` | success (run 26) |
 | 6 | #24 Remove the last student-visible "Leaders:" prefix (Leaders page) + a site-wide test (Stage 3) | `cf216b7e6273f8be78efe32b149c6db8ca137245` | success (run 27) |
-| 7 | #25 Print or save as PDF: paper copy of the Spring Grove hunt answers, plus a blank copy (Stage 4) | `035f05dc306bad5c3c82d74936ea490fead4e376` | see STATUS.md (final deploy check) |
+| 7 | #25 Print or save as PDF: paper copy of the Spring Grove hunt answers, plus a blank copy (Stage 4) | `035f05dc306bad5c3c82d74936ea490fead4e376` | success (run 28) |
 
 Nothing failed or was skipped. This summary and STATUS.md are on branch `agent/docs-summary` in an open PR (docs only; not merged, because merging docs was not one of the authorized PRs).
 
@@ -27,7 +27,7 @@ Nothing failed or was skipped. This summary and STATUS.md are on branch `agent/d
 
 ## Tests
 - New games: shared `core` 32/32, `shell` 10/10, `static-security` 9/9; Veil `veil-logic` 11/11 and `veil-play` 17/17 (walking bot finishes all six variants); Room 214 `room214-logic` 21/21 (a sneaking bot finishes all six variants) and `room214-play` 13/13.
-- Existing full suite (`smoke.mjs` + `content-check.mjs`), run once, alone, on `main` after the links merge: **42/42 + content check passed**. It was run again, alone, on the final `main` (after #25): see STATUS.md for the result.
+- Existing full suite (`smoke.mjs` + `content-check.mjs`), run once, alone, on `main` after the links merge: **42/42 + content check passed**. It was run again, alone, on the final `main` (`035f05d`, after #25): **43/43 + content check passed**.
 - Print: `node tests/print-pdf.mjs` 11/11 (real PDFs via `page.pdf()`, 7 pages each; no network, no clipping, `<script>` and `& < >` print as plain text, stops never split, 1920/1280/390 sweep).
 
 ## Revert instructions (each merge is one squash commit)
