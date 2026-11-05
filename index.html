@@ -513,6 +513,7 @@ details.howto li{margin:.35rem 0}
   #print-sheet .ps-sec{margin:0 0 .2in;break-inside:avoid;page-break-inside:avoid}
   #print-sheet .ps-sub{break-inside:avoid;page-break-inside:avoid}
   #print-sheet .ps-small{font-size:9.5pt}
+  #print-sheet .ps-hq{font-weight:700;margin:.08in 0 .01in}
   #print-sheet .ps-q{margin:.07in 0 .02in;font-weight:700;break-after:avoid}
   #print-sheet .ps-qn{display:inline-block;min-width:1.7em}
   #print-sheet .ps-line{border-bottom:1px solid #000;height:1.5em}
@@ -2522,7 +2523,7 @@ var PROMPT='';
 
   /* ---- print or save as PDF: a paper copy of the answers. No libraries, no network, nothing stored or sent; built from the answers already on this device. ---- */
   var PRULES=['Stay on the paths.','Respect every memorial. Never touch or mark one unless a leader says you may.','No contacting spirits and no seance-style activities; we observe and test only.','Never shine a light at people.','No running.','Follow teacher and staff instructions at all times.','Carry your phone, and stay with your squad.'];
-  /* The Microsoft Form, in order (36 questions in seven sections). Edit here if the form changes. */
+  /* The Microsoft Form, in order (30 numbered questions in five groups). The Record and the squad members are not asked on the form, so they are not printed (the Dossier still saves them). Edit here if the form changes. */
   var FORM_STOPS=['The Watching Bust','Dexter Mausoleum','The Groundskeeper','The Listening Section'];
   var FORM_EXPERIMENT=[
     {q:'From the left, center, and right, how did the eyes seem to move?',o:['They followed me from every side','Only from one angle','They did not seem to move','Not sure']},
@@ -2548,20 +2549,18 @@ var PROMPT='';
     var dt=blank?'':new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
     sec.appendChild(pel('div','ps-small','Date: '+(dt||'______________')+(blank?'     Points: ________ of '+MAXPTS+'     Rank: ______________':'     Points: '+t+' of '+MAXPTS+' · Rank: '+r.name)));
     if(!blank)sec.appendChild(pel('div','ps-small','Badges: '+(badges().filter(function(b){return b.on}).map(function(b){return b.n}).join(', ')||'none yet')));
+    /* header (unnumbered): Squad name(s) */
+    var names=blank?'':[sq,H.mem.map(function(x){return (x||'').trim()}).filter(Boolean).join(', ')].filter(Boolean).join(': ');
+    var hq=pel('div','ps-sub');hq.appendChild(pel('div','ps-hq','Squad name(s)'));hq.appendChild(pel('div','ps-small','Write the names of everyone in your group'));hq.appendChild(pans(names,1));sec.appendChild(hq);
     /* SECTION 1: Squad Information */
     sec.appendChild(pel('h2',null,'Squad Information'));
-    sec.appendChild(Q('Squad name'));sec.appendChild(pans(sq,1));
-    sec.appendChild(Q("Squad members, with each person's role"));
-    var mem=blank?[]:H.mem.map(function(x,m){return {n:(x||'').trim(),m:m}}).filter(function(x){return x.n});
-    if(mem.length)mem.forEach(function(x){sec.appendChild(pans(x.n+' ('+STOPS.map(function(st,i){return 'Stop '+(i+1)+': '+ROLES[(x.m+i)%5]}).join(' · ')+')',1))});else sec.appendChild(pline(3));
     sec.appendChild(Q('Who is submitting this form?'));sec.appendChild(pline(1));
     c.appendChild(sec);
-    /* SECTIONS 2 to 5: the four stops (six questions each) */
+    /* SECTIONS 2 to 5: the four stops (five questions each: questions 2 to 21) */
     STOPS.forEach(function(st,i){
       var sd=blank?{}:S(st.id),ex=FORM_EXPERIMENT[i];sec=pel('section','ps-sec ps-stop');sec.setAttribute('data-ps-stop',st.id);
       sec.appendChild(pel('h2',null,'Stop '+(i+1)+': '+FORM_STOPS[i]));
       sec.appendChild(Q('Upload a photo of your squad at this stop, or of the monument.'));var pb=pel('div','ps-photo');pb.appendChild(pel('div',null,"Attach a printed photo here, or note the photo's file name."));sec.appendChild(pb);
-      sec.appendChild(Q('The Record.'));sec.appendChild(pans(sd.field,1));
       sec.appendChild(Q('Experiment. '+ex.q));sec.appendChild(pchoice(plet(ex.o),[]));
       sec.appendChild(Q('What is your verdict?'));sec.appendChild(pchoice(VERD,sd.verdict?[sd.verdict]:[]));
       var fs=(sd.facts||[]).map(function(x){return st.facts[x]&&st.facts[x].t}).filter(Boolean);
