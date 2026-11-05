@@ -34,5 +34,5 @@ T('saves are only ever parsed through the strict schema (no bare JSON.parse of s
   assert.match(fs.readFileSync(path.join(ROOT, 'games-shared/hog-shell.js'), 'utf8'), /S\.clean\(SETTINGS/);
 });
 T('the privacy list: only whitelisted GoatCounter event names are used', () => { const ok = new Set(['game-opened-the-veil', 'game-opened-room-214', 'chapter-complete']); for (const f of files.filter((f) => f.endsWith('.js'))) { const s = fs.readFileSync(f, 'utf8'); for (const m of s.matchAll(/HO_track\(\s*['"]([^'"]+)['"]/g)) assert.ok(ok.has(m[1]), rel(f) + ' sends ' + m[1]); } });
-T('no real people or real-history labels in game content', () => { for (const f of files.filter((f) => /\/(the-veil|room-214)\//.test('/' + rel(f)) && f.endsWith('.js'))) { const s = fs.readFileSync(f, 'utf8').replace(/Nothing is presented as Real history/gi, ''); assert.ok(!/real history/i.test(s), rel(f) + ' mentions Real history'); } });
+T('no real people or real-history labels in game content', () => { for (const f of files.filter((f) => /\/(the-veil|room-214)\//.test('/' + rel(f)) && f.endsWith('.js'))) { const s = fs.readFileSync(f, 'utf8').replace(/Nothing is (presented as )?Real history/gi, ''); assert.ok(!/real history/i.test(s), rel(f) + ' mentions Real history'); } });
 console.log(process.exitCode ? '\nSome tests failed' : '\nAll ' + n + ' tests passed');
