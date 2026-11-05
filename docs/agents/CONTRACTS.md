@@ -34,7 +34,7 @@ Envelope (all keys required, no others allowed):
 - Game `state` schemas use the tiny schema language in `hog-core.js` (`int`, `num`, `bool`, `str`, `enum`, `arr`, `obj`, `map`).
 
 ## 3. Input (`HOG.input.create(root, opts)`)
-Actions: `up down left right interact shift hide run journal pause`. Keyboard: arrows/WASD move, E/Enter/Space interact, V shift worlds (Veil), H hide (Room 214), Shift run, J journal, Esc pause. Touch: a DOM overlay (not canvas) with a 96 px joystick (left) and 56 px buttons (right), `touch-action:none`, pointer events, `aria-label` on every control, visible focus. Overlay shows when `(pointer: coarse)` or when the user turns it on. API returns `{ axis():{x,y}, held(a), onPress(a, fn), setActions(list), show(bool), destroy() }`.
+Actions: `up down left right interact shift hide run journal pause light sneak throw` (a game lists the ones it uses; Room 214 adds `light` F, `sneak` C, `throw` T). Keyboard: arrows/WASD move, E/Enter/Space interact, V shift worlds (Veil), H hide (Room 214), Shift run, J journal, Esc pause. Touch: a DOM overlay (not canvas) with a 96 px joystick (left) and 56 px buttons (right), `touch-action:none`, pointer events, `aria-label` on every control, visible focus. Overlay shows when `(pointer: coarse)` or when the user turns it on. API returns `{ axis():{x,y}, held(a), onPress(a, fn), setActions(list), show(bool), destroy() }`.
 
 ## 4. Audio and captions (`HOG.audio`)
 - `HOG.audio.define(name, { caption, visual, make(ctx, out, vol) })`; `HOG.audio.cue(name, { dir })`.
