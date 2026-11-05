@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-game="veil">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Veil | MoeTerm Haunted Ohio</title>
+<meta name="description" content="The Veil: investigate a closed chapel in two worlds, then write your own horror story. Game material (fiction).">
+<link rel="icon" type="image/png" href="../assets/img/ho-icon.png">
+<link rel="stylesheet" href="../assets/css/ho-fonts.css">
+<link rel="stylesheet" href="../assets/css/ho-core.css">
+<link rel="stylesheet" href="../games-shared/hog-shell.css">
+<link rel="stylesheet" href="css/veil.css">
+<script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<main id="veil-main">
+  <section id="veil-title" class="veil-title" aria-labelledby="veil-h">
+    <h2 id="veil-h">The Veil</h2>
+    <p class="veil-lede">Chapter 1: The Keeper&rsquo;s Bell</p>
+    <p>A closed chapel. A brass bell. Two worlds that do not always agree. Investigate what really happened there, then write an original horror story of your own.</p>
+    <p class="veil-small">Game material (fiction). The strange things in this game are watched and investigated, never summoned. Your name and writing stay in this browser and are never sent anywhere.</p>
+    <div id="veil-resume" class="veil-card" hidden></div>
+    <form id="veil-form" class="veil-card" autocomplete="off">
+      <label class="hog-label" for="veil-name">Your investigator name</label>
+      <input id="veil-name" type="text" minlength="2" maxlength="24" required>
+      <div id="veil-case"></div>
+      <div class="row"><button class="hog-btn primary" type="submit" id="veil-begin">Begin investigation</button></div>
+      <p id="veil-err" class="veil-err" role="alert"></p>
+    </form>
+  </section>
+  <section id="veil-play" hidden aria-label="Game">
+    <div class="veil-hud" id="veil-hud">
+      <p id="veil-obj" class="veil-obj" aria-live="polite"></p>
+      <div class="hog-tools"><button type="button" class="hog-btn" id="h-ev">Evidence</button><button type="button" class="hog-btn" id="h-case">Case File</button><button type="button" class="hog-btn" id="h-story">Story</button><button type="button" class="hog-btn" id="h-menu">Menu</button></div>
+    </div>
+    <div id="veil-stage" class="hog-stage" role="application" aria-label="The Veil game area. Use the arrow keys or the on-screen controls. The text below the game always tells you what to do next."></div>
+  </section>
+</main>
+<script src="../assets/js/ho-variant.js"></script>
+<script src="../assets/js/ho-track.js"></script>
+<script src="../games-shared/vendor/phaser.min.js"></script>
+<script src="../games-shared/hog-core.js"></script>
+<script src="../games-shared/hog-input.js"></script>
+<script src="../games-shared/hog-audio.js"></script>
+<script src="../games-shared/hog-shell.js"></script>
+<script src="js/data.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
