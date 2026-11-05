@@ -1,0 +1,59 @@
+/* Haunted Ohio Games: shared shell and touch-control styles. Uses the site's design tokens (ho-core.css) with safe fallbacks. */
+:root{--hog-text:1;--hog-ink:var(--ho-ink,#0b0e14);--hog-surface:var(--ho-surface,#141b2b);--hog-surface2:var(--ho-surface-2,#1e2940);--hog-line:var(--ho-line,#2c3a57);--hog-fg:var(--ho-text,#ece6d6);--hog-muted:var(--ho-muted,#aeb7c8);--hog-gold:var(--ho-gold,#d9b86c);--hog-ember:var(--ho-ember,#e0603a);--hog-ok:var(--ho-ok,#7fd09a)}
+html.hog{font-size:calc(100% * var(--hog-text))}
+.hog *{box-sizing:border-box}
+body.hog{margin:0;background:var(--hog-ink);color:var(--hog-fg);font-family:var(--ho-body,system-ui,Segoe UI,sans-serif);line-height:1.5;overscroll-behavior:none}
+.hog .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hog :focus-visible{outline:3px solid var(--hog-gold);outline-offset:2px}
+.hog button{font:inherit;color:inherit;cursor:pointer}
+.hog-btn{background:var(--hog-surface2);color:var(--hog-fg);border:1.5px solid var(--hog-line);border-radius:10px;padding:.5rem .9rem;min-height:44px;min-width:44px;font-weight:700}
+.hog-btn:hover{border-color:var(--hog-gold)}
+.hog-btn.primary{background:var(--hog-ember);border-color:var(--hog-ember);color:#fff}
+.hog-btn[aria-pressed="true"]{border-color:var(--hog-gold);color:var(--hog-gold)}
+.hog-btn[disabled]{opacity:.45;cursor:not-allowed}
+.hog-bar{position:sticky;top:0;z-index:30;background:rgba(11,14,20,.95);border-bottom:1px solid var(--hog-line);display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .8rem;padding:.4rem .8rem;padding-top:calc(.4rem + env(safe-area-inset-top,0px))}
+.hog-brand{color:var(--hog-muted);text-decoration:none;font-weight:700;min-height:44px;display:inline-flex;align-items:center}
+.hog-brand:hover{color:var(--hog-gold)}
+.hog-title{margin:0;font-family:var(--ho-display,Georgia,serif);font-weight:400;font-size:1.3rem;margin-right:auto}
+.hog-case{border:1.5px solid var(--hog-gold);color:var(--hog-gold);border-radius:99px;padding:.1rem .8rem;font-weight:700;white-space:nowrap}
+.hog-tools{display:flex;flex-wrap:wrap;gap:.4rem}
+.hog-stage{position:relative;width:100%;max-width:1280px;margin:0 auto;background:#05070b;touch-action:none;user-select:none;-webkit-user-select:none}
+.hog-stage canvas{display:block;width:100%;height:auto;touch-action:none}
+.hog-captions{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(.6rem + env(safe-area-inset-bottom,0px));z-index:25;width:min(92vw,40rem);display:grid;gap:.25rem;pointer-events:none}
+.hog-cap{background:rgba(0,0,0,.82);border:1px solid var(--hog-line);border-radius:8px;padding:.25rem .7rem;font-size:.95rem;text-align:center;animation:hogfade 4.2s forwards}
+.hog-cap b{color:var(--hog-gold)}
+@keyframes hogfade{0%,80%{opacity:1}100%{opacity:0}}
+.hog-pulse{position:fixed;inset:0;pointer-events:none;z-index:24;border:0 solid transparent}
+.hog-pulse[data-dir="left"]{border-left:10px solid var(--hog-gold)}.hog-pulse[data-dir="right"]{border-right:10px solid var(--hog-gold)}
+.hog-pulse[data-dir="up"]{border-top:10px solid var(--hog-gold)}.hog-pulse[data-dir="down"]{border-bottom:10px solid var(--hog-gold)}
+.hog-pulse[data-dir="near"]{box-shadow:inset 0 0 0 6px var(--hog-ember)}
+.hog-pulse.show{animation:hogpulse .9s ease-out 1}
+@keyframes hogpulse{0%{opacity:.9}100%{opacity:0}}
+.hog-low .hog-pulse.show{animation:none;opacity:.55}.hog-low .hog-cap{animation-duration:6s}
+.hog-modal-bg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:1rem}
+.hog-modal{background:var(--hog-surface);border:1px solid var(--hog-line);border-radius:14px;max-width:44rem;width:100%;max-height:92vh;overflow:auto;padding:1.1rem 1.3rem}
+.hog-modal h2{margin:0 0 .6rem;font-family:var(--ho-display,Georgia,serif);font-weight:400}
+.hog-modal .row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.7rem 0}
+.hog-modal textarea{width:100%;min-height:9rem;font:inherit;background:#f3ead0;color:#2a1f10;border:1px solid #b5a174;border-radius:6px;padding:.6rem}
+.hog-modal input[type=text],.hog-modal input[type=number]{font:inherit;min-height:44px;padding:.3rem .6rem;border-radius:8px;border:1.5px solid var(--hog-line);background:var(--hog-ink);color:var(--hog-fg)}
+.hog-slots{display:grid;gap:.5rem;margin:.6rem 0}
+.hog-slot{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;border:1px solid var(--hog-line);border-radius:10px;padding:.5rem .7rem}
+.hog-slot .grow{flex:1 1 10rem}
+.hog-toast{position:fixed;left:50%;top:4.5rem;transform:translateX(-50%);z-index:60;background:var(--hog-surface2);border:1px solid var(--hog-gold);border-radius:10px;padding:.5rem 1rem;max-width:90vw}
+.hog-label{font-weight:700;display:block;margin:.4rem 0 .2rem}
+/* touch controls (DOM overlay) */
+.hog-touch{position:fixed;left:0;right:0;bottom:0;z-index:22;display:flex;justify-content:space-between;align-items:flex-end;padding:.6rem .8rem calc(.6rem + env(safe-area-inset-bottom,0px));pointer-events:none;touch-action:none}
+.hog-touch[hidden]{display:none}
+.hog-touch>*{pointer-events:auto}
+.hog-stick{position:relative;width:104px;height:104px;border-radius:50%;background:rgba(20,27,43,.55);border:2px solid rgba(217,184,108,.7);touch-action:none}
+.hog-knob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(217,184,108,.85);border:2px solid #fff3}
+.hog-dpad{display:none}
+.hog-btns{display:flex;flex-direction:column-reverse;gap:.5rem;align-items:flex-end}
+.hog-tbtn{min-width:56px;min-height:56px;border-radius:50%;border:2px solid var(--hog-gold);background:rgba(20,27,43,.8);color:var(--hog-fg);font-weight:700;touch-action:none;padding:0 .4rem}
+.hog-act{min-width:72px;border-radius:28px;padding:0 .9rem}
+.hog-tbtn.on{background:var(--hog-gold);color:#14110a}
+@media (max-width:520px){.hog-title{font-size:1.1rem}.hog-bar{gap:.3rem .5rem}}
+@media (prefers-reduced-motion:reduce){.hog-cap{animation-duration:6s}.hog-pulse.show{animation:none;opacity:.5}}
+.hog-touch.dpad .hog-stick{display:none}
+.hog-touch.dpad .hog-dpad{display:grid;grid-template:repeat(3,56px)/repeat(3,56px);gap:4px}
+.hog-d-up{grid-area:1/2}.hog-d-left{grid-area:2/1}.hog-d-right{grid-area:2/3}.hog-d-down{grid-area:3/2}
