@@ -1,0 +1,13 @@
+.veil-title{max-width:46rem;margin:0 auto;padding:1.5rem 1rem 6rem}
+.veil-title h2{font-family:var(--ho-display,Georgia,serif);font-weight:400;font-size:clamp(2.4rem,8vw,4rem);margin:.2rem 0}
+.veil-lede{color:var(--hog-gold);font-weight:700;margin:0 0 1rem}
+.veil-small{color:var(--hog-muted);font-size:.9rem}
+.veil-card{background:var(--hog-surface);border:1px solid var(--hog-line);border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}
+.veil-card input[type=text],.veil-card input[type=number]{font:inherit;min-height:44px;padding:.3rem .6rem;border-radius:8px;border:1.5px solid var(--hog-line);background:var(--hog-ink);color:var(--hog-fg);width:100%;max-width:22rem}
+.veil-card .row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.7rem 0}
+.veil-err{color:#ffb4a8;min-height:1.4em;margin:.2rem 0 0}
+.veil-hud{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:.5rem .8rem;align-items:center;justify-content:space-between;padding:.5rem .8rem}
+.veil-obj{margin:0;flex:1 1 20rem;font-weight:700;color:var(--hog-gold)}
+.hog-tools{display:flex;flex-wrap:wrap;gap:.4rem}
+#veil-play{padding-bottom:12rem}
+@media (min-width:900px){#veil-play{padding-bottom:1rem}}
