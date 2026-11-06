@@ -149,6 +149,36 @@ mark.adv{background:var(--hl-adv);color:inherit;border-radius:3px;padding:0 .15e
 .self label{display:flex;gap:.6rem;align-items:flex-start;margin:.5rem 0}
 .self input{width:1.2rem;height:1.2rem;margin-top:.25rem;accent-color:var(--ho-ember)}
 
+/* tabs, resources, bonus challenges */
+.toptabs,.subtabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.3rem}
+.tabbtn{font:700 1rem/1.2 var(--body);padding:.6em 1.2em;min-height:44px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:background .2s,border-color .2s}
+.tabbtn:hover{background:var(--surface2);border-color:var(--ho-gold-dim)}
+.tabbtn[aria-selected="true"]{background:var(--ho-gold);border-color:var(--ho-gold);color:#18120a}
+.subtabs .tabbtn{font-size:.95rem;padding:.5em 1em}
+.respane{background:linear-gradient(180deg,var(--surface2),var(--surface) 30%);border:1px solid var(--line);border-radius:var(--ho-r-lg);padding:clamp(1.1rem,3vw,2rem);box-shadow:var(--ho-shadow)}
+.respane h2:focus,.respane h3:focus{outline:none}
+.cardx{border:1px solid var(--line);border-radius:var(--ho-r);background:var(--ho-night-2);margin:.8rem 0}
+details.cardx>summary{cursor:pointer;padding:.8rem 1rem;font-weight:700;font-size:1.05rem;min-height:44px;display:flex;align-items:center}
+details.cardx[open]>summary{border-bottom:1px solid var(--line)}
+.cardx .cbody{padding:.3rem 1rem 1rem}
+.cardx .cbody p{margin:.6rem 0}
+.cardx h3{margin:0;padding:.8rem 1rem 0;font-size:1.3rem}
+.cardx>p{margin:.4rem 1rem 1rem}
+.arcparts{margin:.6rem 0 1rem;padding-left:1.2rem}.arcparts li{margin:.3rem 0}
+.pick{display:flex;gap:.7rem;align-items:flex-start;padding:.8rem 1rem .2rem;cursor:pointer}
+.pick input{width:1.25rem;height:1.25rem;margin-top:.25rem;accent-color:var(--ho-ember);flex:none}
+.move{margin:.3rem 1rem .9rem 3.0rem;color:var(--ho-gold);font-weight:700}
+.arcform{border:1.5px solid var(--line);border-radius:var(--ho-r);padding:.8rem 1.1rem 1rem;margin:1.2rem 0;background:var(--ho-night-2)}
+.arcform legend{font-weight:700;padding:0 .4rem;color:var(--ho-gold)}
+.arcform input[type=text]{width:100%;font:inherit;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:var(--ho-r);padding:.6rem .8rem;min-height:44px}
+.arcform input[type=text]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(143,211,232,.22)}
+.arcform .opts{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;margin:.4rem 0}
+.arcform .opts label{display:flex;gap:.5rem;align-items:center;min-height:44px}
+.arcform .opts input{width:1.2rem;height:1.2rem;accent-color:var(--ho-ember)}
+.linkslist{padding-left:1.2rem}.linkslist li{margin:.7rem 0}
+.bonus h3{margin-top:.6rem}
+.bonus .tagb{display:inline-block;font:700 .78rem/1 var(--body);letter-spacing:.18em;text-transform:uppercase;color:var(--ho-gold)}
+
 /* credit + footer */
 .credit{margin-top:2.5rem;border:1px solid var(--line);border-left:4px solid var(--ho-gold-dim);border-radius:var(--ho-r);background:var(--surface);padding:1.1rem 1.4rem;font-size:.97rem;color:var(--muted)}
 .credit p{margin:.4rem 0;max-width:none}
@@ -193,13 +223,21 @@ footer p{max-width:none;margin:.3rem 0}
 </section>
 
 <div class="wrap">
+  <div class="toptabs" id="toptabs" role="tablist" aria-label="Show, Don’t Tell sections">
+    <button class="tabbtn" type="button" role="tab" id="tab-lessons" aria-controls="view-lessons" aria-selected="true" tabindex="0">Lessons</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-resources" aria-controls="view-resources" aria-selected="false" tabindex="-1">More resources</button>
+  </div>
+  <div id="view-lessons" role="tabpanel" aria-labelledby="tab-lessons">
   <div class="layout">
     <nav aria-label="Lessons"><ol class="lessons" id="list"></ol></nav>
     <article class="pane" id="pane" tabindex="-1" aria-live="off"></article>
   </div>
+  </div>
+  <div id="view-resources" role="tabpanel" aria-labelledby="tab-resources" hidden></div>
 
   <aside class="credit" aria-label="Credit">
     <p><strong>Credit.</strong> These lessons follow the ideas of the free Reedsy Learning course “How to Master the Show, Don’t Tell Rule.” All wording, examples, and exercises here are original. Nothing was copied from Reedsy or from any novel.</p>
+    <p>These resources follow ideas from Reedsy's articles and its Show, Don't Tell course. All wording, examples, and exercises here are our own. Read the originals at Reedsy.</p>
     <p>Keep learning with Reedsy:</p>
     <ul>
       <li><a href="https://reedsy.com/blog/character-quirks/" target="_blank" rel="noopener">Character quirks</a></li>
@@ -354,6 +392,12 @@ var state=store.get('ho-sdt',null)||{};
 if(!state.done)state.done={};
 if(!state.text)state.text={};
 if(!state.checks)state.checks={};
+/* new in this version (all optional, so saves made before it load exactly as they were) */
+if(!state.res)state.res={};
+if(!state.res.lab)state.res.lab={};
+if(!state.res.arc)state.res.arc={};
+if(!Array.isArray(state.res.tips))state.res.tips=[];
+if(!state.bonus)state.bonus={};
 function save(){store.set('ho-sdt',state)}
 
 var cur=1, first=true;
@@ -401,6 +445,11 @@ function render(){
     h+='<fieldset class="self"><legend>Self-check</legend>'+items.map(function(t,i){return '<label><input type="checkbox" data-self="'+i+'"'+(c[i]?' checked':'')+'><span>'+esc(t)+'</span></label>'}).join('')+'</fieldset>';
   }
   h+='<div class="row"><button class="btn" type="button" id="done" aria-pressed="'+(!!state.done[n])+'">'+(state.done[n]?'Lesson complete ✓':'Mark lesson complete')+'</button><button class="btn ghost" type="button" id="copy">Copy my writing</button></div></section>';
+  if(BONUS[n]){var B=BONUS[n];
+    h+='<section class="exercise bonus" aria-labelledby="bonus-h"><span class="tagb">Bonus challenge</span><h3 id="bonus-h">'+esc(B.t)+'</h3><p class="prose">'+esc(B.p)+'</p>';
+    h+='<label class="fl" for="bonus">Your bonus writing for lesson '+n+'</label><textarea id="bonus" spellcheck="true"></textarea><p class="count" id="bonusCount" aria-live="polite"></p>';
+    h+='<div class="row"><button class="btn ghost" type="button" id="bonusCopy">Copy my writing</button></div></section>';
+  }
   h+='<div class="nav2">'+(n>1?'<a class="btn ghost" href="#lesson-'+(n-1)+'">← Previous</a>':'<span class="btn ghost" aria-disabled="true">← Previous</span>')+(n<10?'<a class="btn ghost" href="#lesson-'+(n+1)+'">Next →</a>':'<span class="btn ghost" aria-disabled="true">Next →</span>')+'</div>';
   pane.innerHTML=h;
   pane.classList.remove('is-in');void pane.offsetWidth;pane.classList.add('is-in');
@@ -412,6 +461,12 @@ function render(){
   upd();
   ta.addEventListener('input',function(){state.text[n]=ta.value;save();upd()});
 
+  if(BONUS[n]){
+    var bt=$('#bonus'),B2=BONUS[n];bt.value=state.bonus[n]||'';
+    var bupd=function(){var c=words(bt.value),el=$('#bonusCount');el.textContent=c+' of '+B2.min+' words.'+(c>=B2.min?' Goal met ✓':'');el.className='count'+(c>=B2.min?' ok':'')};
+    bupd();bt.addEventListener('input',function(){state.bonus[n]=bt.value;save();bupd()});
+    $('#bonusCopy').addEventListener('click',function(){copyText(bt.value,this)});
+  }
   $('#done').addEventListener('click',function(){
     state.done[n]=!state.done[n];save();if(state.done[n]&&window.HO_track)HO_track('lesson-complete');
     this.setAttribute('aria-pressed',String(!!state.done[n]));
@@ -460,9 +515,146 @@ function copyText(text,btn){
   try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true)},fb)}else{fb()}}catch(e){fb()}
 }
 
+/* ---------- bonus challenges (lessons 5, 6 and 7) ---------- */
+var BONUS={
+ 5:{t:"Say it with your body",p:"Write a conversation of 8 lines between two characters, such as one asking about the other's day, or two people deciding what to cook. Do not name any feeling. Show one of these underneath instead: flirting, a cold shoulder, hiding something, or about to cry. Use body language only.",min:60},
+ 6:{t:"Open the door five ways",p:"Write five one-sentence versions of a character opening the same door, each showing a different mood. Then write one more sentence where the world reacts, like a door that slams back or a bus that pulls away.",min:50},
+ 7:{t:"Inside the head",p:"Write a character's thoughts during a scary moment using what the body feels and what the mind notices, with no feeling words and no words like thought, felt, or realized.",min:50}
+};
+
+/* ---------- more resources ---------- */
+var SUBS=[{id:'lab',t:'Character Lab'},{id:'arcs',t:'Character Arcs'},{id:'tips',t:'Tips for Ghost Stories'},{id:'links',t:'Links'}];
+var LAB_INTRO="A scary story only works if the reader cares about the person in it. These eight quick exercises help you get to know your character before you write. Pick one, write for five minutes, and see what you learn.";
+var LAB=[
+ {id:'truth',t:"Truth or dare",p:"Interview your character like a friend at a sleepover. Mix big questions (What would you grab first if your house caught fire?) with silly ones (What is your go-to snack?). Strange little answers make a person feel real. Write five questions and answer them as your character."},
+ {id:'choice',t:"Tough choice",p:"Put your character in a choice with no good answer. Example: you see someone break a rule, but the reason they broke it was kind. Do you tell? Write what runs through your character's head, then do it again from the other person's point of view."},
+ {id:'breaking',t:"The breaking point",p:"Everyone has one thing they would never do. What would have to happen to make your character do it? Write that event. This tells you what your character is really made of."},
+ {id:'timeline',t:"Life timeline",p:"List the moments that shaped your character, like a move, a loss, a win, an embarrassing day. Then circle the 5 to 10 that matter most for your story and cross out the rest."},
+ {id:'gossip',t:"The gossip scene",p:"Write a scene where your character is not there, and the only way we meet them is through what other people say about them. Who is exaggerating? Who is hiding something? (Great for ghosts.)"},
+ {id:'self',t:"Tell me about yourself",p:"Write how your character would describe themselves to a job interviewer, a new friend, a teacher, and in a one-line bio. How their voice changes shows who they are."},
+ {id:'body',t:"Show the body",p:"List five physical details about your character. Then write a short scene where they are doing something ordinary, like cooking or folding laundry, and slip those details into the action instead of listing them."},
+ {id:'prompt',t:"The prompt test",p:"Drop your character into a random prompt from the Prompts tab and write what they do. If you are stuck on your story, a change of scene for your character can shake things loose.",link:"Prompts tab"}
+];
+var ARC_INTRO="A character arc is how a character changes, or refuses to change, between the first page and the last.";
+var ARC_PARTS=[["The Goal","what they want."],["The Lie","a wrong belief that holds them back (this is the misbelief from the Draft Lab)."],["The Truth","what they need to understand."]];
+var ARCS=[
+ {t:"Positive arc",p:"The character learns the truth and becomes better. Example: Bilbo in The Hobbit starts out scared and homesick and discovers his own courage. Scrooge in A Christmas Carol lets go of the belief that money is everything."},
+ {t:"Flat arc",p:"The character already knows the truth, and the story is about them holding on while the world pushes back. They change other people. Example: Atticus Finch in To Kill a Mockingbird, and many detectives like Sherlock Holmes."},
+ {t:"Negative arc",p:"The character refuses the truth and things fall apart. Example: Macbeth chases power and loses everything."}
+];
+var ARC_TIP="Ghost story tip: the living character often has a positive arc. The ghost is usually stuck, so ask what truth it never learned.";
+var TIPS=[
+ {t:"Plan a little.",p:"Even if you like to wing it, jot down your beginning, middle, and end.",m:"Write your last image first."},
+ {t:"Keep your outline close.",p:"Side characters and cool ideas can pull you off track.",m:"Tape the outline above your desk."},
+ {t:"Bring in the problem early.",p:"Readers should know what is wrong within the first page or two.",m:"Open with the first strange thing."},
+ {t:"Control the pace.",p:"Slow stretch? Cut long description and add action or dialogue.",m:"Shorter sentences when danger gets closer."},
+ {t:"Keep dialogue sharp.",p:"Two or three lines can say what a paragraph does.",m:"Let characters dodge the question."},
+ {t:"Show most, tell some.",p:"Use all five senses, and tell only when it saves time.",m:"Sound and smell first, sight last."},
+ {t:"Hide most of the iceberg.",p:"Readers don't need the whole backstory.",m:"Hint at what happened in the house, never explain it all."},
+ {t:"Read it out loud.",p:"Your ears catch clunky lines your eyes miss.",m:"Read the scary part in a whisper."},
+ {t:"Write now, edit later.",p:"A messy draft beats a blank page.",m:"Set a 15-minute timer."},
+ {t:"Cut your favorite line if it doesn't help.",p:"Save it in a file for another story."},
+ {t:"Ask for feedback.",p:"Let a friend read it and tell you where they got lost. Don't argue; just take notes."},
+ {t:"Write a little every day.",p:"Small and steady beats rare and huge."}
+];
+var LINKS=[
+ ["https://reedsy.com/blog/character-development-exercises/","Character development exercises"],
+ ["https://reedsy.com/blog/character-arc/","What is a character arc?"],
+ ["https://blog.reedsy.com/writing-tips/","20 writing tips"],
+ ["https://reedsy.com/blog/character-traits/","Character traits"],
+ ["https://reedsy.com/studio/templates/character-profile/","Character profile template"]
+];
+var LINKS_NOTE="You never need to sign up for anything to use this page. Ask a course leader before creating any account.";
+
+function track(n){try{if(window.HO_track)window.HO_track(n)}catch(e){}}
+function para(text,link){var t=esc(text);if(link){var e=esc(link);t=t.replace(e,'<a href="../#prompts">'+e+'</a>')}return '<p>'+t+'</p>'}
+function buildResources(){
+  var h='<div class="subtabs" id="subtabs" role="tablist" aria-label="More resources">'+SUBS.map(function(x){return '<button class="tabbtn" type="button" role="tab" id="st-'+x.id+'" aria-controls="rp-'+x.id+'" aria-selected="false" tabindex="-1" data-sub="'+x.id+'">'+esc(x.t)+'</button>'}).join('')+'</div>';
+  /* Character Lab */
+  h+='<div class="respane" id="rp-lab" role="tabpanel" aria-labelledby="st-lab" hidden><h2 id="rh-lab" tabindex="-1">Character Lab</h2><p class="prose">'+esc(LAB_INTRO)+'</p>';
+  LAB.forEach(function(c){h+='<details class="cardx" id="lab-'+c.id+'"><summary>'+esc(c.t)+'</summary><div class="cbody">'+para(c.p,c.link)+'<label class="fl" for="labt-'+c.id+'">Your writing (about 5 minutes)</label><textarea id="labt-'+c.id+'" data-lab="'+c.id+'" spellcheck="true"></textarea><p class="count" id="labc-'+c.id+'" aria-live="polite"></p><div class="row"><button class="btn ghost" type="button" data-labcopy="'+c.id+'">Copy my writing</button></div></div></details>'});
+  h+='</div>';
+  /* Character Arcs */
+  h+='<div class="respane" id="rp-arcs" role="tabpanel" aria-labelledby="st-arcs" hidden><h2 id="rh-arcs" tabindex="-1">Character Arcs</h2><p class="prose">'+esc(ARC_INTRO)+'</p><ul class="arcparts">'+ARC_PARTS.map(function(x){return '<li><strong>'+esc(x[0])+':</strong> '+esc(x[1])+'</li>'}).join('')+'</ul>';
+  ARCS.forEach(function(a){h+='<section class="cardx"><h3>'+esc(a.t)+'</h3><p>'+esc(a.p)+'</p></section>'});
+  h+='<p class="note">'+esc(ARC_TIP)+'</p>';
+  h+='<fieldset class="arcform"><legend>Arc check</legend><label class="fl" for="arc-goal">Goal</label><input type="text" id="arc-goal" data-arc="goal" maxlength="200" autocomplete="off"><label class="fl" for="arc-lie">The Lie</label><input type="text" id="arc-lie" data-arc="lie" maxlength="200" autocomplete="off"><label class="fl" for="arc-truth">The Truth</label><input type="text" id="arc-truth" data-arc="truth" maxlength="200" autocomplete="off">';
+  h+='<div role="radiogroup" aria-labelledby="arc-type-l"><div class="fl" id="arc-type-l">Arc type</div><div class="opts">'+['Positive','Flat','Negative'].map(function(t){return '<label><input type="radio" name="arc-type" value="'+t+'" data-arctype="1"><span>'+t+'</span></label>'}).join('')+'</div></div>';
+  h+='<label class="fl" for="arc-scene">Write the one scene where your character must choose.</label><textarea id="arc-scene" data-arc="scene" spellcheck="true"></textarea><p class="count" id="arc-count" aria-live="polite"></p><p class="muted" id="arc-status" aria-live="polite"></p></fieldset></div>';
+  /* Tips */
+  h+='<div class="respane" id="rp-tips" role="tabpanel" aria-labelledby="st-tips" hidden><h2 id="rh-tips" tabindex="-1">Tips for Ghost Stories</h2><p class="prose">Pick your top 3. They are saved in this browser.</p>';
+  TIPS.forEach(function(t,i){h+='<div class="cardx"><label class="pick" for="tip-'+i+'"><input type="checkbox" id="tip-'+i+'" data-tip="'+i+'"><span><strong>'+(i+1)+'. '+esc(t.t)+'</strong> '+esc(t.p)+'</span></label>'+(t.m?'<p class="move">Haunted Ohio move: '+esc(t.m)+'</p>':'<div style="height:.7rem"></div>')+'</div>'});
+  h+='<h3>Pick your top 3</h3><p class="count" id="tip-sum" aria-live="polite"></p><div class="row"><button class="btn" type="button" id="tip-copy">Copy my 3</button></div></div>';
+  /* Links */
+  h+='<div class="respane" id="rp-links" role="tabpanel" aria-labelledby="st-links" hidden><h2 id="rh-links" tabindex="-1">Links</h2><p class="prose">'+esc(LINKS_NOTE)+'</p><ul class="linkslist">'+LINKS.map(function(l){return '<li><a href="'+esc(l[0])+'" target="_blank" rel="noopener">'+esc(l[1])+'</a></li>'}).join('')+'</ul></div>';
+  var box=$('#view-resources');box.innerHTML=h;
+
+  /* Character Lab: each card saves its own writing */
+  LAB.forEach(function(c){
+    var ta=$('#labt-'+c.id),cn=$('#labc-'+c.id);ta.value=state.res.lab[c.id]||'';
+    var u=function(){cn.textContent=words(ta.value)+' words. About 5 minutes of writing.'};u();
+    ta.addEventListener('input',function(){state.res.lab[c.id]=ta.value;save();u()});
+    $('[data-labcopy="'+c.id+'"]',box).addEventListener('click',function(){copyText(ta.value,this)});
+  });
+  /* Arc check */
+  var arc=state.res.arc,sc=$('#arc-scene'),ac=$('#arc-count'),as=$('#arc-status');
+  ['goal','lie','truth'].forEach(function(k){var el=$('#arc-'+k);el.value=arc[k]||''});sc.value=arc.scene||'';
+  Array.prototype.forEach.call(box.querySelectorAll('[data-arctype]'),function(r){r.checked=(arc.type===r.value)});
+  function arcDone(){return !!(arc.goal&&arc.goal.trim()&&arc.lie&&arc.lie.trim()&&arc.truth&&arc.truth.trim()&&arc.type&&words(arc.scene||'')>=40)}
+  function arcPaint(){var c=words(sc.value);ac.textContent=c+' of 40 words.'+(c>=40?' Goal met ✓':'');ac.className='count'+(c>=40?' ok':'');as.textContent=arcDone()?'Arc check complete ✓ Saved in this browser.':'Saved in this browser as you type.'}
+  function arcSave(){save();arcPaint();if(arcDone()&&!arc.tracked){arc.tracked=true;save();track('arc-check-saved')}}
+  arcPaint();
+  Array.prototype.forEach.call(box.querySelectorAll('[data-arc]'),function(el){el.addEventListener('input',function(){arc[el.getAttribute('data-arc')]=el.value;arcSave()})});
+  Array.prototype.forEach.call(box.querySelectorAll('[data-arctype]'),function(r){r.addEventListener('change',function(){if(r.checked){arc.type=r.value;arcSave()}})});
+  /* Tips: pick up to three */
+  var tips=state.res.tips,boxes=Array.prototype.slice.call(box.querySelectorAll('[data-tip]')),sum=$('#tip-sum');
+  function tipText(){return 'My top 3 ghost-story tips:\n'+tips.map(function(i,k){var t=TIPS[i];return (k+1)+'. '+t.t+' '+t.p+(t.m?' Move: '+t.m:'')}).join('\n')}
+  function tipPaint(){boxes.forEach(function(b){var i=+b.getAttribute('data-tip');b.checked=tips.indexOf(i)>=0;b.disabled=(tips.length>=3&&!b.checked)});sum.textContent=tips.length?tips.length+' of 3 picked: '+tips.map(function(i){return TIPS[i].t}).join(' '):'0 of 3 picked. Tick the tips you want to try first.'}
+  tipPaint();
+  boxes.forEach(function(b){b.addEventListener('change',function(){var i=+b.getAttribute('data-tip'),at=tips.indexOf(i);if(b.checked&&at<0&&tips.length<3)tips.push(i);else if(!b.checked&&at>=0)tips.splice(at,1);state.res.tips=tips;save();tipPaint()})});
+  $('#tip-copy').addEventListener('click',function(){if(!tips.length){sum.textContent='Pick up to 3 tips first, then copy them.';return}copyText(tipText(),this)});
+}
+
+/* ---------- tabs (keyboard: arrows, Home and End move between tabs; Enter or Space opens one) ---------- */
+function tabKeys(listEl){listEl.addEventListener('keydown',function(e){
+  var k=e.key;if(k!=='ArrowRight'&&k!=='ArrowLeft'&&k!=='Home'&&k!=='End')return;
+  var tabs=Array.prototype.slice.call(listEl.querySelectorAll('[role="tab"]')),i=tabs.indexOf(document.activeElement);if(i<0)return;
+  var j=k==='Home'?0:(k==='End'?tabs.length-1:(i+(k==='ArrowRight'?1:-1)+tabs.length)%tabs.length);
+  e.preventDefault();tabs[j].focus();
+})}
+var lastSub='lab',resTracked=false;
+function selectTabs(listEl,sel){Array.prototype.forEach.call(listEl.querySelectorAll('[role="tab"]'),function(t){var on=sel(t);t.setAttribute('aria-selected',on?'true':'false');t.setAttribute('tabindex',on?'0':'-1')})}
+function showView(view,sub){
+  var lessons=view==='lessons';
+  $('#view-lessons').hidden=!lessons;$('#view-resources').hidden=lessons;
+  selectTabs($('#toptabs'),function(t){return t.id===(lessons?'tab-lessons':'tab-resources')});
+  if(!lessons){
+    selectTabs($('#subtabs'),function(t){return t.getAttribute('data-sub')===sub});
+    SUBS.forEach(function(x){$('#rp-'+x.id).hidden=(x.id!==sub)});
+    lastSub=sub;
+    if(!resTracked){resTracked=true;track('resources-opened')}
+  }
+}
+$('#toptabs').addEventListener('click',function(e){var b=e.target.closest('[role="tab"]');if(!b)return;location.hash=(b.id==='tab-lessons')?('#lesson-'+cur):('#resources-'+lastSub)});
+tabKeys($('#toptabs'));
+buildResources();
+$('#subtabs').addEventListener('click',function(e){var b=e.target.closest('[data-sub]');if(!b)return;location.hash='#resources-'+b.getAttribute('data-sub')});
+tabKeys($('#subtabs'));
+
 /* ---------- router ---------- */
 function route(){
-  var m=/^#lesson-(\d+)$/.exec(location.hash||'');
+  var hash=location.hash||'';
+  var r=/^#resources(?:-(lab|arcs|tips|links))?$/.exec(hash);
+  if(r){
+    var sub=r[1]||'lab';
+    showView('resources',sub);
+    document.title='More resources: '+SUBS.filter(function(x){return x.id===sub})[0].t+' | Show, Don’t Tell | Haunted Ohio';
+    if(!first){var rh=$('#rh-'+sub);if(rh)rh.focus({preventScroll:false})}
+    first=false;
+    return;
+  }
+  showView('lessons');
+  var m=/^#lesson-(\d+)$/.exec(hash);
   var n=m?parseInt(m[1],10):0;
   if(!(n>=1&&n<=10)){
     n=1;
