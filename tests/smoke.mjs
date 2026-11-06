@@ -254,6 +254,112 @@ T('lessons: all 10 open; writing persists; checkers work', async ({ base, newPag
   await p.click('#theme'); ok(await lsGet(p, 'ho-theme'), 'shared theme key');
 });
 
+/* ---- Show, Don't Tell: More resources (Character Lab, Character Arcs, Tips, Links) and three bonus challenges ---- */
+const SDT = 'show-dont-tell/';
+const SDT_TITLES = ['What is Show, Don’t Tell?', 'The Iceberg Theory', 'Atmosphere and Setting', 'Dialogue That Shows', 'Body Language', 'Show Through Action', 'Feeling Words and Adverbs', 'Purple Prose', 'When to Tell Instead', 'Put It All Together'];
+const stubClipboard = (p) => p.addInitScript(() => { window.__copied = null; Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: (t) => { window.__copied = t; return Promise.resolve(); } } }); });
+const words = (n, w = 'lantern') => Array.from({ length: n }, (_, i) => w + i).join(' ');
+T('show-dont-tell: two top-level tabs (Lessons, More resources) and four sub-tabs work by hash and by keyboard', async ({ base, newPage }) => {
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto(base + SDT); await p.waitForTimeout(150);
+  eq(await p.getAttribute('#tab-lessons', 'aria-selected'), 'true', 'Lessons is the default tab'); ok(await p.isVisible('#pane') && !(await p.isVisible('#view-resources')), 'lessons showing, resources hidden');
+  eq((await p.$$eval('#toptabs [role="tab"]', (e) => e.map((x) => x.textContent))).join('|'), 'Lessons|More resources', 'top-level tabs'); eq(await p.getAttribute('#toptabs', 'role'), 'tablist', 'tablist role');
+  await p.goto(base + SDT + '#resources'); await p.waitForTimeout(150); eq(await p.getAttribute('#tab-resources', 'aria-selected'), 'true', '#resources selects More resources'); ok(await p.isVisible('#rp-lab') && !(await p.isVisible('#pane')), 'Character Lab is the default sub-tab');
+  eq((await p.$$eval('#subtabs [role="tab"]', (e) => e.map((x) => x.textContent))).join('|'), 'Character Lab|Character Arcs|Tips for Ghost Stories|Links', 'four sub-tabs');
+  for (const [h, id, title] of [['#resources-lab', 'lab', 'Character Lab'], ['#resources-arcs', 'arcs', 'Character Arcs'], ['#resources-tips', 'tips', 'Tips for Ghost Stories'], ['#resources-links', 'links', 'Links']]) {
+    await p.goto(base + SDT + h); await p.waitForTimeout(120); eq(await p.getAttribute('#st-' + id, 'aria-selected'), 'true', h + ' selects its sub-tab'); ok(await p.isVisible('#rp-' + id), h + ' shows its panel'); eq(await p.textContent('#rh-' + id), title, h + ' heading');
+    eq((await p.$$eval('#view-resources [role="tabpanel"]', (e) => e.filter((x) => !x.hidden).length)), 1, 'only one sub-panel is showing'); ok((await p.title()).includes(title), 'page title names the tab');
+  }
+  /* keyboard: arrows, Home and End move focus; Enter opens */
+  await p.goto(base + SDT + '#resources'); await p.focus('#st-lab'); await p.keyboard.press('ArrowRight'); eq(await p.evaluate(() => document.activeElement.id), 'st-arcs', 'ArrowRight moves focus'); await p.keyboard.press('Enter'); await p.waitForTimeout(120); eq(await p.evaluate(() => location.hash), '#resources-arcs', 'Enter opens the tab'); ok(await p.isVisible('#rp-arcs'), 'panel shows');
+  await p.focus('#st-arcs'); await p.keyboard.press('End'); eq(await p.evaluate(() => document.activeElement.id), 'st-links', 'End'); await p.keyboard.press('Home'); eq(await p.evaluate(() => document.activeElement.id), 'st-lab', 'Home'); await p.keyboard.press('ArrowLeft'); eq(await p.evaluate(() => document.activeElement.id), 'st-links', 'wraps around'); await p.keyboard.press(' '); await p.waitForTimeout(120); eq(await p.evaluate(() => location.hash), '#resources-links', 'Space opens the tab');
+  await p.focus('#tab-resources'); await p.keyboard.press('ArrowLeft'); eq(await p.evaluate(() => document.activeElement.id), 'tab-lessons', 'top tabs by keyboard'); await p.keyboard.press('Enter'); await p.waitForTimeout(150); ok(/^#lesson-\d+$/.test(await p.evaluate(() => location.hash)) && await p.isVisible('#pane'), 'Enter on Lessons returns to a lesson');
+  /* the Lessons tab returns to the lesson you were on */
+  await p.goto(base + SDT + '#lesson-3'); await p.click('#tab-resources'); await p.waitForTimeout(100); eq(await p.evaluate(() => location.hash), '#resources-links', 'tab reopens the sub-tab you last used'); await p.click('#tab-lessons'); await p.waitForTimeout(100); eq(await p.evaluate(() => location.hash), '#lesson-3', 'and back to lesson 3'); eq(errs.length, 0, 'page errors: ' + errs);
+});
+T('show-dont-tell: what you type in a Character Lab card, the Arc check, the tips picker (max 3) and the three bonus boxes persists after a reload; Copy works', async ({ base, newPage }) => {
+  const p = await newPage(); await stubClipboard(p); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  /* Character Lab */
+  await p.goto(base + SDT + '#resources-lab'); await p.waitForTimeout(150); eq((await p.$$('#rp-lab details.cardx')).length, 8, 'eight Character Lab cards');
+  eq((await p.$$eval('#rp-lab details.cardx > summary', (e) => e.map((x) => x.textContent))).join('|'), 'Truth or dare|Tough choice|The breaking point|Life timeline|The gossip scene|Tell me about yourself|Show the body|The prompt test', 'card titles');
+  await p.click('#lab-truth > summary'); await p.fill('#labt-truth', 'Mara answers five questions about her snack and her fear.'); eq((await p.textContent('#labc-truth')).trim(), '10 words. About 5 minutes of writing.', 'word counter');
+  await p.click('#lab-prompt > summary'); await p.fill('#labt-prompt', 'She walks into the cold bell tower.'); ok(await p.isVisible('#lab-prompt a[href="../#prompts"]'), 'the prompt card links to the main site Prompts tab');
+  await p.click('[data-labcopy="truth"]'); eq(await p.evaluate(() => window.__copied), 'Mara answers five questions about her snack and her fear.', 'Copy my writing copies the card text');
+  /* Arc check */
+  await p.goto(base + SDT + '#resources-arcs'); await p.waitForTimeout(120); await p.fill('#arc-goal', 'To keep the lighthouse'); await p.fill('#arc-lie', 'Nobody will help me'); await p.fill('#arc-truth', 'Asking is not weakness'); await p.check('input[name="arc-type"][value="Flat"]');
+  eq((await p.textContent('#arc-count')).trim(), '0 of 40 words.', 'scene counter starts at zero'); await p.fill('#arc-scene', words(45)); ok(/Goal met/.test(await p.textContent('#arc-count')), 'scene goal met at 40 words'); ok(/complete/.test(await p.textContent('#arc-status')), 'arc check shows complete');
+  /* Tips: pick three, the fourth is refused */
+  await p.goto(base + SDT + '#resources-tips'); await p.waitForTimeout(120); eq((await p.$$('#rp-tips [data-tip]')).length, 12, 'twelve tips'); for (const i of [0, 3, 5]) await p.check('#tip-' + i); ok(await p.isDisabled('#tip-1'), 'the fourth pick is disabled'); await p.evaluate(() => { const b = document.getElementById('tip-1'); b.disabled = false; b.click(); }); eq((await p.$$('#rp-tips [data-tip]:checked')).length, 3, 'never more than 3 even if forced');
+  ok(/3 of 3 picked/.test(await p.textContent('#tip-sum')), 'summary'); await p.click('#tip-copy'); const tc = await p.evaluate(() => window.__copied); ok(/^My top 3 ghost-story tips:/.test(tc) && tc.includes('Plan a little.') && tc.includes('Control the pace.') && tc.includes('Show most, tell some.') && !tc.includes('Keep your outline close.'), 'Copy my 3: ' + tc);
+  /* bonus challenges in lessons 5, 6, 7 */
+  const bonus = { 5: 'Say it with your body', 6: 'Open the door five ways', 7: 'Inside the head' };
+  for (const n of [5, 6, 7]) { await p.goto(base + SDT + '#lesson-' + n); await p.waitForTimeout(120); eq((await p.textContent('#bonus-h')).trim(), bonus[n], 'bonus title ' + n); await p.fill('#writing', 'lesson ' + n + ' text'); await p.fill('#bonus', words(10 + n, 'b' + n + '_')); }
+  eq((await p.textContent('#bonusCount')).trim(), '17 of 50 words.', 'bonus counter (lesson 7 needs 50)'); await p.click('#bonusCopy'); ok((await p.evaluate(() => window.__copied)).startsWith('b7_0 b7_1'), 'bonus Copy my writing');
+  /* reload and check everything persisted, and nothing leaked between boxes */
+  await p.goto(base + SDT + '#resources-lab'); await p.reload(); await p.waitForTimeout(150); eq(await p.inputValue('#labt-truth'), 'Mara answers five questions about her snack and her fear.', 'lab text persists'); eq(await p.inputValue('#labt-prompt'), 'She walks into the cold bell tower.', 'second lab card persists'); eq(await p.inputValue('#labt-choice'), '', 'untouched cards stay empty');
+  await p.goto(base + SDT + '#resources-arcs'); await p.reload(); await p.waitForTimeout(150); eq(await p.inputValue('#arc-goal'), 'To keep the lighthouse', 'goal'); eq(await p.inputValue('#arc-lie'), 'Nobody will help me', 'lie'); eq(await p.inputValue('#arc-truth'), 'Asking is not weakness', 'truth'); ok(await p.isChecked('input[name="arc-type"][value="Flat"]'), 'arc type'); eq((await p.inputValue('#arc-scene')).split(' ').length, 45, 'scene');
+  await p.goto(base + SDT + '#resources-tips'); await p.reload(); await p.waitForTimeout(150); eq((await p.$$eval('#rp-tips [data-tip]:checked', (e) => e.map((x) => x.id))).join(), 'tip-0,tip-3,tip-5', 'tips persist');
+  for (const n of [5, 6, 7]) { await p.goto(base + SDT + '#lesson-' + n); await p.reload(); await p.waitForTimeout(120); eq((await p.inputValue('#bonus')).split(' ')[0], 'b' + n + '_0', 'bonus ' + n + ' persists'); eq(await p.inputValue('#writing'), 'lesson ' + n + ' text', 'the lesson writing is separate'); }
+  const st = JSON.parse(await lsGet(p, 'ho-sdt')); ok(st.res && st.res.lab.truth && st.res.arc.goal === 'To keep the lighthouse' && st.res.tips.length === 3 && st.bonus['5'] && st.bonus['6'] && st.bonus['7'] && st.text['5'] === 'lesson 5 text', 'everything is saved under ho-sdt: ' + Object.keys(st));
+  eq(errs.length, 0, 'page errors: ' + errs);
+});
+T('show-dont-tell: the ten lessons are unchanged (bonus boxes only on 5, 6 and 7) and saves made before this change still load', async ({ base, newPage }) => {
+  const OLD = { done: { 1: true, 2: true }, text: { 1: 'OLD ONE', 3: 'OLD THREE', 7: 'He was angry.' }, checks: { 10: [true, false, true, false] } };
+  const p = await newPage(); await p.addInitScript((d) => { try { if (!localStorage.getItem('ho-sdt')) localStorage.setItem('ho-sdt', JSON.stringify(d)); } catch (e) { /* ignore */ } }, OLD);
+  for (let i = 1; i <= 10; i++) {
+    await p.goto(base + SDT + '#lesson-' + i); await p.waitForTimeout(100); eq((await p.textContent('#ltitle')).trim(), SDT_TITLES[i - 1], 'lesson ' + i + ' title'); ok(await p.isVisible('.compare .tell') && await p.isVisible('.compare .show') && await p.isVisible('#writing') && await p.isVisible('#done') && await p.isVisible('#copy'), 'lesson ' + i + ' still has its parts');
+    eq((await p.$$('.bonus')).length, [5, 6, 7].includes(i) ? 1 : 0, 'bonus panel only on lessons 5 to 7 (lesson ' + i + ')');
+  }
+  await p.goto(base + SDT + '#lesson-1'); eq(await p.inputValue('#writing'), 'OLD ONE', 'old text loads'); eq((await p.textContent('#ptext')).trim(), '2 of 10 lessons complete', 'old progress loads'); await p.goto(base + SDT + '#lesson-3'); eq(await p.inputValue('#writing'), 'OLD THREE', 'old text loads (lesson 3)');
+  await p.goto(base + SDT + '#lesson-10'); eq((await p.$$eval('[data-self]:checked', (e) => e.map((x) => x.getAttribute('data-self')))).join(), '0,2', 'old self-check loads');
+  /* using the new areas does not disturb the old keys */
+  await p.goto(base + SDT + '#lesson-5'); await p.fill('#bonus', 'a new bonus'); await p.goto(base + SDT + '#resources-lab'); await p.click('#lab-body > summary'); await p.fill('#labt-body', 'new lab text');
+  const st = JSON.parse(await lsGet(p, 'ho-sdt')); eq(JSON.stringify(st.done), JSON.stringify(OLD.done), 'done unchanged'); eq(JSON.stringify(st.text), JSON.stringify(OLD.text), 'text unchanged'); eq(JSON.stringify(st.checks), JSON.stringify(OLD.checks), 'checks unchanged'); ok(st.bonus['5'] === 'a new bonus' && st.res.lab.body === 'new lab text', 'new keys added beside the old ones');
+  /* storage blocked: the page still works from memory */
+  const q = await newPage(); await q.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); }); const e2 = []; q.on('pageerror', (e) => e2.push(e.message)); await q.goto(base + SDT + '#resources-lab'); await q.click('#lab-truth > summary'); await q.fill('#labt-truth', 'kept in memory'); await q.goto(base + SDT + '#resources-lab'); ok(await q.isVisible('#rp-lab'), 'works with storage blocked'); eq(e2.length, 0, 'no errors: ' + e2);
+});
+T('show-dont-tell: the new areas have no cost or price wording, the Links open safely in new tabs, student text is escaped, and only resources-opened and arc-check-saved are new events (each sent once)', async ({ base, newPage }) => {
+  const p = await newPage(); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
+  await p.goto(base + SDT + '#lesson-5'); await p.evaluate(() => { const o = window.HO_track; window.__ev = []; window.HO_track = (n) => { window.__ev.push(n); o(n); }; });
+  const txt = await p.evaluate(() => [document.getElementById('view-resources').textContent, ...[...document.querySelectorAll('.bonus')].map((e) => e.textContent), document.querySelector('.credit > p').textContent.replace(/^[\s\S]*?(These resources follow)/, '$1')].join('\n'));
+  const COST = /\$|\bcost(s|ly)?\b|\bpric(e|es|ed|ing)\b|\bdollars?\b|\bfees?\b|\bpay(s|ing|ment|ments)?\b|\bbuy(ing)?\b|\bpurchas\w*|\bsubscri\w*|\bcheap\b|\bexpensive\b|\bdiscount\w*|\bfree\b/i;
+  ok(!COST.test(txt), 'cost or price wording found: ' + (txt.match(COST) || [])[0]); ok(!/money/i.test(txt), 'no money wording anywhere in the new areas'); ok(txt.includes('Scrooge in A Christmas Carol lets go of the belief that owning things is what matters most.'), 'the reworded Scrooge sentence');
+  ok(/Reedsy's articles and its Show, Don't Tell course\. All wording, examples, and exercises here are our own\. Read the originals at Reedsy\./.test(txt), 'credit box says the new sentence');
+  await p.goto(base + SDT + '#resources-links'); const L = await p.$$eval('#rp-links a', (a) => a.map((x) => [x.getAttribute('href'), x.textContent, x.getAttribute('target'), x.getAttribute('rel')]));
+  eq(JSON.stringify(L.map((x) => [x[0], x[1]])), JSON.stringify([['https://reedsy.com/blog/character-development-exercises/', 'Character development exercises'], ['https://reedsy.com/blog/character-arc/', 'What is a character arc?'], ['https://blog.reedsy.com/writing-tips/', '20 writing tips'], ['https://reedsy.com/blog/character-traits/', 'Character traits'], ['https://reedsy.com/studio/templates/character-profile/', 'Character profile template']]), 'the five links, in order'); ok(L.every((x) => x[2] === '_blank' && /noopener/.test(x[3])), 'every link opens in a new tab with rel="noopener"'); ok(/You never need to sign up for anything to use this page\. Ask a course leader before creating any account\./.test(await p.textContent('#rp-links')), 'the no-sign-up line');
+  /* student text is escaped, never run */
+  await p.goto(base + SDT + '#resources-lab'); await p.click('#lab-truth > summary'); await p.fill('#labt-truth', '<img src=x onerror=window.__xss=1> & <b>bold</b>'); await p.goto(base + SDT + '#resources-arcs'); await p.fill('#arc-goal', '<img src=x onerror=window.__xss=3>'); await p.goto(base + SDT + '#resources-tips'); await p.goto(base + SDT + '#resources-lab'); await p.waitForTimeout(150);
+  ok(!(await p.evaluate(() => window.__xss)) && !(await p.$('#rp-lab img, #rp-arcs img')), 'nothing typed ran or became markup'); eq(await p.inputValue('#labt-truth'), '<img src=x onerror=window.__xss=1> & <b>bold</b>', 'shown back literally');
+  /* events: wrap again after the navigation reloads the module state */
+  const q = await newPage(); await q.goto(base + SDT + '#lesson-2'); await q.evaluate(() => { const o = window.HO_track; window.__ev = []; window.HO_track = (n) => { window.__ev.push(n); o(n); }; });
+  await q.click('#tab-resources'); await q.waitForTimeout(100); await q.click('#st-arcs'); await q.waitForTimeout(100); await q.click('#st-tips'); await q.click('#tab-lessons'); await q.click('#tab-resources'); await q.waitForTimeout(100);
+  await q.goto(base + SDT + '#resources-arcs');   await q.fill('#arc-goal', 'g'); await q.fill('#arc-lie', 'l'); await q.fill('#arc-truth', 't'); await q.check('input[name="arc-type"][value="Positive"]'); await q.fill('#arc-scene', words(41)); await q.fill('#arc-scene', words(42));
+  const ev = await q.evaluate(() => window.__ev); ok(ev.every((n) => ['lesson-complete', 'resources-opened', 'arc-check-saved'].includes(n)), 'only expected events: ' + ev); eq(ev.filter((n) => n === 'arc-check-saved').length, 1, 'arc-check-saved is sent once'); ok(ev.filter((n) => n === 'resources-opened').length <= 1, 'resources-opened is sent once per visit');
+  eq(reqs.length, 0, 'no network requests: ' + reqs);
+});
+T('show-dont-tell: tips 10 to 12 have their Haunted Ohio move lines, and the credit box is one paragraph with the three Reedsy links', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + SDT + '#resources-tips'); await p.waitForTimeout(120);
+  const mv = await p.$$eval('#rp-tips .move', (e) => e.map((x) => x.textContent)); eq(mv.length, 12, 'twelve move lines');
+  eq(mv[9], 'Haunted Ohio move: Cut a line that explains too much, and save it in a file for later.', 'tip 10'); eq(mv[10], 'Haunted Ohio move: Ask your reader: where did you first feel uneasy?', 'tip 11'); eq(mv[11], 'Haunted Ohio move: Write one spooky sentence every day.', 'tip 12');
+  const ps = await p.$$eval('.credit > p', (e) => e.map((x) => x.textContent)); eq(ps.length, 2, 'credit paragraph plus "Keep learning" line'); ok(/^Credit\./.test(ps[0]) && ps[0].includes('Reedsy\'s articles and its Show, Don\'t Tell course. All wording, examples, and exercises here are our own. Read the originals at Reedsy.') && ps[0].includes('Nothing was copied from Reedsy or from any novel.'), 'one merged credit paragraph');
+  eq((await p.$$eval('.credit ul a', (e) => e.map((x) => x.getAttribute('href')))).join(), 'https://reedsy.com/blog/character-quirks/,https://reedsy.com/studio/resources/setting-of-a-story/,https://reedsy.com/blog/guide/theme/', 'three Reedsy links kept');
+});
+T('analytics: resources-opened and arc-check-saved are counted, and send no names or typed text', async ({ base, newPage }) => {
+  const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const calls = async () => p.evaluate(() => window.__gc || []);
+  await p.goto(base + SDT + '#lesson-1'); await p.waitForTimeout(150); await p.click('#tab-resources'); await p.waitForTimeout(150); await p.click('#st-arcs'); await p.waitForTimeout(100);
+  await p.fill('#arc-goal', 'SECRETGOAL'); await p.fill('#arc-lie', 'SECRETLIE'); await p.fill('#arc-truth', 'SECRETTRUTH'); await p.check('input[name="arc-type"][value="Negative"]'); await p.fill('#arc-scene', words(45, 'SECRETSCENE')); await p.click('#st-lab'); await p.click('#lab-truth > summary'); await p.fill('#labt-truth', 'SECRETLAB'); await p.waitForTimeout(200);
+  const all = await calls(); const names = all.map((c) => c.path);
+  eq(names.filter((n) => n === 'event/resources-opened').length, 1, 'resources-opened counted once: ' + names); eq(names.filter((n) => n === 'event/arc-check-saved').length, 1, 'arc-check-saved counted once: ' + names);
+  ok(all.filter((c) => c.event).every((c) => Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k))), 'only path, title and event are sent'); ok(!/SECRET/i.test(JSON.stringify(all)), 'no typed text in anything sent: ' + JSON.stringify(names)); eq(errs.length, 0, 'no page errors: ' + errs);
+});
+T('show-dont-tell: no console errors and no horizontal scroll at 1920, 1280 and 390 px on a lesson with a bonus panel and on every More resources tab', async ({ base, newPage }) => {
+  for (const w of [1920, 1280, 390]) {
+    const p = await newPage({ width: w, height: 900 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load|gc\.zgo/.test(m.text())) errs.push(m.text()); });
+    for (const h of ['#lesson-5', '#lesson-6', '#lesson-7', '#resources-lab', '#resources-arcs', '#resources-tips', '#resources-links']) { await p.goto(base + SDT + h); await p.waitForTimeout(120); if (h === '#resources-lab') await p.click('#lab-truth > summary'); ok(await noHScroll(p), `horizontal scroll at ${w}px on ${h}`); }
+    eq(errs.length, 0, `errors at ${w}px: ${errs.slice(0, 2)}`);
+  }
+});
+
 // ---------------------------------------------------------------- The Haunting Files
 T('haunting-files: start a case, file an exhibit, save, resume, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'haunting-files/');
