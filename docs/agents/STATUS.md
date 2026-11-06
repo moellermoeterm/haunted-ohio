@@ -1,24 +1,24 @@
 # STATUS
 
-Updated: 2026-11-05 (autonomous build, owner away). **Nothing has been merged. Nothing was pushed to `main`.** Every pull request is open for review.
+Updated: 2026-11-05, end of the unattended merge-authorized run. **All authorized PRs are merged and deployed.**
 
-## Done
-- **Shared framework** (`games-shared/`, `docs/agents/`, vendored Phaser 3.90.0, tests infrastructure): seeds and variants, strict saves with export/import, keyboard + touch input, audio with captions, UI shell. Branch `integration/shared`.
-- **The Veil, Chapter 1** (`the-veil/`): fully playable in all six variants (browser bots), two puzzles, writing, story workshop, teacher guide. Branch `integration/veil`.
-- **Room 214** (`room-214/`): playable in all six variants (headless bot finishes each; browser tests cover the first floor, safe, writing, ending, touch, keyboard, saves, performance), teacher guide. Branch `integration/room214`.
-- **Links** (Games tab, teacher page, search, anonymous event names): branch `integration/links` (one commit on top of `main`), tested together with both games on `integration/links-test`.
-- Reports: QA, security, UX, content and performance reports for both games in this folder.
+## Merged (squash, in order; Pages deploy succeeded after each of the first six)
+#20 `d8112e5` shared framework · #21 `ead2616` The Veil · #22 `671f2d3` Room 214 · #19 `fe17968` Leaders-notes cleanup · #23 `e098aa5` links + Preview badges · #24 `cf216b7` last "Leaders:" prefix + site-wide test · #25 `035f05d` print or save as PDF (hunt answers).
+Pages deploy after each merge succeeded (runs 22 to 28).
 
-## Not done / known limits
-- No real tablet or screen reader was available (touch tested with Chromium emulation; accessibility checked in the DOM).
-- The game canvas is not screen-reader navigable (everything needed to progress is in the DOM; walking the map is visual). A text-only route is a good next step.
-- Room 214 has no full browser start-to-finish bot (the headless logic bot covers the whole game; see QA-REPORT-ROOM214.md).
-- The Veil has Chapter 1 only (the design supports more chapters).
+## Direct URLs (live site not reachable from my environment; verified on a local clean checkout of main)
+- https://moellermoeterm.github.io/haunted-ohio/the-veil/
+- https://moellermoeterm.github.io/haunted-ohio/room-214/
 
-## Branches
-`integration/shared`, `integration/veil`, `integration/room214`, `integration/links` (+ `integration/links-test`), and the earlier `claude/quirky-bell-yuxloq` (PR "Hide remaining student-visible Leaders: notes"). See MORNING-SUMMARY.md for PR numbers. The old `claude/the-veil-ch1` WIP branch is untouched.
+## What is next
+Leaders' checklist in MORNING-SUMMARY.md (real-tablet play, intensity check of Room 214, print the sample PDFs and compare with the Microsoft Form, remove Preview badges when ready). Ideas: Veil chapters 2 to 5, a text-only route through the game maps, a "brighter map" setting for Room 214.
 
-## How to continue
-1. `git fetch`; read PLAN.md, CONTRACTS.md, DECISIONS.md.
-2. Tests (new games): `node tests/new-games/core.test.mjs`, `veil-logic.test.mjs`, `room214-logic.test.mjs`, `static-security.test.mjs` (no browser) and `shell.test.mjs`, `veil-play.test.mjs`, `room214-play.test.mjs` (Playwright; link the global `playwright` into `tests/node_modules`).
-3. Existing suite: `cd tests && node smoke.mjs && node content-check.mjs` (about 12 minutes; run alone).
+## How to resume
+`git fetch origin && git checkout main`. New-games tests: `node tests/new-games/*.test.mjs` (browser ones need Playwright linked into `tests/node_modules`). Existing suite: `cd tests && node smoke.mjs && node content-check.mjs` (about 12 minutes, run alone). Print test: `node tests/print-pdf.mjs`. Revert instructions: MORNING-SUMMARY.md.
+
+## Blocked / failed
+Nothing.
+
+## Final checks on `main` (`035f05d`)
+- Pages deploy for #25: success (run 28).
+- Full existing suite, run once, alone: 43/43 smoke tests + content check passed.
