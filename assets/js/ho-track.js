@@ -4,7 +4,7 @@
    Safe if blocked: if GoatCounter is blocked, offline, or not set up yet (the placeholder YOUR_CODE), every call here quietly does nothing. */
 (function () {
   'use strict';
-  var EVENTS = { 'game-opened-haunting-files': 1, 'game-opened-last-light': 1, 'game-opened-the-veil': 1, 'game-opened-room-214': 1, 'chapter-complete': 1, 'lesson-complete': 1, 'mission-complete': 1, 'stop-complete': 1, 'case-closed': 1, 'form-opened': 1, 'resources-opened': 1, 'arc-check-saved': 1 };
+  var EVENTS = { 'game-opened-haunting-files': 1, 'game-opened-last-light': 1, 'game-opened-the-veil': 1, 'game-opened-room-214': 1, 'chapter-complete': 1, 'lesson-complete': 1, 'mission-complete': 1, 'stop-complete': 1, 'case-closed': 1, 'form-opened': 1, 'resources-opened': 1, 'arc-check-saved': 1, 'quiz-complete': 1, 'lesson-extra-opened': 1 };
   var queue = [], tries = 0, timer = null;
   function endpoint() { var s = document.querySelector('script[data-goatcounter]'); return s ? (s.getAttribute('data-goatcounter') || '') : ''; }
   function configured() { var e = endpoint(); return !!e && !/YOUR_CODE/.test(e); }
