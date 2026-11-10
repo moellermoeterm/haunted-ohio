@@ -13,6 +13,14 @@ const noHScroll = (page) => page.evaluate(() => document.documentElement.scrollW
 
 const tests = [];
 const T = (name, fn) => tests.push([name, fn]);
+// The teacher page is tested from a plain copy kept in tests/fixtures/ (not the live file), so these tests keep passing
+// after the locked page replaces teacher/index.html. The copy is served at teacher/ by the test browser only.
+const TEACHER_FIXTURE_PATH = path.join(ROOT, 'tests', 'fixtures', '_teacher-page.html');
+const gotoTeacher = async (page, base) => {
+  const body = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8');
+  await page.route((u) => u.href === base + 'teacher/' || u.href === base + 'teacher/index.html', (route) => route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body }));
+  await page.goto(base + 'teacher/');
+};
 
 // ---------------------------------------------------------------- home
 T('home: every hash route shows its view', async ({ base, newPage }) => {
@@ -770,7 +778,7 @@ T('last-light: Scenario 1 still shows the original text now that it is assembled
 // ---------------------------------------------------------------- Teacher tools (Phase 6)
 T('teacher: six links per game and a seating helper where touching seats never share a case code', async ({ base, newPage }) => {
   const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
-  await p.goto(base + 'teacher/'); await p.waitForTimeout(200);
+  await gotoTeacher(p, base); await p.waitForTimeout(200);
   eq((await p.$$eval('#hfLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../haunting-files/?case=' + n).join(','), 'six Haunting Files links');
   eq((await p.$$eval('#llLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../last-light/?case=' + n).join(','), 'six Last Light links');
   eq((await p.$$eval('#vlLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../the-veil/?case=' + n).join(','), 'six The Veil links');
@@ -788,7 +796,7 @@ T('teacher: six links per game and a seating helper where touching seats never s
   ok(!(await p.evaluate(() => window.__xss)) && !(await p.$('.seat img')), 'pasted names are escaped, never injected as markup'); ok(/Ada/.test(await p.textContent('#plan')), 'names appear in the plan');
   ok(!(await p.evaluate(() => Object.keys(localStorage).some((k) => /name|seat|teacher/i.test(k) || /Ada/.test(localStorage.getItem(k) || '')))), 'nothing is stored');
   eq(reqs.length, 0, 'nothing is sent anywhere: ' + reqs.join(','));
-  await p.goto(base); await p.evaluate(() => { location.hash = '#leaders'; }); await p.waitForTimeout(300); ok(await p.isVisible('#leaders a[href="teacher/"]'), 'the leaders page links to the teacher tools');
+  await p.goto(base); await p.evaluate(() => { location.hash = '#leaders'; }); await p.waitForTimeout(300); eq((await p.$$('#leaders a[href*="teacher"]')).length, 0, 'the leaders page no longer links to the teacher tools (it is locked; see docs/leaders/HOW-TO-LOCK.md)');
   eq(errs.length, 0, 'no page errors: ' + errs);
 });
 
@@ -875,6 +883,123 @@ T('analytics: each home tab is its own page; only fixed events are sent; names a
   eq(errs.length, 0, 'no page errors: ' + errs);
 });
 
+// ---------------------------------------------------------------- leader page lock (tools/lock.html and the locked page it makes)
+// TEST-FIXTURE: every password below is a made-up throwaway that exists only in this test file. None of them is a real password.
+const FAKE_LONG = 'fake-test-only-pw-1234';   // TEST-FIXTURE (22 characters)
+const FAKE_16 = 'fake-test-pw-016';           // TEST-FIXTURE (16 characters)
+const FAKE_15 = 'fake-test-pw-15';            // TEST-FIXTURE (15 characters)
+const FAKE_12 = 'fake-test-12';               // TEST-FIXTURE (12 characters)
+const FAKE_11 = 'fake-test-1';                // TEST-FIXTURE (11 characters, too short)
+const FAKE_WRONG = 'fake-wrong-pw-9999';      // TEST-FIXTURE
+const LOCK_MARKER = 'SAMPLE-PLAINTEXT-MARKER-7421';
+const LOCK_SAMPLE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Sample leader page</title></head><body><h1 id="h">${LOCK_MARKER}</h1><p id="out">not run</p><script>document.getElementById('out').textContent = 'script ran ' + (6 * 7);</script></body></html>`;
+const LOCK_WARNING = 'This is easy to guess, so use it only to keep casual visitors out.';
+const lockIt = async (newPage, base, html, pass, confirm = pass) => {
+  const p = await newPage(); await p.goto(base + 'tools/lock.html'); await p.fill('#page', html); await p.fill('#pw', pass); await p.fill('#pw2', confirm);
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#go')]); const text = fs.readFileSync(await dl.path(), 'utf8'); return { p, text, name: dl.suggestedFilename() };
+};
+const serveLocked = async (p, base, text) => { await p.route(base + 'teacher/locked-test.html', (r) => r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: text })); await p.goto(base + 'teacher/locked-test.html'); await p.waitForTimeout(150); };
+const noDownload = async (p) => (await p.waitForEvent('download', { timeout: 1500 }).catch(() => null)) === null;
+const storeDump = (p) => p.evaluate(() => JSON.stringify([localStorage, sessionStorage].map((s) => Object.keys(s).map((k) => [k, s.getItem(k)]))) + document.cookie);
+T('lock tool: refuses under 12 characters, warns from 12 to 15 but accepts, blocks mismatched confirm fields, shows a strength hint and show/hide, and stores nothing', async ({ base, newPage }) => {
+  const p = await newPage(); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base)) reqs.push(r.url()); });
+  await p.goto(base + 'tools/lock.html'); await p.waitForTimeout(100); eq(await p.getAttribute('meta[name="robots"]', 'content'), 'noindex,nofollow', 'noindex'); eq(await p.getAttribute('#pw', 'type'), 'password', 'password field'); ok(await p.$('label[for="page"]') && await p.$('label[for="pw"]') && await p.$('label[for="pw2"]'), 'labeled fields');
+  /* too short: refused, nothing downloaded */
+  await p.fill('#page', LOCK_SAMPLE); await p.fill('#pw', FAKE_11); await p.fill('#pw2', FAKE_11); ok(/too short/.test(await p.textContent('#strength')), 'strength hint says too short'); await p.click('#go'); ok(await noDownload(p), 'an 11-character password is refused (no file)'); ok(/at least 12/.test(await p.textContent('#err')) && await p.isVisible('#err'), 'error shown');
+  /* mismatch: blocked */
+  await p.fill('#pw', FAKE_LONG); await p.fill('#pw2', FAKE_LONG + 'x'); ok(!(await p.isVisible('#warn')), 'no warning for a long password'); await p.click('#go'); ok(await noDownload(p), 'mismatched fields: nothing encrypted'); ok(/do not match/.test(await p.textContent('#err')), 'mismatch error shown');
+  /* empty page: blocked */
+  await p.fill('#page', ''); await p.fill('#pw2', FAKE_LONG); await p.click('#go'); ok(await noDownload(p), 'no pasted page: nothing encrypted');
+  await p.fill('#page', LOCK_SAMPLE);
+  /* 12 and 15: warning, but accepted */
+  for (const pass of [FAKE_12, FAKE_15]) { await p.fill('#pw', pass); await p.fill('#pw2', pass); ok(await p.isVisible('#warn'), 'warning shown for ' + pass.length + ' characters'); eq((await p.textContent('#warn')).trim(), LOCK_WARNING, 'the exact warning'); const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#go')]); eq(dl.suggestedFilename(), 'index.html', 'the file is named index.html'); await p.waitForTimeout(100); eq(await p.inputValue('#pw'), '', 'password field cleared'); eq(await p.inputValue('#pw2'), '', 'confirm field cleared'); }
+  /* 16 and over: no warning */
+  await p.fill('#pw', FAKE_16); await p.fill('#pw2', FAKE_16); ok(!(await p.isVisible('#warn')), 'no warning at 16 characters'); ok(/good|strong/.test(await p.textContent('#strength')), 'strength hint: ' + await p.textContent('#strength'));
+  /* show / hide */
+  await p.click('#tog'); eq(await p.getAttribute('#pw', 'type'), 'text', 'shown'); eq(await p.getAttribute('#pw2', 'type'), 'text', 'confirm shown'); eq(await p.getAttribute('#tog', 'aria-pressed'), 'true', 'pressed'); await p.click('#tog'); eq(await p.getAttribute('#pw', 'type'), 'password', 'hidden again');
+  /* nothing stored, nothing sent */
+  const dump = await storeDump(p); ok(!dump.includes(FAKE_LONG) && !dump.includes(FAKE_12) && !dump.includes(FAKE_16) && !dump.includes(LOCK_MARKER), 'neither a password nor the pasted page is stored in localStorage, sessionStorage or cookies'); eq(reqs.length, 0, 'no requests to other sites: ' + reqs);
+});
+T('lock tool: the locked file has the right shape (PBKDF2-SHA-256 with 600,000 or more rounds, 16-byte salt, 12-byte IV, fresh salt every time) and contains no plaintext', async ({ base, newPage }) => {
+  const a = await lockIt(newPage, base, LOCK_SAMPLE, FAKE_LONG), b = await lockIt(newPage, base, LOCK_SAMPLE, FAKE_LONG);
+  eq(a.name, 'index.html', 'downloaded as index.html'); const v = JSON.parse(a.text.match(/<script type="application\/json" id="vault">(.*?)<\/script>/s)[1]); const w = JSON.parse(b.text.match(/<script type="application\/json" id="vault">(.*?)<\/script>/s)[1]);
+  eq(v.kdf, 'PBKDF2-SHA-256', 'kdf'); ok(v.iter >= 600000, 'iterations ' + v.iter); eq(v.cipher, 'AES-GCM-256', 'cipher'); eq(Buffer.from(v.salt, 'base64').length, 16, '16-byte salt'); eq(Buffer.from(v.iv, 'base64').length, 12, '12-byte IV'); ok(Buffer.from(v.ct, 'base64').length > LOCK_SAMPLE.length, 'ciphertext (with the GCM tag) is present'); ok(v.salt !== w.salt && v.iv !== w.iv && v.ct !== w.ct, 'a new random salt and IV every time');
+  for (const bad of [LOCK_MARKER, FAKE_LONG, 'script ran', 'Sample leader page', 'getElementById(\'out\')']) ok(!a.text.includes(bad), 'plaintext found in the locked file: ' + bad);
+  eq((a.text.match(/<title>(.*?)<\/title>/)[1]), 'Leader tools', 'title'); ok(/<meta name="robots" content="noindex,nofollow">/.test(a.text), 'noindex,nofollow'); ok(/<script data-goatcounter="[^"]+"[^>]*src="\/\/gc\.zgo\.at\/count\.js"><\/script>/.test(a.text.split('</head>')[0]), 'the GoatCounter snippet is kept in the head'); ok(/Enter the leader password/.test(a.text) && />Unlock</.test(a.text), 'a visible prompt');
+});
+T('locked page: a wrong password shows only the error (with a delay that grows), the right password unlocks and the page\'s script runs, Enter works, Lock again returns to the prompt, and nothing is stored', async ({ base, newPage }) => {
+  const { p: lp, text } = await lockIt(newPage, base, LOCK_SAMPLE, FAKE_LONG); await lp.close();
+  const p = await newPage(); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); }); await serveLocked(p, base, text);
+  eq((await p.textContent('label[for="pw"]')).trim(), 'Enter the leader password', 'labeled'); eq(await p.getAttribute('#pw', 'type'), 'password', 'hidden by default'); ok(await p.isVisible('#go') && (await p.textContent('#go')).trim() === 'Unlock', 'Unlock button'); ok(!(await p.isVisible('#err')), 'no error yet');
+  await p.click('#tog'); eq(await p.getAttribute('#pw', 'type'), 'text', 'show'); await p.click('#tog'); eq(await p.getAttribute('#pw', 'type'), 'password', 'hide');
+  /* wrong password, twice: the same error, nothing revealed, and a longer pause the second time */
+  const wait = async () => { const t0 = Date.now(); await p.waitForFunction(() => !document.getElementById('go').disabled, null, { timeout: 15000 }); return Date.now() - t0; };
+  await p.fill('#pw', FAKE_WRONG); await p.keyboard.press('Enter'); await p.waitForSelector('#err:not([hidden])'); eq((await p.textContent('#err')).trim(), 'That password didn\'t work.', 'the error text'); ok(await p.isDisabled('#go'), 'the button pauses after a failure'); const body1 = await p.textContent('body'); ok(!body1.includes(LOCK_MARKER) && !body1.includes('script ran'), 'nothing is revealed'); const d1 = await wait();
+  await p.fill('#pw', FAKE_WRONG); await p.click('#go'); await p.waitForSelector('#err:not([hidden])'); const d2 = await wait(); ok(d2 > d1 + 500, `the pause grows after repeated failures (${d1} ms, then ${d2} ms)`); ok(d1 >= 500, 'a pause after the first failure: ' + d1);
+  ok(!(await p.textContent('body')).includes(LOCK_MARKER), 'still locked'); eq(await p.inputValue('#pw'), '', 'the field is cleared after a failure');
+  /* right password with the Enter key */
+  await p.fill('#pw', FAKE_LONG); await p.keyboard.press('Enter'); await p.waitForFunction(() => document.getElementById('out') && document.getElementById('out').textContent !== 'not run', null, { timeout: 15000 });
+  eq(await p.textContent('#out'), 'script ran 42', 'the unlocked page\'s own script ran'); eq((await p.textContent('#h')).trim(), LOCK_MARKER, 'the page content is shown'); eq(await p.title(), 'Sample leader page', 'the decrypted page replaced the prompt'); ok(await p.isVisible('#ho-lock-again'), 'Lock again button');
+  const dump = await storeDump(p); ok(!dump.includes(FAKE_LONG) && !dump.includes(FAKE_WRONG) && !dump.includes(LOCK_MARKER) && !/unlock/i.test(dump), 'no password, unlocked flag or decrypted content stored'); eq(reqs.length, 0, 'no requests to other sites: ' + reqs);
+  /* Lock again: reload = the prompt again, content gone */
+  await p.click('#ho-lock-again'); await p.waitForSelector('#pw'); await p.waitForTimeout(150); ok(await p.isVisible('#go') && !(await p.textContent('body')).includes(LOCK_MARKER), 'back to the locked prompt'); ok(!(await storeDump(p)).includes(LOCK_MARKER), 'still nothing stored');
+});
+T('locked page: the real teacher page, locked and unlocked, still works (six links per game and the seating helper)', async ({ base, newPage }) => {
+  const real = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8'); const { p: lp, text } = await lockIt(newPage, base, real, FAKE_LONG); await lp.close();
+  ok(!text.includes('Seating') && !text.includes('hfLinks') && !text.includes('case code'), 'no readable teacher content in the locked file');
+  const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); await serveLocked(p, base, text); await p.fill('#pw', FAKE_LONG); await p.click('#go'); await p.waitForSelector('#hfLinks a.primary', { timeout: 15000 });
+  eq((await p.$$eval('#hfLinks a.primary', (e) => e.length)), 6, 'six Haunting Files links'); eq((await p.$$eval('#vlLinks a.primary', (e) => e.length)), 6, 'six The Veil links');
+  await p.fill('#rows', '4'); await p.fill('#cols', '5'); await p.click('#make'); await p.click('#shuffle'); const codes = await p.$$eval('.seat b', (e) => e.map((x) => +x.textContent)); eq(codes.length, 20, 'the seating helper works after unlock'); ok(codes.every((c) => c >= 1 && c <= 6), 'valid case codes');
+  const g = (r, c) => (r < 0 || c < 0 || r >= 4 || c >= 5 ? 0 : codes[r * 5 + c]); for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) { const w = g(r + dr, c + dc); ok(!w || w !== g(r, c), 'neighbors share a code'); }
+  ok(await p.isVisible('#ho-lock-again'), 'Lock again is offered'); eq(errs.length, 0, 'page errors: ' + errs);
+});
+T('lock tool and locked page: no console errors, no horizontal scroll, and no cost wording at 1920, 1280 and 390 px', async ({ base, newPage }) => {
+  const { p: lp, text } = await lockIt(newPage, base, LOCK_SAMPLE, FAKE_LONG); await lp.close(); const COST = /\$|\bcost(s|ly)?\b|\bpric(e|es|ed|ing)\b|\bdollars?\b|\bfees?\b|\bpay(s|ing|ment|ments)?\b|\bbuy(ing)?\b|\bpurchas\w*|\bsubscri\w*|\bcheap\b|\bexpensive\b|\bdiscount\w*|\bfree\b|\bmoney\b/i;
+  for (const w of [1920, 1280, 390]) {
+    const p = await newPage({ width: w, height: 900 }); await p.goto(base + 'tools/lock.html'); await p.waitForTimeout(100); ok(await noHScroll(p), 'sideways scroll on the lock tool at ' + w); await p.fill('#pw', FAKE_11); await p.click('#go'); ok(await noHScroll(p), 'with the error showing at ' + w); const t1 = await p.innerText('body'); ok(!COST.test(t1), 'cost wording on the lock tool: ' + (t1.match(COST) || [])[0]);
+    await serveLocked(p, base, text); ok(await noHScroll(p), 'sideways scroll on the locked page at ' + w); await p.fill('#pw', FAKE_WRONG); await p.click('#go'); await p.waitForSelector('#err:not([hidden])'); ok(await noHScroll(p), 'with the error showing at ' + w); const t2 = await p.innerText('body'); ok(!COST.test(t2), 'cost wording on the locked page: ' + (t2.match(COST) || [])[0]);
+  }
+  /* Daylight theme: the prompt is still readable (the shared theme key) */
+  const q = await newPage(); await q.addInitScript(() => { try { localStorage.setItem('ho-theme', JSON.stringify('light')); } catch (e) { /* ignore */ } }); await serveLocked(q, base, text); eq(await q.getAttribute('html', 'data-theme'), 'light', 'Daylight theme applies'); ok(await q.evaluate(() => getComputedStyle(document.getElementById('pw')).color !== getComputedStyle(document.getElementById('pw')).backgroundColor), 'readable in Daylight');
+  await q.focus('#pw'); ok(await q.evaluate(() => { const c = getComputedStyle(document.activeElement); return c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 2; }), 'visible focus on the field');
+});
+T('unlinked: no public page, search entry or card links to the teacher page or the lock tool, and the Leaders page says where to get the tools', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base); await p.evaluate(() => { location.hash = '#leaders'; }); await p.waitForTimeout(300);
+  eq((await p.$$('#leaders a[href*="teacher"]')).length, 0, 'no teacher link on the Leaders page'); ok((await p.textContent('#leaders .note')).includes('Leader tools are available from your course leaders.'), 'the replacement sentence'); ok(!/Teacher tools/.test(await p.textContent('#leaders')), 'no "Teacher tools" link text');
+  /* every page and script in the repo, except the page itself, the lock tool and the docs/tests */
+  const bad = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const full = path.join(d, f.name); const rel = path.relative(ROOT, full); if (f.isDirectory()) { if (['node_modules', '.git', '.wt', 'docs', 'tests', 'teacher', 'tools'].includes(f.name)) continue; walk(full); } else if (/\.(html|js|json|xml|txt|md)$/.test(f.name) && !/^(docs|tests)\//.test(rel)) { const s = fs.readFileSync(full, 'utf8'); if (/href=["'][^"']*teacher\/?(index\.html)?["'#?]/.test(s) || /tools\/lock/.test(s) || /Teacher tools/i.test(s)) bad.push(rel); } } };
+  walk(ROOT); eq(bad.join(','), '', 'pages that still point at the teacher page or the lock tool: ' + bad);
+  await p.evaluate(() => { location.hash = '#home'; }); const hasSearch = await p.$('#siteSearch, [data-search], input[type="search"]'); if (hasSearch) { await p.fill('input[type="search"]', 'teacher tools'); await p.waitForTimeout(200); ok(!/teacher\//.test(await p.evaluate(() => [...document.querySelectorAll('a')].map((a) => a.getAttribute('href')).join(' '))), 'the search results do not offer the teacher page'); }
+});
+T('teacher fixture: the plain copy used by the teacher tests is a real, complete page, and nothing public links to it or serves it', async ({ base }) => {
+  const name = path.basename(TEACHER_FIXTURE_PATH); const html = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8');
+  ok(/id="hfLinks"/.test(html) && /id="vlLinks"/.test(html) && /id="make"/.test(html) && html.length > 5000, 'the fixture is the full teacher page (links and seating helper)');
+  ok(name.startsWith('_'), 'the file name starts with an underscore, which the Jekyll build behind GitHub Pages leaves out of the published site');
+  ok(!fs.existsSync(path.join(ROOT, '.nojekyll')), 'no .nojekyll file (it would switch that exclusion off)');
+  /* nothing public points at it: not a page, a script, a data file, the sitemap or a card (docs and tests may name it) */
+  const bad = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const full = path.join(d, f.name); const rel = path.relative(ROOT, full); if (f.isDirectory()) { if (['node_modules', '.git', '.wt', 'docs', 'tests'].includes(f.name)) continue; walk(full); } else if (/\.(html|js|json|xml|txt|md|css|svg|webmanifest)$/i.test(f.name)) { const s = fs.readFileSync(full, 'utf8'); if (/_teacher-page|tests\/fixtures/.test(s)) bad.push(rel); } } };
+  walk(ROOT); eq(bad.join(','), '', 'public files that mention the teacher fixture: ' + bad);
+  /* and no public page leaks its text: the leader tools' own markers appear only in the fixture and the teacher page, never on the home page, games or lessons */
+  for (const u of ['', 'show-dont-tell/', 'haunting-files/', 'last-light/', 'the-veil/', 'room-214/']) { const body = await (await fetch(base + u)).text(); ok(!/id="hfLinks"|id="vlLinks"|seating helper/i.test(body), 'a public page carries the leader tools: ' + (u || 'home')); }
+  /* the lock tool's how-to tells leaders about it, and no secret-looking text is in it */
+  ok(!/(password|passphrase)\s*[:=]\s*['"]?\S{6,}/i.test(html), 'no password in the fixture');
+});
+T('repo: no password-like string, key or "password=" in committed files outside a marked test fixture', async () => {
+  let files; try { files = (await import('node:child_process')).execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { files = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { if (['node_modules', '.git', '.wt'].includes(f.name)) continue; const full = path.join(d, f.name); if (f.isDirectory()) walk(full); else files.push(path.relative(ROOT, full)); } }; walk(ROOT); }
+  ok(files.length > 50, 'found the committed files: ' + files.length);
+  const PW = ['pass', 'word'].join(''), PP = ['pass', 'phrase'].join('');
+  const RULES = [
+    [new RegExp('\\b' + PW + '=[^\\s&"\'<>]', 'i'), 'a ' + PW + '= pair'],
+    [new RegExp('\\b(' + PW + '|' + PP + '|secret|api[_-]?key|token)\\w*\\s*[:=]\\s*[\'"][^\'"\\s]{6,}[\'"]', 'i'), 'a quoted value assigned to a secret-looking name'],
+    [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'a private key block'], [/\bAKIA[0-9A-Z]{16}\b/, 'an AWS key id'], [/\bgh[pousr]_[A-Za-z0-9]{30,}\b/, 'a GitHub token'], [/\bsk-[A-Za-z0-9_-]{24,}\b/, 'an API key'], [/\bxox[baprs]-[A-Za-z0-9-]{10,}\b/, 'a Slack token'],
+  ];
+  const SKIP = /\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|pdf|mp3|ogg|wav|mp4|zip)$/i; const hits = [];
+  for (const f of files) { if (SKIP.test(f) || !fs.existsSync(path.join(ROOT, f))) continue; let s; try { s = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch (e) { continue; } for (const line of s.split('\n')) { if (line.includes('TEST-FIXTURE')) continue; for (const [re, what] of RULES) if (re.test(line)) hits.push(`${f}: ${what}: ${line.trim().slice(0, 80)}`); } }
+  eq(hits.length, 0, 'secret-looking strings found:\n' + hits.slice(0, 5).join('\n'));
+  /* the scanner itself catches a planted one (never a real one) */
+  ok(RULES[0][0].test('x ' + PW + '=hunter22') && RULES[1][0].test(PW + ' = "abcdefgh"') && RULES[2][0].test('-----BEGIN RSA PRIVATE KEY-----'), 'the scanner catches planted examples'); // TEST-FIXTURE: planted examples, not real keys
+});
+
 // ---------------------------------------------------------------- navigation between pages
 T('navigation: every game links back to the site; site links reach every game', async ({ base, newPage }) => {
   const p = await newPage();
@@ -914,7 +1039,7 @@ T('responsive: no horizontal scroll on any page at 1920, 1366, 1280, 1024, 768 a
 T('responsive: the teacher page, every case and scenario in play, and the Dossier, at 1920, 1280 and 390 px, without console errors', async ({ base, newPage }) => {
   for (const w of [1920, 1280, 390]) {
     const p = await newPage({ width: w, height: 800 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push(m.text()); });
-    await p.goto(base + 'teacher/'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on teacher/`);
+    await gotoTeacher(p, base); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on teacher/`);
     await p.fill('#rows', '8'); await p.fill('#cols', '12'); await p.click('#make'); ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1 || document.getElementById('plan').scrollWidth >= 0), 'the big seating grid scrolls inside its own box');
     await p.goto(base + '#cemetery'); await p.click('#ct-hunt'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on the Dossier`);
     await p.click('#ct-submit'); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on the turn-in tab`);
