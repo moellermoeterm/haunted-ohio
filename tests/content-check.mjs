@@ -12,6 +12,10 @@ const BASE = path.join(path.dirname(new URL(import.meta.url).pathname), 'baselin
 
 // Text that is allowed to change, with the reason. Keep this list short and honest.
 const ALLOWED_REMOVALS = new Set([
+  // Leaders' decision: Mrs. Hahn joins the leaders, so "three teachers" becomes "four" and she is added to the Instructors line.
+  'Meet the three teachers leading Haunted Ohio.',
+  'Meet the three teachers running Haunted Ohio.',
+  'Mrs. Allen, Mr. Bennett, Mr. Girard',
   'Search pages, games, lessons ( / )', // search-box placeholder written during the redesign (not original course content); now "Search the archive"
   // Leaders' decision: the About page's overnight sentence changed from the Reformatory trip to Wednesday night at Hueston Woods.
   'Students registering for this course must be available for an overnight stay to visit a local haunted site and/or the Ohio State Reformatory in Mansfield, Ohio, the location for the hit movie',
