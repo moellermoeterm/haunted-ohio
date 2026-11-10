@@ -2,9 +2,19 @@
 
 The teacher page (`teacher/index.html`) has the six case-code links for each game and the seating helper. These steps turn it into a page that asks for a password. **Nothing changes on the live site until you upload the locked file.**
 
+## Important: the live page is not locked until you re-upload it
+The lock screen was improved after the first version. **Merging that change does not change the live `teacher/index.html`.** After it is merged, a leader has to run the lock tool again and upload the new locked file by hand (steps below). Until then the old teacher page stays as it is. Check in a private window that `teacher/` shows the lock screen and not the tools.
+
+## How leaders find the sign-in link
+Students never see a link to the leader tools. Leaders open the course site with `?leader=1` in the address:
+
+`https://moellermoeterm.github.io/haunted-ohio/?leader=1#leaders`
+
+On the Leaders page a small **Leader sign-in** link (with a padlock) then appears. It goes to the locked teacher page, which asks for the password. The link is only shown while `?leader=1` is in the address. Nothing is saved on the device. This hides the link, it is not security: anyone who reads the site's code can find the address. **The password is the real protection.**
+
 ## Before you start
 - This is a **lock in the browser**. It keeps casual visitors out. It is only as strong as the password, so pick a long one (16 or more characters, such as four or five unrelated words).
-- **Never write the password in the repo**: not in a file, a comment, a commit message, an issue, a pull request, or a test. Share it with the other leaders **in person or by school email**.
+- **Never write the password in the repo**: not in a file, a comment, a commit message, an issue, a pull request, or a test. Share it with the other leaders **in person or by school email**. Nothing private belongs on this site.
 - Anything that was ever in the repo stays in the repo's history. Locking the page does not hide what was already published. Do not put sensitive documents (contacts, permissions, medical information, costs) on this site at all. Keep those in Microsoft 365.
 
 ## Steps
@@ -14,7 +24,7 @@ The teacher page (`teacher/index.html`) has the six case-code links for each gam
    - Under 12 characters is refused.
    - 12 to 15 characters works but shows a warning that it is easy to guess.
 4. Press **Encrypt**. Your browser downloads a file named `index.html`. That is the locked teacher page. The password boxes clear themselves.
-5. In GitHub, open `teacher/index.html`, choose **Edit** (or **Add file, Upload files** inside the `teacher` folder), and replace the file with the downloaded `index.html`. Commit it.
+5. In GitHub, open the `teacher` folder, then **Add file, Upload files**, and upload the downloaded file so that it replaces `teacher/index.html`. **The file must be named exactly `index.html` and must go inside the `teacher` folder.** Browsers sometimes rename a second download to `index (2).html`; rename it to `index.html` before you upload, and check that no stray copy (for example `index (2).html` in the main folder) was added. Commit it.
 6. When the Pages deploy finishes, open the teacher page in a **private (incognito) window**. You should see "Leader tools" and a box that says **Enter the leader password**.
    - A wrong password shows "That password didn't work." and waits a little longer after each failed try.
    - The right password opens the leader tools. The seating helper and the game links work as before.
