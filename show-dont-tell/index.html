@@ -150,11 +150,10 @@ mark.adv{background:var(--hl-adv);color:inherit;border-radius:3px;padding:0 .15e
 .self input{width:1.2rem;height:1.2rem;margin-top:.25rem;accent-color:var(--ho-ember)}
 
 /* tabs, resources, bonus challenges */
-.toptabs,.subtabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.3rem}
-.tabbtn{font:700 1rem/1.2 var(--body);padding:.6em 1.2em;min-height:44px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:background .2s,border-color .2s}
+.toptabs{display:flex;flex-wrap:nowrap;gap:.5rem;margin:0 0 1.3rem;padding:4px;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.tabbtn{flex:none;white-space:nowrap;font:700 1rem/1.2 var(--body);padding:.6em 1.2em;min-height:44px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:background .2s,border-color .2s}
 .tabbtn:hover{background:var(--surface2);border-color:var(--ho-gold-dim)}
 .tabbtn[aria-selected="true"]{background:var(--ho-gold);border-color:var(--ho-gold);color:#18120a}
-.subtabs .tabbtn{font-size:.95rem;padding:.5em 1em}
 .respane{background:linear-gradient(180deg,var(--surface2),var(--surface) 30%);border:1px solid var(--line);border-radius:var(--ho-r-lg);padding:clamp(1.1rem,3vw,2rem);box-shadow:var(--ho-shadow)}
 .respane h2:focus,.respane h3:focus{outline:none}
 .cardx{border:1px solid var(--line);border-radius:var(--ho-r);background:var(--ho-night-2);margin:.8rem 0}
@@ -175,6 +174,8 @@ details.cardx[open]>summary{border-bottom:1px solid var(--line)}
 .quizopt.bad{border-color:var(--ho-ember);border-width:2px;border-style:dashed}
 .quizopt .tagq{display:block;font-weight:700;font-size:.9rem;margin-top:.2rem}
 .quizscore{font-size:1.6rem;font-weight:800;margin:.4rem 0}
+.quizsets{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 .8rem}
+.quizsets .btn[aria-pressed="true"]{background:var(--ho-gold);border-color:var(--ho-gold);color:#18120a}
 .cardx .cbody{padding:.3rem 1rem 1rem}
 .cardx .cbody p{margin:.6rem 0}
 .cardx h3{margin:0;padding:.8rem 1rem 0;font-size:1.3rem}
@@ -239,16 +240,20 @@ footer p{max-width:none;margin:.3rem 0}
 
 <div class="wrap">
   <div class="toptabs" id="toptabs" role="tablist" aria-label="Show, Don’t Tell sections">
-    <button class="tabbtn" type="button" role="tab" id="tab-lessons" aria-controls="view-lessons" aria-selected="true" tabindex="0">Lessons</button>
-    <button class="tabbtn" type="button" role="tab" id="tab-resources" aria-controls="view-resources" aria-selected="false" tabindex="-1">More resources</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-steps" aria-controls="view-lessons" aria-selected="true" tabindex="0">Step by Step</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-lab" aria-controls="rp-lab" aria-selected="false" tabindex="-1">Character Lab</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-arcs" aria-controls="rp-arcs" aria-selected="false" tabindex="-1">Character Arcs</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-tips" aria-controls="rp-tips" aria-selected="false" tabindex="-1">Tips for Ghost Stories</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-quiz" aria-controls="rp-quiz" aria-selected="false" tabindex="-1">Show or Tell? Quiz</button>
+    <button class="tabbtn" type="button" role="tab" id="tab-extras" aria-controls="rp-extras" aria-selected="false" tabindex="-1">Extra Resources</button>
   </div>
-  <div id="view-lessons" role="tabpanel" aria-labelledby="tab-lessons">
+  <div id="view-lessons" role="tabpanel" aria-labelledby="tab-steps">
   <div class="layout">
     <nav aria-label="Lessons"><ol class="lessons" id="list"></ol></nav>
     <article class="pane" id="pane" tabindex="-1" aria-live="off"></article>
   </div>
   </div>
-  <div id="view-resources" role="tabpanel" aria-labelledby="tab-resources" hidden></div>
+  <div id="view-resources" hidden></div>
 
   <aside class="credit" aria-label="Credit">
     <p><strong>Credit.</strong> These lessons follow the ideas of the free Reedsy Learning course “How to Master the Show, Don’t Tell Rule.” All wording, examples, and exercises here are original. Nothing was copied from Reedsy or from any novel. These resources follow ideas from Reedsy's articles and its Show, Don't Tell course. All wording, examples, and exercises here are our own. Read the originals at Reedsy.</p>
@@ -415,6 +420,7 @@ if(!state.bonus)state.bonus={};
 /* added later (also optional) */
 if(!state.extra)state.extra={};
 if(!state.quiz)state.quiz={};
+if(!state.quizBest)state.quizBest={};
 function save(){store.set('ho-sdt',state)}
 
 var cur=1, first=true;
@@ -580,7 +586,7 @@ var BONUS={
 };
 
 /* ---------- more resources ---------- */
-var SUBS=[{id:'lab',t:'Character Lab'},{id:'arcs',t:'Character Arcs'},{id:'tips',t:'Tips for Ghost Stories'},{id:'links',t:'Links'},{id:'quiz',t:'Show or Tell? Quiz'}];
+var TABS=[{id:'steps',t:'Step by Step'},{id:'lab',t:'Character Lab'},{id:'arcs',t:'Character Arcs'},{id:'tips',t:'Tips for Ghost Stories'},{id:'quiz',t:'Show or Tell? Quiz'},{id:'extras',t:'Extra Resources'}];
 var LAB_INTRO="A scary story only works if the reader cares about the person in it. These eight quick exercises help you get to know your character before you write. Pick one, write for five minutes, and see what you learn.";
 var LAB=[
  {id:'truth',t:"Truth or dare",p:"Interview your character like a friend at a sleepover. Mix big questions (What would you grab first if your house caught fire?) with silly ones (What is your go-to snack?). Strange little answers make a person feel real. Write five questions and answer them as your character."},
@@ -626,41 +632,40 @@ var LINKS2=[
  ["https://reedsy.com/blog/","The Reedsy blog"]
 ];
 var LINKS2_NOTE="Some pages on these sites are written for adult readers. Ask a course leader before you browse beyond the page you were sent to.";
-var QUIZ=[
- {q:"Which line shows?",a:["The attic felt haunted.","The attic thermometer read 40 degrees, and the dust on the floor held a trail of small footprints."],c:1,f:"Concrete details let readers reach the feeling themselves."},
- {q:"Which line shows?",a:["Dana was nervous.","Dana rolled the hem of her sleeve between two fingers until it frayed."],c:1,f:"A small action shows the feeling without naming it."},
- {q:"Which line shows?",a:["\"Where were you?\" he asked angrily.","\"Where were you?\" He set the phone down so gently it made no sound."],c:1,f:"The quiet action shows the anger, and the adverb isn't needed."},
- {q:"Which line shows?",a:["The ghost was lonely.","Every night the lamp in the window was lit for a guest who never came."],c:1,f:"An image tells the reader the loneliness."},
- {q:"Which line shows?",a:["The room smelled bad.","The room smelled like wet pennies and old candles."],c:1,f:"Specific smells beat a general word like bad."},
- {q:"A boring stretch. Which is better?",a:["Eli unlocked the car, adjusted the mirror, buckled his seat belt, and drove for twenty minutes.","Twenty minutes later, Eli pulled into the hotel lot."],c:1,f:"Tell the unimportant parts quickly and get to the good part."},
- {q:"Which opening is stronger?",a:["\"Hello.\" \"Hi. How are you?\" \"Good.\"","\"You're closing the hotel?\" Eli said."],c:1,f:"Enter late. Start when the scene gets interesting."},
- {q:"Which sentence is fine as plain telling?",a:["It was Tuesday in Cincinnati, and the bus was late.","The clock in the tower rang twelve times as the paper boy ran past the bakery in the rain while a dog barked."],c:0,f:"When readers only need the time and place, say it plainly."}
+/*QUIZ-DATA-START*/
+var QUIZSETS=[
+ [{"q": "Which line shows?", "w": "Dana was extremely anxious about working the late-night shift.", "r": "Dana checked every lock twice before starting the late-night shift.", "f": "A small habit shows the feeling without naming it."}, {"q": "Which line shows?", "w": "The ghost seemed incredibly lonely, sad, and forgotten by everyone.", "r": "Each night one lamp burned in the empty upstairs window.", "f": "An image tells the reader the loneliness."}, {"q": "Which line shows?", "w": "\"Where were you?\" he demanded, sounding furious and hurt.", "r": "\"Where were you?\" He set the phone down without a sound.", "f": "The quiet action shows the anger."}, {"q": "Which line shows?", "w": "The basement smelled terrible and made her feel sick.", "r": "The basement smelled like wet pennies and old candle smoke.", "f": "Specific smells beat a general word like terrible."}, {"q": "Which line shows?", "w": "Marcus felt guilty and ashamed about the cracked window.", "r": "Marcus kept his back to the cracked window all evening.", "f": "Where a character looks, or avoids looking, shows what they feel."}, {"q": "Which handles a boring stretch better?", "w": "Mara locked the car, crossed the lot, and climbed the steps.", "r": "Ten minutes later, Mara stood outside the hotel door.", "f": "Tell the unimportant parts quickly and get to the good part."}, {"q": "Which opening starts the scene at a better moment?", "w": "\"Hello.\" \"Hi, how are you?\" \"Fine, thanks. And you?\"", "r": "\"You're closing the hotel?\" Eli said. \"After forty years?\"", "f": "Enter late. Start when the scene gets interesting."}, {"q": "Which line is fine as plain telling because readers only need the time and place?", "w": "The bus engine coughed, and headlights swept over wet bricks.", "r": "It was Friday night, and the bus was already late.", "f": "When readers only need the time and place, say it plainly."}],
+ [{"q": "Which line shows?", "w": "The riverboat landing seemed spooky and menacing after midnight.", "r": "Fog swallowed the riverboat landing, and the bell rang alone.", "f": "Sensory detail creates the mood."}, {"q": "Which line shows?", "w": "Elena felt absolutely terrified of the long, empty stairwell.", "r": "Elena counted the stairs aloud to drown out the silence.", "f": "What a character does under pressure shows the fear."}, {"q": "Which line shows?", "w": "He was obviously lying, and everyone in the room knew it.", "r": "He laughed too quickly, then studied his shoes for a while.", "f": "Body language lets readers catch the lie themselves."}, {"q": "Which line shows?", "w": "The attic was freezing cold and extremely unpleasant to stand in.", "r": "Frost furred the attic window in July, and her breath showed.", "f": "A detail that doesn't fit the season makes readers ask why."}, {"q": "Which line shows?", "w": "Theo felt very proud of his grandmother's old violin.", "r": "Theo wiped the violin with his sleeve before touching a string.", "f": "Careful handling shows how much something matters."}, {"q": "Which handles a boring stretch better?", "w": "Eli waited for the light and crossed Vine Street.", "r": "By noon, Eli had reached the old library.", "f": "A bridge sentence saves the reader's time."}, {"q": "Which opening starts the scene at a better moment?", "w": "\"Good morning.\" \"Morning. Did you sleep well?\" \"Not bad.\"", "r": "\"The key is missing,\" Dana whispered. \"Someone else has been here.\"", "f": "Start with the news, not the small talk."}, {"q": "Which line is fine as plain telling because readers only need the time and place?", "w": "Rain tapped the shutters while the clock ticked behind the wall.", "r": "Three weeks passed before anyone returned to the house.", "f": "Plain telling is a good way to jump through time."}],
+ [{"q": "Which line shows?", "w": "The tunnel entrance looked dark, ominous, and quite dangerous.", "r": "Cold air breathed out of the tunnel and smelled of rust.", "f": "Senses beat adjectives."}, {"q": "Which line shows?", "w": "Kai felt deeply embarrassed by the loud, public announcement.", "r": "Kai pulled his hood up and studied a loose thread.", "f": "Hiding the face shows the embarrassment."}, {"q": "Which line shows?", "w": "\"Leave now,\" she told them in a nervous, shaky voice.", "r": "\"Leave now.\" Her key rattled against the lock, again and again.", "f": "The trembling key shows the nerves."}, {"q": "Which line shows?", "w": "The abandoned carnival looked sad, shabby, and totally run down.", "r": "Half the carousel horses had lost their heads to the rain.", "f": "One striking detail does more than three adjectives."}, {"q": "Which line shows?", "w": "Grandpa was a kind, generous man who loved helping others.", "r": "Grandpa left warm bread on every neighbor's porch each Sunday.", "f": "A habit shows a personality."}, {"q": "Which handles a boring stretch better?", "w": "The bus left the lot, turned on Route 22, and rolled along.", "r": "An hour later, the bus reached the old rail line.", "f": "Skip the dull travel and get to the place that matters."}, {"q": "Which opening starts the scene at a better moment?", "w": "\"Hi.\" \"Hello there.\" \"Nice weather, isn't it?\" \"It is.\"", "r": "\"That's not the same photo,\" Mia said. \"Someone swapped it.\"", "f": "Open on the surprise."}, {"q": "Which line is fine as plain telling because readers only need the time and place?", "w": "Brakes squealed while students shoved bags beneath the seats.", "r": "By Thursday morning, the whole class was on the bus.", "f": "A quick summary sentence is fine when the moment is a bridge."}],
+ [{"q": "Which line shows?", "w": "The empty theater felt haunted, gloomy, and full of dread.", "r": "Dust drifted through the stage lights, though no one stood below.", "f": "A strange image does the haunting."}, {"q": "Which line shows?", "w": "Priya felt jealous and bitter about her cousin's success.", "r": "Priya clapped a beat late and smoothed the program twice.", "f": "Small gestures reveal what a character hides."}, {"q": "Which line shows?", "w": "\"Stop,\" he said sadly, his voice full of regret.", "r": "\"Stop.\" He let the door close and did not reach for it.", "f": "Not reaching shows the regret."}, {"q": "Which line shows?", "w": "The old lighthouse looked lonely, ancient, and badly neglected by everyone.", "r": "Gulls had nested in the lamp room, and the stairs were bare.", "f": "Evidence of neglect beats the word neglected."}, {"q": "Which line shows?", "w": "Owen was brave and fearless when all the lights went out.", "r": "Owen stepped into the dark hallway first, holding the lantern high.", "f": "Courage is something a character does."}, {"q": "Which handles a boring stretch better?", "w": "She zipped her bag and walked to the library.", "r": "Ten minutes later, she reached the library steps.", "f": "Summarize the walk and begin where it matters."}, {"q": "Which opening starts the scene at a better moment?", "w": "\"Hey.\" \"Hey, what's up?\" \"Not much. You?\" \"Same.\"", "r": "\"You read my diary?\" Jonah said. \"Page forty, apparently.\"", "f": "Start with the conflict."}, {"q": "Which line is fine as plain telling because readers only need the time and place?", "w": "Thunder shook the shutters as the lantern swung from the beam.", "r": "Two days later, the storm finally moved out to sea.", "f": "A plain time jump moves the story forward."}],
+ [{"q": "Which line shows?", "w": "The cornfield seemed scary, silent, and strangely threatening at night.", "r": "One uncut row of corn rustled loudly, though no wind blew.", "f": "A rule that breaks creates dread."}, {"q": "Which line shows?", "w": "Lena felt completely heartbroken by the news about her friend.", "r": "Lena read the message once, then set her phone face-down.", "f": "Avoiding the screen shows the pain."}, {"q": "Which line shows?", "w": "\"Go away,\" he snapped back in a rude, bitter tone.", "r": "\"Go away.\" He kept stirring his coffee and never looked up.", "f": "Ignoring someone shows hostility."}, {"q": "Which line shows?", "w": "The school hallway felt dark, spooky, and strangely unfriendly.", "r": "Every locker door stood open, and the floor was dripping wet.", "f": "Wrongness in a familiar place is scary."}, {"q": "Which line shows?", "w": "Sam was extremely hungry after skipping lunch and dinner.", "r": "Sam finished his sandwich in four bites and eyed Theo's tray.", "f": "How someone eats shows how hungry they are."}, {"q": "Which handles a boring stretch better?", "w": "He opened the gate and walked slowly up the lane.", "r": "Moments later, he stood inside the cold barn.", "f": "Cut the walk and enter the scene."}, {"q": "Which opening starts the scene at a better moment?", "w": "\"Hello.\" \"Hi. Nice to see you.\" \"You too. Come in.\"", "r": "\"The barn door was locked,\" Ruth said. \"From the inside.\"", "f": "Enter late."}, {"q": "Which line is fine as plain telling because readers only need the time and place?", "w": "Mud sucked at his boots while the tractor coughed in the shed.", "r": "Spring arrived, and the farm slowly came back to life.", "f": "Seasons passing is a good place for plain telling."}]
 ];
+/*QUIZ-DATA-END*/
 var LINKS_NOTE="You never need to sign up for anything to use this page. Ask a course leader before creating any account.";
 
 function track(n){try{if(window.HO_track)window.HO_track(n)}catch(e){}}
 function para(text,link){var t=esc(text);if(link){var e=esc(link);t=t.replace(e,'<a href="../#prompts">'+e+'</a>')}return '<p>'+t+'</p>'}
 function buildResources(){
-  var h='<div class="subtabs" id="subtabs" role="tablist" aria-label="More resources">'+SUBS.map(function(x){return '<button class="tabbtn" type="button" role="tab" id="st-'+x.id+'" aria-controls="rp-'+x.id+'" aria-selected="false" tabindex="-1" data-sub="'+x.id+'">'+esc(x.t)+'</button>'}).join('')+'</div>';
+  var h='';
   /* Character Lab */
-  h+='<div class="respane" id="rp-lab" role="tabpanel" aria-labelledby="st-lab" hidden><h2 id="rh-lab" tabindex="-1">Character Lab</h2><p class="prose">'+esc(LAB_INTRO)+'</p>';
+  h+='<div class="respane" id="rp-lab" role="tabpanel" aria-labelledby="tab-lab" hidden><h2 id="rh-lab" tabindex="-1">Character Lab</h2><p class="prose">'+esc(LAB_INTRO)+'</p>';
   LAB.forEach(function(c){h+='<details class="cardx" id="lab-'+c.id+'"><summary>'+esc(c.t)+'</summary><div class="cbody">'+para(c.p,c.link)+'<label class="fl" for="labt-'+c.id+'">Your writing (about 5 minutes)</label><textarea id="labt-'+c.id+'" data-lab="'+c.id+'" spellcheck="true"></textarea><p class="count" id="labc-'+c.id+'" aria-live="polite"></p><div class="row"><button class="btn ghost" type="button" data-labcopy="'+c.id+'">Copy my writing</button></div></div></details>'});
   h+='</div>';
   /* Character Arcs */
-  h+='<div class="respane" id="rp-arcs" role="tabpanel" aria-labelledby="st-arcs" hidden><h2 id="rh-arcs" tabindex="-1">Character Arcs</h2><p class="prose">'+esc(ARC_INTRO)+'</p><ul class="arcparts">'+ARC_PARTS.map(function(x){return '<li><strong>'+esc(x[0])+':</strong> '+esc(x[1])+'</li>'}).join('')+'</ul>';
+  h+='<div class="respane" id="rp-arcs" role="tabpanel" aria-labelledby="tab-arcs" hidden><h2 id="rh-arcs" tabindex="-1">Character Arcs</h2><p class="prose">'+esc(ARC_INTRO)+'</p><ul class="arcparts">'+ARC_PARTS.map(function(x){return '<li><strong>'+esc(x[0])+':</strong> '+esc(x[1])+'</li>'}).join('')+'</ul>';
   ARCS.forEach(function(a){h+='<section class="cardx"><h3>'+esc(a.t)+'</h3><p>'+esc(a.p)+'</p></section>'});
   h+='<p class="note">'+esc(ARC_TIP)+'</p>';
   h+='<fieldset class="arcform"><legend>Arc check</legend><label class="fl" for="arc-goal">Goal</label><input type="text" id="arc-goal" data-arc="goal" maxlength="200" autocomplete="off"><label class="fl" for="arc-lie">The Lie</label><input type="text" id="arc-lie" data-arc="lie" maxlength="200" autocomplete="off"><label class="fl" for="arc-truth">The Truth</label><input type="text" id="arc-truth" data-arc="truth" maxlength="200" autocomplete="off">';
   h+='<div role="radiogroup" aria-labelledby="arc-type-l"><div class="fl" id="arc-type-l">Arc type</div><div class="opts">'+['Positive','Flat','Negative'].map(function(t){return '<label><input type="radio" name="arc-type" value="'+t+'" data-arctype="1"><span>'+t+'</span></label>'}).join('')+'</div></div>';
   h+='<label class="fl" for="arc-scene">Write the one scene where your character must choose.</label><textarea id="arc-scene" data-arc="scene" spellcheck="true"></textarea><p class="count" id="arc-count" aria-live="polite"></p><p class="muted" id="arc-status" aria-live="polite"></p></fieldset></div>';
   /* Tips */
-  h+='<div class="respane" id="rp-tips" role="tabpanel" aria-labelledby="st-tips" hidden><h2 id="rh-tips" tabindex="-1">Tips for Ghost Stories</h2><p class="prose">Pick your top 3. They are saved in this browser.</p>';
+  h+='<div class="respane" id="rp-tips" role="tabpanel" aria-labelledby="tab-tips" hidden><h2 id="rh-tips" tabindex="-1">Tips for Ghost Stories</h2><p class="prose">Pick your top 3. They are saved in this browser.</p>';
   TIPS.forEach(function(t,i){h+='<div class="cardx"><label class="pick" for="tip-'+i+'"><input type="checkbox" id="tip-'+i+'" data-tip="'+i+'"><span><strong>'+(i+1)+'. '+esc(t.t)+'</strong> '+esc(t.p)+'</span></label>'+(t.m?'<p class="move">Haunted Ohio move: '+esc(t.m)+'</p>':'<div style="height:.7rem"></div>')+'</div>'});
   h+='<h3>Pick your top 3</h3><p class="count" id="tip-sum" aria-live="polite"></p><div class="row"><button class="btn" type="button" id="tip-copy">Copy my 3</button></div></div>';
   /* Links */
-  h+='<div class="respane" id="rp-links" role="tabpanel" aria-labelledby="st-links" hidden><h2 id="rh-links" tabindex="-1">Links</h2><p class="prose">'+esc(LINKS_NOTE)+'</p><ul class="linkslist">'+LINKS.map(function(l){return '<li><a href="'+esc(l[0])+'" target="_blank" rel="noopener">'+esc(l[1])+'</a></li>'}).join('')+'</ul><p class="prose" id="links2-note">'+esc(LINKS2_NOTE)+'</p><ul class="linkslist">'+LINKS2.map(function(l){return '<li><a href="'+esc(l[0])+'" target="_blank" rel="noopener">'+esc(l[1])+'</a></li>'}).join('')+'</ul></div>'
+  h+='<div class="respane" id="rp-extras" role="tabpanel" aria-labelledby="tab-extras" hidden><h2 id="rh-extras" tabindex="-1">Extra Resources</h2><p class="prose">'+esc(LINKS_NOTE)+'</p><ul class="linkslist">'+LINKS.map(function(l){return '<li><a href="'+esc(l[0])+'" target="_blank" rel="noopener">'+esc(l[1])+'</a></li>'}).join('')+'</ul><p class="prose" id="links2-note">'+esc(LINKS2_NOTE)+'</p><ul class="linkslist">'+LINKS2.map(function(l){return '<li><a href="'+esc(l[0])+'" target="_blank" rel="noopener">'+esc(l[1])+'</a></li>'}).join('')+'</ul></div>'
   /* Quiz */
-  h+='<div class="respane" id="rp-quiz" role="tabpanel" aria-labelledby="st-quiz" hidden><h2 id="rh-quiz" tabindex="-1">Show or Tell? Quiz</h2><p class="muted" id="quiz-best"></p><div id="quiz-box"></div></div>';
+  h+='<div class="respane" id="rp-quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden><h2 id="rh-quiz" tabindex="-1">Show or Tell? Quiz</h2><p class="prose" id="quiz-choose-l">Choose a set</p><div class="quizsets" id="quiz-sets" role="group" aria-labelledby="quiz-choose-l"></div><p class="muted" id="quiz-best"></p><div id="quiz-box"></div></div>';
   var box=$('#view-resources');box.innerHTML=h;
 
   /* Character Lab: each card saves its own writing */
@@ -687,40 +692,60 @@ function buildResources(){
   tipPaint();
   boxes.forEach(function(b){b.addEventListener('change',function(){var i=+b.getAttribute('data-tip'),at=tips.indexOf(i);if(b.checked&&at<0&&tips.length<3)tips.push(i);else if(!b.checked&&at>=0)tips.splice(at,1);state.res.tips=tips;save();tipPaint()})});
   $('#tip-copy').addEventListener('click',function(){if(!tips.length){sum.textContent='Pick up to 3 tips first, then copy them.';return}copyText(tipText(),this)});
-  quizStart(false);
+  quizInit();
 }
 
-/* ---------- Show or Tell? quiz (answers are shuffled; the best score is saved in ho-sdt) ---------- */
-var qz={i:0,score:0,opts:[],done:false};
+/* ---------- Show or Tell? quiz (five sets of eight; questions and answers are shuffled on every play; best score per set is saved in ho-sdt.quizBest) ---------- */
+var qz={set:0,order:[],i:0,score:0,answered:false,opts:[],right:0};
 function shuffled(n){var a=[],i,j,t;for(i=0;i<n;i++)a.push(i);for(i=n-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=a[i];a[i]=a[j];a[j]=t}return a}
-function quizBest(){var b=$('#quiz-best');b.textContent=(typeof state.quiz.best==='number')?'Best score: '+state.quiz.best+' of '+QUIZ.length:'No best score yet.'}
-function quizStart(focus){qz.i=0;qz.score=0;qz.done=false;quizBest();quizAsk(focus)}
+function quizBestPaint(){
+  var parts=[],i;for(i=1;i<=QUIZSETS.length;i++)parts.push('Set '+i+': '+((typeof state.quizBest[i]==='number')?state.quizBest[i]+' of 8':'not played yet'));
+  var t='Best scores. '+parts.join('. ')+'.';
+  if(typeof state.quiz.best==='number')t+=' Earlier quiz best: '+state.quiz.best+' of 8.';
+  $('#quiz-best').textContent=t;
+}
+function quizSetsPaint(){
+  var h='',i;for(i=1;i<=QUIZSETS.length;i++)h+='<button type="button" class="btn ghost" data-set="'+i+'" aria-pressed="'+(qz.set===i)+'">Set '+i+'</button>';
+  h+='<button type="button" class="btn ghost" data-set="0">Surprise me</button>';
+  $('#quiz-sets').innerHTML=h;
+}
+function quizInit(){
+  quizSetsPaint();quizBestPaint();
+  $('#quiz-box').innerHTML='<p class="prose">Pick a set above to begin. Each set has eight questions.</p>';
+  var m=/[?&]set=(\d+)(?:&|$)/.exec(location.search),n=m?parseInt(m[1],10):0;
+  if(n>=1&&n<=QUIZSETS.length)quizChoose(n,false);
+}
+function quizChoose(n,focus){
+  if(!(n>=1&&n<=QUIZSETS.length))n=1+Math.floor(Math.random()*QUIZSETS.length);
+  qz.set=n;track('quiz-set-chosen');quizStart(focus);
+}
+function quizStart(focus){qz.order=shuffled(QUIZSETS[qz.set-1].length);qz.i=0;qz.score=0;quizSetsPaint();quizBestPaint();quizAsk(focus)}
 function quizAsk(focus){
-  var Q=QUIZ[qz.i],box=$('#quiz-box');qz.opts=shuffled(Q.a.length);qz.answered=false;
-  var h='<p class="count" id="quiz-prog">Question '+(qz.i+1)+' of '+QUIZ.length+'</p><div class="quizq" role="group" aria-labelledby="quiz-q"><h3 id="quiz-q" tabindex="-1">'+esc(Q.q)+'</h3><div class="quizopts">';
-  qz.opts.forEach(function(k){h+='<button type="button" class="quizopt" data-k="'+k+'">'+esc(Q.a[k])+'</button>'});
-  h+='</div></div><div class="note" id="quiz-fb" aria-live="polite" hidden></div><div class="row"><button class="btn" type="button" id="quiz-next" hidden>'+(qz.i===QUIZ.length-1?'See my score':'Next question')+'</button></div>';
+  var Q=QUIZSETS[qz.set-1][qz.order[qz.i]],box=$('#quiz-box'),mix=shuffled(2),texts=[Q.w,Q.r];
+  qz.opts=mix.map(function(k){return texts[k]});qz.right=qz.opts.indexOf(Q.r);qz.answered=false;
+  var h='<p class="count" id="quiz-prog">Set '+qz.set+', question '+(qz.i+1)+' of '+QUIZSETS[qz.set-1].length+'</p><div class="quizq" role="group" aria-labelledby="quiz-q"><h3 id="quiz-q" tabindex="-1">'+esc(Q.q)+'</h3><div class="quizopts">';
+  qz.opts.forEach(function(t,k){h+='<button type="button" class="quizopt" data-k="'+k+'">'+esc(t)+'</button>'});
+  h+='</div></div><div class="note" id="quiz-fb" aria-live="polite" hidden></div><div class="row"><button class="btn" type="button" id="quiz-next" hidden>'+(qz.i===QUIZSETS[qz.set-1].length-1?'See my score':'Next question')+'</button></div>';
   box.innerHTML=h;
   if(focus)$('#quiz-q').focus();
 }
 function quizPick(btn){
   if(qz.answered)return;qz.answered=true;
-  var Q=QUIZ[qz.i],k=+btn.getAttribute('data-k'),ok=(k===Q.c);if(ok)qz.score++;
+  var Q=QUIZSETS[qz.set-1][qz.order[qz.i]],k=+btn.getAttribute('data-k'),ok=(k===qz.right);if(ok)qz.score++;
   Array.prototype.forEach.call($('#quiz-box').querySelectorAll('.quizopt'),function(b){
     var bk=+b.getAttribute('data-k');b.disabled=true;
-    if(bk===Q.c){b.classList.add('good');b.insertAdjacentHTML('beforeend','<span class="tagq">✓ The line that fits</span>')}
+    if(bk===qz.right){b.classList.add('good');b.insertAdjacentHTML('beforeend','<span class="tagq">✓ The line that fits</span>')}
     else if(b===btn){b.classList.add('bad');b.insertAdjacentHTML('beforeend','<span class="tagq">Your answer</span>')}
   });
   var fb=$('#quiz-fb');fb.hidden=false;fb.textContent=(ok?'Correct! ':'Not quite. ')+Q.f;
   var nx=$('#quiz-next');nx.hidden=false;nx.focus();
 }
 function quizNext(){
-  if(qz.i<QUIZ.length-1){qz.i++;quizAsk(true);return}
-  qz.done=true;
+  if(qz.i<QUIZSETS[qz.set-1].length-1){qz.i++;quizAsk(true);return}
   var sc=qz.score,msg=sc===8?'Sharp eyes. You think like a writer.':(sc>=5?'Solid. Play again for a perfect run.':'Good start. Reread lessons 1 to 3.');
-  if(typeof state.quiz.best!=='number'||sc>state.quiz.best){state.quiz.best=sc;save()}
-  $('#quiz-box').innerHTML='<h3 id="quiz-q" tabindex="-1">Your score</h3><p class="quizscore" id="quiz-score">'+sc+' of '+QUIZ.length+'</p><p id="quiz-msg">'+esc(msg)+'</p><div class="row"><button class="btn" type="button" id="quiz-again">Play again</button></div>';
-  quizBest();$('#quiz-q').focus();track('quiz-complete');
+  if(typeof state.quizBest[qz.set]!=='number'||sc>state.quizBest[qz.set]){state.quizBest[qz.set]=sc;save()}
+  $('#quiz-box').innerHTML='<h3 id="quiz-q" tabindex="-1">Your score, Set '+qz.set+'</h3><p class="quizscore" id="quiz-score">'+sc+' of '+QUIZSETS[qz.set-1].length+'</p><p id="quiz-msg">'+esc(msg)+'</p><div class="row"><button class="btn" type="button" id="quiz-again">Play again</button><button class="btn ghost" type="button" id="quiz-other">Try another set</button></div>';
+  quizBestPaint();$('#quiz-q').focus();track('quiz-complete');
 }
 
 /* ---------- tabs (keyboard: arrows, Home and End move between tabs; Enter or Space opens one) ---------- */
@@ -730,42 +755,42 @@ function tabKeys(listEl){listEl.addEventListener('keydown',function(e){
   var j=k==='Home'?0:(k==='End'?tabs.length-1:(i+(k==='ArrowRight'?1:-1)+tabs.length)%tabs.length);
   e.preventDefault();tabs[j].focus();
 })}
-var lastSub='lab',resTracked=false;
+var resTracked=false;
 function selectTabs(listEl,sel){Array.prototype.forEach.call(listEl.querySelectorAll('[role="tab"]'),function(t){var on=sel(t);t.setAttribute('aria-selected',on?'true':'false');t.setAttribute('tabindex',on?'0':'-1')})}
-function showView(view,sub){
-  var lessons=view==='lessons';
-  $('#view-lessons').hidden=!lessons;$('#view-resources').hidden=lessons;
-  selectTabs($('#toptabs'),function(t){return t.id===(lessons?'tab-lessons':'tab-resources')});
-  if(!lessons){
-    selectTabs($('#subtabs'),function(t){return t.getAttribute('data-sub')===sub});
-    SUBS.forEach(function(x){$('#rp-'+x.id).hidden=(x.id!==sub)});
-    lastSub=sub;
-    if(!resTracked){resTracked=true;track('resources-opened')}
-  }
+function showTab(id){
+  var steps=id==='steps';
+  $('#view-lessons').hidden=!steps;$('#view-resources').hidden=steps;
+  selectTabs($('#toptabs'),function(t){return t.id==='tab-'+id});
+  TABS.forEach(function(x){if(x.id!=='steps')$('#rp-'+x.id).hidden=(x.id!==id)});
+  var on=$('#tab-'+id);if(on&&on.scrollIntoView){try{on.scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}}
+  if(!steps&&!resTracked){resTracked=true;track('resources-opened')}
 }
-$('#toptabs').addEventListener('click',function(e){var b=e.target.closest('[role="tab"]');if(!b)return;location.hash=(b.id==='tab-lessons')?('#lesson-'+cur):('#resources-'+lastSub)});
+$('#toptabs').addEventListener('click',function(e){var b=e.target.closest('[role="tab"]');if(!b)return;var id=b.id.replace('tab-','');location.hash=(id==='steps')?('#lesson-'+cur):('#'+id)});
 tabKeys($('#toptabs'));
 buildResources();
-$('#quiz-box').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.classList.contains('quizopt'))quizPick(b);else if(b.id==='quiz-next')quizNext();else if(b.id==='quiz-again')quizStart(true)});
-$('#subtabs').addEventListener('click',function(e){var b=e.target.closest('[data-sub]');if(!b)return;location.hash='#resources-'+b.getAttribute('data-sub')});
-tabKeys($('#subtabs'));
+$('#quiz-sets').addEventListener('click',function(e){var b=e.target.closest('[data-set]');if(!b)return;quizChoose(parseInt(b.getAttribute('data-set'),10),true)});
+$('#quiz-box').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.classList.contains('quizopt'))quizPick(b);else if(b.id==='quiz-next')quizNext();else if(b.id==='quiz-again')quizStart(true);else if(b.id==='quiz-other'){qz.set=0;quizSetsPaint();$('#quiz-box').innerHTML='<p class="prose">Pick a set above to begin. Each set has eight questions.</p>';var f=$('#quiz-sets button');if(f)f.focus()}});
 
 /* ---------- router ---------- */
+/* the old two-level addresses still work: they are sent to the matching tab */
+var OLDHASH={'#resources':'#lab','#resources-lab':'#lab','#resources-arcs':'#arcs','#resources-tips':'#tips','#resources-quiz':'#quiz','#resources-links':'#extras','#lessons':'#steps'};
 function route(){
   var hash=location.hash||'';
-  var r=/^#resources(?:-(lab|arcs|tips|links|quiz))?$/.exec(hash);
+  if(OLDHASH[hash]){hash=OLDHASH[hash];try{history.replaceState(null,'',hash)}catch(e){}}
+  var r=/^#(lab|arcs|tips|quiz|extras)$/.exec(hash);
   if(r){
-    var sub=r[1]||'lab';
-    showView('resources',sub);
-    document.title='More resources: '+SUBS.filter(function(x){return x.id===sub})[0].t+' | Show, Don’t Tell | Haunted Ohio';
-    if(!first){var rh=$('#rh-'+sub);if(rh)rh.focus({preventScroll:false})}
+    var id=r[1];
+    showTab(id);
+    document.title=TABS.filter(function(x){return x.id===id})[0].t+' | Show, Don’t Tell | Haunted Ohio';
+    if(!first){var rh=$('#rh-'+id);if(rh)rh.focus({preventScroll:false})}
     first=false;
     return;
   }
-  showView('lessons');
+  showTab('steps');
   var m=/^#lesson-(\d+)$/.exec(hash);
   var n=m?parseInt(m[1],10):0;
-  if(!(n>=1&&n<=10)){
+  if(hash==='#steps')n=cur;
+  else if(!(n>=1&&n<=10)){
     n=1;
     try{history.replaceState(null,'','#lesson-1')}catch(e){}
   }
