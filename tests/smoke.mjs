@@ -13,6 +13,14 @@ const noHScroll = (page) => page.evaluate(() => document.documentElement.scrollW
 
 const tests = [];
 const T = (name, fn) => tests.push([name, fn]);
+// The teacher page is tested from a plain copy kept in tests/fixtures/ (not the live file), so these tests keep passing
+// after the locked page replaces teacher/index.html. The copy is served at teacher/ by the test browser only.
+const TEACHER_FIXTURE_PATH = path.join(ROOT, 'tests', 'fixtures', '_teacher-page.html');
+const gotoTeacher = async (page, base) => {
+  const body = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8');
+  await page.route((u) => u.href === base + 'teacher/' || u.href === base + 'teacher/index.html', (route) => route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body }));
+  await page.goto(base + 'teacher/');
+};
 
 // ---------------------------------------------------------------- home
 T('home: every hash route shows its view', async ({ base, newPage }) => {
@@ -720,7 +728,7 @@ T('last-light: Scenario 1 still shows the original text now that it is assembled
 // ---------------------------------------------------------------- Teacher tools (Phase 6)
 T('teacher: six links per game and a seating helper where touching seats never share a case code', async ({ base, newPage }) => {
   const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
-  await p.goto(base + 'teacher/'); await p.waitForTimeout(200);
+  await gotoTeacher(p, base); await p.waitForTimeout(200);
   eq((await p.$$eval('#hfLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../haunting-files/?case=' + n).join(','), 'six Haunting Files links');
   eq((await p.$$eval('#llLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../last-light/?case=' + n).join(','), 'six Last Light links');
   eq((await p.$$eval('#vlLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../the-veil/?case=' + n).join(','), 'six The Veil links');
@@ -887,7 +895,7 @@ T('locked page: a wrong password shows only the error (with a delay that grows),
   await p.click('#ho-lock-again'); await p.waitForSelector('#pw'); await p.waitForTimeout(150); ok(await p.isVisible('#go') && !(await p.textContent('body')).includes(LOCK_MARKER), 'back to the locked prompt'); ok(!(await storeDump(p)).includes(LOCK_MARKER), 'still nothing stored');
 });
 T('locked page: the real teacher page, locked and unlocked, still works (six links per game and the seating helper)', async ({ base, newPage }) => {
-  const real = fs.readFileSync(path.join(ROOT, 'teacher', 'index.html'), 'utf8'); const { p: lp, text } = await lockIt(newPage, base, real, FAKE_LONG); await lp.close();
+  const real = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8'); const { p: lp, text } = await lockIt(newPage, base, real, FAKE_LONG); await lp.close();
   ok(!text.includes('Seating') && !text.includes('hfLinks') && !text.includes('case code'), 'no readable teacher content in the locked file');
   const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); await serveLocked(p, base, text); await p.fill('#pw', FAKE_LONG); await p.click('#go'); await p.waitForSelector('#hfLinks a.primary', { timeout: 15000 });
   eq((await p.$$eval('#hfLinks a.primary', (e) => e.length)), 6, 'six Haunting Files links'); eq((await p.$$eval('#vlLinks a.primary', (e) => e.length)), 6, 'six The Veil links');
@@ -912,6 +920,19 @@ T('unlinked: no public page, search entry or card links to the teacher page or t
   const bad = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const full = path.join(d, f.name); const rel = path.relative(ROOT, full); if (f.isDirectory()) { if (['node_modules', '.git', '.wt', 'docs', 'tests', 'teacher', 'tools'].includes(f.name)) continue; walk(full); } else if (/\.(html|js|json|xml|txt|md)$/.test(f.name) && !/^(docs|tests)\//.test(rel)) { const s = fs.readFileSync(full, 'utf8'); if (/href=["'][^"']*teacher\/?(index\.html)?["'#?]/.test(s) || /tools\/lock/.test(s) || /Teacher tools/i.test(s)) bad.push(rel); } } };
   walk(ROOT); eq(bad.join(','), '', 'pages that still point at the teacher page or the lock tool: ' + bad);
   await p.evaluate(() => { location.hash = '#home'; }); const hasSearch = await p.$('#siteSearch, [data-search], input[type="search"]'); if (hasSearch) { await p.fill('input[type="search"]', 'teacher tools'); await p.waitForTimeout(200); ok(!/teacher\//.test(await p.evaluate(() => [...document.querySelectorAll('a')].map((a) => a.getAttribute('href')).join(' '))), 'the search results do not offer the teacher page'); }
+});
+T('teacher fixture: the plain copy used by the teacher tests is a real, complete page, and nothing public links to it or serves it', async ({ base }) => {
+  const name = path.basename(TEACHER_FIXTURE_PATH); const html = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8');
+  ok(/id="hfLinks"/.test(html) && /id="vlLinks"/.test(html) && /id="make"/.test(html) && html.length > 5000, 'the fixture is the full teacher page (links and seating helper)');
+  ok(name.startsWith('_'), 'the file name starts with an underscore, which the Jekyll build behind GitHub Pages leaves out of the published site');
+  ok(!fs.existsSync(path.join(ROOT, '.nojekyll')), 'no .nojekyll file (it would switch that exclusion off)');
+  /* nothing public points at it: not a page, a script, a data file, the sitemap or a card (docs and tests may name it) */
+  const bad = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const full = path.join(d, f.name); const rel = path.relative(ROOT, full); if (f.isDirectory()) { if (['node_modules', '.git', '.wt', 'docs', 'tests'].includes(f.name)) continue; walk(full); } else if (/\.(html|js|json|xml|txt|md|css|svg|webmanifest)$/i.test(f.name)) { const s = fs.readFileSync(full, 'utf8'); if (/_teacher-page|tests\/fixtures/.test(s)) bad.push(rel); } } };
+  walk(ROOT); eq(bad.join(','), '', 'public files that mention the teacher fixture: ' + bad);
+  /* and no public page leaks its text: the leader tools' own markers appear only in the fixture and the teacher page, never on the home page, games or lessons */
+  for (const u of ['', 'show-dont-tell/', 'haunting-files/', 'last-light/', 'the-veil/', 'room-214/']) { const body = await (await fetch(base + u)).text(); ok(!/id="hfLinks"|id="vlLinks"|seating helper/i.test(body), 'a public page carries the leader tools: ' + (u || 'home')); }
+  /* the lock tool's how-to tells leaders about it, and no secret-looking text is in it */
+  ok(!/(password|passphrase)\s*[:=]\s*['"]?\S{6,}/i.test(html), 'no password in the fixture');
 });
 T('repo: no password-like string, key or "password=" in committed files outside a marked test fixture', async () => {
   let files; try { files = (await import('node:child_process')).execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { files = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { if (['node_modules', '.git', '.wt'].includes(f.name)) continue; const full = path.join(d, f.name); if (f.isDirectory()) walk(full); else files.push(path.relative(ROOT, full)); } }; walk(ROOT); }
@@ -968,7 +989,7 @@ T('responsive: no horizontal scroll on any page at 1920, 1366, 1280, 1024, 768 a
 T('responsive: the teacher page, every case and scenario in play, and the Dossier, at 1920, 1280 and 390 px, without console errors', async ({ base, newPage }) => {
   for (const w of [1920, 1280, 390]) {
     const p = await newPage({ width: w, height: 800 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push(m.text()); });
-    await p.goto(base + 'teacher/'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on teacher/`);
+    await gotoTeacher(p, base); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on teacher/`);
     await p.fill('#rows', '8'); await p.fill('#cols', '12'); await p.click('#make'); ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1 || document.getElementById('plan').scrollWidth >= 0), 'the big seating grid scrolls inside its own box');
     await p.goto(base + '#cemetery'); await p.click('#ct-hunt'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on the Dossier`);
     await p.click('#ct-submit'); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on the turn-in tab`);

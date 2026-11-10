@@ -21,7 +21,7 @@ The teacher page (`teacher/index.html`) has the six case-code links for each gam
    - **Lock again** (bottom right) puts the prompt back.
 
 ## Good to know
-- To change the password, or to update the page, lock the plain page again with the tool and upload the new file. Keep the plain copy of the page somewhere private (for example in Microsoft 365), not in this repo.
-- The site's automated tests open `teacher/index.html` directly. After the locked file goes live, those tests will see the password prompt instead. Move the plain page into `tests/fixtures/` first and point the teacher tests at it (ask Claude Code to do this in a small follow-up).
+- To change the password, or to update the page, lock the plain page again with the tool and upload the new file.
+- The site's automated tests do not read the live `teacher/index.html`. They use a plain copy at `tests/fixtures/_teacher-page.html`, so they keep passing once the locked file is live. If you change the teacher page later, update that copy too (paste the new plain page over it). The copy's name starts with an underscore so the GitHub Pages build leaves it out of the published site, and no page links to it. Because it is a plain copy in the repo, **do not put anything sensitive in the teacher page**.
 - If you forget the password there is no recovery. Lock the plain page again with a new password.
 - Leaders: the Leaders page says "Leader tools are available from your course leaders." Give the address of the teacher page and the password to leaders in person or by school email.
