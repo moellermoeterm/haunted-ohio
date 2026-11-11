@@ -19,15 +19,12 @@ This file is for course leaders. It is **not linked from the site**. Search the 
 - [ ] Read the four legends and the "What the record says" text on the Legends tab. The Dossier reuses that text, and its supporting-fact choices (for example, the Cincinnati Magazine line about Breuer) come from it. Confirm these are the sources you want students to cite.
 
 ## 4. The Week page (`index.html`, `WEEK_DATA`)
-How it works now: each day has `meet`, `time`, `cost` and `transport` (empty), plus `dates`. Fill one in and it appears on that day's card by itself; a day whose `meet` and `time` are both filled in drops the line "Meeting spot, time, and cost will be shared by your course leaders." The `history` and `lore` boxes appear as soon as they are not null. The `todo` lines in `WEEK_DATA` are for you only and are never shown. Until you confirm them, Monday says only "A walking tour called “Nightmare on Elm Street” in Cincinnati’s Over-the-Rhine neighborhood." and Wednesday says only "The “Ghosts and Gears” tour at Miami University in Oxford."
-- [ ] Real dates for Monday to Thursday (`dates`). Written the way you want them shown.
-- [ ] **Monday (Cincinnati walking tour):** confirm that American Legacy Tours runs it, that it starts and ends at Northern Row Brewery, and that it includes a stop in 1800s brewery tunnels (none of this is on the page until you do). Also confirm this is the tour you booked ("Nightmare on Elm Street", American Legacy Tours; its public listing says it starts and ends at Northern Row Brewery). Meeting spot and time, cost and payment, transportation and pick-up. One verified fact with its source for the real-history box.
-- [ ] **Tuesday (Spring Grove):** meeting spot, time, who leads each squad, parking and drop-off.
-- [ ] **Wednesday (Miami University / Oxford):** confirm this year's tour is still the "Ghosts and Gears" bike tour you booked. Meeting spot, time, cost and payment, bikes and helmets (rented or brought), any waiver, and the tour's own stops (do not copy from older years unless confirmed).
-- [ ] **Thursday (Lebanon / The Golden Lamb):** reservation name, time and party size, budget and who pays, menu or allergy information for families.
+The page shows only day names and place names. There are no fields for anything else.
+
+- Schedule, times, addresses and bookings are kept in the leaders' private PowerPoint and school communications. Never add them to this repo or site.
 
 ## 5. Things I could not verify (please check before students rely on them)
-I could only search the web; the venues' own sites (`events.miamioh.edu`, `goldenlamb.com`, `springgrove.org`, `americanlegacytours.com`) were not reachable from my environment, so nothing here was checked against a primary source. Everything marked "Real history" was confirmed by several independent search results and has its source named in a code comment. If you would like primary-source checks, those four hosts need to be allowed in the environment's network settings.
+I could only search the web; the venues' own sites (`events.miamioh.edu`, `goldenlamb.com`, `springgrove.org`) were not reachable from my environment, so nothing here was checked against a primary source. Everything marked "Real history" was confirmed by several independent search results and has its source named in a code comment. If you would like primary-source checks, those four hosts need to be allowed in the environment's network settings.
 - **Left out because sources conflict:** Spring Grove's acreage (733, 750 and 782 all appear), The Golden Lamb's building date (1815 vs 1816) and the date of Dickens's visit, Sedamsville Rectory's construction date (1891 vs early 1800s), Moonville Tunnel's build date and when its rail line closed (1987 vs 1988), the Ohio State Reformatory's construction years.
 - **The Golden Lamb:** "Ohio's longest continually operated business" and "twelve U.S. presidents" are shown as the inn's own claims, not facts.
 - **Ghosts and Gears:** the only thing verified is that Miami's Outdoor Pursuit Center has offered a Halloween-season bike tour with that name. Haunting Files Case 3 therefore uses verified Miami history (chartered 1809, first classes 1824, Western Female Seminary and Helen Peabody) and a **made-up** building, Alder Hall.
@@ -38,19 +35,6 @@ I could only search the web; the venues' own sites (`events.miamioh.edu`, `golde
 ## 6. About page (`index.html`, About)
 - [x] The overnight sentence now reads: "Students registering for this course must be available for an overnight stay on Wednesday night at Hueston Woods, following the Ghosts and Gears tour at Miami University." **Done** (the Reformatory/Shawshank sentence was removed).
 - Other places that mention the Ohio State Reformatory are the Haunting Files Case 5 game case (`haunting-files/cases/c5.js`), plus a Mansfield map label in two Last Light scenarios (`last-light/scenarios/s2.js`, `s6.js`). None of them say students will visit or stay there, so they were left alone.
-
-## 6b. Wednesday night at Hueston Woods (`index.html`, `WEEK_DATA`, entry `wedn`)
-The Week page now has a "Wednesday night" entry after Wednesday. The only facts on it are that the overnight is at Hueston Woods after the Ghosts and Gears tour. Each item below shows students a "Leaders: fill in" note until you answer it and delete the line from that entry's `todo`. Its date follows Wednesday's (`dates.wed`). No real-history note was added because nothing about the park has been verified.
-- [ ] Lodging type
-- [ ] Address and how to get there
-- [ ] Check-in time and lights-out time
-- [ ] Meals (what is provided, who pays)
-- [ ] What to pack
-- [ ] Supervision and chaperone ratio
-- [ ] Rules for the overnight
-- [ ] Permission forms and medical information
-- [ ] Emergency contacts
-- [ ] Thursday morning schedule before the Golden Lamb lunch
 
 ## 7. Things to know
 - The Haunting Files cases and Last Light scenarios are plain data files you can edit: `haunting-files/cases/c1.js` to `c6.js` and `last-light/scenarios/s1.js` to `s6.js`. Case 1 and Scenario 1 are the original content, and saves made before variants existed load as Case 1 / Scenario 1.

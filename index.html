@@ -428,7 +428,6 @@ details.howto li{margin:.35rem 0}
 .wk-day{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--surface2),var(--surface) 25%);box-shadow:var(--ho-shadow);overflow:hidden;scroll-margin-top:7rem}
 .wk-head{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;align-items:baseline;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(217,184,108,.12),transparent)}
 .wk-dow{font-family:var(--display);font-size:clamp(1.8rem,3.4vw,2.5rem);line-height:1;color:var(--ho-gold)}
-.wk-date{color:var(--muted);font-weight:700}
 .wk-body{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.6rem;padding:1.4rem 1.5rem 1.6rem}
 .wk-body h3{margin:0 0 .15rem;font-size:clamp(1.5rem,2.6vw,2rem)}
 .wk-where{margin:0 0 .8rem;color:var(--muted);font-weight:700}
@@ -436,7 +435,6 @@ details.howto li{margin:.35rem 0}
 .wk-box{border:1px solid var(--line);border-left-width:4px;border-radius:12px;padding:.8rem 1.1rem;margin:.9rem 0;background:var(--ho-night-2)}
 .wk-box ul{margin:0;padding-left:1.2rem}.wk-box li{margin:.3rem 0}
 .wk-hist{border-left-color:var(--ok)}.wk-lore{border-left-color:var(--bad)}.wk-todo{border-left-color:var(--ho-warn)}
-.wk-facts{margin:.6rem 0 .9rem;display:grid;gap:.35rem}.wk-facts div{display:flex;flex-wrap:wrap;gap:.2rem .8rem}.wk-facts dt{font-weight:700;color:var(--ho-gold)}.wk-facts dd{margin:0}
 .wk-shared{margin:0;padding:.9rem 1.5rem;border-top:1px solid var(--line);color:var(--muted)}
 .todo{border:2px dashed var(--ho-warn);background:rgba(230,174,76,.10);border-radius:10px;padding:.45rem .8rem}
 .todo-in{display:inline-block;border:1.5px dashed var(--ho-warn);background:rgba(230,174,76,.12);border-radius:8px;padding:0 .5rem;font-size:.9rem;font-weight:700;color:var(--text)}
@@ -652,14 +650,15 @@ details.howto li{margin:.35rem 0}
     </ul>
     <p class="ho-eyebrow" style="margin-top:1.6rem">The Week</p>
     <ul class="fm-list">
-      <li><a href="#week" data-day="mon"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Monday: Nightmare on Elm Street tour</b><small>Cincinnati.</small></span></a></li>
+      <li><a href="#week" data-day="mon"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Monday: Findlay Market</b><small>Cincinnati.</small></span></a></li>
       <li><a href="#week" data-day="tue"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Tuesday: Spring Grove Cemetery</b><small>Cincinnati</small></span></a></li>
       <li><a href="#week" data-day="wed"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Wednesday: Miami University</b><small>Oxford: the “Ghosts and Gears” tour.</small></span></a></li>
+      <li><a href="#week" data-day="wedn"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Wednesday night: Hueston Woods</b><small>The overnight stay.</small></span></a></li>
       <li><a href="#week" data-day="thu"><i><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="assets/img/ho-icons.svg#i-calendar"/></svg></i><span><b>Thursday: The Golden Lamb</b><small>Lebanon: lunch.</small></span></a></li>
     </ul>
     <p class="fm-note">The Cincinnati inset is a sketch, not to scale.</p>
   </div>
-  <svg class="fm-svg" viewBox="-70 0 710 460" role="group" aria-label="Map of Ohio showing Cincinnati, Oxford and Lebanon, with an inset of Cincinnati showing five places in the archive">
+  <svg class="fm-svg" viewBox="-70 0 710 460" role="group" aria-label="Map of Ohio showing Cincinnati, Oxford, Hueston Woods and Lebanon, with an inset of Cincinnati showing four places">
   <defs><linearGradient id="fmWater" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="90"><stop offset="0" stop-color="#3a7a96" stop-opacity="0"/><stop offset="1" stop-color="#3a7a96" stop-opacity=".55"/></linearGradient>
   <clipPath id="fmClip"><circle cx="505" cy="238" r="124"/></clipPath></defs>
   <g class="fm-grat"><path d="M113.8 0V460"/><path d="M195.8 0V460"/><path d="M277.8 0V460"/><path d="M359.8 0V460"/><path d="M-70 137.2H640"/><path d="M-70 241.2H640"/><path d="M-70 345.2H640"/></g>
@@ -669,12 +668,12 @@ details.howto li{margin:.35rem 0}
   <line x1="72.0" y1="334.8" x2="416.0" y2="324.3" class="fm-lead"/><line x1="72.0" y1="334.8" x2="387.7" y2="197.8" class="fm-lead"/>
   <circle cx="72.0" cy="334.8" r="14" class="fm-pulse"/><circle cx="72.0" cy="334.8" r="5.5" class="fm-main"/>
   <text x="60" y="369" class="fm-city" text-anchor="end">CINCINNATI</text>
-  <a href="#week" class="pin stop" data-day="wed"><circle cx="52.7" cy="292.5" r="22" class="hit"/><circle cx="52.7" cy="292.5" r="7" class="dot"/><circle cx="52.7" cy="292.5" r="13" class="ring"/><text x="40.7" y="296.5" text-anchor="end">Miami University<tspan class="day" x="40.7" dy="13">WED</tspan></text></a><a href="#week" class="pin stop" data-day="thu"><circle cx="96.1" cy="300.0" r="22" class="hit"/><circle cx="96.1" cy="300.0" r="7" class="dot"/><circle cx="96.1" cy="300.0" r="13" class="ring"/><text x="108.1" y="304.0" text-anchor="start">The Golden Lamb<tspan class="day" x="108.1" dy="13">THU</tspan></text></a>
+  <a href="#week" class="pin stop" data-day="wed"><circle cx="52.7" cy="292.5" r="22" class="hit"/><circle cx="52.7" cy="292.5" r="7" class="dot"/><circle cx="52.7" cy="292.5" r="13" class="ring"/><text x="40.7" y="296.5" text-anchor="end">Oxford<tspan class="day" x="40.7" dy="13">WED</tspan></text></a><a href="#week" class="pin stop" data-day="wedn"><circle cx="52.7" cy="268.0" r="22" class="hit"/><circle cx="52.7" cy="268.0" r="7" class="dot"/><circle cx="52.7" cy="268.0" r="13" class="ring"/><text x="40.7" y="262.0" text-anchor="end">Hueston Woods<tspan class="day" x="40.7" dy="13">WED NIGHT</tspan></text></a><a href="#week" class="pin stop" data-day="thu"><circle cx="96.1" cy="300.0" r="22" class="hit"/><circle cx="96.1" cy="300.0" r="7" class="dot"/><circle cx="96.1" cy="300.0" r="13" class="ring"/><text x="108.1" y="304.0" text-anchor="start">Lebanon<tspan class="day" x="108.1" dy="13">THU</tspan></text></a>
   <circle cx="505" cy="238" r="124" class="fm-disc"/>
   <g clip-path="url(#fmClip)"><path d="M381 300 C435 268 495 330 545 300 S629 308 649 288 V362 H381Z" class="fm-river"/>
     <g class="fm-streets"><path d="M381 218H629M381 252H629M445 114V362M499 114V362M559 114V362"/></g></g>
   <circle cx="505" cy="238" r="124" class="fm-rim"/>
-  <a href="haunting-files/" class="pin"><circle cx="462" cy="234" r="22" class="hit"/><circle cx="462" cy="234" r="9" class="dot"/><circle cx="462" cy="234" r="15" class="ring"/><text x="462" y="208" text-anchor="middle">Music Hall</text></a><a href="#cemetery" class="pin stop" data-day="tue"><circle cx="538" cy="182" r="22" class="hit"/><circle cx="538" cy="182" r="7" class="dot"/><circle cx="538" cy="182" r="13" class="ring"/><text x="538" y="156" text-anchor="middle">Spring Grove<tspan class="day" x="538" dy="13">TUE</tspan></text></a><a href="last-light/" class="pin"><circle cx="512" cy="296" r="22" class="hit"/><circle cx="512" cy="296" r="9" class="dot"/><circle cx="512" cy="296" r="15" class="ring"/><text x="512" y="334" text-anchor="middle">Abandoned Cincinnati</text></a><a href="#week" class="pin stop" data-day="mon"><circle cx="506" cy="236" r="22" class="hit"/><circle cx="506" cy="236" r="7" class="dot"/><circle cx="506" cy="236" r="13" class="ring"/><text x="506" y="270" text-anchor="middle">Elm Street tour<tspan class="day" x="506" dy="13">MON</tspan></text></a>
+  <a href="haunting-files/" class="pin"><circle cx="462" cy="234" r="22" class="hit"/><circle cx="462" cy="234" r="9" class="dot"/><circle cx="462" cy="234" r="15" class="ring"/><text x="462" y="208" text-anchor="middle">Music Hall</text></a><a href="#cemetery" class="pin stop" data-day="tue"><circle cx="538" cy="182" r="22" class="hit"/><circle cx="538" cy="182" r="7" class="dot"/><circle cx="538" cy="182" r="13" class="ring"/><text x="538" y="156" text-anchor="middle">Spring Grove<tspan class="day" x="538" dy="13">TUE</tspan></text></a><a href="last-light/" class="pin"><circle cx="512" cy="296" r="22" class="hit"/><circle cx="512" cy="296" r="9" class="dot"/><circle cx="512" cy="296" r="15" class="ring"/><text x="512" y="334" text-anchor="middle">Abandoned Cincinnati</text></a><a href="#week" class="pin stop" data-day="mon"><circle cx="506" cy="236" r="22" class="hit"/><circle cx="506" cy="236" r="7" class="dot"/><circle cx="506" cy="236" r="13" class="ring"/><text x="506" y="270" text-anchor="middle">Findlay Market<tspan class="day" x="506" dy="13">MON</tspan></text></a>
 </svg>
 </section>
 </div>
@@ -1280,36 +1279,20 @@ details.howto li{margin:.35rem 0}
 <script>
 /* =====================================================================================================================
    THE WEEK: EDIT THIS OBJECT. Everything on the "The Week" page is built from it.
-   - Nothing is shown to students until it has a value. Fill in `dates`, and each day's `meet`, `time`, `cost` and `transport`; each one
-     appears on the page automatically. A day shows "Meeting spot, time, and cost will be shared by your course leaders." until both
-     its `meet` and `time` are filled in. `history` and `lore` boxes appear as soon as they are not null.
-   - The "todo" lines are notes for leaders only and are never shown to students. Nothing in a todo is a fact; do not leave guesses here.
-   - Facts below were checked against several independent public sources (listed in the comments). Primary sites (the venues'
-     own pages) could not be opened when this was written, so please re-check each fact against them before the trip.
+   - Only day names and place names belong here. Never add dates, times, street addresses, transportation or booking details: those
+     stay in the leaders' private schedule and school communications. The page has no fields for them, on purpose.
+   - `history` and `lore` boxes appear as soon as they are not null. Everything marked "Real history" was checked against several
+     independent public sources; please re-check it against the venues' own pages before relying on it.
    ===================================================================================================================== */
 window.WEEK_DATA = {
-  // TODO(Leaders): real dates, written the way you want them shown, e.g. 'Monday, June 8'. Leave '' until known.
-  dates: { mon: '', tue: '', wed: '', thu: '' },
-
   days: [
     {
-      id: 'mon', name: 'Monday', title: 'Nightmare on Elm Street tour', where: 'Cincinnati, Ohio',
-      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders): each one appears on the page automatically once filled in
-      // SOURCES (found by web search; the operator's own page could not be opened):
-      //   https://www.americanlegacytours.com/nightmareonelmst  (operator listing: tour name, Over-the-Rhine, start/end at Northern Row Brewery, 1800s brewery tunnels)
-      //   https://www.tripadvisor.com/AttractionProductReview-g60993-d26342243-Nightmare_on_Elm_Street_Walking_Tour-Cincinnati_Ohio.html
+      id: 'mon', name: 'Monday', title: 'Findlay Market', where: 'Cincinnati, Ohio',
       what: [
-        // Only this much is shown until the leaders confirm the rest. UNCONFIRMED (do not show): run by American Legacy Tours; starts and
-        // ends at Northern Row Brewery; includes a stop in 1800s brewery tunnels (all from the public listing above).
-        { text: 'A walking tour called “Nightmare on Elm Street” in Cincinnati’s Over-the-Rhine neighborhood.' },
+        { text: 'A visit to Findlay Market in Cincinnati\'s Over-the-Rhine neighborhood.' },
       ],
-      history: null,   // nothing verified yet; see todo
+      history: null,
       lore: null,
-      todo: [
-        'Confirm this is the tour you booked, that American Legacy Tours runs it, that it starts and ends at Northern Row Brewery, and that it includes a stop in 1800s brewery tunnels. Until then the page says only that it is a walking tour in Over-the-Rhine.',
-        'One verified fact about this place or tour, with its source, for a short real-history box.',
-        'Meeting spot and time. Cost and how it is paid. Transportation and pick-up.',
-      ],
       mission: 'Collect three sensory details (a sound, a smell, a texture) and decide which one you would leave unexplained in a story. That is the Iceberg.',
       links: [
         { label: 'Lesson 2: The Iceberg Theory', href: 'show-dont-tell/#lesson-2' },
@@ -1319,15 +1302,14 @@ window.WEEK_DATA = {
       respect: 'Stay with your group and listen to your guide, especially on stairs and in low light. Treat the neighborhood and everyone in it with respect, and do not film or photograph strangers.',
     },
     {
-      id: 'tue', name: 'Tuesday', title: 'Spring Grove Cemetery & Arboretum', where: '4521 Spring Grove Avenue, Cincinnati, Ohio',
-      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders)
+      id: 'tue', name: 'Tuesday', title: 'Spring Grove Cemetery & Arboretum', where: 'Cincinnati, Ohio',
       // SOURCES (web search; consistent across them; the cemetery's own pages could not be opened):
       //   https://www.springgrove.org/history/            (charter January 21, 1845; first interment September 1, 1845)
-      //   https://www.springgrove.org/locations/spring-grove-cemetery-arboretum/   (address; arboretum)
+      //   https://www.springgrove.org/locations/spring-grove-cemetery-arboretum/   (arboretum)
       //   https://en.wikipedia.org/wiki/Spring_Grove_Cemetery   (National Historic Landmark, designated March 29, 2007)
       // Acreage is NOT shown: sources disagree (733, 750 and 782 acres).
       what: [
-        { text: 'A working cemetery and arboretum in Cincinnati. Your squad investigates four local legends here, in daylight, using the Spring Grove Dossier.' },
+        { text: 'A field investigation at Spring Grove Cemetery in Cincinnati.' },
       ],
       history: {
         label: 'Real history',
@@ -1338,10 +1320,6 @@ window.WEEK_DATA = {
         ],
       },
       lore: null,
-      todo: [
-        'Meeting spot, time, and who leads each squad. Parking and drop-off.',
-        'Leaders: the four stops in the Dossier have blank answer fields to fill in after your walk-through.',
-      ],
       mission: 'Sort what people say from what the record says. A legend is not evidence until you can point to the record.',
       links: [
         { label: 'The Spring Grove field investigation', href: '#cemetery' },
@@ -1352,7 +1330,6 @@ window.WEEK_DATA = {
     },
     {
       id: 'wed', name: 'Wednesday', title: 'Miami University: the “Ghosts and Gears” tour', where: 'Oxford, Ohio',
-      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders)
       // SOURCES (web search; Miami's own pages could not be opened):
       //   https://events.miamioh.edu/event/ghosts_and_gears_bike_tour   (Miami calendar listing of the Ghosts and Gears Bike Tour)
       //   https://oxfordobserver.org/7148/uncategorized/miami-outdoor-pursuit-center-hosts-ghosts-and-gears-bike-tour/  (run by Miami's Outdoor Pursuit Center)
@@ -1376,11 +1353,6 @@ window.WEEK_DATA = {
           'A story says Helen Peabody’s ghost still watches over students in Peabody Hall. Miami’s own alumni pages list it under “Mysteries” (ghost stories), not as documented history.',
         ],
       },
-      todo: [
-        'Confirm this year’s tour: is it still a bike tour, and is it the “Ghosts and Gears” tour you booked?',
-        'Meeting spot, time, cost and how it is paid. Bikes and helmets: rented or brought? Any waiver?',
-        'The tour’s own stops (do not copy from older years unless confirmed).',
-      ],
       mission: 'Listen for what the guide presents as fact and what as legend, then turn one detail into a “show” sentence with no feeling words.',
       links: [
         { label: 'Lesson 1: What is Show, Don’t Tell?', href: 'show-dont-tell/#lesson-1' },
@@ -1390,26 +1362,13 @@ window.WEEK_DATA = {
       respect: 'Follow the guide and traffic rules. If you ride, wear a helmet and ride as directed. Respect residence halls and the people who live in them, and do not record or photograph students.',
     },
     {
-      // The only facts here are the ones the course leaders gave: the overnight is at Hueston Woods, after the Ghosts and Gears tour.
-      // Nothing else about the park or the lodging has been verified, so every other detail is a leaders-only todo.
-      id: 'wedn', dateId: 'wed', name: 'Wednesday night', title: 'Overnight at Hueston Woods', where: 'Hueston Woods',
+      // Only the place name is public here. Nothing else about the park or the stay belongs on the site.
+      id: 'wedn', name: 'Wednesday night', title: 'Overnight at Hueston Woods', where: 'Hueston Woods State Park',
       what: [
-        { text: 'After the “Ghosts and Gears” tour at Miami University, the class stays overnight at Hueston Woods.' },
+        { text: 'After the Miami University visit, the class stays overnight at Hueston Woods State Park.' },
       ],
       history: null,   // no real-history note yet: nothing about the park has been verified
       lore: null,
-      todo: [
-        'Lodging type (cabins, lodge, camping, or other).',
-        'Address and how to get there.',
-        'Check-in time and lights-out time.',
-        'Meals: what is provided, and who pays.',
-        'What to pack.',
-        'Supervision and the chaperone ratio.',
-        'Rules for the overnight.',
-        'Permission forms and medical information.',
-        'Emergency contacts.',
-        'The Thursday morning schedule before lunch at The Golden Lamb.',
-      ],
       mission: 'Write down one thing you notice after dark that you could not have noticed in daylight, then describe it with no feeling words.',
       links: [
         { label: 'Lesson 3: Atmosphere and Setting', href: 'show-dont-tell/#lesson-3' },
@@ -1418,17 +1377,16 @@ window.WEEK_DATA = {
       respect: 'Follow your leaders’ instructions and the park’s rules, stay with your group, and keep voices down so everyone can rest. No ghost-hunting activities.',
     },
     {
-      id: 'thu', name: 'Thursday', title: 'Lunch at The Golden Lamb', where: '27 S. Broadway Street, Lebanon, Ohio',
-      meet: '', time: '', cost: '', transport: '',   // TODO(Leaders)
+      id: 'thu', name: 'Thursday', title: 'Lunch at The Golden Lamb', where: 'Lebanon, Ohio',
       // SOURCES (web search; the inn's own pages could not be opened):
       //   https://www.goldenlamb.com/about-us/history-1/the-lebanon-house-4/   (Jonas Seaman, $4 license, "house of Public Entertainment", Lebanon)
       //   https://www.goldenlamb.com/news/does-the-golden-lamb-have-ghostly-uninvited-guests/  (ghost stories; the house historian's caution)
       //   https://www.wcpo.com/news/insider/lebanon-inns-golden-history-200-years-12-visiting-presidents-countless-memories  (12 presidents)
       //   https://www.columbusnavigator.com/oldest-restaurant-ohio/   ("Ohio's oldest continuously operating business"; 12 presidents)
-      //   https://www.dar.org/national-society/historic-sites-and-properties/golden-lamb-inn   (address; DAR historic site)
+      //   https://www.dar.org/national-society/historic-sites-and-properties/golden-lamb-inn   (DAR historic site)
       // The building's construction date is NOT shown: sources say 1815 and 1816.
       what: [
-        { text: 'A historic inn and restaurant in the Warren County seat of Lebanon, where the class has lunch.' },
+        { text: 'The class leaves Hueston Woods, has lunch at the Golden Lamb in Lebanon, and returns to Moeller.' },
       ],
       history: {
         label: 'Real history',
@@ -1444,10 +1402,6 @@ window.WEEK_DATA = {
           'Staff and guests tell of a child ghost, “Sarah Stubbs.” Accounts disagree about who she was and how old she was. The inn’s own house historian says he has never met a ghost there.',
         ],
       },
-      todo: [
-        'Reservation name, time, and party size. Budget and who pays.',
-        'Any menu or allergy information to share with families.',
-      ],
       mission: 'Write six lines of invented dialogue between two characters in a historic dining room. Make each want something they never say out loud.',
       links: [
         { label: 'Lesson 4: Dialogue That Shows', href: 'show-dont-tell/#lesson-4' },
@@ -1723,17 +1677,13 @@ var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#i
   function box(b,cls){return b?'<div class="wk-box '+cls+'"><h4>'+esc(b.label)+'</h4><ul>'+b.items.map(li).join('')+'</ul></div>':''}
   var pills=D.days.map(function(d){return '<button class="pill" type="button" data-goto="day-'+esc(d.id)+'">'+esc(d.name)+'</button>'}).join('');
   var days=D.days.map(function(d){
-    /* Nothing is shown for a field until it has a value. `todo` and `confirm` are notes for leaders and are never rendered. */
-    var dt=(D.dates&&D.dates[d.dateId||d.id])||'';
-    var date=dt?'<div class="wk-date">'+esc(dt)+'</div>':'';
     var what=(d.what||[]).map(function(w){return '<p>'+esc(w.text)+'</p>'}).join('');
-    var facts=[['Meeting spot',d.meet],['Time',d.time],['Cost',d.cost],['Transportation',d.transport]].filter(function(f){return f[1]});
-    var factsH=facts.length?'<dl class="wk-facts">'+facts.map(function(f){return '<div><dt>'+f[0]+'</dt><dd>'+esc(f[1])+'</dd></div>'}).join('')+'</dl>':'';
-    var shared=(d.meet&&d.time)?'':'<p class="wk-shared">Meeting spot, time, and cost will be shared by your course leaders.</p>';
+    /* The same line sits under every day. There are no fields for dates, times, addresses, transportation or bookings. */
+    var shared='<p class="wk-shared">Your course leaders will share the schedule and meeting details in class.</p>';
     var links=(d.links||[]).map(function(l){return '<li><a href="'+esc(l.href)+'">'+esc(l.label)+'</a></li>'}).join('');
     return '<article class="wk-day" id="day-'+esc(d.id)+'" aria-labelledby="day-'+esc(d.id)+'-h">'+
-      '<header class="wk-head"><div class="wk-dow">'+esc(d.name)+'</div>'+date+'</header>'+
-      '<div class="wk-body"><div class="wk-main"><h3 id="day-'+esc(d.id)+'-h">'+esc(d.title)+'</h3><p class="wk-where">'+esc(d.where)+'</p>'+what+factsH+
+      '<header class="wk-head"><div class="wk-dow">'+esc(d.name)+'</div></header>'+
+      '<div class="wk-body"><div class="wk-main"><h3 id="day-'+esc(d.id)+'-h">'+esc(d.title)+'</h3><p class="wk-where">'+esc(d.where)+'</p>'+what+
       box(d.history,'wk-hist')+box(d.lore,'wk-lore')+
       '<p class="wk-respect"><b>Respect and safety.</b> '+esc(d.respect)+'</p></div>'+
       '<aside class="wk-side"><div class="wk-mission"><b>Mission.</b> '+esc(d.mission)+'</div><h4>Go further</h4><ul class="wk-links">'+links+'</ul>'+
