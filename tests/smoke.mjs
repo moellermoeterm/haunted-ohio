@@ -104,8 +104,8 @@ T('home redesign: hero, case index, and field map', async ({ base, newPage }) =>
   await p.click('#heroCue');
   await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
-  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#week,#week,haunting-files/,#cemetery,last-light/,#week', 'map pins link to existing places and The Week');
-  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/,#week,#week,#week,#week', 'map list links');
+  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#week,#week,#week,haunting-files/,#cemetery,last-light/,#week', 'map pins link to existing places and The Week');
+  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/,#week,#week,#week,#week,#week', 'map list links');
 });
 T('home redesign: game links open with the branded loading screen', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#games');
