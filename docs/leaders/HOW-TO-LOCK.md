@@ -1,33 +1,30 @@
-# How to lock the leader page
+# How to lock (and re-lock) the leader page
 
-The teacher page (`teacher/index.html`) has the six case-code links for each game and the seating helper. These steps turn it into a page that asks for a password. **Nothing changes on the live site until you upload the locked file.**
-
-## Important: the live page is not locked until you re-upload it
-The lock screen was improved after the first version. **Merging that change does not change the live `teacher/index.html`.** After it is merged, a leader has to run the lock tool again and upload the new locked file by hand (steps below). Until then the old teacher page stays as it is. Check in a private window that `teacher/` shows the lock screen and not the tools.
-
-## How leaders find the leader tools
-The Leaders page has a visible link with a padlock: **Leader tools (password required)**, with the line "Course leaders only. Ask a course leader for the password." The link opens the password screen. Students can see the link and the password screen, but they cannot see the tools without the password. The password is the real protection. Nothing is saved on the device.
+The teacher page (`teacher/index.html`) has the six case-code links for each game and the seating helper. On the live site it is a **locked page**: it shows a password screen, and only someone who types the right password sees the tools. The Leaders page has a visible link to it, **Leader tools (password required)**. Students can see that link and the password screen, but they cannot see the tools without the password.
 
 ## Before you start
-- This is a **lock in the browser**. It keeps casual visitors out. It is only as strong as the password, so pick a long one (16 or more characters, such as four or five unrelated words).
-- **Never write the password in the repo**: not in a file, a comment, a commit message, an issue, a pull request, or a test. Share it with the other leaders **in person or by school email**. Nothing private belongs on this site.
+- This is a **lock in the browser**. It keeps casual visitors out. It is only as strong as the password, so pick a long one (16 or more characters, such as four or five unrelated words). The password is the real protection.
+- **Never write the password in the repo**: not in a file, a comment, a commit message, an issue, a pull request, or a test. **Share it with the other leaders in person or by school email.** Nothing private belongs on this site.
 - Anything that was ever in the repo stays in the repo's history. Locking the page does not hide what was already published. Do not put sensitive documents (contacts, permissions, medical information, costs) on this site at all. Keep those in Microsoft 365.
+- If you forget the password there is no recovery. Lock the plain page again with a new password.
 
-## Steps
+## How to re-lock (new password, or an updated page)
+The plain page is kept in the repo at `tests/fixtures/_teacher-page.html`. It is the source you lock. (The live `teacher/index.html` holds only the encrypted copy.)
+
 1. Open the lock tool in your browser: `https://moellermoeterm.github.io/haunted-ohio/tools/lock.html`. It is not linked from anywhere on the site, and it makes no network calls.
-2. In GitHub, open `teacher/index.html`, choose **Raw**, select everything (Ctrl+A or Cmd+A), copy, and paste it into the big box on the lock tool.
+2. In GitHub, open `tests/fixtures/_teacher-page.html`, choose **Raw**, select everything (Ctrl+A or Cmd+A), copy, and paste it into the big box on the lock tool. (If you changed the teacher page, change this file first so the plain copy stays up to date.)
 3. Type the password, then type it again in **Confirm the password**. Use **Show passwords** to check what you typed.
    - Under 12 characters is refused.
    - 12 to 15 characters works but shows a warning that it is easy to guess.
 4. Press **Encrypt**. Your browser downloads a file named `index.html`. That is the locked teacher page. The password boxes clear themselves.
-5. In GitHub, open the `teacher` folder, then **Add file, Upload files**, and upload the downloaded file so that it replaces `teacher/index.html`. **The file must be named exactly `index.html` and must go inside the `teacher` folder.** Browsers sometimes rename a second download to `index (2).html`; rename it to `index.html` before you upload, and check that no stray copy (for example `index (2).html` in the main folder) was added. Commit it.
-6. When the Pages deploy finishes, open the teacher page in a **private (incognito) window**. You should see "Leader tools" and a box that says **Enter the leader password**.
+5. **Rename the download to exactly `index.html`.** Browsers rename a second download to `index (1).html` or `index (2).html`. **Never upload it under such a name.**
+6. In GitHub, open the `teacher` folder, then **Add file, Upload files**, and upload the file so that it replaces `teacher/index.html`. It must be named exactly `index.html` and go **inside the `teacher` folder** (not the main folder). After committing, check that no extra copy such as `index (2).html` appeared anywhere.
+7. When the Pages deploy finishes, open the course site in a **private (incognito) window** and test it:
+   - The Leaders page shows **Leader tools (password required)**. Click it.
+   - `/teacher/` shows "Leader tools" and a box that says **Enter the leader password**.
    - A wrong password shows "That password didn't work." and waits a little longer after each failed try.
-   - The right password opens the leader tools. The seating helper and the game links work as before.
-   - **Lock again** (bottom right) puts the prompt back.
+   - The right password opens the leader tools. The seating helper and the game links work as before. **Lock again** (bottom right) puts the prompt back.
 
 ## Good to know
-- To change the password, or to update the page, lock the plain page again with the tool and upload the new file.
-- The site's automated tests do not read the live `teacher/index.html`. They use a plain copy at `tests/fixtures/_teacher-page.html`, so they keep passing once the locked file is live. If you change the teacher page later, update that copy too (paste the new plain page over it). The copy's name starts with an underscore so the GitHub Pages build leaves it out of the published site, and no page links to it. Because it is a plain copy in the repo, **do not put anything sensitive in the teacher page**.
-- If you forget the password there is no recovery. Lock the plain page again with a new password.
-- Leaders: the Leaders page says "Leader tools are available from your course leaders." Give the address of the teacher page and the password to leaders in person or by school email.
+- The site's automated tests do not read the live `teacher/index.html` for the tools. They use the plain copy at `tests/fixtures/_teacher-page.html`, so they keep passing while the locked file is live. Another test checks that the live `teacher/index.html` really is a locked page (encrypted, with no readable tool text), so a plain copy uploaded by mistake would be caught. The fixture's name starts with an underscore so the GitHub Pages build leaves it out of the published site, and no page links to it. Because it is a plain copy in the repo, **do not put anything sensitive in the teacher page**.
+- Give the password to the other leaders in person or by school email. Never in a message, a document or the repo.
