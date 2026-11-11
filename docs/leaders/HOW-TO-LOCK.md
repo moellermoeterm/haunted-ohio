@@ -5,12 +5,8 @@ The teacher page (`teacher/index.html`) has the six case-code links for each gam
 ## Important: the live page is not locked until you re-upload it
 The lock screen was improved after the first version. **Merging that change does not change the live `teacher/index.html`.** After it is merged, a leader has to run the lock tool again and upload the new locked file by hand (steps below). Until then the old teacher page stays as it is. Check in a private window that `teacher/` shows the lock screen and not the tools.
 
-## How leaders find the sign-in link
-Students never see a link to the leader tools. Leaders open the course site with `?leader=1` in the address:
-
-`https://moellermoeterm.github.io/haunted-ohio/?leader=1#leaders`
-
-On the Leaders page a small **Leader sign-in** link (with a padlock) then appears. It goes to the locked teacher page, which asks for the password. The link is only shown while `?leader=1` is in the address. Nothing is saved on the device. This hides the link, it is not security: anyone who reads the site's code can find the address. **The password is the real protection.**
+## How leaders find the leader tools
+The Leaders page has a visible link with a padlock: **Leader tools (password required)**, with the line "Course leaders only. Ask a course leader for the password." The link opens the password screen. Students can see the link and the password screen, but they cannot see the tools without the password. The password is the real protection. Nothing is saved on the device.
 
 ## Before you start
 - This is a **lock in the browser**. It keeps casual visitors out. It is only as strong as the password, so pick a long one (16 or more characters, such as four or five unrelated words).

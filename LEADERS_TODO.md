@@ -55,6 +55,6 @@ The Week page now has a "Wednesday night" entry after Wednesday. The only facts 
 ## 7. Things to know
 - The Haunting Files cases and Last Light scenarios are plain data files you can edit: `haunting-files/cases/c1.js` to `c6.js` and `last-light/scenarios/s1.js` to `s6.js`. Case 1 and Scenario 1 are the original content, and saves made before variants existed load as Case 1 / Scenario 1.
 - Each Haunting Files case lists its intended strongest explanation in its data (`strongest`): natural, psychological, historical, human activity, natural, historical. Five kinds across six cases means one repeat; the mechanisms differ.
-- `teacher/index.html` has the six links per game and the seating helper. It is **not linked from any public page** by default (the Leaders page says the tools are available from the course leaders; leaders see a small "Leader sign-in" link by adding `?leader=1` to the site address) and is marked `noindex`. To put it behind a password, follow `docs/leaders/HOW-TO-LOCK.md`.
+- `teacher/index.html` has the six links per game and the seating helper. It is linked only from the Leaders page ("Leader tools (password required)"), and the page behind that link is a password screen and is marked `noindex`. To put it behind a password, follow `docs/leaders/HOW-TO-LOCK.md`.
 - Old Spring Grove hunt progress (`ho-hunt` in students' browsers) is not carried over to the new Dossier (`ho-hunt2`). Nothing was deleted.
 - **Not built:** The Veil (work in progress on branch `claude/the-veil-ch1`, not playable) and Room 214 (not started).

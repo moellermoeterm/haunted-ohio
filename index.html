@@ -304,10 +304,11 @@ footer p{max-width:none;margin:.3rem 0}
 .leader h3{margin:0}
 .role{color:var(--muted);margin:.1rem 0 .6rem}
 .leader p{max-width:min(100ch,100%)}
-.leader-signin{margin:.2rem 0 0;font-size:.88rem}
-.leader-signin a{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:.3rem .2rem;color:var(--muted);text-decoration:none}
-.leader-signin a:hover,.leader-signin a:focus-visible{color:var(--text);text-decoration:underline}
-.leader-signin svg{width:1em;height:1em;flex:none}
+.leader-tools{margin:.4rem 0 1rem}
+.leader-tools a{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:.4rem .2rem;font-weight:700;color:var(--text)}
+.leader-tools a:hover,.leader-tools a:focus-visible{text-decoration:underline}
+.leader-tools svg{width:1.1em;height:1.1em;flex:none}
+.leader-tools p{margin:0 0 0 .2rem}
 .bio-soon{color:var(--muted);font-style:italic}
 @media (max-width:520px){.leader{grid-template-columns:1fr}}
 .pick[aria-pressed="true"]{background:var(--surface);border-left-color:var(--btn);border-color:var(--btn)}
@@ -1139,7 +1140,11 @@ details.howto li{margin:.35rem 0}
       </div>
     </article>
   </div>
-  <p class="note">The games have six versions each. Leader tools are available from your course leaders.</p>
+  <p class="note">The games have six versions each.</p>
+  <div class="leader-tools">
+    <a href="teacher/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span>Leader tools (password required)</span></a>
+    <p class="muted">Course leaders only. Ask a course leader for the password.</p>
+  </div>
 </section>
 
 <section class="sec about view" data-view="about" id="about" hidden>
@@ -1546,15 +1551,7 @@ var cue=$('#heroCue');if(cue)cue.addEventListener('click',function(){var t=$('#i
 (function(){
   var VIEWS=$$('.view'),NAV=$$('.nav a');
   var TITLES={learn:'Learn',games:'Games',prompts:'Prompts',draft:'Draft Lab',legend:'Legend Lab',dread:'Dread Meter',resources:'Resources',cemetery:'Spring Grove',week:'The Week',leaders:'Leaders',about:'About'};
-  /* A quiet "Leader sign-in" link on the Leaders page, only when the address has ?leader=1. Nothing is stored; it is read from the address each time. */
-  function leaderLink(){
-    var on=/[?&]leader=1(?:&|$)/.test(location.search),host=document.getElementById('leaders'),el=document.getElementById('leaderSignin');
-    if(!host)return;
-    if(on&&!el){el=document.createElement('p');el.id='leaderSignin';el.className='leader-signin';el.innerHTML='<a href="teacher/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span>Leader sign-in</span></a>';host.appendChild(el)}
-    else if(!on&&el){el.parentNode.removeChild(el)}
-  }
   function route(){
-    leaderLink();
     var h=(location.hash||'').replace('#','');
     if(!VIEWS.some(function(v){return v.getAttribute('data-view')===h}))h='home';
     VIEWS.forEach(function(v){v.hidden=v.getAttribute('data-view')!==h});
