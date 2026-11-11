@@ -137,15 +137,16 @@ a{color:var(--accent)}
 .top-in{padding:.5rem var(--pad);display:flex;align-items:center;gap:.7rem}
 .mark{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--display);font-size:1.5rem;line-height:1;color:var(--text);text-decoration:none;white-space:nowrap}
 .mark img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 1px var(--ho-gold-dim)}
-.back{margin-left:auto;padding:.5em .9em;border-radius:99px;border:1.5px solid var(--line);color:var(--text);text-decoration:none;font-weight:700;font-size:.95rem;min-height:40px;display:inline-flex;align-items:center}
-.back:hover{background:var(--surface2)}
-.switch{display:inline-flex;align-items:center;gap:.5rem;font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:99px;padding:.2rem .8rem .2rem .3rem;cursor:pointer;min-height:40px;white-space:nowrap}
+.switch{margin-left:auto;display:inline-flex;align-items:center;gap:.5rem;font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:99px;padding:.2rem .8rem .2rem .3rem;cursor:pointer;min-height:40px;white-space:nowrap}
 .switch .track{position:relative;width:2.6rem;height:1.45rem;border-radius:99px;background:var(--muted);flex:none}
 .switch .knob{position:absolute;top:.17rem;left:.17rem;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--surface)}
 .switch[aria-checked="true"] .track{background:var(--accent)}.switch[aria-checked="true"] .knob{left:calc(100% - 1.27rem)}
 main{padding:clamp(1.4rem,4vw,2.6rem) var(--pad) 3rem;max-width:40rem}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;margin:0 0 .5rem}
-.eyebrow{margin:0 0 .6rem;font:700 .78rem/1 var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--ho-gold)}
+.logo{display:block;width:64px;height:64px;border-radius:50%;box-shadow:0 0 0 1px var(--ho-gold-dim);margin:0 0 .9rem}
+.intro{max-width:min(100ch,100%);color:var(--muted);margin:.2rem 0 1rem}
+.calm{margin:.6rem 0;font-size:.95rem}
+.backlink{display:inline-flex;align-items:center;min-height:44px;padding:.2rem 0}
 .panel{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:1rem 1.2rem;margin:1rem 0}
 label{display:block;font-weight:700;margin:0 0 .25rem}
 input[type=password],input[type=text]{font:inherit;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:.55rem .7rem;width:100%;max-width:100%}
@@ -155,7 +156,6 @@ input[type=password],input[type=text]{font:inherit;color:var(--text);background:
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .err{margin:.8rem 0 0;border-left:4px solid var(--ho-ember);padding:.3rem .8rem;background:var(--surface2);font-weight:700}
 [hidden]{display:none!important}
-@media (max-width:560px){.back{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"><\/script>
@@ -164,12 +164,12 @@ input[type=password],input[type=text]{font:inherit;color:var(--text);background:
 <body>
 <header class="top"><div class="top-in">
   <a class="mark" href="../" aria-label="Haunted Ohio home"><img src="../assets/img/ho-icon.png" alt="" width="36" height="36"><span>Haunted Ohio</span></a>
-  <a class="back" href="../">Back to the course site</a>
   <button class="switch" id="theme" type="button" role="switch" aria-checked="true" aria-label="Dark mode"><span class="track" aria-hidden="true"><span class="knob"></span></span><span aria-hidden="true">Dark mode</span></button>
 </div></header>
 <main id="main">
-  <p class="eyebrow">For leaders</p>
+  <img class="logo" src="../assets/img/ho-icon.png" alt="" width="64" height="64">
   <h1>Leader tools</h1>
+  <p class="intro">This page is for course leaders. Ask a course leader if you need access.</p>
   <form id="f" class="panel" autocomplete="off">
     <label for="pw">Enter the leader password</label>
     <input type="password" id="pw" autocomplete="off" spellcheck="false" aria-describedby="err" required>
@@ -179,6 +179,8 @@ input[type=password],input[type=text]{font:inherit;color:var(--text);background:
       <button type="submit" class="btn primary" id="go">Unlock</button>
     </div>
   </form>
+  <p class="muted calm">Passwords are case-sensitive.</p>
+  <p><a class="backlink" href="../">Back to Haunted Ohio</a></p>
   <noscript><p class="err">This page needs JavaScript to unlock.</p></noscript>
 </main>
 <script type="application/json" id="vault">@@VAULT@@</` + `script>

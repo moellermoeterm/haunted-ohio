@@ -304,6 +304,11 @@ footer p{max-width:none;margin:.3rem 0}
 .leader h3{margin:0}
 .role{color:var(--muted);margin:.1rem 0 .6rem}
 .leader p{max-width:min(100ch,100%)}
+.leader-tools{margin:.4rem 0 1rem}
+.leader-tools a{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:.4rem .2rem;font-weight:700;color:var(--text)}
+.leader-tools a:hover,.leader-tools a:focus-visible{text-decoration:underline}
+.leader-tools svg{width:1.1em;height:1.1em;flex:none}
+.leader-tools p{margin:0 0 0 .2rem}
 .bio-soon{color:var(--muted);font-style:italic}
 @media (max-width:520px){.leader{grid-template-columns:1fr}}
 .pick[aria-pressed="true"]{background:var(--surface);border-left-color:var(--btn);border-color:var(--btn)}
@@ -1135,7 +1140,11 @@ details.howto li{margin:.35rem 0}
       </div>
     </article>
   </div>
-  <p class="note">The games have six versions each. Leader tools are available from your course leaders.</p>
+  <p class="note">The games have six versions each.</p>
+  <div class="leader-tools">
+    <a href="teacher/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span>Leader tools (password required)</span></a>
+    <p class="muted">Course leaders only. Ask a course leader for the password.</p>
+  </div>
 </section>
 
 <section class="sec about view" data-view="about" id="about" hidden>
