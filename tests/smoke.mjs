@@ -104,8 +104,8 @@ T('home redesign: hero, case index, and field map', async ({ base, newPage }) =>
   await p.click('#heroCue');
   await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
-  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#week,#week,haunting-files/,#cemetery,last-light/,#week', 'map pins link to existing places and The Week');
-  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/,#week,#week,#week,#week', 'map list links');
+  eq((await p.$$eval('.fm-svg a.pin', (a) => a.map((x) => x.getAttribute('href')))).join(','), '#week,#week,#week,haunting-files/,#cemetery,last-light/,#week', 'map pins link to existing places and The Week');
+  eq((await p.$$eval('.fm-list a', (a) => a.map((x) => x.getAttribute('href')))).join(','), 'haunting-files/,#cemetery,last-light/,#week,#week,#week,#week,#week', 'map list links');
 });
 T('home redesign: game links open with the branded loading screen', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#games');
@@ -128,20 +128,29 @@ T('home redesign: night by default, daylight on demand, phone menu', async ({ ba
 });
 
 // ---------------------------------------------------------------- The Week (Phase 4)
-T('the week: five cards built from one data object, no leader notes shown, notes saved (ho-week)', async ({ base, newPage }) => {
+T('the week: five entries with the exact public descriptions, no schedule fields, one shared line, notes saved (ho-week)', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#week'); await p.waitForTimeout(250);
   eq((await p.$$('.wk-day')).length, 5, 'four days plus the Wednesday-night overnight');
   eq((await p.$$eval('.wk-dow', (e) => e.map((x) => x.textContent))).join(','), 'Monday,Tuesday,Wednesday,Wednesday night,Thursday', 'Monday to Thursday, with Wednesday night after Wednesday');
+  /* the public description of each entry, word for word */
+  const DESC = { mon: 'A visit to Findlay Market in Cincinnati\'s Over-the-Rhine neighborhood.', tue: 'A field investigation at Spring Grove Cemetery in Cincinnati.', wed: 'The “Ghosts and Gears” tour at Miami University in Oxford.', wedn: 'After the Miami University visit, the class stays overnight at Hueston Woods State Park.', thu: 'The class leaves Hueston Woods, has lunch at the Golden Lamb in Lebanon, and returns to Moeller.' };
+  for (const [id, d] of Object.entries(DESC)) eq((await p.textContent(`#day-${id} .wk-main > p:not(.wk-where):not(.wk-respect)`)).trim(), d, 'the description for ' + id);
+  eq((await p.$$eval('.wk-where', (e) => e.map((x) => x.textContent))).join(' | '), 'Cincinnati, Ohio | Cincinnati, Ohio | Oxford, Ohio | Hueston Woods State Park | Lebanon, Ohio', 'place names only');
+  /* the same line under every day, and nothing else about the schedule */
+  eq((await p.$$('.wk-shared')).length, 5, 'every day ends with the shared line');
+  eq((await p.$$eval('.wk-shared', (e) => [...new Set(e.map((x) => x.textContent.trim()))])).join('|'), 'Your course leaders will share the schedule and meeting details in class.', 'the exact shared line');
+  eq((await p.$$('.wk-date, .wk-facts, #weekRoot dl, #weekRoot dt')).length, 0, 'no date line and no meeting-spot, time, cost or transportation rows');
   const wk = await p.textContent('#weekRoot');
-  ok(!/Leaders:/.test(wk) && !/For leaders/i.test(wk), 'no "Leaders:" text and no "For leaders" box anywhere on The Week');
+  ok(!/Leaders:/.test(wk) && !/For leaders/i.test(wk) && !/fill in/i.test(wk), 'no "Leaders:" or "fill in" text anywhere on The Week');
   eq((await p.$$('#weekRoot .todo-in, #weekRoot .wk-todo, #weekRoot .todo')).length, 0, 'no leader placeholders are rendered');
-  eq((await p.$$('.wk-date')).length, 0, 'no date line while dates are empty');
-  eq((await p.$$('.wk-shared')).length, 5, 'every day without a meeting spot and time ends with the shared-by-leaders line');
-  eq(await p.textContent('#day-mon .wk-shared'), 'Meeting spot, time, and cost will be shared by your course leaders.', 'exact shared line');
-  ok(/Hueston Woods/.test(await p.textContent('#day-wedn')), 'overnight names Hueston Woods');
-  ok(/A walking tour called “Nightmare on Elm Street” in Cincinnati’s Over-the-Rhine neighborhood\./.test(await p.textContent('#day-mon')) && !/American Legacy|Northern Row|tunnel/i.test(await p.textContent('#day-mon')), 'Monday claims only the confirmed sentence');
+  ok(!/Nightmare|Elm Street|American Legacy|Northern Row|brewery|tunnel/i.test(wk), 'the old Monday tour is gone from The Week');
+  ok(!/\d{1,2}:\d{2}|\b[ap]\.?m\.?\b|\$\d|\bcost\b|Meeting spot|Transportation/i.test(wk.replace(/\bhistory\b/gi, '')), 'no clock time, price or schedule label on The Week');
   ok(!/bike tour|Outdoor Pursuit/i.test(await p.textContent('#day-wed')), 'Wednesday claims nothing unconfirmed');
-  ok(!/Reformatory/.test(await p.textContent('#about')), 'About page no longer mentions the Reformatory trip');
+  ok(!/Reformatory/.test(await p.textContent('#about')), 'About page does not mention the Reformatory trip');
+  /* what stays: missions, field notes, lesson and tool links, respect and safety */
+  for (const id of ['mon', 'tue', 'wed', 'wedn', 'thu']) { ok((await p.textContent(`#day-${id} .wk-mission`)).startsWith('Mission.'), 'a mission for ' + id); ok(await p.$(`#notes-${id}`), 'a field-notes box for ' + id); ok((await p.textContent(`#day-${id} .wk-respect`)).startsWith('Respect and safety.'), 'respect and safety for ' + id); ok((await p.$$(`#day-${id} .wk-links a`)).length >= 2, 'links for ' + id); }
+  eq((await p.$$eval('#day-tue .wk-links a', (e) => e.map((x) => x.getAttribute('href')))).includes('#cemetery'), true, 'Tuesday keeps its link to the Spring Grove hunt');
+  eq((await p.$$eval('#day-thu .wk-links a', (e) => e.map((x) => x.textContent))).join('|'), 'Lesson 4: Dialogue That Shows|Draft Lab|Quick game: Six-Word Scare', 'Thursday keeps its three links (the Draft Lab link is the lab link on the site)');
   ok((await p.$$('.wk-hist')).length >= 3 && (await p.$$('.wk-lore')).length >= 2, 'real-history boxes and separately labeled lore boxes');
   const lore = await p.$$eval('.wk-lore h4', (e) => e.map((x) => x.textContent)); ok(lore.every((t) => /lore|legend/i.test(t)), 'lore is labeled as lore/legend: ' + lore);
   const txt = await p.textContent('#weekRoot'); ok(!/s[eé]ance|ouija/i.test(txt), 'no spirit-contacting activities'); ok(/No ghost-hunting/.test(txt), 'explicit no-ghost-hunting line');
@@ -150,34 +159,47 @@ T('the week: five cards built from one data object, no leader notes shown, notes
   eq(JSON.parse(await lsGet(p, 'ho-week')).wed, 'The bell tower smelled like cold stone.', 'saved under ho-week');
   for (const a of await p.$$eval('.wk-links a', (e) => e.map((x) => x.getAttribute('href')))) ok(/^(#[a-z]+|[a-z-]+\/(#lesson-\d+)?)$/.test(a), 'link is relative: ' + a);
 });
-T('the week: a value filled in appears by itself, and the shared line goes away', async ({ base, newPage }) => {
+T('the week: the data object and the renderer have no schedule fields, so a value can never be shown by accident', async ({ base, newPage }) => {
   const p = await newPage();
+  /* a made-up value in every old field name must not appear: the renderer no longer knows those fields */
   await p.route('**/*', async (route) => {
     const r = route.request();
-    if (r.resourceType() !== 'document' || /haunting-files|last-light|show-dont-tell|teacher|design-system/.test(r.url())) return route.continue();
+    if (r.resourceType() !== 'document' || /haunting-files|last-light|show-dont-tell|teacher|design-system|tools/.test(r.url())) return route.continue();
     const res = await route.fetch(); let body = await res.text();
-    body = body.replace("meet: '', time: '', cost: '', transport: '',", "meet: 'Test spot', time: '9:00 AM', cost: '$5', transport: 'Walk',").replace("dates: { mon: ''", "dates: { mon: 'Monday, June 8'");
+    body = body.replace("id: 'mon', name: 'Monday',", "id: 'mon', meet: 'FAKE-MEET', time: 'FAKE-TIME', cost: 'FAKE-COST', transport: 'FAKE-TRANSPORT', name: 'Monday',").replace('window.WEEK_DATA = {', "window.WEEK_DATA = { dates: { mon: 'FAKE-DATE' },");
     await route.fulfill({ response: res, body });
   });
   await p.goto(base + '#week'); await p.waitForTimeout(250);
-  const mon = await p.textContent('#day-mon');
-  ok(/Meeting spot\s*Test spot/.test(mon) && /Time\s*9:00 AM/.test(mon) && /Cost\s*\$5/.test(mon) && /Transportation\s*Walk/.test(mon) && /Monday, June 8/.test(mon), 'filled-in fields and date appear: ' + mon.slice(0, 200));
-  eq((await p.$$('#day-mon .wk-shared')).length, 0, 'shared line is gone for a day with meeting spot and time');
-  eq((await p.$$('.wk-shared')).length, 4, 'the other four days still have it');
+  ok(!/FAKE-/.test(await p.textContent('#weekRoot')), 'injected meet, time, cost, transport and date values are never rendered');
+  const src = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'); const data = src.slice(src.indexOf('window.WEEK_DATA = {'), src.indexOf('/* the week: rendered from window.WEEK_DATA')); const render = src.slice(src.indexOf('/* the week: rendered from window.WEEK_DATA'), src.indexOf('/* hero flashlight */'));
+  eq((data.match(/\b(meet|time|cost|transport|dates|dateId|todo|confirm)\s*:/g) || []).length, 0, 'no schedule, date or leader-note fields in WEEK_DATA');
+  eq((render.match(/\.(meet|time|cost|transport|dates|dateId|todo)\b|D\.dates|wk-date|wk-facts|Meeting spot|Transportation/g) || []).length, 0, 'the renderer has no code for them');
+  ok(!/\.wk-date|\.wk-facts/.test(src), 'no leftover styles for them');
 });
-T('the week: nav menu, home card, map markers, escaped rendering', async ({ base, newPage }) => {
+T('the week: nav menu, home card, home list and map pins (Findlay Market, Spring Grove, Oxford, Hueston Woods, Lebanon), escaped rendering', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base);
   await p.click('#siteNav .nav-btn >> nth=2'); ok(await p.isVisible('#menu-field a[href="#week"]'), 'The Week is in the Field Work menu');
   await p.click('#menu-field a[href="#week"]'); await p.waitForTimeout(300); ok(await p.isVisible('#week'), 'nav opens The Week');
   await p.goto(base); ok(await p.isVisible('.where a[href="#week"]'), 'home card');
-  for (const d of ['mon', 'tue', 'wed', 'thu']) ok((await p.$$(`.fm-svg a[data-day="${d}"]`)).length >= 1, 'map marker for ' + d);
-  await p.evaluate(() => { document.querySelector('.fm-svg a[data-day="thu"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); });
-  await p.waitForTimeout(500); ok(p.url().endsWith('#week'), 'marker opens The Week');
+  eq((await p.$$eval('.fm-list a[data-day]', (e) => e.map((x) => x.querySelector('b').textContent))).join(' | '), 'Monday: Findlay Market | Tuesday: Spring Grove Cemetery | Wednesday: Miami University | Wednesday night: Hueston Woods | Thursday: The Golden Lamb', 'the home Week list matches the five entries');
+  eq((await p.$$eval('.fm-svg a[data-day]', (e) => e.map((x) => x.getAttribute('data-day') + '=' + x.querySelector('text').firstChild.textContent))).join(','), 'wed=Oxford,wedn=Hueston Woods,thu=Lebanon,tue=Spring Grove,mon=Findlay Market', 'map pins: Oxford, Hueston Woods, Lebanon, Spring Grove, Findlay Market');
+  eq((await p.$$eval('.fm-svg a[data-day] .day', (e) => e.map((x) => x.textContent))).join(','), 'WED,WED NIGHT,THU,TUE,MON', 'day names only');
+  const map = await p.innerHTML('.fieldmap'); ok(!/Elm Street|Nightmare|tour<\/text>/i.test(map), 'the old Monday pin and label are gone');
+  for (const d of ['mon', 'tue', 'wed', 'wedn', 'thu']) ok((await p.$$(`.fm-svg a[data-day="${d}"]`)).length >= 1, 'map marker for ' + d);
+  await p.evaluate(() => { document.querySelector('.fm-svg a[data-day="wedn"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); });
+  await p.waitForTimeout(500); ok(p.url().endsWith('#week'), 'a marker opens The Week'); ok(await p.isVisible('#day-wedn'), 'the Hueston Woods pin goes to the Wednesday-night entry');
   await p.addInitScript(() => { window.__inject = true; });
   await p.evaluate(() => { try { localStorage.setItem('ho-week', JSON.stringify({ mon: '<img src=x onerror=window.__xss=1>' })); } catch (e) { /* ignore */ } });
   await p.goto(base + '#week'); await p.reload(); await p.waitForTimeout(250);
   ok(!(await p.evaluate(() => window.__xss)), 'saved text is never injected as markup');
   eq(await p.inputValue('#notes-mon'), '<img src=x onerror=window.__xss=1>', 'shown as plain text in the box');
+});
+T('the week: the home map, the Week page and the home list at 1920, 1280 and 390 px have no console errors and no sideways scroll, in both themes', async ({ base, newPage }) => {
+  for (const theme of ['dark', 'light']) for (const w of [1920, 1280, 390]) {
+    const p = await newPage({ width: w, height: 900 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); await p.addInitScript((th) => { try { localStorage.setItem('ho-theme', JSON.stringify(th)); } catch (e) { /* ignore */ } }, theme);
+    await p.goto(base); await p.waitForTimeout(250); ok(await noHScroll(p), `home (${theme}, ${w})`); ok(await p.isVisible('.fm-svg'), 'the map shows'); const pins = await p.$$eval('.fm-svg a[data-day]', (e) => e.length); eq(pins, 5, 'five itinerary pins');
+    await p.evaluate(() => { location.hash = '#week'; }); await p.waitForTimeout(250); ok(await noHScroll(p), `the week (${theme}, ${w})`); eq((await p.$$('.wk-day')).length, 5, 'five entries'); eq(errs.length, 0, `page errors (${theme}, ${w}): ${errs}`);
+  }
 });
 
 // ---------------------------------------------------------------- Spring Grove Dossier (Phase 5)
@@ -1053,6 +1075,50 @@ T('repo: no password-like string, key or "password=" in committed files outside 
   eq(hits.length, 0, 'secret-looking strings found:\n' + hits.slice(0, 5).join('\n'));
   /* the scanner itself catches a planted one (never a real one) */
   ok(RULES[0][0].test('x ' + PW + '=hunter22') && RULES[1][0].test(PW + ' = "abcdefgh"') && RULES[2][0].test('-----BEGIN RSA PRIVATE KEY-----'), 'the scanner catches planted examples'); // TEST-FIXTURE: planted examples, not real keys
+});
+
+
+// ---------------------------------------------------------------- itinerary hygiene: day names and place names only
+// The detailed schedule lives only in the leaders' private PowerPoint and school communications. Nothing in this test is from it.
+const ITIN_MONTH = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sept?(?:ember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+const ITIN_RULES = {
+  'a month followed by a day number': new RegExp('\\b' + ITIN_MONTH + '\\.? \\d{1,2}\\b'),
+  'a clock time': /\b\d{1,2}:\d{2}\b|\b\d{1,2} ?(?:a\.m\.|p\.m\.|AM|PM|am|pm)(?![A-Za-z])/,
+  'a street address': /\b\d{1,5} (?:[NSEW]\.? )?(?:[A-Z][A-Za-z.]+ ){0,3}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive)\b/,
+  'the words "bus trip"': /\bbus trip\b/i,
+};
+// Allowed exceptions: each is a file, a piece of text that must be on the same line, and the reason. All of them are real history, church
+// calendar facts, or story and game fiction. None is part of the course schedule. Keep this list short.
+const ITIN_ALLOW = [
+  { file: 'index.html', line: 'communion of saints', why: 'Learn, Ghosts and faith: the Church calendar (All Souls’ Day)' },
+  { file: 'index.html', line: 'All Hallows’ Eve, the evening before All Saints’ Day', why: 'Learn, Ghosts and faith: the Church calendar (All Saints’ Day)' },
+  { file: 'index.html', line: 'All Hallows’ Eve\',\'Faith\'', why: 'Glossary: the Church calendar (All Hallows’ Eve)' },
+  { file: 'index.html', line: 'All Saints’ Day\',\'Faith\'', why: 'Glossary: the Church calendar (All Saints’ Day)' },
+  { file: 'index.html', line: 'All Souls’ Day\',\'Faith\'', why: 'Glossary: the Church calendar (All Souls’ Day)' },
+  { file: 'index.html', line: 'springgrove.org/history/', why: 'The Week, a source comment for the cemetery’s real founding history' },
+  { file: 'index.html', line: 'wikipedia.org/wiki/Spring_Grove_Cemetery', why: 'The Week, a source comment for the cemetery’s real landmark history' },
+  { file: 'index.html', line: 'Spring Grove was chartered', why: 'The Week, real history of the cemetery (not the schedule)' },
+  { file: 'index.html', line: 'The first burial took place', why: 'The Week, real history of the cemetery (not the schedule)' },
+  { file: 'index.html', line: 'miamioh.edu/about-miami/history-traditions/timeline', why: 'The Week, a source comment for the university’s real founding history' },
+  { file: 'index.html', line: 'Miami University was chartered', why: 'The Week, real history of the university (not the schedule)' },
+  { file: 'index.html', line: 'Its first classes began', why: 'The Week, real history of the university (not the schedule)' },
+  { file: 'index.html', line: 'var places=[', why: 'Prompts tab: a story-prompt generator, fiction ("a school gym at 4 a.m.")' },
+  { file: 'index.html', line: 'var OPEN=[', why: 'Draft Lab: opening lines for invented stories, fiction ("Listen closely at 0:41")' },
+  { file: 'index.html', line: 'place:[\'a hotel in a small Ohio river town', why: 'Prompts tab: story-prompt generator, fiction ("a high school at 2 a.m.")' },
+];
+T('itinerary hygiene: no clock time, month-and-day, street address or "bus trip" in The Week, About, Home, Leaders, Spring Grove, Learn, Show Don’t Tell, LEADERS_TODO, README or docs (except the listed history, calendar and fiction), and no .pptx file in the repo', async () => {
+  const { execSync } = await import('node:child_process'); let all; try { all = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { all = []; }
+  ok(all.length > 50, 'found the committed files: ' + all.length);
+  const pptx = all.filter((f) => /\.pptx?$/i.test(f) || /\.ppsx?$/i.test(f) || /\.potx?$/i.test(f)); eq(pptx.join(','), '', 'a PowerPoint file is committed: ' + pptx);
+  const scanned = all.filter((f) => f === 'index.html' || f === 'show-dont-tell/index.html' || f === 'LEADERS_TODO.md' || f === 'README.md' || (f.startsWith('docs/') && /\.md$/i.test(f)));
+  ok(scanned.includes('index.html') && scanned.includes('LEADERS_TODO.md') && scanned.includes('README.md') && scanned.some((f) => f.startsWith('docs/')), 'the pages and notes are all scanned: ' + scanned.length + ' files');
+  const hits = []; const used = new Set();
+  for (const f of scanned) { const lines = fs.readFileSync(path.join(ROOT, f), 'utf8').split('\n'); lines.forEach((l, i) => { for (const [what, re] of Object.entries(ITIN_RULES)) if (re.test(l)) { const k = ITIN_ALLOW.findIndex((a) => a.file === f && l.includes(a.line)); if (k >= 0) used.add(k); else hits.push(`${f}:${i + 1}: ${what}: ${l.trim().slice(0, 80)}`); } }); }
+  eq(hits.length, 0, 'schedule-like details found:\n' + hits.slice(0, 6).join('\n'));
+  ITIN_ALLOW.forEach((a, k) => ok(used.has(k) && a.why, 'an allow-list entry that no longer matches anything should be deleted: ' + a.line));
+  /* the scanner itself catches planted examples (made-up, not from any real schedule) */
+  const plant = ['Meet on January 5 at the door', 'Arrive at 9:30 sharp', 'Check in at 3 PM', 'Stop at 100 Example Street', 'A bus trip to somewhere']; ok(plant.every((s) => Object.values(ITIN_RULES).some((re) => re.test(s))), 'the scanner catches planted examples');
+  ok(!ITIN_RULES['a clock time'].test('Chapter 7 starts here') && !ITIN_RULES['a month followed by a day number'].test('You may 3 times'), 'and does not flag ordinary words');
 });
 
 // ---------------------------------------------------------------- navigation between pages
