@@ -393,7 +393,7 @@ T('show-dont-tell: tips 10 to 12 have their Haunted Ohio move lines, and the cre
 T('analytics: resources-opened and arc-check-saved are counted, and send no names or typed text', async ({ base, newPage }) => {
   const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const calls = async () => p.evaluate(() => window.__gc || []);
   await p.goto(base + SDT + '#lesson-1'); await p.waitForTimeout(150); await p.click('#tab-lab'); await p.waitForTimeout(150); await p.click('#tab-arcs'); await p.waitForTimeout(100);
-  await p.fill('#arc-goal', 'SECRETGOAL'); await p.fill('#arc-lie', 'SECRETLIE'); await p.fill('#arc-truth', 'SECRETTRUTH'); await p.check('input[name="arc-type"][value="Negative"]'); await p.fill('#arc-scene', words(45, 'SECRETSCENE')); await p.click('#tab-lab'); await p.click('#lab-truth > summary'); await p.fill('#labt-truth', 'SECRETLAB'); await p.waitForTimeout(200);
+  await p.fill('#arc-goal', 'SECRETGOAL'); await p.fill('#arc-lie', 'SECRETLIE'); await p.fill('#arc-truth', 'SECRETTRUTH'); await p.check('input[name="arc-type"][value="Negative"]'); await p.fill('#arc-scene', words(45, 'SECRETSCENE')); await p.click('#tab-lab'); await p.click('#lab-truth > summary'); await p.fill('#labt-truth', 'SECRETLAB'); await gcWait(p, 'event/arc-check-saved', 'the finished Arc check'); await gcWait(p, 'event/resources-opened', 'the first extra tab');
   const all = await calls(); const names = all.map((c) => c.path);
   eq(names.filter((n) => n === 'event/resources-opened').length, 1, 'resources-opened counted once: ' + names); eq(names.filter((n) => n === 'event/arc-check-saved').length, 1, 'arc-check-saved counted once: ' + names);
   ok(all.filter((c) => c.event).every((c) => Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k))), 'only path, title and event are sent'); ok(!/SECRET/i.test(JSON.stringify(all)), 'no typed text in anything sent: ' + JSON.stringify(names)); eq(errs.length, 0, 'no page errors: ' + errs);
@@ -481,7 +481,7 @@ T('show-dont-tell: the Extra Resources tab has the two new links (new tab, noope
   const note = await p.$eval('#links2-note', (e) => [e.textContent, e.nextElementSibling.querySelectorAll('a').length, e.compareDocumentPosition(document.querySelector('#rp-extras ul:last-of-type a')) & Node.DOCUMENT_POSITION_FOLLOWING]); eq(note[0], 'Some pages on these sites are written for adult readers. Ask a course leader before you browse beyond the page you were sent to.', 'the adult-readers line'); eq(note[1], 2, 'it sits directly above the two links');
   /* events: opening a panel counts once; finishing the quiz counts; nothing typed is sent */
   await p.goto(base + SDT + '#lesson-9'); await p.waitForTimeout(150); await p.click('#extra > summary'); await p.fill('#extraText', 'SECRETEXTRA'); await p.click('#extra > summary'); await p.click('#extra > summary');
-  await p.goto(base + SDT + '#quiz'); await p.waitForTimeout(150); await p.click('#quiz-sets [data-set="1"]'); for (let i = 0; i < 8; i++) { await p.click('.quizopt >> nth=0'); await p.click('#quiz-next'); } await p.waitForTimeout(200);
+  await p.goto(base + SDT + '#quiz'); await p.waitForTimeout(150); await p.click('#quiz-sets [data-set="1"]'); for (let i = 0; i < 8; i++) { await p.click('.quizopt >> nth=0'); await p.click('#quiz-next'); } await gcWait(p, 'event/quiz-complete', 'the finished quiz'); await gcWait(p, 'event/quiz-set-chosen', 'the chosen quiz set');
   const names = (await calls()).map((c) => c.path); eq(names.filter((n) => n === 'event/lesson-extra-opened').length, 1, 'lesson-extra-opened counted once for that panel: ' + names); eq(names.filter((n) => n === 'event/quiz-complete').length, 1, 'quiz-complete counted: ' + names); eq(names.filter((n) => n === 'event/quiz-set-chosen').length, 1, 'quiz-set-chosen counted: ' + names); ok(!/SECRET/i.test(JSON.stringify(await calls())), 'nothing typed is sent'); ok((await calls()).every((c) => Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k))), 'only path, title and event');
 });
 T('leaders page: Mrs. Hahn is listed as a course leader beside the other three, and the counts say four', async ({ base, newPage }) => {
@@ -823,6 +823,12 @@ T('teacher: six links per game and a seating helper where touching seats never s
 });
 
 // ---------------------------------------------------------------- analytics (Phase 7)
+// Waits until the GoatCounter stub has really been handed an event or page view with this path. Never a fixed pause, so a slow
+// machine cannot make a correct page fail. If it never arrives, the error says what WAS sent.
+const gcWait = async (p, path, what) => {
+  try { await p.waitForFunction((x) => (window.__gc || []).some((c) => c.path === x), path, { timeout: 15000, polling: 50 }); }
+  catch (e) { throw new Error('never counted: ' + (what || path) + ' (sent so far: ' + JSON.stringify(await p.evaluate(() => (window.__gc || []).map((c) => c.path)).catch(() => [])) + ')'); }
+};
 const GC_STUB = "window.goatcounter=window.goatcounter||{};window.__gc=window.__gc||[];window.goatcounter.count=function(o){window.__gc.push(JSON.parse(JSON.stringify(o)))};";
 const withGC = async (p, mode) => {
   /* mode 'stub': GoatCounter loads (a recording stub) and the placeholder code is swapped for a test code; mode 'blocked': the script is blocked */
@@ -883,20 +889,20 @@ T('no student-visible text anywhere on the site begins with "Leaders:" (all tabs
 T('analytics: each home tab is its own page; only fixed events are sent; names and typed text are never sent', async ({ base, newPage }) => {
   const p = await newPage(); await withGC(p, 'stub'); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   const calls = async () => p.evaluate(() => window.__gc || []);
-  await p.goto(base); await p.waitForTimeout(150);
-  for (const h of ['#learn', '#games', '#week', '#cemetery', '#leaders', '#about']) { await p.evaluate((x) => { location.hash = x; }, h); await p.waitForTimeout(120); }
+  await p.goto(base); await gcWait(p, '/', 'the home page');
+  for (const h of ['#learn', '#games', '#week', '#cemetery', '#leaders', '#about']) { await p.evaluate((x) => { location.hash = x; }, h); await gcWait(p, '/' + h.slice(1), 'the ' + h.slice(1) + ' tab'); }
   const paths = (await calls()).map((c) => c.path); for (const x of ['/', '/learn', '/games', '/week', '/cemetery', '/leaders', '/about']) ok(paths.includes(x), 'page counted: ' + x + ' in ' + paths);
   /* the Dossier: type a name and a story line, finish a stop, open the form */
   await p.evaluate(() => { location.hash = '#cemetery'; }); await p.click('#ct-hunt'); await p.fill('#dzSquad', 'SECRETSQUADNAME'); await p.fill('#ff-s1', 'SECRETANSWER');
   await p.check('[data-photo="s1"]'); await p.click('[data-test="s1|eyes"]'); await p.click('[data-pill="s1|res"][data-val="3"]'); await p.fill('#en-s1', 'It felt watched from the left today'); await p.fill('#mn-s1', 'The cold bronze smelled of wet moss.');
-  await p.click('[data-pill="s1|verdict"][data-val="Need more data"]'); await p.click('label.pick:has-text("The eyes are glass.") input'); await p.click('label.pick:has-text("Cincinnati Magazine reports") input'); await p.waitForTimeout(100);
+  await p.click('[data-pill="s1|verdict"][data-val="Need more data"]'); await p.click('label.pick:has-text("The eyes are glass.") input'); await p.click('label.pick:has-text("Cincinnati Magazine reports") input'); await gcWait(p, 'event/stop-complete', 'a completed stop');
   ok((await calls()).some((c) => c.path === 'event/stop-complete' && c.event === true), 'a completed stop is counted as an event');
   /* a lesson and the games */
-  await p.goto(base + 'show-dont-tell/#lesson-2'); await p.waitForTimeout(100); await p.fill('#writing', 'SECRETLESSONTEXT'); await p.click('#done'); await p.waitForTimeout(100);
+  await p.goto(base + 'show-dont-tell/#lesson-2'); await p.waitForTimeout(100); await p.fill('#writing', 'SECRETLESSONTEXT'); await p.click('#done'); await gcWait(p, 'event/lesson-complete', 'a completed lesson'); await gcWait(p, '/show-dont-tell', 'the lessons page');
   ok((await calls()).some((c) => c.path === 'event/lesson-complete'), 'lesson complete is counted'); ok((await calls()).some((c) => c.path === '/show-dont-tell'), 'the lessons page is counted');
-  await p.goto(base + 'haunting-files/'); await p.waitForTimeout(100); ok((await calls()).some((c) => c.path === 'event/game-opened-haunting-files'), 'game opened (Haunting Files)'); ok((await calls()).some((c) => c.path === '/haunting-files'), 'its page is counted');
+  await p.goto(base + 'haunting-files/'); await gcWait(p, 'event/game-opened-haunting-files', 'Haunting Files opened'); await gcWait(p, '/haunting-files', 'the Haunting Files page'); ok((await calls()).some((c) => c.path === 'event/game-opened-haunting-files'), 'game opened (Haunting Files)'); ok((await calls()).some((c) => c.path === '/haunting-files'), 'its page is counted');
   await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'SECRETNAME'); await p.click('[data-act="begin"]');
-  await p.goto(base + 'last-light/'); await p.waitForTimeout(100); ok((await calls()).some((c) => c.path === 'event/game-opened-last-light'), 'game opened (Last Light)');
+  await p.goto(base + 'last-light/'); await gcWait(p, 'event/game-opened-last-light', 'Last Light opened'); ok((await calls()).some((c) => c.path === 'event/game-opened-last-light'), 'game opened (Last Light)');
   await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'SECRETSURVIVOR'); await p.waitForTimeout(100);
   const all = (await calls()); const everyPath = all.map((c) => c.path);
   for (const c of all) { ok(/^(\/[a-z0-9-]{0,40}|event\/[a-z-]+)$/.test(c.path), 'path matches the fixed pattern: ' + c.path); ok(Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k)), 'only path, title and event are sent: ' + Object.keys(c)); }
@@ -1119,6 +1125,23 @@ T('itinerary hygiene: no clock time, month-and-day, street address or "bus trip"
   /* the scanner itself catches planted examples (made-up, not from any real schedule) */
   const plant = ['Meet on January 5 at the door', 'Arrive at 9:30 sharp', 'Check in at 3 PM', 'Stop at 100 Example Street', 'A bus trip to somewhere']; ok(plant.every((s) => Object.values(ITIN_RULES).some((re) => re.test(s))), 'the scanner catches planted examples');
   ok(!ITIN_RULES['a clock time'].test('Chapter 7 starts here') && !ITIN_RULES['a month followed by a day number'].test('You may 3 times'), 'and does not flag ordinary words');
+});
+
+// ---------------------------------------------------------------- no real street addresses of private or reportedly haunted properties
+T('games and pages: no real street address (a number plus a street, or a named street) of a private or reportedly haunted property in the four games, The Week, Spring Grove or Learn', async () => {
+  const { execSync } = await import('node:child_process'); let all; try { all = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { all = []; }
+  const files = all.filter((f) => /^(haunting-files|last-light|the-veil|room-214|games-shared)\//.test(f) && /\.(html|js|json)$/.test(f) && !/phaser|vendor|\.min\./.test(f)).concat(all.filter((f) => f === 'index.html'));
+  ok(files.length > 20 && files.includes('haunting-files/cases/c4.js'), 'the game and page files are scanned: ' + files.length);
+  const NUMBERED = /\b\d{1,5} (?:[NSEW]\.? )?(?:[A-Z][A-Za-z.’']+ ){0,3}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Pike|Lane|Ln)\b/;
+  const NAMED = /\b[A-Z][A-Za-z’']+ (?:Avenue|Ave\.?|Street|Road|Rd\.?|Pike|Lane|Drive|Boulevard|Blvd\.?|Highway)\b/;
+  // Allowed: invented places only. Each entry names the file, the text and the reason.
+  const ALLOW = [{ file: 'last-light/scenarios/s6.js', text: 'Sinkhole Road', why: 'an invented road in a fictional scenario' }];
+  const hits = []; for (const f of files) { fs.readFileSync(path.join(ROOT, f), 'utf8').split('\n').forEach((l, i) => { for (const re of [NUMBERED, NAMED]) { const m = l.match(re); if (m && !ALLOW.some((a) => a.file === f && l.includes(a.text))) hits.push(`${f}:${i + 1}: ${m[0]}`); } }); }
+  eq(hits.length, 0, 'street addresses or named streets found:\n' + hits.slice(0, 6).join('\n'));
+  ok(ALLOW.every((a) => files.includes(a.file) && fs.readFileSync(path.join(ROOT, a.file), 'utf8').includes(a.text) && a.why), 'every allow-list entry still matches');
+  /* the Sedamsville case keeps its neighborhood and its story, with no street name */
+  const c4 = fs.readFileSync(path.join(ROOT, 'haunting-files', 'cases', 'c4.js'), 'utf8'); ok(/Sedamsville/.test(c4) && !/Steiner/i.test(c4), 'Case 4 names only the neighborhood'); ok(/the porch across the street at 8:40 PM/.test(c4) && /on the same street/.test(c4), 'and its scene and the contradiction note still make sense');
+  ok(NUMBERED.test('Meet at 12 Example Street') && NAMED.test('on Example Avenue') && !NAMED.test('Take This Way'), 'the scanner catches planted made-up examples and not ordinary words');
 });
 
 // ---------------------------------------------------------------- navigation between pages
