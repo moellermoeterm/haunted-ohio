@@ -1,22 +1,22 @@
 /* Haunting Files, Case 4: The Sedamsville Rectory, Cincinnati (editable data object).
-   REAL HISTORY (src:'real') is limited to what several sources agreed on when checked by web search (Nov 2026): the rectory stands at
-   639 Steiner Avenue in Sedamsville, Cincinnati, and was one of the buildings of the Our Lady of Perpetual Help parish; the parish church
+   REAL HISTORY (src:'real') is limited to what several sources agreed on when checked by web search (Nov 2026): the rectory stands in
+   the Sedamsville neighborhood of Cincinnati, and was one of the buildings of the Our Lady of Perpetual Help parish; the parish church
    was dedicated in May 1889. Sources DISAGREE about when the rectory itself was built, so no build date is given (Exhibit E2 says so).
    The popular ghost stories about this building could not be traced to documents, so they appear only as folklore (E7, E8).
    Every person, quote and record below is GAME MATERIAL, and no real person is accused of anything.
    Intended strongest explanation: HUMAN ACTIVITY (an unseen, legitimate visit). */
 (window.HF_CASES = window.HF_CASES || {})[4] = {
-  code: 4, file: '0051', name: 'The Sedamsville Rectory', short: 'Sedamsville Rectory', scene: 'the porch across Steiner Avenue at 8:40 PM', trustQ: 'whether anyone was inside', strongest: 'hum',
-  loc: 'The Sedamsville Rectory, Steiner Avenue, Cincinnati.',
+  code: 4, file: '0051', name: 'The Sedamsville Rectory', short: 'Sedamsville Rectory', scene: 'the porch across the street at 8:40 PM', trustQ: 'whether anyone was inside', strongest: 'hum',
+  loc: 'The Sedamsville Rectory, Sedamsville, Cincinnati.',
   brief: ['Case file #0051 has been reopened: The Sedamsville Rectory, second floor.', 'Two witnesses. One locked building. A light that should not have been there.', 'Your job is to decide what you can actually prove.'],
   intro: 'This case uses the real Sedamsville Rectory in Cincinnati, but the witness statements and most documents were written for this game. Each exhibit is labeled so you always know which is which.',
   rep: 'At dusk, a neighbor reports a bright light moving between second-floor windows and a bang from the side door. The renovation crew lead says he was watching the building and nobody went in.',
-  repAssign: 'Write the opening of your field report (80 words or more). Put the reader on the porch across Steiner Avenue at 8:40 PM and describe what the neighbor would have experienced. Then state what you believe happened and cite at least two exhibits by number, like E5 or E6.',
+  repAssign: 'Write the opening of your field report (80 words or more). Put the reader on the porch across the street at 8:40 PM and describe what the neighbor would have experienced. Then state what you believe happened and cite at least two exhibits by number, like E5 or E6.',
   hintSense: 'Add what the street sounded, felt, or smelled like, not only how it looked.',
   hintTime: 'Investigators log times. Mention 8:40 or another time from the file.',
   ev: [
     { id: 'E1', title: 'Parish and address record', kind: 'Public record', src: 'real', type: 'fact',
-      body: '<p>The Sedamsville Rectory stands at 639 Steiner Avenue in Cincinnati’s Sedamsville neighborhood. It is one of the buildings of the Our Lady of Perpetual Help parish.</p><p class="muted">Several sources agree on this. You could check them.</p>',
+      body: '<p>The Sedamsville Rectory stands in Cincinnati’s Sedamsville neighborhood. It is one of the buildings of the Our Lady of Perpetual Help parish.</p><p class="muted">Several sources agree on this. You could check them.</p>',
       why: 'It is a basic, checkable fact about where the building is and what it was part of. It tells you the building is real. It says nothing yet about ghosts.' },
     { id: 'E2', title: 'Dates in the sources', kind: 'Historical accounts', src: 'real', type: 'claim',
       body: '<p>The parish church was dedicated in May 1889. Sources disagree about when the rectory itself was built, so its exact age is uncertain.</p>',
@@ -47,10 +47,10 @@
     { id: 'a', t: 'Whether anyone was inside. Casey saw a light like someone walking with a flashlight. Pat says nobody went in or out the whole time.', ok: true },
     { id: 'b', t: 'Whether a light could be seen. Casey saw a bright light moving upstairs. Pat says the windows were dark.', ok: true },
     { id: 'c', t: 'Whether the second-floor windows could show a light at all. Casey saw one in them. Pat says the crew boarded them from the inside.', ok: true },
-    { id: 'd', t: 'Whether both of them were on Steiner Avenue that night.', ok: false },
+    { id: 'd', t: 'Whether both of them were on the same street that night.', ok: false },
     { id: 'e', t: 'What each thinks the bang was. Casey thinks the side door. Pat thinks a board.', ok: false }
   ],
-  contraNote: 'Both were on Steiner Avenue, so that is not a conflict. What each person thinks the bang was is an opinion, not a conflicting observation, because both of them heard it at about 8:40.',
+  contraNote: 'Both were on the same street, so that is not a conflict. What each person thinks the bang was is an opinion, not a conflicting observation, because both of them heard it at about 8:40.',
   checkRe: 'key|log|manager|walk-through|walkthrough|flashlight|second key|alley|gap|plywood|board',
   checkYes: 'You noticed the key log. Pat said he had the only key, but the record shows a property manager with a second key was legitimately inside from 8:32 to 8:51.',
   checkNo: 'Look again at E5. The log shows a property manager with a second key entered for a scheduled walk-through at 8:32 PM and left at 8:51 PM.',
