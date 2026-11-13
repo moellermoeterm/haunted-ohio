@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ghost Lab: What is a ghost? | Haunted Ohio</title>
+<meta name="description" content="Classroom lesson for the Haunted Ohio MoeTerm course: survey data, ghost types, the Golden Lamb case file, and a story seed builder.">
+<style>
+/* ---------- Tokens (night is default; matches the site's night palette) ---------- */
+:root{
+  --bg:#0B1220; --panel:#172236; --panel2:#1F2D45; --line:#2C3C58;
+  --text:#F3EEE2; --muted:#9FAABB; --gold:#D9A441; --gold-ink:#0B1220;
+  --ember:#E0735B; --teal:#6FB3AA; --violet:#A99AD3;
+  --good-bg:rgba(111,179,170,.16); --bad-bg:rgba(224,115,91,.16);
+  --serif:Cambria,Georgia,"Times New Roman",serif;
+  --sans:Calibri,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  color-scheme:dark;
+}
+:root[data-theme="day"]{
+  --bg:#F7F3E8; --panel:#FFFFFF; --panel2:#EFE8D6; --line:#D6CBB0;
+  --text:#1B2333; --muted:#566176; --gold:#8A5A00; --gold-ink:#FFFFFF;
+  --ember:#B2432B; --teal:#2F7F76; --violet:#5F4B96;
+  --good-bg:rgba(47,127,118,.12); --bad-bg:rgba(178,67,43,.10);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--serif);line-height:1.2;margin:0 0 .5em}
+h1{font-size:clamp(2.2rem,5vw,3.4rem)}
+h2{font-size:clamp(1.6rem,3vw,2.1rem)}
+h3{font-size:1.25rem}
+p{margin:0 0 1em;max-width:72ch}
+a{color:var(--gold)}
+button,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted)}
+.sr{position:absolute;left:-9999px}
+
+/* ---------- Top bar ---------- */
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:14px;align-items:center;min-height:56px}
+.bar a.home{font-family:var(--serif);font-weight:700;text-decoration:none;white-space:nowrap}
+.steps{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:thin}
+.steps a{white-space:nowrap;text-decoration:none;color:var(--muted);padding:6px 12px;border-radius:999px;font-size:.95rem}
+.steps a:hover{color:var(--text)}
+.steps a.on{background:var(--panel2);color:var(--text)}
+.steps a .done{color:var(--teal);margin-left:4px}
+.toggle{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap}
+
+/* ---------- Hero ---------- */
+.hero{padding:64px 0 36px;position:relative;overflow:hidden}
+.hero p.lead{font-size:1.25rem;color:var(--muted)}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:.95rem;color:var(--muted);background:var(--panel)}
+.fog{position:absolute;inset:auto -10% -40px -10%;height:140px;background:radial-gradient(ellipse at 30% 100%,rgba(111,179,170,.18),transparent 60%),radial-gradient(ellipse at 75% 100%,rgba(217,164,65,.10),transparent 60%);pointer-events:none}
+:root[data-theme="day"] .fog{display:none}
+
+/* ---------- Sections ---------- */
+section.step{padding:48px 0;border-top:1px solid var(--line)}
+section.step > .wrap > p.intro{color:var(--muted);font-size:1.1rem}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}
+.card.tight{padding:16px 18px}
+fieldset{border:0;padding:0;margin:0 0 20px}
+legend{font-family:var(--serif);font-size:1.2rem;font-weight:700;margin-bottom:8px;padding:0}
+label.opt{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 18px;cursor:pointer;margin:0 8px 8px 0}
+label.opt:has(input:checked){background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+label.opt input{accent-color:var(--gold)}
+textarea,select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+textarea{min-height:92px;resize:vertical}
+.btn{background:var(--gold);color:var(--gold-ink);border:0;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* ---------- Survey bars ---------- */
+.bars{display:grid;gap:14px;margin-top:8px}
+.bar-row .lbl{display:flex;justify-content:space-between;gap:12px;font-size:.98rem;margin-bottom:4px}
+.track{height:16px;background:var(--panel2);border-radius:999px;overflow:hidden}
+.fill{height:100%;background:var(--gold);width:0;transition:width .7s ease}
+.note{border-left:4px solid var(--gold);padding:10px 16px;background:var(--panel);border-radius:0 10px 10px 0;margin:18px 0}
+[hidden]{display:none!important}
+
+/* ---------- Expandable cards ---------- */
+.xcard{padding:0;overflow:hidden}
+.xcard > button{width:100%;text-align:left;background:none;border:0;padding:20px 22px;cursor:pointer;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.xcard > button h3{margin:0 0 4px}
+.xcard > button .tag{color:var(--muted);font-size:.95rem}
+.xcard .more{padding:0 22px 20px;border-top:1px solid var(--line);padding-top:16px}
+.xcard .plus{font-size:1.5rem;line-height:1;color:var(--gold)}
+.sub{margin:30px 0 10px}
+
+/* ---------- Sorting ---------- */
+.q{display:grid;gap:12px}
+.q p{margin:0}
+.picks{display:flex;flex-wrap:wrap;gap:8px}
+.pick{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:.95rem}
+.pick:hover{border-color:var(--gold)}
+.pick[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.card.ok{background:var(--good-bg);border-color:var(--teal)}
+.card.no{background:var(--bad-bg);border-color:var(--ember)}
+.fb{font-size:.98rem;min-height:1.4em}
+.score{font-family:var(--serif);font-size:1.2rem}
+
+/* ---------- Timeline ---------- */
+.tl{list-style:none;margin:0 0 10px;padding:0 0 0 22px;border-left:2px solid var(--line)}
+.tl li{position:relative;padding:0 0 16px 18px}
+.tl li::before{content:"";position:absolute;left:-30px;top:8px;width:14px;height:14px;border-radius:50%;background:var(--gold);border:3px solid var(--bg)}
+.tl b{font-family:var(--serif);font-size:1.15rem;color:var(--gold);margin-right:8px}
+
+/* ---------- Seed builder ---------- */
+.slots{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.slot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.slot .k{color:var(--muted);font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
+.slot .v{font-family:var(--serif);font-size:1.2rem;margin-top:6px;min-height:3.2em}
+.slot.locked{border-color:var(--gold)}
+.slot button.lock{background:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;cursor:pointer;font-size:.85rem}
+.slot button.lock[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.seedline{font-family:var(--serif);font-size:1.3rem;line-height:1.5;background:var(--panel2);border-radius:12px;padding:22px;margin:18px 0}
+.saved{display:grid;gap:10px;margin-top:14px}
+.saved .card{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.saved .card p{margin:0;max-width:none}
+
+/* ---------- Notebook ---------- */
+pre.nb{white-space:pre-wrap;word-wrap:break-word;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;font:16px/1.55 var(--sans);max-height:420px;overflow:auto}
+footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fill{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="wrap">
+    <a class="home" href="../#home">Haunted Ohio</a>
+    <nav class="steps" aria-label="Lesson steps" id="steps"></nav>
+    <button class="toggle" id="themeBtn" type="button" aria-pressed="false">Daylight</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Ghost Lab: what is a ghost?</h1>
+    <p class="lead">Start with what you think. Test it against survey data, sort real kinds of sightings, work a case file from a historic Ohio inn, then spin a story seed of your own.</p>
+    <div class="meta">
+      <span class="chip">Classroom lesson</span>
+      <span class="chip">About 60 to 75 minutes</span>
+      <span class="chip">Your answers save only in this browser</span>
+    </div>
+  </div>
+  <div class="fog" aria-hidden="true"></div>
+</header>
+
+<main>
+
+<!-- ============ STEP 1 ============ -->
+<section class="step" id="step-1" data-step="1" data-title="Do Now">
+  <div class="wrap">
+    <h2>Step 1. Do Now</h2>
+    <p class="intro">Write first, then talk with a neighbor. You can change your answers any time today.</p>
+
+    <fieldset>
+      <legend>Do you believe in ghosts?</legend>
+      <div id="belief">
+        <label class="opt"><input type="radio" name="belief" value="yes"> Yes</label>
+        <label class="opt"><input type="radio" name="belief" value="no"> No</label>
+        <label class="opt"><input type="radio" name="belief" value="unsure"> Not sure</label>
+      </div>
+    </fieldset>
+
+    <div id="compare" hidden>
+      <h3>How do you compare?</h3>
+      <p class="muted" id="youSaid"></p>
+      <div class="bars">
+        <div class="bar-row"><div class="lbl"><span>Say ghosts are real <span class="muted">(2021 survey)</span></span><b>41%</b></div><div class="track"><div class="fill" data-w="41"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Say they have encountered one <span class="muted">(2021 survey)</span></span><b>20%</b></div><div class="track"><div class="fill" data-w="20"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Believe places can be “haunted by spirits” <span class="muted">(2018, Chapman University)</span></span><b>58%</b></div><div class="track"><div class="fill" data-w="58"></div></div></div>
+      </div>
+      <div class="note">A survey tells us what people <em>believe</em>. Does it tell us what is <em>true</em>? Write down what you would need to see to change your answer.</div>
+    </div>
+
+    <div class="grid g2">
+      <div>
+        <label for="q2"><b>What are ghosts, and how are they created?</b> <span class="muted">(in reality, or in classic beliefs)</span></label>
+        <textarea id="q2" data-save="q2"></textarea>
+      </div>
+      <div>
+        <label for="q3"><b>What local ghost story have you heard?</b></label>
+        <textarea id="q3" data-save="q3"></textarea>
+      </div>
+    </div>
+    <p class="muted" id="classPoll" hidden style="margin-top:16px">Add your answer to the class poll: <a id="pollLink" target="_blank" rel="noopener">open the poll</a>.</p>
+  </div>
+</section>
+
+<!-- ============ STEP 2 ============ -->
+<section class="step" id="step-2" data-step="2" data-title="Kinds of ghosts">
+  <div class="wrap">
+    <h2>Step 2. Three kinds of sightings, three ways a ghost is made</h2>
+    <p class="intro">These are the categories used by people who write about the paranormal. They are explanations people give, not proven facts. Open each card.</p>
+
+    <h3 class="sub">What you might see</h3>
+    <div class="grid g3" id="types"></div>
+
+    <h3 class="sub">How a ghost gets made</h3>
+    <div class="grid g3" id="creators"></div>
+
+    <div class="note"><b>A caveat.</b> Some writers say “ghost” means an imprint (a replay) and “spirit” means a conscious presence (someone who knows you are there). Notice who makes that claim, and what evidence they give.</div>
+  </div>
+</section>
+
+<!-- ============ STEP 3 ============ -->
+<section class="step" id="step-3" data-step="3" data-title="Sort the sightings">
+  <div class="wrap">
+    <h2>Step 3. Sort the sightings</h2>
+    <p class="intro">Choose the category each sighting is most like. Some could fit two. If you can defend your choice, you are thinking like a writer.</p>
+    <div class="row" style="margin-bottom:16px">
+      <span class="score" id="sortScore" aria-live="polite">0 of 6 correct</span>
+      <button class="btn ghost" type="button" id="sortReset">Start over</button>
+    </div>
+    <div class="grid g2" id="sortList"></div>
+  </div>
+</section>
+
+<!-- ============ STEP 4 ============ -->
+<section class="step" id="step-4" data-step="4" data-title="Golden Lamb case file">
+  <div class="wrap">
+    <h2>Step 4. Case file: the Golden Lamb</h2>
+    <p class="intro">The Golden Lamb in Lebanon, Ohio began as a stagecoach tavern in 1803. The inn’s historian, John Zimkus, says the number one question guests ask is whether it is haunted. He says he has never met a ghost there, but he shares the stories staff and guests have told him. This case file is built from his 2022 article. We eat lunch at the Golden Lamb on Thursday, so read closely.</p>
+
+    <div class="grid g2">
+      <div>
+        <h3>The Sarah Stubbs timeline</h3>
+        <ol class="tl">
+          <li><b>1803</b>The inn opens as a stagecoach tavern.</li>
+          <li><b>1882</b>Sarah Stubbs, about five, moves in with her mother and baby sister after her father dies at 32. Her uncle runs the hotel.</li>
+          <li><b>1957</b>Sarah dies at 79, after marrying and raising a family. She did not die at the inn.</li>
+          <li><b>2002</b>A well-known skeptic spends the night in Room 2, near Sarah’s old room.</li>
+          <li><b>2008</b>He publishes an account of what the night clerk told him.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>The puzzle</h3>
+        <p>Guests report a little girl in the halls. But Sarah grew up, and she lived a long life elsewhere. So who is on the stairs?</p>
+        <p>One idea from paranormal researchers is the <b>imprint theory</b>: a traumatic event leaves an imprint, and a spirit may return at the age it was when that event happened. Sarah lost her father and her home at five.</p>
+        <p class="muted" style="margin:0">An idea is not evidence. Hold on to that for the next part.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Sort the claims: what kind of evidence is each one?</h3>
+    <p class="muted">Documented history is a checkable fact. An eyewitness story is someone’s account. A skeptic’s claim is a debunking argument. A theory is an idea used to explain.</p>
+    <div class="row" style="margin-bottom:16px">
+      <span class="score" id="evScore" aria-live="polite">0 of 6 correct</span>
+      <button class="btn ghost" type="button" id="evReset">Start over</button>
+    </div>
+    <div class="grid g2" id="evList"></div>
+
+    <div class="card" id="clerk" hidden style="margin-top:22px">
+      <h3>Or had he?</h3>
+      <p>The skeptic wrote that the clerk’s confession meant he had “caught another ghost.” The clerk said she sometimes turned the pictures in Sarah’s room to unsettle the housekeepers.</p>
+      <p style="margin:0"><b>Think it through:</b> that could explain pictures that were turned. Does it explain a boy’s sighting from years earlier, or laughter heard in a hallway? One debunked detail is not the same as a debunked place. It is also not the same as proof that nothing is there.</p>
+    </div>
+
+    <h3 class="sub">Your verdict</h3>
+    <fieldset>
+      <legend class="sr">Verdict</legend>
+      <div id="verdict">
+        <label class="opt"><input type="radio" name="verdict" value="Haunted"> Haunted</label>
+        <label class="opt"><input type="radio" name="verdict" value="Explained"> Explained</label>
+        <label class="opt"><input type="radio" name="verdict" value="Undecided"> Undecided</label>
+      </div>
+    </fieldset>
+    <label for="whyVerdict"><b>Write one or two sentences.</b> Name the evidence you trust most, and say what the night clerk’s prank does and does not explain.</label>
+    <textarea id="whyVerdict" data-save="whyVerdict"></textarea>
+  </div>
+</section>
+
+<!-- ============ STEP 5 ============ -->
+<section class="step" id="step-5" data-step="5" data-title="Story seed">
+  <div class="wrap">
+    <h2>Step 5. Story seed builder</h2>
+    <p class="intro">Five choices make a ghost story. Spin for a combination, lock the parts you like, and spin again. Save the seeds you would actually want to write.</p>
+    <div class="slots" id="slots"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" type="button" id="spin">Spin the unlocked parts</button>
+      <button class="btn ghost" type="button" id="saveSeed">Save this seed</button>
+    </div>
+    <div class="seedline" id="seedLine" aria-live="polite"></div>
+    <p class="muted">Use real history only for facts you have checked, and label legend as legend.</p>
+    <div class="saved" id="savedSeeds"></div>
+    <div style="margin-top:22px">
+      <label for="whySeed"><b>Which seed would you want to write, and why?</b> One sentence.</label>
+      <textarea id="whySeed" data-save="whySeed" style="min-height:70px"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STEP 6 ============ -->
+<section class="step" id="step-6" data-step="6" data-title="Your notebook">
+  <div class="wrap">
+    <h2>Step 6. Your notebook</h2>
+    <p class="intro">Everything you wrote today, in one place. Copy it into OneNote or your Teams assignment, or download it as a text file.</p>
+    <div class="row" style="margin-bottom:14px">
+      <button class="btn" type="button" id="copyNb">Copy notebook</button>
+      <button class="btn ghost" type="button" id="dlNb">Download .txt</button>
+      <button class="btn ghost" type="button" id="clearAll">Clear everything</button>
+      <span class="muted" id="nbMsg" aria-live="polite"></span>
+    </div>
+    <pre class="nb" id="nb"></pre>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Sources: survey figures as cited in the course slides (a 2021 survey; a 2018 Chapman University survey). Golden Lamb facts and stories from “Does the Golden Lamb have ghostly uninvited guests?” by John Zimkus, Historian of the Golden Lamb, October 25, 2022. Sighting categories and “creators” follow the course slides and are explanations people give, not proven facts.
+  </div>
+</footer>
+
+<script>
+/* ============ Leader settings ============ */
+const CONFIG = {
+  // Paste your Microsoft Forms link here to show a "class poll" link in Step 1. Leave empty to hide it.
+  FORM_URL: ""
+};
+
+/* ============ Storage (every access guarded) ============ */
+const KEY = "ho-ghostlab-v1";
+let S = {};
+try { S = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { S = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+function el(tag, attrs={}, kids=[]){
+  const n = document.createElement(tag);
+  for (const k in attrs){
+    if (k === "text") n.textContent = attrs[k];
+    else if (k === "class") n.className = attrs[k];
+    else n.setAttribute(k, attrs[k]);
+  }
+  (Array.isArray(kids) ? kids : [kids]).forEach(c => n.append(c));
+  return n;
+}
+
+/* ============ Theme ============ */
+(function theme(){
+  let t = S.theme;
+  if (!t) { try { const h = (localStorage.getItem("ho-theme") || "").toLowerCase(); if (h.includes("day") || h.includes("light")) t = "day"; } catch(e){} }
+  apply(t === "day" ? "day" : "night");
+  function apply(v){
+    if (v === "day") document.documentElement.setAttribute("data-theme", "day"); else document.documentElement.removeAttribute("data-theme");
+    const b = $("#themeBtn"); b.setAttribute("aria-pressed", v === "day"); b.textContent = v === "day" ? "Night" : "Daylight";
+    S.theme = v; save();
+  }
+  $("#themeBtn").addEventListener("click", () => apply(S.theme === "day" ? "night" : "day"));
+})();
+
+/* ============ Step nav ============ */
+const steps = $$("section.step");
+const nav = $("#steps");
+steps.forEach(s => {
+  const a = el("a", { href: "#" + s.id, "data-for": s.id }, [document.createTextNode(s.dataset.step + ". " + s.dataset.title)]);
+  a.append(el("span", { class: "done", "aria-hidden": "true", hidden: "" , text: "✓" }));
+  nav.append(a);
+});
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { $$("a", nav).forEach(a => a.classList.toggle("on", a.dataset.for === e.target.id)); } });
+  }, { rootMargin: "-30% 0px -60% 0px" });
+  steps.forEach(s => io.observe(s));
+}
+function markDone(n, yes){ const a = $('a[data-for="step-' + n + '"] .done', nav); if (a) a.hidden = !yes; }
+
+/* ============ Saved text areas ============ */
+$$("textarea[data-save]").forEach(t => {
+  t.value = S[t.dataset.save] || "";
+  t.addEventListener("input", () => { S[t.dataset.save] = t.value; save(); refresh(); });
+});
+
+/* ============ Step 1 ============ */
+if (CONFIG.FORM_URL) { $("#pollLink").href = CONFIG.FORM_URL; $("#classPoll").hidden = false; }
+const beliefText = { yes: "You said yes.", no: "You said no.", unsure: "You said you are not sure." };
+function showCompare(){
+  if (!S.belief) return;
+  $("#youSaid").textContent = beliefText[S.belief] + " Here is how that sits next to national survey results.";
+  $("#compare").hidden = false;
+  requestAnimationFrame(() => $$("#compare .fill").forEach(f => f.style.width = f.dataset.w + "%"));
+}
+$$('input[name="belief"]').forEach(r => {
+  r.checked = S.belief === r.value;
+  r.addEventListener("change", () => { S.belief = r.value; save(); showCompare(); refresh(); });
+});
+showCompare();
+
+/* ============ Step 2: expandable cards ============ */
+const TYPES = [
+  { h: "Poltergeist", tag: "A noisy spirit", body: [
+    "From German: “poltern” means to rumble or knock about, and “Geist” means spirit.",
+    "Classic signs: knocks, slammed doors, objects that move.",
+    "Writer’s question: who in the house is it noisy around, and why?" ] },
+  { h: "Interactive manifestation", tag: "Often a loved one or a historical figure", body: [
+    "May speak, touch, or leave a smell, such as cigar smoke or perfume.",
+    "Often there to communicate or comfort.",
+    "Writer’s question: what does it want to say, and why now?" ] },
+  { h: "Ectoplasm, orbs, funnels", tag: "The setting itself changes", body: [
+    "Often reported at graveyards, battlefields, execution sites, abandoned hospitals, and older homes.",
+    "Signs: mist, lights, cold spots. Some call them “souls in transition” or precursors to a full ghost.",
+    "Writer’s question: what is the place doing before anyone appears?" ] }
+];
+const CREATORS = [
+  { h: "The unsettled life or death", tag: "Unfinished business", body: [
+    "An unnatural death, an unfulfilled purpose, a yearning for vengeance or resolution.",
+    "Writer’s question: what would count as finished?" ] },
+  { h: "The attachment (imprint theory)", tag: "The place remembers", body: [
+    "Homes and objects hold “the echoes of significant life events.” Strong emotions replay in the location.",
+    "This is the idea behind Sarah Stubbs in Step 4.",
+    "Writer’s question: can a replay be changed?" ] },
+  { h: "The crisis moment", tag: "A goodbye across distance", body: [
+    "A loved one appears at or near the time of death, even miles, states, or continents away.",
+    "Writer’s question: how does the witness find out it was real?" ] }
+];
+function xcards(list, mount){
+  list.forEach((d, i) => {
+    const id = mount.id + "-" + i;
+    const btn = el("button", { type: "button", "aria-expanded": "false", "aria-controls": id }, [
+      el("span", {}, [el("h3", { text: d.h }), el("span", { class: "tag", text: d.tag })]),
+      el("span", { class: "plus", "aria-hidden": "true", text: "+" })
+    ]);
+    const more = el("div", { class: "more", id, hidden: "" }, d.body.map(t => el("p", { text: t })));
+    btn.addEventListener("click", () => {
+      const open = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!open)); more.hidden = open; $(".plus", btn).textContent = open ? "+" : "–";
+    });
+    mount.append(el("div", { class: "card xcard" }, [btn, more]));
+  });
+}
+xcards(TYPES, $("#types")); xcards(CREATORS, $("#creators"));
+
+/* ============ Step 3: sort the sightings ============ */
+const CATS = { pol: "Poltergeist", man: "Interactive manifestation", orb: "Orbs, mist, cold spots", imp: "Imprint", cri: "Crisis moment" };
+const SIGHTINGS = [
+  { t: "Every night at 2 a.m. the kitchen cabinets slam and a plate slides off the counter. Nobody is awake.", a: "pol",
+    hint: "Nobody is awake, and all the activity is noise and moving objects.", why: "Poltergeist: noise and moving objects, with no figure." },
+  { t: "A week after the funeral, Maya smells her grandfather’s pipe smoke in the hall and feels a hand on her shoulder.", a: "man",
+    hint: "Smell and touch, from someone she knew.", why: "Interactive manifestation: smell and touch from a loved one, often meant as comfort." },
+  { t: "At the edge of an old cemetery, pale mist hangs over one patch of ground. The air turns cold and small lights drift between the trees.", a: "orb",
+    hint: "There is no figure at all. The setting itself changes.", why: "Orbs, mist, cold spots: a graveyard, lights, and a temperature drop." },
+  { t: "Every winter, a woman in gray climbs the same staircase at the same hour, repeating the same steps. She never looks at anyone.", a: "imp",
+    hint: "Same steps, same hour, and no reaction to the living. It plays like a recording.", why: "Imprint: a replay tied to a place. (You could argue it is a manifestation, but it never reacts to anyone.)" },
+  { t: "Dan wakes at 3 a.m. certain he saw his brother at the foot of the bed. In the morning a phone call comes: his brother died overnight, far away.", a: "cri",
+    hint: "The sighting lines up with a death at a distance.", why: "Crisis moment: the appearance matches a death far away." },
+  { t: "A night guard in an old theater hears his name called from the empty balcony, then smells perfume.", a: "man",
+    hint: "A voice calls to him, and a smell follows. It is aimed at one person.", why: "Interactive manifestation: a voice and a smell directed at one person." }
+];
+S.sort = S.sort || {};
+function renderSort(){
+  const mount = $("#sortList"); mount.textContent = "";
+  let right = 0;
+  SIGHTINGS.forEach((s, i) => {
+    const pick = S.sort[i];
+    const ok = pick === s.a;
+    if (ok) right++;
+    const fb = el("p", { class: "fb", "aria-live": "polite" });
+    if (pick) fb.textContent = ok ? s.why : "Not quite. Hint: " + s.hint;
+    const picks = el("div", { class: "picks", role: "group", "aria-label": "Choose a category for sighting " + (i + 1) },
+      Object.keys(CATS).map(k => {
+        const b = el("button", { type: "button", class: "pick", "aria-pressed": String(pick === k), text: CATS[k] });
+        b.addEventListener("click", () => { S.sort[i] = k; save(); renderSort(); refresh(); });
+        return b;
+      }));
+    const card = el("div", { class: "card q" + (pick ? (ok ? " ok" : " no") : "") }, [ el("p", { text: (i + 1) + ". " + s.t }), picks, fb ]);
+    card.className = "card q" + (pick ? (ok ? " ok" : " no") : "");
+    mount.append(card);
+  });
+  $("#sortScore").textContent = right + " of 6 correct";
+  markDone(3, right === 6);
+}
+$("#sortReset").addEventListener("click", () => { S.sort = {}; save(); renderSort(); refresh(); });
+renderSort();
+
+/* ============ Step 4: evidence sort ============ */
+const EV = { doc: "Documented history", wit: "Eyewitness story", skp: "Skeptic’s claim", thy: "Theory" };
+const CLAIMS = [
+  { t: "Sarah Stubbs lived to 79 and died in 1957, not at the inn.", a: "doc", why: "These dates and family facts come from the inn’s historian, so they count as documented history." },
+  { t: "In 1882 Sarah moved in with her mother and baby sister after her father died at 32.", a: "doc", why: "Documented history: a date, a family, and a death that can be checked against records." },
+  { t: "A boy of four or five asks to play with “the little girl in the white dress on the stairs.” His mother sees no one.", a: "wit", why: "Eyewitness story: told by the mother years later, and confirmed by her son. It is an account, not a record." },
+  { t: "After tripping over a rope in the hall, a musician swears he heard a girl laughing. No one was there.", a: "wit", why: "Eyewitness story, with a complication: the historian notes the man had been drinking that night." },
+  { t: "A night clerk told a visiting skeptic she sometimes “turned the pictures” in Sarah’s room to unsettle the housekeepers.", a: "skp", why: "Skeptic’s claim: it is secondhand, a skeptic reporting in 2008 what a clerk told him in 2002." },
+  { t: "A traumatic event can leave an imprint, so a spirit may return at the age it was when the event happened.", a: "thy", why: "Theory: an idea researchers use to explain sightings. It is not evidence by itself." }
+];
+S.ev = S.ev || {};
+function renderEv(){
+  const mount = $("#evList"); mount.textContent = "";
+  let right = 0, answered = 0;
+  CLAIMS.forEach((c, i) => {
+    const pick = S.ev[i]; const ok = pick === c.a;
+    if (pick) answered++; if (ok) right++;
+    const fb = el("p", { class: "fb", "aria-live": "polite" });
+    if (pick) fb.textContent = ok ? c.why : "Not quite. Ask: can this be checked, or is it someone’s account, an argument, or an idea?";
+    const picks = el("div", { class: "picks", role: "group", "aria-label": "Choose a kind of evidence for claim " + (i + 1) },
+      Object.keys(EV).map(k => {
+        const b = el("button", { type: "button", class: "pick", "aria-pressed": String(pick === k), text: EV[k] });
+        b.addEventListener("click", () => { S.ev[i] = k; save(); renderEv(); refresh(); });
+        return b;
+      }));
+    mount.append(el("div", { class: "card q" + (pick ? (ok ? " ok" : " no") : "") }, [ el("p", { text: (i + 1) + ". " + c.t }), picks, fb ]));
+  });
+  $("#evScore").textContent = right + " of 6 correct";
+  $("#clerk").hidden = right < 6;
+}
+$("#evReset").addEventListener("click", () => { S.ev = {}; save(); renderEv(); refresh(); });
+renderEv();
+$$('input[name="verdict"]').forEach(r => {
+  r.checked = S.verdict === r.value;
+  r.addEventListener("change", () => { S.verdict = r.value; save(); refresh(); });
+});
+
+/* ============ Step 5: story seed builder ============ */
+const POOL = {
+  place: ["Findlay Market", "Spring Grove Cemetery", "an old campus hall at Miami University", "a lodge in Hueston Woods at night", "the Golden Lamb", "a stagecoach-era inn"],
+  type: ["a poltergeist that knocks and moves things", "a figure that may speak or touch", "mist, lights, and cold spots that gather", "an imprint that replays one moment", "a crisis-moment apparition tied to a distant death"],
+  origin: ["an unnatural death", "an unfinished purpose", "a wish for resolution", "a strong emotion the place remembers", "a promise made at the moment of death"],
+  witness: ["a child", "a skeptic who debunks hauntings", "a night worker", "a new owner", "a tour guide who has told the story a hundred times"],
+  twist: ["the skeptic’s explanation is only half right", "the ghost is not who the legend says", "the living caused the haunting", "the ghost wants help, not fear", "someone is faking part of it, and part of it is real", "the haunting is a replay and cannot be changed"]
+};
+const FORMS = ["a short story", "a movie script", "a poem", "a play or monologue", "a graphic novel or manga"];
+const SLOTS = [
+  { k: "place", label: "Place" }, { k: "type", label: "What appears" }, { k: "origin", label: "Why it is here" },
+  { k: "witness", label: "Who sees it" }, { k: "twist", label: "The twist" }, { k: "form", label: "Your form" }
+];
+S.seed = S.seed || {}; S.locks = S.locks || {}; S.seeds = S.seeds || [];
+const choices = k => k === "form" ? FORMS : POOL[k];
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function spin(){ SLOTS.forEach(s => { if (!S.locks[s.k] || !S.seed[s.k]) S.seed[s.k] = pick(choices(s.k)); }); save(); renderSeed(); }
+function seedSentence(d){
+  return "At " + d.place + ", " + d.witness + " encounters " + d.type + ". It is there because of " + d.origin + ". The twist: " + d.twist + ". Write it as " + d.form + ".";
+}
+function renderSeed(){
+  const mount = $("#slots"); mount.textContent = "";
+  SLOTS.forEach(s => {
+    const locked = !!S.locks[s.k];
+    const lock = el("button", { type: "button", class: "lock", "aria-pressed": String(locked), "aria-label": "Lock " + s.label, text: locked ? "Locked" : "Lock" });
+    lock.addEventListener("click", () => { S.locks[s.k] = !S.locks[s.k]; save(); renderSeed(); });
+    mount.append(el("div", { class: "slot" + (locked ? " locked" : "") }, [
+      el("div", { class: "k" }, [el("span", { text: s.label }), lock]),
+      el("div", { class: "v", text: S.seed[s.k] || "" })
+    ]));
+  });
+  $("#seedLine").textContent = SLOTS.every(s => S.seed[s.k]) ? seedSentence(S.seed) : "";
+  renderSaved();
+}
+function renderSaved(){
+  const m = $("#savedSeeds"); m.textContent = "";
+  S.seeds.forEach((t, i) => {
+    const rm = el("button", { type: "button", class: "btn ghost", text: "Remove", "aria-label": "Remove saved seed " + (i + 1) });
+    rm.addEventListener("click", () => { S.seeds.splice(i, 1); save(); renderSaved(); refresh(); });
+    m.append(el("div", { class: "card tight" }, [el("p", { text: t }), rm]));
+  });
+}
+$("#spin").addEventListener("click", spin);
+$("#saveSeed").addEventListener("click", () => {
+  if (!SLOTS.every(s => S.seed[s.k])) return;
+  const t = seedSentence(S.seed);
+  if (!S.seeds.includes(t)) S.seeds.push(t);
+  if (S.seeds.length > 5) S.seeds.shift();
+  save(); renderSaved(); refresh();
+});
+if (!SLOTS.every(s => S.seed[s.k])) spin(); else renderSeed();
+
+/* ============ Step 6: notebook ============ */
+function notebook(){
+  const L = [];
+  L.push("HAUNTED OHIO: GHOST LAB NOTEBOOK");
+  L.push("");
+  L.push("Step 1. Do Now");
+  L.push("Do I believe in ghosts? " + ({ yes: "Yes", no: "No", unsure: "Not sure" }[S.belief] || "(not answered)"));
+  L.push("What are ghosts, and how are they created? " + (S.q2 || "(not answered)"));
+  L.push("A local ghost story I have heard: " + (S.q3 || "(not answered)"));
+  L.push("");
+  const sr = SIGHTINGS.filter((s, i) => S.sort[i] === s.a).length;
+  L.push("Step 3. Sort the sightings: " + sr + " of 6 correct");
+  const er = CLAIMS.filter((c, i) => S.ev[i] === c.a).length;
+  L.push("");
+  L.push("Step 4. Golden Lamb case file: " + er + " of 6 claims sorted correctly");
+  L.push("My verdict: " + (S.verdict || "(not chosen)"));
+  L.push("Why: " + (S.whyVerdict || "(not answered)"));
+  L.push("");
+  L.push("Step 5. Story seeds I saved");
+  if (S.seeds.length) S.seeds.forEach((t, i) => L.push((i + 1) + ". " + t)); else L.push("(none saved yet)");
+  L.push("The one I want to write, and why: " + (S.whySeed || "(not answered)"));
+  return L.join("\n");
+}
+function refresh(){
+  $("#nb").textContent = notebook();
+  markDone(1, !!S.belief && !!S.q2);
+  markDone(4, !!S.verdict && (S.whyVerdict || "").trim().length > 10);
+  markDone(5, S.seeds.length > 0 && (S.whySeed || "").trim().length > 5);
+}
+$("#copyNb").addEventListener("click", async () => {
+  const msg = $("#nbMsg");
+  try { await navigator.clipboard.writeText(notebook()); msg.textContent = "Copied."; }
+  catch (e) { const r = document.createRange(); r.selectNodeContents($("#nb")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); msg.textContent = "Select and copy the text above."; }
+});
+$("#dlNb").addEventListener("click", () => {
+  const blob = new Blob([notebook()], { type: "text/plain" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ghost-lab-notebook.txt";
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$("#clearAll").addEventListener("click", () => {
+  if (!confirm("Clear everything you wrote in Ghost Lab on this device?")) return;
+  const th = S.theme; S = { theme: th }; save(); location.reload();
+});
+refresh();
+</script>
+</body>
+</html>
