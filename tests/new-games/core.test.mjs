@@ -37,11 +37,27 @@ T('variant: valid() accepts only whole numbers 1 to 6', () => {
   const { HOG } = world();
   for (const ok of [1, 2, 6, '3']) assert.ok(HOG.variant.valid(ok)); for (const bad of [0, 7, 1.5, -1, 'x', null, NaN]) assert.equal(HOG.variant.valid(bad), 0);
 });
-T('variant: ?case=N wins, then the remembered one, then 1', () => {
-  const { ctx, HOG } = world(); assert.equal(HOG.variant.resolve('veil'), 1);
-  HOG.variant.remember('veil', 4); assert.equal(HOG.variant.resolve('veil'), 4);
-  ctx.location.search = '?case=6'; assert.equal(HOG.variant.resolve('veil'), 6);
-  ctx.location.search = '?case=99'; assert.equal(HOG.variant.resolve('veil'), 4);
+T('variant: nothing is assigned until asked; ?case=N is ignored; ?preview=N is read (1 to 6 only); assign, read back and unassign', () => {
+  const { ctx, HOG, store } = world(); assert.equal(HOG.variant.assigned('veil'), 0); assert.equal(HOG.variant.preview(), 0);
+  ctx.location.search = '?case=6'; assert.equal(HOG.variant.preview(), 0); assert.equal(HOG.variant.assigned('veil'), 0);
+  for (const [q, want] of [['?preview=4', 4], ['?x=1&preview=2', 2], ['?preview=0', 0], ['?preview=7', 0], ['?preview=x', 0], ['?preview=12', 0], ['?xpreview=3', 0]]) { ctx.location.search = q; assert.equal(HOG.variant.preview(), want, q); }
+  HOG.variant.assign('veil', 5); assert.equal(store['ho-veil-assign'], '5'); assert.equal(HOG.variant.assigned('veil'), 5); assert.equal(HOG.variant.assigned('room214'), 0);
+  store['ho-veil-assign'] = '9'; assert.equal(HOG.variant.assigned('veil'), 0, 'a bad stored value is ignored'); HOG.variant.assign('veil', 2); HOG.variant.unassign('veil'); assert.equal(HOG.variant.assigned('veil'), 0);
+});
+T('variant: roll() is uniform over 1 to 6 with a stubbed random source, always 1 to 6, and falls back when crypto is missing', () => {
+  const { ctx, HOG } = world();
+  /* every byte value once: 252 usable values give exactly 42 of each case; the four rejected bytes are skipped */
+  let i = 0; const seq = Array.from({ length: 256 }, (_, k) => k); ctx.crypto = { getRandomValues: (b) => { b[0] = seq[i++ % seq.length]; return b; } };
+  const counts = [0, 0, 0, 0, 0, 0, 0]; for (let k = 0; k < 252; k++) { const n = HOG.variant.roll(); assert.ok(n >= 1 && n <= 6 && Number.isInteger(n)); counts[n]++; }
+  assert.deepEqual(JSON.parse(JSON.stringify(counts.slice(1))), [42, 42, 42, 42, 42, 42]);
+  ctx.crypto = { getRandomValues: (b) => { b[0] = 255; return b; } }; ctx.Math = Math; const n2 = HOG.variant.roll(); assert.ok(n2 >= 1 && n2 <= 6, 'falls back when every byte is rejected');
+  delete ctx.crypto; for (let k = 0; k < 50; k++) { const n = HOG.variant.roll(); assert.ok(n >= 1 && n <= 6); }
+});
+T('variant: a save made before cases were assigned keeps its case (the last one played, else the first slot with a save)', () => {
+  const { HOG, store } = world(); const saves = HOG.save.create({ game: 'veil', baseKey: 'ho-veil', stateSchema: mkSchema(HOG.schema) });
+  assert.equal(HOG.variant.legacy('veil', saves), 0, 'no saves: nothing to keep'); saves.save(4, good(HOG, 4)); assert.equal(HOG.variant.legacy('veil', saves), 4);
+  saves.save(2, good(HOG, 2)); assert.equal(HOG.variant.legacy('veil', saves), 2, 'the first slot with a save'); store['hog_case_veil'] = '4'; assert.equal(HOG.variant.legacy('veil', saves), 4, 'the last case played wins');
+  store['hog_case_veil'] = '6'; assert.equal(HOG.variant.legacy('veil', saves), 2, 'a remembered case with no save is not used');
 });
 T('save: round trip, slots are separate (variant 1 keeps the base key), list shows all six', () => {
   const { HOG, store } = world(); const S = mkSchema(HOG.schema);

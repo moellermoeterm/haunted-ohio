@@ -4,8 +4,8 @@
 
 **Game material.** Everything is fiction (invented hotels, people and events). Nothing is presented as real history. **Nobody is hurt.** The "Night Porter" is an echo of a night shift that never ended: he walks the halls to be sure everyone is out before closing. If he reaches the player he "checks them out": the screen fades and the player wakes at the last checkpoint with every item kept. There is no gore, no weapons and no spirit-contacting; the strange thing is observed and investigated.
 
-## Six versions (case codes 1 to 6)
-Six fictional hotels and six lost-guest stories. The student's name seeds the item spots, the Night Porter's route and speed, and the **safe code** (three numbers, one on each floor), so neighbors cannot copy each other. Give each student a different case code with the seating helper, or use `?case=N`, the Case field, or "Random case".
+## Six versions, assigned at random
+Six fictional hotels and six lost-guest stories. The student's name seeds the item spots, the Night Porter's route and speed, and the **safe code** (three numbers, one on each floor), so neighbors cannot copy each other. The game assigns each student one of the six cases at random the first time they begin on a device, and keeps it. Students do not choose their case and are not shown which one they have, so two neighbors can get the same case by chance. Leaders can preview any case from the leader tools.
 
 ## How to play
 - **Move:** arrows or WASD (or the on-screen stick). **C** (hold) sneaks: slow and silent. **Shift** (hold) runs: fast and loud. **E** uses what is near. **H** hides in a wardrobe. **F** toggles the flashlight (it uses battery). **T** throws a room-service bell to lure him away. **J** journal. **Esc** menu. Every action has an on-screen button on touch devices.
@@ -21,7 +21,7 @@ Six fictional hotels and six lost-guest stories. The student's name seeds the it
 Sensory detail without feeling words; separating evidence from guesses in the account; suspense and foreshadowing in the story seed; the use of the three notes (evidence) in the account.
 
 ## Practical
-- Desktop Edge/Chrome and touch tablets. Saves stay in the browser, one per case code; **Saves** exports and imports a file. Nothing is sent anywhere.
+- Desktop Edge/Chrome and touch tablets. Saves stay in the browser; **Saves** exports and imports a file. Nothing is sent anywhere.
 - Accessibility: every sound captioned with direction, mute and volume, low-intensity mode (no fade, calmer cues), text size, touch D-pad option.
 - Stuck? **Menu** explains the controls; the line above the game always says the next goal; being caught never loses progress.
 

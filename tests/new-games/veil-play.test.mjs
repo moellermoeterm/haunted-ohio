@@ -26,7 +26,8 @@ const modal = (p) => p.waitForSelector('.hog-modal', { state: 'visible' });
 const noModal = (p) => p.waitForSelector('.hog-modal', { state: 'detached' });
 const noH = (p) => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
 
-async function begin(p, variant, name = 'Ana') { await p.goto(base + '?case=' + variant); await p.fill('#veil-name', name); await p.click('#veil-begin'); await p.waitForFunction(() => window.__veilScene && window.__veilScene.player, null, { timeout: 15000 }); await p.waitForTimeout(150); }
+/* the bots open each case through the leader preview (?preview=N): students cannot choose a case */
+async function begin(p, variant, name = 'Ana') { await p.goto(base + '?preview=' + variant); await p.fill('#veil-name', name); await p.click('#veil-begin'); await p.waitForFunction(() => window.__veilScene && window.__veilScene.player, null, { timeout: 15000 }); await p.waitForTimeout(150); }
 /* the bot walks like a player: it holds a direction until it reaches the centre of each tile on a breadth-first route */
 async function walkTo(p, tx, ty) {
   const n = await p.evaluate(({ tx, ty }) => new Promise((res, rej) => {
@@ -53,7 +54,7 @@ async function shift(p, expect) { await p.evaluate(() => window.__veilInput.tap(
 
 async function playChapter(p, variant) {
   await begin(p, variant); const d = await p.evaluate(() => ({ bell: __veilGame.d.bell, pews: __veilGame.d.pews, truth: __veilGame.d.truth, symbols: HOG_VEIL.data.SYMBOLS }));
-  eq(await p.textContent('#hog-case'), 'Case ' + variant, 'top bar shows the variant');
+  ok((await p.textContent('#hog-preview')).includes('case ' + variant + ' of 6'), 'the preview banner shows the case'); eq(await p.$('#hog-case'), null, 'no case badge in the top bar');
   lastStep = '1'; /* 1. the bell */
   await walkTo(p, 10, 19); await interact(p); await modal(p); ok(/Keeper.s Bell/.test(await p.textContent('.hog-modal h2')), 'bell clue'); await p.click('.hog-modal .hog-btn:last-child'); await p.waitForFunction(() => /Field note 1/.test((document.querySelector('.hog-modal h2') || {}).textContent || ''));
   await modal(p); ok(/Field note 1/.test(await p.textContent('.hog-modal h2')), 'note 1 asked'); ok(await p.isDisabled('.hog-modal .hog-btn.primary'), 'save is disabled until the note is long enough');
@@ -93,13 +94,13 @@ async function playChapter(p, variant) {
   lastStep = '9'; /* 9. story workshop: nine beats, then the finished story */
   eq(await p.textContent('.hog-modal h2'), 'Story Workshop', 'workshop'); await p.fill('#veil-story-title', 'The Bell on the Hill');
   for (let i = 0; i < 9; i++) { await p.click('.hog-modal .hog-slot >> nth=' + i + ' >> text=/Write|Edit/'); await modal(p); await p.fill('#veil-w', words(20, 'story' + i + '_')); await p.click('.hog-modal .hog-btn.primary'); await modal(p); eq(await p.textContent('.hog-modal h2'), 'Story Workshop', 'back to the workshop'); }
-  await p.click('.hog-modal .hog-btn.primary'); await modal(p); eq(await p.textContent('.hog-modal h2'), 'Your story', 'story'); const story = await p.inputValue('.hog-modal textarea'); ok(story.includes('The Bell on the Hill') && story.includes('case ' + variant), 'story names the case');
+  await p.click('.hog-modal .hog-btn.primary'); await modal(p); eq(await p.textContent('.hog-modal h2'), 'Your story', 'story'); const story = await p.inputValue('.hog-modal textarea'); ok(story.includes('The Bell on the Hill') && !/case \d/i.test(story), 'the story has its title and never the case number');
   const dl = p.waitForEvent('download'); await p.click('.hog-modal >> text=Download .txt'); await dl; await closeTop(p);
   const st = await p.evaluate(() => ({ done: __veilGame.s.done, caseDone: __veilGame.s.caseDone, beats: __veilGame.s.beats.length, found: __veilGame.s.found.length }));
   ok(st.done && st.caseDone && st.beats === 9 && st.found >= 12, 'chapter complete: ' + JSON.stringify(st));
   /* the save survives a reload and the journal shows the variant */
   await p.reload(); await p.waitForSelector('#veil-continue'); await p.click('#veil-continue'); await p.waitForFunction(() => window.__veilGame); eq(await p.evaluate(() => __veilGame.s.done), true, 'save restored after reload');
-  ok((await p.evaluate(() => __veilGame.reportText())).includes('Case ' + variant), 'report shows the variant');
+  ok(!/Case \d|case \d/.test(await p.evaluate(() => __veilGame.reportText() + __veilGame.storyText())), 'the report and story never show the case number');
 }
 for (const v of variants) await T('bot: variant ' + v + ' is playable from the first step to the finished story', (p) => playChapter(p, v));
 
@@ -132,20 +133,23 @@ await T('low-intensity mode: no fade overlay, calm pulses; settings survive a re
   await begin(p, 5); await p.click('#hog-setbtn'); await p.check('#hog-low'); await p.keyboard.press('Escape'); await p.reload(); await p.fill('#veil-name', 'Ana'); await p.click('#veil-begin'); await p.waitForFunction(() => window.__veilScene);
   ok(await p.evaluate(() => document.body.classList.contains('hog-low')), 'low-intensity kept');
 });
-await T('saves: continue after reload, a different case code is its own slot, export/import round trip, tampered import refused', async (p) => {
-  await begin(p, 1, 'Ana'); await walkTo(p, 10, 19); await interact(p); await modal(p); await p.click('.hog-modal .hog-btn:last-child'); await p.waitForFunction(() => /Field note 1/.test((document.querySelector('.hog-modal h2') || {}).textContent || '')); await p.keyboard.press('Escape'); await noModal(p);
-  await p.goto(base + '?case=1'); await p.waitForSelector('#veil-continue'); ok(/Ana/.test(await p.textContent('#veil-resume')), 'continue offered'); await p.goto(base + '?case=2'); eq(await p.$('#veil-continue'), null, 'case 2 is a separate slot');
-  await p.goto(base + '?case=1'); await p.click('#veil-continue'); await p.waitForFunction(() => window.__veilGame); eq(await p.evaluate(() => __veilGame.s.bell), true, 'bell kept');
-  await p.click('#hog-savesbtn'); const dl = p.waitForEvent('download'); await p.click('.hog-slot:nth-child(1) >> text=Export'); const text = fs.readFileSync(await (await dl).path(), 'utf8'); ok(JSON.parse(text).data.variant === 1, 'export has the variant'); await p.keyboard.press('Escape');
+const assignThenBegin = async (p, variant, name = 'Ana') => { await p.goto(base); await p.evaluate((v) => localStorage.setItem('ho-veil-assign', String(v)), variant); await p.goto(base); await p.fill('#veil-name', name); await p.click('#veil-begin'); await p.waitForFunction(() => window.__veilScene && window.__veilScene.player, null, { timeout: 15000 }); await p.waitForTimeout(150); };
+await T('saves: continue after reload, a leader preview is its own throwaway save, export/import round trip keeps the case, tampered import refused', async (p) => {
+  await assignThenBegin(p, 1, 'Ana'); await walkTo(p, 10, 19); await interact(p); await modal(p); await p.click('.hog-modal .hog-btn:last-child'); await p.waitForFunction(() => /Field note 1/.test((document.querySelector('.hog-modal h2') || {}).textContent || '')); await p.keyboard.press('Escape'); await noModal(p);
+  await p.goto(base); await p.waitForSelector('#veil-continue'); ok(/Ana/.test(await p.textContent('#veil-resume')), 'continue offered'); ok(!/case \d/i.test(await p.textContent('#veil-title')), 'no case number on the title screen'); await p.goto(base + '?preview=1'); eq(await p.$('#veil-continue'), null, 'the preview of the same case does not see the student save');
+  await p.goto(base); await p.click('#veil-continue'); await p.waitForFunction(() => window.__veilGame); eq(await p.evaluate(() => __veilGame.s.bell), true, 'bell kept');
+  await p.click('#hog-savesbtn'); const dl = p.waitForEvent('download'); await p.click('.hog-slot >> text=Export'); const d = await dl; const text = fs.readFileSync(await d.path(), 'utf8'); ok(JSON.parse(text).data.variant === 1, 'the save file carries its case'); eq(d.suggestedFilename(), 'the-veil-save-ana.json', 'file name has no case number'); await p.keyboard.press('Escape');
   const bad = JSON.parse(text); bad.data.state.found = Array(99).fill('x'); await p.click('#hog-savesbtn'); await p.setInputFiles('#hog-import', { name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(bad)) }); await p.waitForFunction(() => /refused/.test(((document.querySelector('.hog-toast') || {}).textContent || '')));
   eq(await p.evaluate(() => __veilGame.saves.load(1).state.found.length < 99), true, 'the bad file changed nothing');
+  /* a clean browser that imports the file gets the same case */
+  await p.evaluate(() => { localStorage.clear(); }); await p.goto(base); eq(await p.evaluate(() => HOG.variant.assigned('veil')), 0, 'clean'); await p.click('#hog-savesbtn'); await p.setInputFiles('#hog-import', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); await p.waitForFunction(() => window.HOG && HOG.variant.assigned('veil') === 1 && !!document.querySelector('#veil-continue'), null, { timeout: 8000 }); ok(true, 'import restores the save and its case');
 });
 await T('damaged save: a broken stored save is ignored (no crash), and storage that throws falls back to memory', async (p) => {
-  await p.goto(base + '?case=1'); await p.evaluate(() => localStorage.setItem('ho-veil', '{"broken":')); await p.reload(); ok(await p.isVisible('#veil-form'), 'title still shows'); eq(await p.$('#veil-continue'), null, 'no continue for a damaged save');
+  await p.goto(base); await p.evaluate(() => { localStorage.setItem('ho-veil-assign', '1'); localStorage.setItem('ho-veil', '{"broken":'); }); await p.reload(); ok(await p.isVisible('#veil-form'), 'title still shows'); eq(await p.$('#veil-continue'), null, 'no continue for a damaged save');
   await p.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); }); await begin(p, 1); ok(await p.isVisible('#veil-play'), 'plays with storage blocked');
 });
 await T('name matters: the same case with two names has different puzzle answers, the same name always the same', async (p) => {
-  await p.goto(base + '?case=2'); const a = await p.evaluate(() => { const D = HOG_VEIL.data; return ['Ana', 'Ana', 'Ben', 'Mia', 'Zed'].map((n) => JSON.stringify([D.build(2, n).bell, D.build(2, n).pews])); });
+  await p.goto(base + '?preview=2'); const a = await p.evaluate(() => { const D = HOG_VEIL.data; return ['Ana', 'Ana', 'Ben', 'Mia', 'Zed'].map((n) => JSON.stringify([D.build(2, n).bell, D.build(2, n).pews])); });
   eq(a[0], a[1], 'same name, same game'); ok(new Set(a).size >= 3, 'different names differ: ' + new Set(a).size);
 });
 await T('responsive: title and game fit at 390, 768, 1280 and 1920 with no horizontal scroll or overflow', async (p) => {
@@ -157,9 +161,9 @@ await T('performance: runs near 60 fps and uses a small number of game objects (
   const r = await p.evaluate(() => new Promise((res) => { let n = 0, t0 = performance.now(); const f = () => { n++; if (performance.now() - t0 > 2500) res({ fps: n / ((performance.now() - t0) / 1000), objs: window.__veilScene.children.list.length }); else requestAnimationFrame(f); }; requestAnimationFrame(f); }));
   console.log('      fps (4x throttle):', r.fps.toFixed(1), 'objects:', r.objs); ok(r.fps >= 30, 'fps ' + r.fps); ok(r.objs <= 400, 'objects ' + r.objs);
 });
-await T('privacy: no storage of names outside the save, and the only keys written are the game save, settings and the remembered case', async (p) => {
+await T('privacy: no storage of names outside the save; a leader preview writes only its own throwaway save and the settings (never the student save or the assigned case)', async (p) => {
   await begin(p, 6, 'Zoe'); await walkTo(p, 10, 19); await interact(p); await modal(p); await p.click('.hog-modal .hog-btn:last-child'); await p.waitForFunction(() => /Field note 1/.test((document.querySelector('.hog-modal h2') || {}).textContent || '')); await p.keyboard.press('Escape');
-  const keys = await p.evaluate(() => Object.keys(localStorage).sort()); ok(keys.every((k) => /^(ho-veil(_c\d)?|ho-veil_set|hog_case_veil)$/.test(k)), 'keys: ' + keys);
+  const keys = await p.evaluate(() => Object.keys(localStorage).sort()); ok(keys.every((k) => /^(ho-veil-pv(_c\d)?|ho-veil_set)$/.test(k)), 'keys: ' + keys);
   ok(!(await p.evaluate(() => document.cookie)), 'no cookies');
 });
 await browser.close(); srv.close(); console.log(fail ? `\n${fail} failed, ${pass} passed` : `\nAll ${pass} tests passed`); process.exit(fail ? 1 : 0);

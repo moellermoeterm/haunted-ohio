@@ -136,7 +136,7 @@
     };
     ui.storyDone = function () {
       var body = el('div'), ta = el('textarea'); ta.readOnly = true; ta.rows = 14; ta.value = game.storyText(); ta.setAttribute('aria-label', 'Your finished story'); body.appendChild(para('Your story is finished. Copy it or download it to keep it; nothing is sent anywhere.')); body.appendChild(ta);
-      shell.modal({ title: 'Your story', body: body, buttons: [{ label: 'Copy', keepOpen: true, onClick: function () { copy(ta); } }, { label: 'Download .txt', keepOpen: true, onClick: function () { download('the-veil-story-case' + game.rec.variant + '.txt', game.storyText()); } }, { label: 'Close', primary: true }] });
+      shell.modal({ title: 'Your story', body: body, buttons: [{ label: 'Copy', keepOpen: true, onClick: function () { copy(ta); } }, { label: 'Download .txt', keepOpen: true, onClick: function () { download('the-veil-story-' + String(game.rec.name || 'player').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) + '.txt', game.storyText()); } }, { label: 'Close', primary: true }] });
     };
     function copy(ta) { try { ta.select(); if (root.navigator.clipboard) root.navigator.clipboard.writeText(ta.value).then(function () { shell.toast('Copied.'); }, function () { doc.execCommand('copy'); shell.toast('Copied.'); }); else { doc.execCommand('copy'); shell.toast('Copied.'); } } catch (e) { shell.toast('Select the text and copy it.'); } }
     function download(name, text) { var b = new Blob([text], { type: 'text/plain' }), u = URL.createObjectURL(b), a = el('a'); a.href = u; a.download = name; doc.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); }
@@ -145,11 +145,11 @@
     ui.menu = function () {
       if (shell.modalOpen) return; var body = el('div');
       body.appendChild(para('Move: arrows or WASD, or the on-screen stick. E / Enter: use what is near. V: shift between the Living World and the Echo. J: Evidence Archive. Esc: this menu. Everything works by keyboard or touch.'));
-      body.appendChild(para('Case ' + game.rec.variant + ' · Investigator ' + game.rec.name + ' · ' + game.d.chapel + ' Chapel (Game material).'));
+      body.appendChild(para('Investigator ' + game.rec.name + ' · ' + game.d.chapel + ' Chapel (Game material).'));
       shell.modal({ title: 'Menu', body: body, buttons: [
         { label: 'Evidence', onClick: function () { setTimeout(ui.evidence, 30); } }, { label: 'Case File', onClick: function () { setTimeout(ui.caseFile, 30); } }, { label: 'Story Workshop', onClick: function () { setTimeout(ui.story, 30); } },
         { label: 'Copy my journal', keepOpen: true, onClick: function () { var t = el('textarea'); t.value = game.reportText(); doc.body.appendChild(t); copy(t); t.remove(); } },
-        { label: 'Download my journal', keepOpen: true, onClick: function () { download('the-veil-journal-case' + game.rec.variant + '.txt', game.reportText()); } },
+        { label: 'Download my journal', keepOpen: true, onClick: function () { download('the-veil-journal-' + String(game.rec.name || 'player').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) + '.txt', game.reportText()); } },
         { label: 'Saves', onClick: function () { setTimeout(shell.openSaves, 30); } }, { label: 'Settings', onClick: function () { setTimeout(shell.openSettings, 30); } }, { label: 'Resume', primary: true }] });
     };
 
