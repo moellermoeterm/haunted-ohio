@@ -100,7 +100,7 @@ T('home redesign: grouped navigation menus open, close, and are keyboard friendl
 T('home redesign: hero, case index, and field map', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + '#home');
   ok((await p.isVisible('.hero-moon')) && (await p.isVisible('.hero-city')), 'night sky and skyline render');
-  eq((await p.$$('.where a')).length, 14, 'fourteen case-index cards (the twelve originals plus The Veil and Room 214)');
+  eq((await p.$$('.where a')).length, 15, 'fifteen case-index cards (the twelve originals plus The Veil, Room 214 and Ghost Lab)');
   await p.click('#heroCue');
   await p.waitForFunction(() => scrollY > 150, null, { timeout: 4000 }).catch(() => {});
   ok((await p.evaluate(() => scrollY)) > 150, 'scroll cue scrolls to the index');
@@ -150,14 +150,14 @@ T('the week: five entries with the exact public descriptions, no schedule fields
   /* what stays: missions, field notes, lesson and tool links, respect and safety */
   for (const id of ['mon', 'tue', 'wed', 'wedn', 'thu']) { ok((await p.textContent(`#day-${id} .wk-mission`)).startsWith('Mission.'), 'a mission for ' + id); ok(await p.$(`#notes-${id}`), 'a field-notes box for ' + id); ok((await p.textContent(`#day-${id} .wk-respect`)).startsWith('Respect and safety.'), 'respect and safety for ' + id); ok((await p.$$(`#day-${id} .wk-links a`)).length >= 2, 'links for ' + id); }
   eq((await p.$$eval('#day-tue .wk-links a', (e) => e.map((x) => x.getAttribute('href')))).includes('#cemetery'), true, 'Tuesday keeps its link to the Spring Grove hunt');
-  eq((await p.$$eval('#day-thu .wk-links a', (e) => e.map((x) => x.textContent))).join('|'), 'Lesson 4: Dialogue That Shows|Draft Lab|Quick game: Six-Word Scare', 'Thursday keeps its three links (the Draft Lab link is the lab link on the site)');
+  eq((await p.$$eval('#day-thu .wk-links a', (e) => e.map((x) => x.textContent))).join('|'), 'Lesson 4: Dialogue That Shows|Draft Lab|Quick game: Six-Word Scare|Before the trip: read the Ghost Lab case file', 'Thursday keeps its three links and has the Ghost Lab case file link');
   ok((await p.$$('.wk-hist')).length >= 3 && (await p.$$('.wk-lore')).length >= 2, 'real-history boxes and separately labeled lore boxes');
   const lore = await p.$$eval('.wk-lore h4', (e) => e.map((x) => x.textContent)); ok(lore.every((t) => /lore|legend/i.test(t)), 'lore is labeled as lore/legend: ' + lore);
   const txt = await p.textContent('#weekRoot'); ok(!/s[eé]ance|ouija/i.test(txt), 'no spirit-contacting activities'); ok(/No ghost-hunting/.test(txt), 'explicit no-ghost-hunting line');
   await p.fill('#notes-wed', 'The bell tower smelled like cold stone.'); await p.reload(); await p.waitForTimeout(250);
   eq(await p.inputValue('#notes-wed'), 'The bell tower smelled like cold stone.', 'field notes persist');
   eq(JSON.parse(await lsGet(p, 'ho-week')).wed, 'The bell tower smelled like cold stone.', 'saved under ho-week');
-  for (const a of await p.$$eval('.wk-links a', (e) => e.map((x) => x.getAttribute('href')))) ok(/^(#[a-z]+|[a-z-]+\/(#lesson-\d+)?)$/.test(a), 'link is relative: ' + a);
+  for (const a of await p.$$eval('.wk-links a', (e) => e.map((x) => x.getAttribute('href')))) ok(/^(#[a-z]+|[a-z-]+\/(#(lesson|step)-\d+)?)$/.test(a), 'link is relative: ' + a);
 });
 T('the week: the data object and the renderer have no schedule fields, so a value can never be shown by accident', async ({ base, newPage }) => {
   const p = await newPage();
@@ -836,7 +836,7 @@ const withGC = async (p, mode) => {
   /* the real code is already in the pages, so the stub needs no rewriting */
 };
 T('analytics: every page carries the GoatCounter snippet (real code) once, and the guarded tracker', async ({ base, newPage }) => {
-  for (const u of ['', 'show-dont-tell/', 'haunting-files/', 'last-light/', 'teacher/', 'design-system/']) {
+  for (const u of ['', 'show-dont-tell/', 'ghost-lab/', 'haunting-files/', 'last-light/', 'teacher/', 'design-system/']) {
     const p = await newPage(); await p.goto(base + u);
     const s = await p.$eval('script[data-goatcounter]', (e) => ({ d: e.getAttribute('data-goatcounter'), s: e.getAttribute('data-goatcounter-settings'), a: e.async, src: e.getAttribute('src') }));
     eq(s.d, 'https://ohmoellermoeterm.goatcounter.com/count', 'the real GoatCounter endpoint on ' + (u || 'home')); eq(JSON.parse(s.s).no_onload, true, 'no_onload on ' + (u || 'home')); ok(s.a && s.src === '//gc.zgo.at/count.js', 'async script on ' + (u || 'home'));
@@ -1108,6 +1108,8 @@ const ITIN_ALLOW = [
   { file: 'index.html', line: 'miamioh.edu/about-miami/history-traditions/timeline', why: 'The Week, a source comment for the university’s real founding history' },
   { file: 'index.html', line: 'Miami University was chartered', why: 'The Week, real history of the university (not the schedule)' },
   { file: 'index.html', line: 'Its first classes began', why: 'The Week, real history of the university (not the schedule)' },
+  { file: 'ghost-lab/index.html', line: 'Every night at 2 a.m. the kitchen cabinets slam', why: 'Ghost Lab, Step 3: a made-up sighting to sort (story fiction, not a time from the course schedule)' },
+  { file: 'ghost-lab/index.html', line: 'Dan wakes at 3 a.m.', why: 'Ghost Lab, Step 3: a made-up sighting to sort (story fiction, not a time from the course schedule)' },
   { file: 'index.html', line: 'var places=[', why: 'Prompts tab: a story-prompt generator, fiction ("a school gym at 4 a.m.")' },
   { file: 'index.html', line: 'var OPEN=[', why: 'Draft Lab: opening lines for invented stories, fiction ("Listen closely at 0:41")' },
   { file: 'index.html', line: 'place:[\'a hotel in a small Ohio river town', why: 'Prompts tab: story-prompt generator, fiction ("a high school at 2 a.m.")' },
@@ -1116,8 +1118,8 @@ T('itinerary hygiene: no clock time, month-and-day, street address or "bus trip"
   const { execSync } = await import('node:child_process'); let all; try { all = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { all = []; }
   ok(all.length > 50, 'found the committed files: ' + all.length);
   const pptx = all.filter((f) => /\.pptx?$/i.test(f) || /\.ppsx?$/i.test(f) || /\.potx?$/i.test(f)); eq(pptx.join(','), '', 'a PowerPoint file is committed: ' + pptx);
-  const scanned = all.filter((f) => f === 'index.html' || f === 'show-dont-tell/index.html' || f === 'LEADERS_TODO.md' || f === 'README.md' || (f.startsWith('docs/') && /\.md$/i.test(f)));
-  ok(scanned.includes('index.html') && scanned.includes('LEADERS_TODO.md') && scanned.includes('README.md') && scanned.some((f) => f.startsWith('docs/')), 'the pages and notes are all scanned: ' + scanned.length + ' files');
+  const scanned = all.filter((f) => f === 'index.html' || f === 'show-dont-tell/index.html' || f === 'ghost-lab/index.html' || f === 'LEADERS_TODO.md' || f === 'README.md' || (f.startsWith('docs/') && /\.md$/i.test(f)));
+  ok(scanned.includes('index.html') && scanned.includes('ghost-lab/index.html') && scanned.includes('LEADERS_TODO.md') && scanned.includes('README.md') && scanned.some((f) => f.startsWith('docs/')), 'the pages and notes are all scanned: ' + scanned.length + ' files');
   const hits = []; const used = new Set();
   for (const f of scanned) { const lines = fs.readFileSync(path.join(ROOT, f), 'utf8').split('\n'); lines.forEach((l, i) => { for (const [what, re] of Object.entries(ITIN_RULES)) if (re.test(l)) { const k = ITIN_ALLOW.findIndex((a) => a.file === f && l.includes(a.line)); if (k >= 0) used.add(k); else hits.push(`${f}:${i + 1}: ${what}: ${l.trim().slice(0, 80)}`); } }); }
   eq(hits.length, 0, 'schedule-like details found:\n' + hits.slice(0, 6).join('\n'));
@@ -1130,7 +1132,7 @@ T('itinerary hygiene: no clock time, month-and-day, street address or "bus trip"
 // ---------------------------------------------------------------- no real street addresses of private or reportedly haunted properties
 T('games and pages: no real street address (a number plus a street, or a named street) of a private or reportedly haunted property in the four games, The Week, Spring Grove or Learn', async () => {
   const { execSync } = await import('node:child_process'); let all; try { all = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { all = []; }
-  const files = all.filter((f) => /^(haunting-files|last-light|the-veil|room-214|games-shared)\//.test(f) && /\.(html|js|json)$/.test(f) && !/phaser|vendor|\.min\./.test(f)).concat(all.filter((f) => f === 'index.html'));
+  const files = all.filter((f) => /^(haunting-files|last-light|the-veil|room-214|games-shared)\//.test(f) && /\.(html|js|json)$/.test(f) && !/phaser|vendor|\.min\./.test(f)).concat(all.filter((f) => f === 'index.html' || f === 'ghost-lab/index.html'));
   ok(files.length > 20 && files.includes('haunting-files/cases/c4.js'), 'the game and page files are scanned: ' + files.length);
   const NUMBERED = /\b\d{1,5} (?:[NSEW]\.? )?(?:[A-Z][A-Za-z.’']+ ){0,3}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Pike|Lane|Ln)\b/;
   const NAMED = /\b[A-Z][A-Za-z’']+ (?:Avenue|Ave\.?|Street|Road|Rd\.?|Pike|Lane|Drive|Boulevard|Blvd\.?|Highway)\b/;
@@ -1142,6 +1144,115 @@ T('games and pages: no real street address (a number plus a street, or a named s
   /* the Sedamsville case keeps its neighborhood and its story, with no street name */
   const c4 = fs.readFileSync(path.join(ROOT, 'haunting-files', 'cases', 'c4.js'), 'utf8'); ok(/Sedamsville/.test(c4) && !/Steiner/i.test(c4), 'Case 4 names only the neighborhood'); ok(/the porch across the street at 8:40 PM/.test(c4) && /on the same street/.test(c4), 'and its scene and the contradiction note still make sense');
   ok(NUMBERED.test('Meet at 12 Example Street') && NAMED.test('on Example Avenue') && !NAMED.test('Take This Way'), 'the scanner catches planted made-up examples and not ordinary words');
+});
+
+// ---------------------------------------------------------------- Ghost Lab (ghost-lab/index.html)
+const GL = 'ghost-lab/';
+const GL_KEY = 'ho-ghostlab-v1';
+const glSave = async (p) => JSON.parse((await lsGet(p, GL_KEY)) || '{}');
+T('ghost lab: the page loads in the site design with its exact lesson text, the shared header, one GoatCounter snippet and no network calls', async ({ base, newPage }) => {
+  const p = await newPage(); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
+  await p.goto(base + GL); await p.waitForSelector('#steps a'); await p.waitForTimeout(100);
+  eq(await p.title(), 'Ghost Lab: What is a ghost? | Haunted Ohio', 'title'); eq(await p.getAttribute('meta[name="description"]', 'content'), 'Classroom lesson for the Haunted Ohio MoeTerm course: survey data, ghost types, the Golden Lamb case file, and a story seed builder.', 'meta description kept');
+  eq((await p.textContent('.chip >> nth=0')).trim(), 'Classroom lesson', 'the Classroom lesson chip'); eq((await p.textContent('h1')).trim(), 'Ghost Lab: what is a ghost?', 'heading');
+  /* the shared header: breadcrumb, Back link, Night/Daylight switch, lesson steps */
+  eq((await p.textContent('.top .crumb')).trim(), 'Ghost Lab', 'breadcrumb'); eq((await p.textContent('.top .mark')).trim(), 'Haunted Ohio', 'Haunted Ohio mark'); eq(await p.getAttribute('.top .mark', 'href'), '../', 'mark goes home'); eq(await p.getAttribute('.top a.back', 'href'), '../', 'Back link'); eq(await p.getAttribute('#theme', 'role'), 'switch', 'the shared switch');
+  eq((await p.$$eval('#steps a', (e) => e.map((x) => x.textContent.replace('✓', '').trim()))).join(' | '), '1. Do Now | 2. Kinds of ghosts | 3. Sort the sightings | 4. Golden Lamb case file | 5. Story seed | 6. Your notebook', 'six lesson steps');
+  /* text that must stay exactly as given */
+  const intro = (await p.textContent('#step-4 .intro')).trim(); eq(intro, 'The Golden Lamb in Lebanon, Ohio began as a stagecoach tavern in 1803. The inn’s historian, John Zimkus, says the number one question guests ask is whether it is haunted. He says he has never met a ghost there, but he shares the stories staff and guests have told him. This case file is built from his 2022 article. We eat lunch at the Golden Lamb on Thursday, so read closely.', 'the Step 4 intro, word for word');
+  eq((await p.$$eval('#step-4 .tl li', (e) => e.map((x) => x.textContent.trim()))).join('\n'), ['1803The inn opens as a stagecoach tavern.', '1882Sarah Stubbs, about five, moves in with her mother and baby sister after her father dies at 32. Her uncle runs the hotel.', '1957Sarah dies at 79, after marrying and raising a family. She did not die at the inn.', '2002A well-known skeptic spends the night in Room 2, near Sarah’s old room.', '2008He publishes an account of what the night clerk told him.'].join('\n'), 'every timeline entry, exactly');
+  eq((await p.evaluate(() => POOL.place)).join(' | '), 'Findlay Market | Spring Grove Cemetery | an old campus hall at Miami University | a lodge in Hueston Woods at night | the Golden Lamb | a stagecoach-era inn', 'the story-seed place list, exactly');
+  eq(await p.evaluate(() => CONFIG.FORM_URL), '', 'FORM_URL stays empty'); ok(!(await p.isVisible('#classPoll')), 'the class poll link stays hidden');
+  /* faith line, footer sources */
+  eq((await p.textContent('#faithNote')).trim(), 'Many people connect ghost stories to questions of faith. See Learn, then Ghosts and faith, on the main site.', 'the faith line'); eq(await p.getAttribute('#faithNote a', 'href'), '../#learn', 'linked to ../#learn'); ok((await p.evaluate(() => document.getElementById('faithNote').compareDocumentPosition(document.getElementById('verdict')) & Node.DOCUMENT_POSITION_FOLLOWING)) > 0, 'the line sits just above the verdict');
+  const foot = await p.textContent('footer'); ok(/YouGov survey of 1,000 U\.S\. adults/.test(foot) && /Chapman University Survey of American Fears/.test(foot) && /2022 article/.test(foot) && /John Zimkus, Historian of the Golden Lamb/.test(foot) && /Golden Lamb’s own website/.test(foot), 'the footer names both surveys and the 2022 Zimkus article: ' + foot.trim().slice(0, 200));
+  /* the GoatCounter snippet: once, in the head, with the same code as the other pages */
+  const src = fs.readFileSync(path.join(ROOT, 'ghost-lab', 'index.html'), 'utf8'); eq((src.match(/data-goatcounter=/g) || []).length, 1, 'exactly one GoatCounter snippet in the source'); ok(src.split('</head>')[0].includes('data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count"'), 'in the head, with the same code as the other pages'); eq(await p.$$eval('script[data-goatcounter]', (e) => e.length), 1, 'one in the page');
+  eq(reqs.length, 0, 'no network requests to other sites: ' + reqs); ok(!/https?:\/\/(?!ohmoellermoeterm\.goatcounter\.com)/.test(src.replace(/\/\/gc\.zgo\.at/g, '')), 'no external address in the source (fonts, scripts, links)');
+  const COSTW = /\$|\bcost(s|ly)?\b|\bpric(e|es|ed|ing)\b|\bdollars?\b|\bfees?\b|\bpay(s|ing|ment|ments)?\b|\bbuy(ing)?\b|\bpurchas\w*|\bsubscri\w*|\bcheap\b|\bexpensive\b|\bdiscount\w*|\bfree\b|\bmoney\b/i; const seen = (await p.innerText('body')) + ' ' + (await p.evaluate(() => JSON.stringify([TYPES, CREATORS, SIGHTINGS, CLAIMS, POOL, FORMS]))); ok(!COSTW.test(seen), 'cost, price, fee or payment wording on the page: ' + (seen.match(COSTW) || [])[0]);
+  ok(await p.evaluate(() => getComputedStyle(document.body).fontFamily.includes('Atkinson') || getComputedStyle(document.body).fontFamily.length > 0) && await p.evaluate(() => !!document.querySelector('link[href="../assets/css/ho-core.css"]') && !!document.querySelector('script[src="../assets/js/ho-ui.js"]')), 'uses the shared design system files');
+});
+T('ghost lab: the belief choice saves and shows the survey bars, and the written answers save', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + GL); ok(!(await p.isVisible('#compare')), 'the comparison is hidden until you choose');
+  await p.check('input[name="belief"][value="unsure"]'); await p.waitForSelector('#compare:not([hidden])'); eq((await p.textContent('#youSaid')).trim(), 'You said you are not sure. Here is how that sits next to national survey results.', 'what you said');
+  const labels = await p.$$eval('#compare .bar-row .lbl', (e) => e.map((x) => x.textContent.replace(/\s+/g, ' ').trim())); eq(labels.join(' | '), 'Say ghosts are real (YouGov survey of 1,000 U.S. adults, October 2021)41% | Say they have encountered one (YouGov survey of 1,000 U.S. adults, October 2021)20% | Believe places can be “haunted by spirits” (Chapman University Survey of American Fears, 2018: 57.7%)58%', 'the survey bar labels and values (58% shown)');
+  await p.waitForFunction(() => [...document.querySelectorAll('#compare .fill')].map((f) => f.style.width).join() === '41%,20%,58%'); ok(true, 'the bars fill to 41, 20 and 58 percent');
+  await p.fill('#q2', 'Echoes that stay in a place.'); await p.fill('#q3', 'The lady on the stairs.');
+  const st = await glSave(p); eq(st.belief, 'unsure', 'belief saved under ho-ghostlab-v1'); eq(st.q2, 'Echoes that stay in a place.', 'q2 saved'); eq(st.q3, 'The lady on the stairs.', 'q3 saved');
+  await p.reload(); await p.waitForSelector('#compare:not([hidden])'); ok(await p.isChecked('input[name="belief"][value="unsure"]'), 'the belief is still chosen after a reload'); eq(await p.inputValue('#q2'), 'Echoes that stay in a place.', 'q2 persists'); eq(await p.inputValue('#q3'), 'The lady on the stairs.', 'q3 persists'); await p.check('input[name="belief"][value="yes"]'); eq((await glSave(p)).belief, 'yes', 'the choice can change');
+});
+T('ghost lab: both sorting activities score and give feedback (including the changed musician claim), and the "Or had he?" panel shows once all six claims are answered', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + GL);
+  /* Step 3: the sightings */
+  const sightings = await p.evaluate(() => SIGHTINGS.map((s) => ({ a: s.a, why: s.why, hint: s.hint }))); const catLabel = await p.evaluate(() => CATS); eq(sightings.length, 6, 'six sightings'); eq((await p.textContent('#sortScore')).trim(), '0 of 6 correct', 'starts at zero');
+  await p.click(`#sortList .card:nth-child(1) .pick:text-is(${JSON.stringify(catLabel.man)})`); ok((await p.textContent('#sortList .card:nth-child(1) .fb')).startsWith('Not quite. Hint: '), 'a wrong pick gives a hint'); ok((await p.getAttribute('#sortList .card:nth-child(1)', 'class')).includes('no'), 'and the card is marked');
+  for (let i = 0; i < 6; i++) await p.click(`#sortList .card:nth-child(${i + 1}) .pick:text-is(${JSON.stringify(catLabel[sightings[i].a])})`); eq((await p.textContent('#sortScore')).trim(), '6 of 6 correct', 'all six sorted'); eq((await p.textContent('#sortList .card:nth-child(1) .fb')).trim(), sightings[0].why, 'the explanation for a correct answer'); ok((await p.$$eval('#steps a[data-for="step-3"] .done', (e) => !e[0].hidden)), 'Step 3 shows its check mark');
+  await p.reload(); eq((await p.textContent('#sortScore')).trim(), '6 of 6 correct', 'the sorting persists after a reload'); await p.click('#sortReset'); eq((await p.textContent('#sortScore')).trim(), '0 of 6 correct', 'Start over');
+  /* Step 4: the evidence claims, the changed musician claim, the panel */
+  const claims = await p.evaluate(() => CLAIMS.map((c) => ({ t: c.t, a: c.a, why: c.why }))); const ev = await p.evaluate(() => EV); eq(claims.length, 6, 'six claims');
+  const mus = claims.find((c) => /musician/.test(c.t)); eq(mus.t, 'After landing flat on his face while hopping a rope across his doorway, a musician swears he heard a girl laughing. No one was there.', 'the changed musician claim'); ok(!/tripping over a rope/.test(await p.textContent('#evList')), 'the old wording is gone'); ok(/drinking that night/.test(mus.why), 'the explanation still notes the man had been drinking that night: ' + mus.why);
+  ok(!(await p.isVisible('#clerk')), 'the clerk panel is hidden at the start');
+  const mi = claims.indexOf(mus); await p.click(`#evList .card:nth-child(${mi + 1}) .pick:text-is(${JSON.stringify(ev.wit)})`); eq((await p.textContent(`#evList .card:nth-child(${mi + 1}) .fb`)).trim(), mus.why, 'the musician feedback shows when it is sorted as an eyewitness story');
+  /* five answered (some wrong): still hidden; the sixth, even a wrong one, shows it */
+  await p.click('#evReset'); for (let i = 0; i < 5; i++) await p.click(`#evList .card:nth-child(${i + 1}) .pick:text-is(${JSON.stringify(ev.thy === claims[i].a ? ev.doc : ev.thy)})`); ok(!(await p.isVisible('#clerk')), 'five answers: still hidden'); await p.click(`#evList .card:nth-child(6) .pick:text-is(${JSON.stringify(ev.doc)})`); ok(await p.isVisible('#clerk'), 'six answers (not all correct): "Or had he?" shows'); ok((await p.textContent('#evScore')).trim() !== '6 of 6 correct', 'and the score is below six'); eq((await p.textContent('#clerk h3')).trim(), 'Or had he?', 'the panel');
+  await p.click('#evReset'); ok(!(await p.isVisible('#clerk')), 'Start over hides it again'); for (let i = 0; i < 6; i++) await p.click(`#evList .card:nth-child(${i + 1}) .pick:text-is(${JSON.stringify(ev[claims[i].a])})`); eq((await p.textContent('#evScore')).trim(), '6 of 6 correct', 'all six correct'); ok(await p.isVisible('#clerk'), 'and the panel shows');
+  await p.reload(); ok(await p.isVisible('#clerk'), 'the panel and answers persist after a reload'); eq((await p.textContent('#evScore')).trim(), '6 of 6 correct', 'score persists');
+  /* verdict */
+  await p.check('input[name="verdict"][value="Undecided"]'); await p.fill('#whyVerdict', 'The clerk explains the pictures but not the boy.'); await p.reload(); ok(await p.isChecked('input[name="verdict"][value="Undecided"]'), 'verdict persists'); eq(await p.inputValue('#whyVerdict'), 'The clerk explains the pictures but not the boy.', 'the reason persists');
+});
+T('ghost lab: the expandable cards open and close, and the seed builder spins, locks and saves (and it all persists after a reload)', async ({ base, newPage }) => {
+  const p = await newPage(); await seeded(p, 4242); await p.goto(base + GL);
+  const first = p.locator('#types .xcard >> nth=0 >> button'); eq(await first.getAttribute('aria-expanded'), 'false', 'collapsed'); await first.click(); eq(await first.getAttribute('aria-expanded'), 'true', 'opens'); ok(await p.isVisible('#types-0'), 'its text shows'); await first.click(); ok(!(await p.isVisible('#types-0')), 'closes'); eq((await p.$$('#types .xcard')).length + (await p.$$('#creators .xcard')).length, 6, 'six cards');
+  eq((await p.$$('#slots .slot')).length, 6, 'six slots'); const before = await p.$$eval('#slots .slot .v', (e) => e.map((x) => x.textContent)); ok(before.every((v) => v), 'every slot has a value on load'); eq((await p.textContent('#seedLine')).startsWith('At '), true, 'a sentence is built');
+  await p.click('#slots .slot:nth-child(1) button.lock'); eq(await p.getAttribute('#slots .slot:nth-child(1) button.lock', 'aria-pressed'), 'true', 'the place is locked'); await p.click('#slots .slot:nth-child(4) button.lock');
+  let changed = false; for (let i = 0; i < 12 && !changed; i++) { await p.click('#spin'); const now = await p.$$eval('#slots .slot .v', (e) => e.map((x) => x.textContent)); eq(now[0], before[0], 'a locked slot never changes'); eq(now[3], before[3], 'a second locked slot never changes'); if (now.some((v, k) => v !== before[k])) changed = true; } ok(changed, 'the unlocked slots change when you spin');
+  const pools = await p.evaluate(() => ({ POOL, FORMS })); const vals = await p.$$eval('#slots .slot .v', (e) => e.map((x) => x.textContent)); ok(pools.POOL.place.includes(vals[0]) && pools.POOL.type.includes(vals[1]) && pools.POOL.origin.includes(vals[2]) && pools.POOL.witness.includes(vals[3]) && pools.POOL.twist.includes(vals[4]) && pools.FORMS.includes(vals[5]), 'every value comes from its list');
+  await p.click('#saveSeed'); eq((await p.$$('#savedSeeds .card')).length, 1, 'a seed is saved'); await p.click('#saveSeed'); eq((await p.$$('#savedSeeds .card')).length, 1, 'the same seed is not saved twice'); await p.fill('#whySeed', 'The one with the lock.'); const sentence = (await p.textContent('#seedLine')).trim(); eq((await p.textContent('#savedSeeds .card p')).trim(), sentence, 'the saved seed is the sentence');
+  for (let i = 0; i < 7; i++) { await p.click('#spin'); await p.click('#saveSeed'); } ok((await p.$$('#savedSeeds .card')).length <= 5, 'at most five seeds are kept');
+  const st = await glSave(p); eq(Object.keys(st.locks).filter((k) => st.locks[k]).sort().join(), 'place,witness', 'locks saved'); const savedBefore = await p.$$eval('#savedSeeds .card p', (e) => e.map((x) => x.textContent));
+  await p.reload(); await p.waitForTimeout(100); eq((await p.$$eval('#savedSeeds .card p', (e) => e.map((x) => x.textContent))).join('|'), savedBefore.join('|'), 'saved seeds persist after a reload'); eq(await p.getAttribute('#slots .slot:nth-child(1) button.lock', 'aria-pressed'), 'true', 'the lock persists'); eq(await p.inputValue('#whySeed'), 'The one with the lock.', 'the reason persists');
+  await p.click('#savedSeeds .card button >> nth=0'); eq((await p.$$('#savedSeeds .card')).length, savedBefore.length - 1, 'a saved seed can be removed');
+});
+T('ghost lab: the notebook copies and downloads what you wrote, the copy event is counted (names only, never your words), and "Clear everything" empties it', async ({ base, newPage }) => {
+  const p = await newPage(); await withGC(p, 'stub'); await stubClipboard(p); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto(base + GL); await gcWait(p, 'event/ghost-lab-opened', 'the page opened'); await gcWait(p, '/ghost-lab', 'the page view');
+  await p.check('input[name="belief"][value="no"]'); await p.fill('#q2', 'SECRETWORDS about echoes'); await p.fill('#q3', 'SECRETSTORY about a stair'); await p.check('input[name="verdict"][value="Explained"]'); await p.fill('#whyVerdict', 'SECRETWHY the clerk and the pictures'); await p.click('#saveSeed'); await p.fill('#whySeed', 'SECRETSEED because it is odd');
+  const nb = (await p.textContent('#nb')).trim(); ok(nb.startsWith('HAUNTED OHIO: GHOST LAB NOTEBOOK') && /Do I believe in ghosts\? No/.test(nb) && /SECRETWORDS/.test(nb) && /My verdict: Explained/.test(nb) && /SECRETSEED/.test(nb), 'the notebook shows the answers');
+  await p.click('#copyNb'); await p.waitForFunction(() => document.getElementById('nbMsg').textContent === 'Copied.'); eq((await p.evaluate(() => window.__copied)).trim(), nb, 'Copy notebook copies the same text'); await gcWait(p, 'event/ghost-lab-notebook-copied', 'the notebook copy');
+  const all = await p.evaluate(() => window.__gc || []); ok(all.every((c) => Object.keys(c).every((k) => ['path', 'title', 'event'].includes(k))), 'only path, title and event are sent'); ok(!/SECRET/i.test(JSON.stringify(all)), 'no student text in anything sent: ' + JSON.stringify(all.map((c) => c.path))); eq(all.filter((c) => c.path === 'event/ghost-lab-opened').length, 1, 'ghost-lab-opened is sent once per page load');
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#dlNb')]); eq(dl.suggestedFilename(), 'ghost-lab-notebook.txt', 'the download name'); eq(fs.readFileSync(await dl.path(), 'utf8').trim(), nb, 'the downloaded text matches');
+  /* a blocked clipboard falls back to selecting the text, and sends no event */
+  const q = await newPage(); await withGC(q, 'stub'); await q.addInitScript(() => { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('blocked')) } }); }); await q.goto(base + GL); await gcWait(q, 'event/ghost-lab-opened', 'opened'); await q.click('#copyNb'); await q.waitForFunction(() => document.getElementById('nbMsg').textContent.startsWith('Select and copy')); await q.waitForTimeout(300); ok(!(await q.evaluate(() => (window.__gc || []).some((c) => c.path === 'event/ghost-lab-notebook-copied'))), 'no copy event when the copy did not work');
+  p.once('dialog', (d) => d.accept()); await p.click('#clearAll'); await p.waitForLoadState('load'); await p.waitForSelector('#nb'); eq(await p.inputValue('#q2'), '', 'Clear everything empties the answers'); ok(!(await p.isVisible('#compare')), 'and the comparison'); eq(errs.length, 0, 'page errors: ' + errs);
+});
+T('ghost lab: the Night and Daylight switch uses the site-wide setting (ho-theme) and the page keeps no theme of its own', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base + GL); await p.waitForTimeout(100); const start = await p.getAttribute('html', 'data-theme'); eq(await p.getAttribute('#theme', 'aria-checked'), start === 'light' ? 'false' : 'true', 'the switch matches the theme');
+  await p.click('#theme'); const now = await p.getAttribute('html', 'data-theme'); ok(now && now !== start, 'clicking changes the theme: ' + start + ' to ' + now); eq(JSON.parse(await lsGet(p, 'ho-theme')), now, 'saved under the shared key ho-theme'); eq(await p.getAttribute('#theme', 'aria-checked'), now === 'light' ? 'false' : 'true', 'the switch follows');
+  ok(!('theme' in (await glSave(p))), 'ho-ghostlab-v1 holds no theme'); ok(!(await p.evaluate(() => Object.keys(localStorage).some((k) => /theme/i.test(k) && k !== 'ho-theme'))), 'no second theme store');
+  await p.reload(); eq(await p.getAttribute('html', 'data-theme'), now, 'the choice persists after a reload'); const bg1 = await p.evaluate(() => getComputedStyle(document.body).backgroundColor); await p.click('#theme'); const bg2 = await p.evaluate(() => getComputedStyle(document.body).backgroundColor); ok(bg1 !== bg2, 'the page colors change with the theme');
+  /* the main site's choice carries over to this page, and this page's choice carries back */
+  const q = await newPage(); await q.addInitScript(() => { try { localStorage.setItem('ho-theme', JSON.stringify('light')); } catch (e) { /* ignore */ } }); await q.goto(base + GL); eq(await q.getAttribute('html', 'data-theme'), 'light', 'a theme chosen on the main site applies here');
+});
+T('ghost lab: no console errors and no sideways scroll at 1920, 1280 and 390 px in both themes, across every step', async ({ base, newPage }) => {
+  for (const theme of ['dark', 'light']) for (const w of [1920, 1280, 390]) {
+    const p = await newPage({ width: w, height: 900 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load|gc\.zgo/.test(m.text())) errs.push(m.text()); });
+    await p.addInitScript((th) => { try { localStorage.setItem('ho-theme', JSON.stringify(th)); } catch (e) { /* ignore */ } }, theme); await p.goto(base + GL); await p.waitForSelector('#steps a'); ok(await noHScroll(p), `top of the page (${theme}, ${w})`);
+    await p.check('input[name="belief"][value="yes"]'); for (let i = 0; i < 6; i++) { await p.click(`#evList .card:nth-child(${i + 1}) .pick >> nth=0`); await p.click(`#sortList .card:nth-child(${i + 1}) .pick >> nth=0`); } await p.fill('#q2', 'word '.repeat(60)); await p.click('#types .xcard >> nth=0 >> button'); await p.waitForTimeout(80);
+    ok(await noHScroll(p), `all steps filled in (${theme}, ${w})`); ok(await p.isVisible('#clerk'), 'the clerk panel shows'); eq(errs.length, 0, `page errors (${theme}, ${w}): ${errs}`);
+  }
+});
+T('ghost lab: the home page has a Ghost Lab card and search entry, and The Week\'s Thursday card has one extra link, with nothing else added', async ({ base, newPage }) => {
+  const p = await newPage(); await p.goto(base); await p.waitForTimeout(200);
+  eq((await p.$$('.where a[href="ghost-lab/"]')).length, 1, 'one Ghost Lab card in "where to go"'); eq((await p.textContent('.where a[href="ghost-lab/"] strong')).trim(), 'Ghost Lab', 'its title'); ok(!/\d{1,2}:\d{2}|\$|\bcost\b|\bprice\b/i.test(await p.textContent('.where a[href="ghost-lab/"]')), 'no time, date or price on the card');
+  await p.fill('#q', 'ghost lab'); await p.waitForFunction(() => /Classroom lesson/.test((document.getElementById('opt0') || {}).textContent || ''), null, { timeout: 8000 }); eq(await p.textContent('#opt0 mark >> nth=0'), 'Ghost', 'the first search result is the Ghost Lab entry'); await p.fill('#q', 'poltergeist imprint'); await p.waitForFunction(() => /Ghost Lab|Classroom lesson/.test(document.getElementById('results').textContent), null, { timeout: 8000 }); ok(true, 'and it is found by its topics'); await p.fill('#q', 'ghost lab'); await p.waitForFunction(() => /Classroom lesson/.test((document.getElementById('opt0') || {}).textContent || '')); await p.keyboard.press('Enter'); await p.waitForURL(/ghost-lab\/$/, { timeout: 8000 }); ok(true, 'Enter opens the Ghost Lab page'); await p.goto(base);
+  await p.evaluate(() => { location.hash = '#week'; }); await p.waitForSelector('#day-thu'); eq((await p.$$eval('#day-thu .wk-links a', (e) => e.map((x) => x.textContent + ' -> ' + x.getAttribute('href')))).join(' | '), 'Lesson 4: Dialogue That Shows -> show-dont-tell/#lesson-4 | Draft Lab -> #draft | Quick game: Six-Word Scare -> #prompts | Before the trip: read the Ghost Lab case file -> ghost-lab/#step-4', 'Thursday keeps its three links and gains one');
+  for (const id of ['mon', 'tue', 'wed', 'wedn']) ok(!(await p.$$eval(`#day-${id} .wk-links a`, (e) => e.some((x) => /ghost-lab/.test(x.getAttribute('href'))))), 'no Ghost Lab link on ' + id);
+  await p.click('#day-thu .wk-links a:text-is("Before the trip: read the Ghost Lab case file")'); await p.waitForURL(/ghost-lab\/#step-4$/); ok(await p.isVisible('#step-4'), 'the link opens the case file step');
+});
+T('ghost lab: the source file ghost-lab-source.html exists nowhere in the repo', async () => {
+  const { execSync } = await import('node:child_process'); let tracked = []; try { tracked = execSync('git ls-files', { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean); } catch (e) { /* ignore */ }
+  const found = []; const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { if (['node_modules', '.git', '.wt'].includes(f.name)) continue; const full = path.join(d, f.name); if (f.isDirectory()) walk(full); else if (/ghost-lab-source/i.test(f.name)) found.push(path.relative(ROOT, full)); } }; walk(ROOT);
+  eq(found.concat(tracked.filter((f) => /ghost-lab-source/i.test(f))).join(','), '', 'a copy of the source file is in the repo');
 });
 
 // ---------------------------------------------------------------- navigation between pages

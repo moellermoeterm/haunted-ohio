@@ -2,60 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ghost Lab: What is a ghost? | Haunted Ohio</title>
 <meta name="description" content="Classroom lesson for the Haunted Ohio MoeTerm course: survey data, ghost types, the Golden Lamb case file, and a story seed builder.">
+<link rel="icon" type="image/png" href="../assets/img/ho-icon.png">
+<link rel="stylesheet" href="../assets/css/ho-fonts.css">
+<link rel="stylesheet" href="../assets/css/ho-core.css">
+<script src="../assets/js/ho-ui.js"></script>
 <style>
-/* ---------- Tokens (night is default; matches the site's night palette) ---------- */
+/* ---------- Tokens: this page's older names are aliases for the shared design system (assets/css/ho-core.css), so both themes come from it ---------- */
 :root{
-  --bg:#0B1220; --panel:#172236; --panel2:#1F2D45; --line:#2C3C58;
-  --text:#F3EEE2; --muted:#9FAABB; --gold:#D9A441; --gold-ink:#0B1220;
-  --ember:#E0735B; --teal:#6FB3AA; --violet:#A99AD3;
-  --good-bg:rgba(111,179,170,.16); --bad-bg:rgba(224,115,91,.16);
-  --serif:Cambria,Georgia,"Times New Roman",serif;
-  --sans:Calibri,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --bg:var(--ho-night); --panel:var(--ho-surface); --panel2:var(--ho-surface-2); --line:var(--ho-line);
+  --text:var(--ho-text); --muted:var(--ho-muted); --gold:var(--ho-gold); --gold-ink:#17110a;
+  --ember:var(--ho-bad); --teal:var(--ho-ok); --violet:var(--ho-spectral);
+  --good-bg:rgba(114,214,163,.14); --bad-bg:rgba(242,133,122,.14);
+  --serif:var(--ho-display); --sans:var(--ho-body); --header:rgba(7,15,21,.86); --pad:var(--ho-pad);
   color-scheme:dark;
 }
-:root[data-theme="day"]{
-  --bg:#F7F3E8; --panel:#FFFFFF; --panel2:#EFE8D6; --line:#D6CBB0;
-  --text:#1B2333; --muted:#566176; --gold:#8A5A00; --gold-ink:#FFFFFF;
-  --ember:#B2432B; --teal:#2F7F76; --violet:#5F4B96;
-  --good-bg:rgba(47,127,118,.12); --bad-bg:rgba(178,67,43,.10);
+:root[data-theme="light"]{
+  --gold-ink:#fff; --good-bg:rgba(29,122,76,.12); --bad-bg:rgba(178,58,43,.10); --header:rgba(243,237,222,.9);
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:84px}
-body{margin:0;background:var(--bg);color:var(--text);font:18px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+html{scroll-padding-top:8rem}
+@media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font:1.0625rem/1.62 var(--sans);-webkit-text-size-adjust:100%}
 h1,h2,h3{font-family:var(--serif);line-height:1.2;margin:0 0 .5em}
 h1{font-size:clamp(2.2rem,5vw,3.4rem)}
 h2{font-size:clamp(1.6rem,3vw,2.1rem)}
 h3{font-size:1.25rem}
 p{margin:0 0 1em;max-width:72ch}
-a{color:var(--gold)}
+a{color:var(--ho-spectral)}
 button,textarea,select{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+:focus-visible{outline:3px solid var(--ho-focus);outline-offset:2px;border-radius:6px}
 .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
 .muted{color:var(--muted)}
 .sr{position:absolute;left:-9999px}
+.skip{position:absolute;left:-999px;top:0;background:var(--ho-ember);color:var(--ho-ember-ink);padding:.6rem 1rem;z-index:100;font-weight:700}
+.skip:focus{left:0}
 
-/* ---------- Top bar ---------- */
-.bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
-.bar .wrap{display:flex;gap:14px;align-items:center;min-height:56px}
-.bar a.home{font-family:var(--serif);font-weight:700;text-decoration:none;white-space:nowrap}
-.steps{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:thin}
+/* ---------- Header: the shared bureau bar, with the lesson steps under it ---------- */
+.top{position:sticky;top:0;z-index:50;background:var(--header);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);border-bottom:1px solid var(--line)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--ho-gold-dim) 50%,transparent);opacity:.55;pointer-events:none}
+.top-in{margin:0 auto;padding:.5rem var(--pad);display:flex;align-items:center;gap:.7rem}
+.top-steps{padding:0 var(--pad) .45rem}
+.mark{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--serif);font-size:1.5rem;line-height:1;color:var(--text);text-decoration:none;white-space:nowrap}
+.mark img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 1px var(--ho-gold-dim),0 0 16px rgba(217,184,108,.25)}
+.crumb{color:var(--muted);display:inline-flex;align-items:center;gap:.7rem;white-space:nowrap}
+.crumb::before{content:"/";color:var(--ho-gold-dim)}
+.crumb b{font-family:var(--serif);font-weight:400;font-size:1.2rem;color:var(--gold)}
+.back{display:inline-flex;align-items:center;gap:.5rem;margin-left:auto;padding:.5em .9em;border-radius:99px;border:1.5px solid var(--line);color:var(--text);text-decoration:none;font-weight:700;font-size:.95rem;min-height:40px}
+.back:hover{background:var(--panel2);border-color:var(--ho-gold-dim)}
+.back .ho-icon{width:1.05em;height:1.05em}
+.switch{display:inline-flex;align-items:center;gap:.5rem;font:inherit;font-size:.95rem;background:none;color:var(--text);border:1.5px solid var(--line);border-radius:99px;padding:.2rem .8rem .2rem .3rem;cursor:pointer;min-height:40px;white-space:nowrap}
+.switch:hover{background:var(--panel2);border-color:var(--ho-gold-dim)}
+.switch .track{position:relative;width:2.6rem;height:1.45rem;border-radius:99px;background:var(--muted);flex:none}
+.switch .knob{position:absolute;top:.17rem;left:.17rem;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--panel)}
+.switch[aria-checked="true"] .track{background:var(--ho-spectral)}
+.switch[aria-checked="true"] .knob{left:calc(100% - 1.27rem)}
+.switch .state{font-weight:700;min-width:1.7rem}
+@media (prefers-reduced-motion: no-preference){.switch .knob{transition:left .18s}.switch .track{transition:background .18s}}
+@media (max-width:700px){.back .lbl,.switch .state{display:none}.crumb{display:none}}
+.steps{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
 .steps a{white-space:nowrap;text-decoration:none;color:var(--muted);padding:6px 12px;border-radius:999px;font-size:.95rem}
 .steps a:hover{color:var(--text)}
 .steps a.on{background:var(--panel2);color:var(--text)}
 .steps a .done{color:var(--teal);margin-left:4px}
-.toggle{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap}
 
 /* ---------- Hero ---------- */
-.hero{padding:64px 0 36px;position:relative;overflow:hidden}
+.hero{padding:64px 0 36px;position:relative;overflow:hidden;background:radial-gradient(ellipse 55% 140% at 88% 0%,rgba(143,211,232,.16),transparent 65%),linear-gradient(180deg,var(--ho-night-2),var(--bg))}
 .hero p.lead{font-size:1.25rem;color:var(--muted)}
 .hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
 .chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:.95rem;color:var(--muted);background:var(--panel)}
 .fog{position:absolute;inset:auto -10% -40px -10%;height:140px;background:radial-gradient(ellipse at 30% 100%,rgba(111,179,170,.18),transparent 60%),radial-gradient(ellipse at 75% 100%,rgba(217,164,65,.10),transparent 60%);pointer-events:none}
-:root[data-theme="day"] .fog{display:none}
+:root[data-theme="light"] .fog{display:none}
 
 /* ---------- Sections ---------- */
 section.step{padding:48px 0;border-top:1px solid var(--line)}
@@ -73,8 +93,10 @@ label.opt:has(input:checked){background:var(--gold);color:var(--gold-ink);border
 label.opt input{accent-color:var(--gold)}
 textarea,select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 textarea{min-height:92px;resize:vertical}
-.btn{background:var(--gold);color:var(--gold-ink);border:0;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer}
+.btn{background:var(--ho-ember);color:var(--ho-ember-ink);border:0;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;min-height:44px}
 .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn:hover{background:var(--ho-ember-hi)}
+.btn.ghost:hover{background:var(--panel2)}
 .btn:disabled{opacity:.5;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 
@@ -130,17 +152,23 @@ textarea{min-height:92px;resize:vertical}
 pre.nb{white-space:pre-wrap;word-wrap:break-word;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;font:16px/1.55 var(--sans);max-height:420px;overflow:auto}
 footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fill{transition:none}}
+@media (max-width:700px){.top-in{flex-wrap:wrap}}
 </style>
+<script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
+<script src="../assets/js/ho-track.js"></script>
 </head>
 <body>
 
-<div class="bar">
-  <div class="wrap">
-    <a class="home" href="../#home">Haunted Ohio</a>
-    <nav class="steps" aria-label="Lesson steps" id="steps"></nav>
-    <button class="toggle" id="themeBtn" type="button" aria-pressed="false">Daylight</button>
+<a class="skip" href="#main">Skip to the lesson</a>
+<header class="top">
+  <div class="top-in">
+    <a class="mark" href="../" aria-label="Haunted Ohio home"><img src="../assets/img/ho-icon.png" alt="" width="36" height="36"><span>Haunted Ohio</span></a>
+    <span class="crumb" aria-hidden="true"><b>Ghost Lab</b></span>
+    <a class="back" href="../"><svg class="ho-icon" aria-hidden="true" focusable="false"><use href="../assets/img/ho-icons.svg#i-arrow-left"/></svg><span class="lbl">Back to the course site</span></a>
+    <button class="switch" id="theme" type="button" role="switch" aria-checked="false" aria-label="Dark mode"><span class="track" aria-hidden="true"><span class="knob"></span></span><span aria-hidden="true">Dark mode</span><span class="state" aria-hidden="true">Off</span></button>
   </div>
-</div>
+  <div class="top-steps"><nav class="steps" aria-label="Lesson steps" id="steps"></nav></div>
+</header>
 
 <header class="hero">
   <div class="wrap">
@@ -155,7 +183,7 @@ footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);f
   <div class="fog" aria-hidden="true"></div>
 </header>
 
-<main>
+<main id="main">
 
 <!-- ============ STEP 1 ============ -->
 <section class="step" id="step-1" data-step="1" data-title="Do Now">
@@ -176,9 +204,9 @@ footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);f
       <h3>How do you compare?</h3>
       <p class="muted" id="youSaid"></p>
       <div class="bars">
-        <div class="bar-row"><div class="lbl"><span>Say ghosts are real <span class="muted">(2021 survey)</span></span><b>41%</b></div><div class="track"><div class="fill" data-w="41"></div></div></div>
-        <div class="bar-row"><div class="lbl"><span>Say they have encountered one <span class="muted">(2021 survey)</span></span><b>20%</b></div><div class="track"><div class="fill" data-w="20"></div></div></div>
-        <div class="bar-row"><div class="lbl"><span>Believe places can be “haunted by spirits” <span class="muted">(2018, Chapman University)</span></span><b>58%</b></div><div class="track"><div class="fill" data-w="58"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Say ghosts are real <span class="muted">(YouGov survey of 1,000 U.S. adults, October 2021)</span></span><b>41%</b></div><div class="track"><div class="fill" data-w="41"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Say they have encountered one <span class="muted">(YouGov survey of 1,000 U.S. adults, October 2021)</span></span><b>20%</b></div><div class="track"><div class="fill" data-w="20"></div></div></div>
+        <div class="bar-row"><div class="lbl"><span>Believe places can be “haunted by spirits” <span class="muted">(Chapman University Survey of American Fears, 2018: 57.7%)</span></span><b>58%</b></div><div class="track"><div class="fill" data-w="58"></div></div></div>
       </div>
       <div class="note">A survey tells us what people <em>believe</em>. Does it tell us what is <em>true</em>? Write down what you would need to see to change your answer.</div>
     </div>
@@ -266,6 +294,7 @@ footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);f
     </div>
 
     <h3 class="sub">Your verdict</h3>
+    <p class="muted" id="faithNote">Many people connect ghost stories to questions of faith. See <a href="../#learn">Learn, then Ghosts and faith, on the main site</a>.</p>
     <fieldset>
       <legend class="sr">Verdict</legend>
       <div id="verdict">
@@ -318,7 +347,7 @@ footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);f
 
 <footer>
   <div class="wrap">
-    Sources: survey figures as cited in the course slides (a 2021 survey; a 2018 Chapman University survey). Golden Lamb facts and stories from “Does the Golden Lamb have ghostly uninvited guests?” by John Zimkus, Historian of the Golden Lamb, October 25, 2022. Sighting categories and “creators” follow the course slides and are explanations people give, not proven facts.
+    Sources: survey figures from a YouGov survey of 1,000 U.S. adults (October 2021) and the Chapman University Survey of American Fears (2018). Golden Lamb facts and stories from the 2022 article “Does the Golden Lamb have ghostly uninvited guests?” by John Zimkus, Historian of the Golden Lamb, on the Golden Lamb’s own website. Sighting categories and “creators” follow the course slides and are explanations people give, not proven facts.
   </div>
 </footer>
 
@@ -347,18 +376,23 @@ function el(tag, attrs={}, kids=[]){
   return n;
 }
 
-/* ============ Theme ============ */
+/* ============ Theme: the site's shared setting (localStorage "ho-theme", applied by ho-ui.js). This page keeps no theme of its own. ============ */
 (function theme(){
-  let t = S.theme;
-  if (!t) { try { const h = (localStorage.getItem("ho-theme") || "").toLowerCase(); if (h.includes("day") || h.includes("light")) t = "day"; } catch(e){} }
-  apply(t === "day" ? "day" : "night");
-  function apply(v){
-    if (v === "day") document.documentElement.setAttribute("data-theme", "day"); else document.documentElement.removeAttribute("data-theme");
-    const b = $("#themeBtn"); b.setAttribute("aria-pressed", v === "day"); b.textContent = v === "day" ? "Night" : "Daylight";
-    S.theme = v; save();
-  }
-  $("#themeBtn").addEventListener("click", () => apply(S.theme === "day" ? "night" : "day"));
+  const root = document.documentElement, tbtn = $("#theme");
+  const effective = () => root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const label = () => { const on = effective() === "dark"; tbtn.setAttribute("aria-checked", on ? "true" : "false"); $(".state", tbtn).textContent = on ? "On" : "Off"; };
+  tbtn.addEventListener("click", () => {
+    if (window.HO && HO.theme) HO.theme.toggle();
+    else { const n = effective() === "dark" ? "light" : "dark"; root.setAttribute("data-theme", n); try { localStorage.setItem("ho-theme", JSON.stringify(n)); } catch (e) {} }
+    label();
+  });
+  window.addEventListener("ho-theme", label);
+  label();
 })();
+
+/* ============ Anonymous counting: only the event name is sent (never anything a student wrote) ============ */
+function track(name){ try { if (window.HO_track) window.HO_track(name); } catch (e) {} }
+track("ghost-lab-opened");
 
 /* ============ Step nav ============ */
 const steps = $$("section.step");
@@ -489,7 +523,7 @@ const CLAIMS = [
   { t: "Sarah Stubbs lived to 79 and died in 1957, not at the inn.", a: "doc", why: "These dates and family facts come from the inn’s historian, so they count as documented history." },
   { t: "In 1882 Sarah moved in with her mother and baby sister after her father died at 32.", a: "doc", why: "Documented history: a date, a family, and a death that can be checked against records." },
   { t: "A boy of four or five asks to play with “the little girl in the white dress on the stairs.” His mother sees no one.", a: "wit", why: "Eyewitness story: told by the mother years later, and confirmed by her son. It is an account, not a record." },
-  { t: "After tripping over a rope in the hall, a musician swears he heard a girl laughing. No one was there.", a: "wit", why: "Eyewitness story, with a complication: the historian notes the man had been drinking that night." },
+  { t: "After landing flat on his face while hopping a rope across his doorway, a musician swears he heard a girl laughing. No one was there.", a: "wit", why: "Eyewitness story, with a complication: the historian notes the man had been drinking that night, and he had just taken a hard fall." },
   { t: "A night clerk told a visiting skeptic she sometimes “turned the pictures” in Sarah’s room to unsettle the housekeepers.", a: "skp", why: "Skeptic’s claim: it is secondhand, a skeptic reporting in 2008 what a clerk told him in 2002." },
   { t: "A traumatic event can leave an imprint, so a spirit may return at the age it was when the event happened.", a: "thy", why: "Theory: an idea researchers use to explain sightings. It is not evidence by itself." }
 ];
@@ -511,7 +545,7 @@ function renderEv(){
     mount.append(el("div", { class: "card q" + (pick ? (ok ? " ok" : " no") : "") }, [ el("p", { text: (i + 1) + ". " + c.t }), picks, fb ]));
   });
   $("#evScore").textContent = right + " of 6 correct";
-  $("#clerk").hidden = right < 6;
+  $("#clerk").hidden = answered < 6;
 }
 $("#evReset").addEventListener("click", () => { S.ev = {}; save(); renderEv(); refresh(); });
 renderEv();
@@ -603,7 +637,7 @@ function refresh(){
 }
 $("#copyNb").addEventListener("click", async () => {
   const msg = $("#nbMsg");
-  try { await navigator.clipboard.writeText(notebook()); msg.textContent = "Copied."; }
+  try { await navigator.clipboard.writeText(notebook()); msg.textContent = "Copied."; track("ghost-lab-notebook-copied"); }
   catch (e) { const r = document.createRange(); r.selectNodeContents($("#nb")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); msg.textContent = "Select and copy the text above."; }
 });
 $("#dlNb").addEventListener("click", () => {
@@ -613,7 +647,7 @@ $("#dlNb").addEventListener("click", () => {
 });
 $("#clearAll").addEventListener("click", () => {
   if (!confirm("Clear everything you wrote in Ghost Lab on this device?")) return;
-  const th = S.theme; S = { theme: th }; save(); location.reload();
+  S = {}; save(); location.reload();
 });
 refresh();
 </script>
