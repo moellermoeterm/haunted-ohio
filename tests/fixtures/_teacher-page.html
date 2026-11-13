@@ -31,6 +31,7 @@ a{color:var(--accent)}
 main{padding:clamp(1.4rem,4vw,2.6rem) var(--pad) 3rem}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;margin:0 0 .5rem}
 h2{font-family:var(--display);font-weight:400;font-size:1.7rem;margin:2rem 0 .6rem}
+h3{font-family:var(--display);font-weight:400;font-size:1.3rem;margin:1.4rem 0 .4rem}
 .eyebrow{margin:0 0 .6rem;font:700 .78rem/1 var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--ho-gold)}
 .intro{max-width:min(100ch,100%);color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,18rem),1fr));gap:.8rem;margin:.8rem 0}
@@ -68,36 +69,24 @@ input[type=number]{width:6rem}textarea{width:100%;min-height:6rem}
 <main id="main">
   <p class="eyebrow">For leaders</p>
   <h1>Teacher tools</h1>
-  <p class="intro">Each game has six versions, called case codes. Students who sit near each other should have different codes, so they compare reasoning instead of copying answers. Nothing on this page is saved, and nothing you type here is sent anywhere.</p>
+  <p class="intro">Each game has six versions. <strong>Cases are assigned at random.</strong> The first time a student begins a game on a device, the game picks one of the six and keeps it. Students do not choose their case, and the game never shows them which one they have.</p>
+  <ul class="intro">
+    <li>Two students who sit together can get the same case by chance.</li>
+    <li>The case stays the same after a reload, after starting over, and when a save file is exported and imported.</li>
+    <li>Only &ldquo;Erase my progress&rdquo; in a game&rsquo;s settings, or clearing the browser&rsquo;s site data, picks a new one.</li>
+  </ul>
 
-  <h2>The Haunting Files: six case links</h2>
+  <h2>Leader preview</h2>
+  <p class="note">These links open a case in a labeled preview with a throwaway save. A preview never changes a student&rsquo;s game or assigned case. Do not share these links with students.</p>
+  <h3>The Haunting Files</h3>
   <div class="grid" id="hfLinks"></div>
-  <h2>The Last Light: six scenario links</h2>
+  <h3>The Last Light</h3>
   <div class="grid" id="llLinks"></div>
-  <h2>The Veil: six case links</h2>
+  <h3>The Veil</h3>
   <div class="grid" id="vlLinks"></div>
-  <h2>Room 214: six case links (ages 14 to 18)</h2>
+  <h3>Room 214 (ages 14 to 18)</h3>
   <div class="grid" id="r2Links"></div>
-  <p class="note">A student can also type the code on the game&rsquo;s title screen, or pick Random case. The same code works in every game. Every student&rsquo;s progress stays in their own browser, in a separate save for each code.</p>
-
-  <h2>Seating helper</h2>
-  <div class="panel noprint">
-    <div class="fields">
-      <div><label for="rows">Rows</label><input id="rows" type="number" min="1" max="12" value="5"></div>
-      <div><label for="cols">Seats per row</label><input id="cols" type="number" min="1" max="12" value="6"></div>
-      <div><button class="btn primary" id="make" type="button">Make the seating plan</button></div>
-      <div><button class="btn" id="shuffle" type="button">Shuffle the code order</button></div>
-      <div><button class="btn" id="print" type="button">Print</button></div>
-      <div><button class="btn" id="copy" type="button">Copy as text</button></div>
-    </div>
-    <label for="names" style="margin-top:1rem">Optional: paste student names, one per line, in seat order (row by row)</label>
-    <textarea id="names" autocomplete="off" spellcheck="false" aria-describedby="namesNote"></textarea>
-    <p class="muted" id="namesNote" style="margin:.3rem 0 0">Names stay on this page. They are never saved, sent, or stored, and they vanish when you close the tab.</p>
-  </div>
   <p id="status" role="status" aria-live="polite"></p>
-  <div class="front">Front of the room</div>
-  <div class="seats" id="plan" aria-label="Seating plan"></div>
-  <p class="muted">No seat has the same code as the seat beside it, in front of it, behind it, or diagonal to it.</p>
 </main>
 
 <script src="../assets/js/ho-variant.js"></script>
@@ -114,43 +103,14 @@ function themeLabel(){var on=document.documentElement.getAttribute('data-theme')
 tb.addEventListener('click',function(){HO.theme.toggle();themeLabel()});themeLabel();
 function status(m){$('#status').textContent=m}
 
-/* ---- six links per game ---- */
-function abs(rel){return new URL(rel,location.href).href}
+/* ---- leader preview: six links per game (?preview=N). No student names are used anywhere on this page. ---- */
 function links(box,path,list,label){
   box.innerHTML=[1,2,3,4,5,6].map(function(n){var o=list[n];
-    return '<div class="card"><b>Case '+n+'</b><span class="muted">'+esc(label(o))+'</span><div class="row"><a class="btn primary" href="'+path+'?case='+n+'">Open</a><button class="btn" type="button" data-copy="'+esc(abs(path+'?case='+n))+'">Copy link</button></div></div>'}).join('')}
+    return '<div class="card"><b>Preview '+n+'</b><span class="muted">'+esc(label(o))+'</span><div class="row"><a class="btn primary" href="'+path+'?preview='+n+'">Open preview</a></div></div>'}).join('')}
 links($('#hfLinks'),'../haunting-files/',window.HF_CASES,function(o){return 'Case file #'+o.file+': '+o.name});
 links($('#llLinks'),'../last-light/',window.LL_SCENARIOS,function(o){return 'Opens in '+o.name});
 links($('#vlLinks'),'../the-veil/',window.HOG_VEIL.data.CASES,function(o){return o.chapel+' Chapel: '+o.night});
 links($('#r2Links'),'../room-214/',window.HOG_R214.data.CASES,function(o){return o.hotel+', '+o.town});
-document.addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;
-  var u=b.getAttribute('data-copy');
-  function done(){status('Link copied: '+u)}
-  try{navigator.clipboard.writeText(u).then(done,function(){status('Copy failed. The link is: '+u)})}catch(x){status('Copy failed. The link is: '+u)}});
-
-/* ---- seating: code = (seat + 2 x row) mod 6 (a single column uses 1 x row), then a random relabelling of the six codes ----
-   Neighbours differ by 1, 2 or 3 in that pattern (never 0 or 6), so seats that touch, even diagonally, never share a code. */
-var perm=[1,2,3,4,5,6];
-function shuffled(){var a=[1,2,3,4,5,6];for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
-function clamp(v,lo,hi){v=Math.round(+v);return isNaN(v)?lo:Math.max(lo,Math.min(hi,v))}
-var ncols=6;
-function codeAt(r,c){return perm[(c+(ncols===1?1:2)*r)%6]}
-var last='';
-function draw(){
-  var R=clamp($('#rows').value,1,12),C=clamp($('#cols').value,1,12);
-  var names=$('#names').value.split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
-  ncols=C;var out=[],i=0,h='';
-  for(var r=0;r<R;r++){for(var c=0;c<C;c++){var n=codeAt(r,c),nm=names[i++]||'';
-    h+='<div class="seat" role="group" aria-label="Row '+(r+1)+' seat '+(c+1)+(nm?', '+esc(nm):'')+', case '+n+'"><b>'+n+'</b><small>'+(nm?esc(nm):'R'+(r+1)+' S'+(c+1))+'</small></div>';
-    out.push('Row '+(r+1)+', seat '+(c+1)+': Case '+n+(nm?' ('+nm+')':''))}}
-  var g=$('#plan');g.style.gridTemplateColumns='repeat('+C+',minmax(4.2rem,1fr))';g.innerHTML=h;last=out.join('\n');
-  status('Seating plan made for '+(R*C)+' seats.'+(names.length>R*C?' You pasted '+names.length+' names but there are only '+(R*C)+' seats.':''));
-}
-$('#make').addEventListener('click',draw);
-$('#shuffle').addEventListener('click',function(){perm=shuffled();draw()});
-$('#print').addEventListener('click',function(){window.print()});
-$('#copy').addEventListener('click',function(){if(!last)draw();try{navigator.clipboard.writeText(last).then(function(){status('Seating plan copied as text.')},function(){status('Copy failed on this browser.')})}catch(x){status('Copy failed on this browser.')}});
-draw();
 })();
 </script>
 </body>

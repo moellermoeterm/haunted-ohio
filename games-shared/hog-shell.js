@@ -11,7 +11,8 @@
   function btn(label, cls, fn) { var b = el('button', 'hog-btn' + (cls ? ' ' + cls : ''), label); b.type = 'button'; if (fn) b.addEventListener('click', fn); return b; }
 
   function mount(o) {
-    var game = o.game, setKey = (o.baseKey || ('ho-' + game)) + '_set', saves = o.saves, variantNow = o.variant, shell = { modalOpen: false };
+    var game = o.game, setKey = (o.baseKey || ('ho-' + game)) + '_set', saves = o.saves, variantNow = o.variant || 0, preview = o.preview || 0, shell = { modalOpen: false };
+    shell.setVariant = function (n) { variantNow = n; };
     doc.documentElement.classList.add('hog'); doc.body.classList.add('hog');
 
     /* settings: validated on load; a damaged value falls back to defaults */
@@ -29,12 +30,13 @@
     var bar = el('header', 'hog-bar'); bar.setAttribute('role', 'banner');
     var brand = el('a', 'hog-brand', '‹ Haunted Ohio'); brand.href = o.home || '../'; bar.appendChild(brand);
     var title = el('h1', 'hog-title', o.title); bar.appendChild(title);
-    var badge = el('span', 'hog-case', 'Case ' + variantNow); badge.id = 'hog-case'; badge.setAttribute('aria-label', 'Variant: case ' + variantNow + ' of 6'); bar.appendChild(badge);
+    /* students are never shown which case they have. Only a leader preview (?preview=N) says its number, in a banner. */
+    if (preview) { var pv = el('p', 'hog-preview', 'Leader preview: case ' + preview + ' of 6. This is a throwaway copy. It never changes a student’s game or assigned case.'); pv.id = 'hog-preview'; pv.setAttribute('role', 'status'); doc.body.insertBefore(pv, doc.body.firstChild); }
     var tools = el('div', 'hog-tools'); bar.appendChild(tools);
-    var caseBtn = btn('Case', '', function () { openCase(); }), savesBtn = btn('Saves', '', function () { openSaves(); }), setBtn = btn('Settings', '', function () { openSettings(); });
+    var savesBtn = btn('Saves', '', function () { openSaves(); }), setBtn = btn('Settings', '', function () { openSettings(); });
     var muteBtn = btn('', '', function () { settings.mute = !settings.mute; persist(); });
-    muteBtn.id = 'hog-mute'; caseBtn.id = 'hog-casebtn'; savesBtn.id = 'hog-savesbtn'; setBtn.id = 'hog-setbtn';
-    [caseBtn, savesBtn, muteBtn, setBtn].forEach(function (b) { tools.appendChild(b); });
+    muteBtn.id = 'hog-mute'; savesBtn.id = 'hog-savesbtn'; setBtn.id = 'hog-setbtn';
+    [savesBtn, muteBtn, setBtn].forEach(function (b) { tools.appendChild(b); });
     doc.body.insertBefore(bar, doc.body.firstChild);
 
     /* live region, captions, pulse */
@@ -77,44 +79,29 @@
       return api;
     };
 
-    /* case chooser (also used on each game's title screen) */
-    shell.caseField = function (host, onPick) {
-      var wrap = el('div', 'row'), lab = el('label', 'hog-label', 'Case code (1 to 6)'); lab.htmlFor = 'hog-caseCode'; var inp = el('input'); inp.type = 'number'; inp.id = 'hog-caseCode'; inp.min = '1'; inp.max = '6'; inp.value = String(variantNow); inp.inputMode = 'numeric'; inp.setAttribute('autocomplete', 'off');
-      var go = function (n) { n = HOG.variant.valid(n); if (n) onPick(n); else shell.toast('Case codes go from 1 to 6.'); };
-      inp.addEventListener('change', function () { go(inp.value); });
-      var rnd = btn('Random case', '', function () { go(HOG.variant.random()); });
-      var d = el('div'); d.appendChild(lab); d.appendChild(inp); wrap.appendChild(d); wrap.appendChild(rnd); host.appendChild(wrap); return inp;
-    };
-    function openCase() {
-      var body = el('div'); body.appendChild(el('p', null, 'Each case code (1 to 6) is its own version of the game with its own details and its own save.'));
-      var field = shell.caseField(body, function (n) { m.close(); goVariant(n); }); field.setAttribute('data-autofocus', '1');
-      var m = shell.modal({ title: 'Choose a case', body: body });
-    }
-    var navigating = false;
-    function goVariant(n) { if (n === variantNow || navigating) return; navigating = true; HOG.variant.remember(game, n); try { var u = new URL(root.location.href); u.searchParams.set('case', String(n)); root.location.href = u.toString(); } catch (e) { root.location.search = '?case=' + n; } }
-    shell.goVariant = goVariant;
 
     /* saves: list of six slots, open / export / delete, and import */
+    function slug(t) { return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30); }
     function download(name, text) { var b = new Blob([text], { type: 'application/json' }), u = URL.createObjectURL(b), a = el('a'); a.href = u; a.download = name; doc.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); }
     function openSaves() {
       var body = el('div'); var warn = el('p', 'hog-muted'); warn.textContent = saves.usingMemory() ? 'Saving is blocked in this browser, so progress is only kept until you close this page. Use Export to keep it.' : 'Saves stay in this browser on this device. Nothing is sent anywhere.'; body.appendChild(warn);
       var list = el('div', 'hog-slots'); body.appendChild(list);
-      saves.list().forEach(function (s) {
-        var r = el('div', 'hog-slot'), g = el('div', 'grow'); g.appendChild(el('b', null, 'Case ' + s.variant + (s.variant === variantNow ? ' (this one)' : '')));
-        g.appendChild(el('div', null, s.empty ? 'Empty' : (s.name || 'Unnamed') + (s.summary ? ' · ' + s.summary : ''))); r.appendChild(g);
-        if (!s.empty) {
-          r.appendChild(btn('Open', '', function () { m.close(); goVariant(s.variant); if (s.variant === variantNow) root.location.reload(); }));
-          r.appendChild(btn('Export', '', function () { var t = saves.exportText(s.variant); if (t) download('haunted-ohio-' + game + '-case' + s.variant + '.json', t); }));
-          r.appendChild(btn('Delete', '', function () { if (root.confirm('Delete the save for case ' + s.variant + '? This cannot be undone.')) { saves.clear(s.variant); m.close(); openSaves(); if (s.variant === variantNow && o.onCleared) o.onCleared(); } }));
-        } list.appendChild(r);
-      });
+      var cur = variantNow ? saves.load(variantNow) : null, sum = cur ? (saves.list()[variantNow - 1].summary || '') : '';
+      var r = el('div', 'hog-slot'), g = el('div', 'grow'); g.appendChild(el('b', null, 'Your saved game'));
+      g.appendChild(el('div', null, cur ? (cur.name || 'Unnamed') + (sum ? ' · ' + sum : '') : 'Nothing saved yet.')); r.appendChild(g);
+      if (cur) {
+        r.appendChild(btn('Export', '', function () { var t = saves.exportText(variantNow); if (t) download(slug(o.title) + '-save-' + (slug(cur.name) || 'player') + '.json', t); }));
+        r.appendChild(btn('Delete', '', function () { if (root.confirm('Delete this saved game? This cannot be undone.')) { saves.clear(variantNow); m.close(); if (o.onCleared) o.onCleared(); } }));
+      } list.appendChild(r);
       var imp = el('div', 'row'), lab = el('label', 'hog-label', 'Import a save file'); var inp = el('input'); inp.type = 'file'; inp.accept = '.json,application/json'; inp.id = 'hog-import'; lab.htmlFor = 'hog-import'; var d = el('div'); d.appendChild(lab); d.appendChild(inp); imp.appendChild(d); body.appendChild(imp);
       inp.addEventListener('change', function () {
         var f = inp.files && inp.files[0]; if (!f) return; if (f.size > HOG.save.MAX_IMPORT) { shell.toast('That file is too big to be a save.'); inp.value = ''; return; }
         var rd = new FileReader(); rd.onload = function () {
+          if (preview) { shell.toast('Importing is turned off in the leader preview.'); inp.value = ''; return; }
           var r = saves.importText(String(rd.result), { overwrite: false });
-          if (r.needsOverwrite) { if (root.confirm('There is already a save for case ' + r.variant + '. Replace it with the file?')) r = saves.importText(String(rd.result), { overwrite: true }); }
-          if (r.ok) { shell.toast('Imported the save for case ' + r.variant + '.'); m.close(); goVariant(r.variant); if (r.variant === variantNow) root.location.reload(); } else shell.toast(r.error);
+          if (r.needsOverwrite) { if (root.confirm('There is already a saved game on this device. Replace it with the file?')) r = saves.importText(String(rd.result), { overwrite: true }); }
+          /* a save file carries its own case: it becomes this device's assigned case */
+          if (r.ok) { HOG.variant.assign(game, r.variant); shell.toast('Imported the saved game.'); m.close(); root.location.reload(); } else shell.toast(r.error);
         }; rd.onerror = function () { shell.toast('That file could not be read.'); }; rd.readAsText(f);
       });
       var m = shell.modal({ title: 'Saves', body: body });
@@ -129,6 +116,12 @@
       var tx = el('select'); tx.id = 'hog-text'; [['1', 'Normal'], ['1.15', 'Large'], ['1.3', 'Extra large']].forEach(function (p) { var op = el('option', null, p[1]); op.value = p[0]; tx.appendChild(op); }); tx.value = String(settings.text); tx.addEventListener('change', function () { settings.text = +tx.value; persist(); }); row('Text size', tx);
       var tc = el('select'); tc.id = 'hog-touch'; [['auto', 'Automatic'], ['on', 'Always show'], ['off', 'Hide']].forEach(function (p) { var op = el('option', null, p[1]); op.value = p[0]; tc.appendChild(op); }); tc.value = settings.touch; tc.addEventListener('change', function () { settings.touch = tc.value; persist(); }); row('On-screen touch controls', tc);
       var pd = el('select'); pd.id = 'hog-pad'; [['stick', 'Drag stick'], ['dpad', 'Four arrow buttons']].forEach(function (p) { var op = el('option', null, p[1]); op.value = p[0]; pd.appendChild(op); }); pd.value = settings.pad; pd.addEventListener('change', function () { settings.pad = pd.value; persist(); }); row('Movement control', pd);
+      var er = btn('Erase my progress', '', function () {
+        if (!root.confirm('Erase all your progress in this game on this device? This cannot be undone.')) return;
+        /* the only thing that clears the assigned case. A leader preview only clears its own throwaway copy. */
+        for (var n = 1; n <= 6; n++) saves.clear(n); if (!preview) HOG.variant.unassign(game);
+        if (o.onCleared) o.onCleared();
+      }); er.id = 'hog-erase'; var erw = el('div', 'row'); erw.appendChild(er); body.appendChild(erw);
       body.appendChild(el('p', null, 'Keys: arrows or WASD move, E or Enter act, V shift worlds (The Veil), H hide (Room 214), Shift run, J journal, Esc menu.'));
       shell.modal({ title: 'Settings', body: body });
     }

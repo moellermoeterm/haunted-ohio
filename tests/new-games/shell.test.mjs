@@ -22,16 +22,18 @@ async function T(name, fn, opts = {}) {
 }
 const noH = (p) => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1);
 
-await T('shell: top bar shows the case badge; case field + Random pick a case via ?case=N', async (p) => {
-  await p.goto(base + '?case=3'); eq(await p.textContent('#hog-case'), 'Case 3', 'badge');
-  await p.click('#hog-casebtn'); await p.fill('#hog-caseCode', '5'); await p.dispatchEvent('#hog-caseCode', 'change'); await p.waitForURL(/case=5/); eq(await p.textContent('#hog-case'), 'Case 5', 'badge after switch');
-  await p.click('#hog-casebtn'); await p.fill('#hog-caseCode', '9'); await p.dispatchEvent('#hog-caseCode', 'change'); ok(/1 to 6/.test(await p.textContent('.hog-toast')), 'bad code explained'); ok(/case=5/.test(p.url()), 'bad code ignored');
+await T('shell: no case badge, case button or case field; ?case=N is ignored; ?preview=N shows a labeled banner; Erase my progress clears the saves and the assigned case', async (p) => {
+  await p.goto(base + '?case=3'); eq(await p.$('#hog-case'), null, 'no badge'); eq(await p.$('#hog-casebtn'), null, 'no Case button'); eq(await p.$('#hog-caseCode'), null, 'no case field'); eq(await p.$('#hog-preview'), null, 'no banner without ?preview'); ok(!/Case \d|case code/i.test(await p.textContent('body')), 'no case text');
+  eq(await p.evaluate(() => HOG.variant.assigned('veil')), 0, '?case=N assigns nothing');
+  await p.goto(base + '?preview=5'); ok(/Leader preview: case 5 of 6/.test(await p.textContent('#hog-preview')), 'the preview banner names the case'); ok(await p.isVisible('#hog-preview'), 'and is visible'); eq(await p.evaluate(() => HOG.variant.assigned('veil')), 0, 'a preview assigns nothing');
+  await p.goto(base); await p.evaluate(() => { HOG.variant.assign('veil', 3); saves.save(3, { v: 1, game: 'veil', variant: 3, seed: '1', name: 'Ana', created: 1, updated: 1, state: { ch: 2 }, writing: {} }); }); await p.reload();
+  await p.click('#hog-setbtn'); p.once('dialog', (x) => x.accept()); await p.click('#hog-erase'); await p.waitForFunction(() => HOG.variant.assigned('veil') === 0 && saves.load(3) === null); ok(true, 'Erase my progress clears the save and the assignment');
 });
 await T('input: keyboard actions press/release, arrows give an axis, typing in a field is ignored', async (p) => {
   await p.goto(base); await p.keyboard.press('e'); await p.keyboard.press('v'); await p.keyboard.down('ArrowLeft');
   eq((await p.evaluate(() => input.axis())).x, -1, 'axis x'); await p.keyboard.up('ArrowLeft'); eq((await p.evaluate(() => input.axis())).x, 0, 'axis released');
   const log = await p.evaluate(() => log.join(',')); ok(/p:interact,r:interact,p:shift,r:shift/.test(log), 'log ' + log);
-  await p.click('#hog-casebtn'); await p.keyboard.press('e'); ok(!(await p.evaluate(() => log.slice(-2).join(','))).includes('interact') || true, 'no-op'); await p.keyboard.press('Escape');
+  await p.click('#hog-savesbtn'); await p.keyboard.press('e'); ok(!(await p.evaluate(() => log.slice(-2).join(','))).includes('interact') || true, 'no-op'); await p.keyboard.press('Escape');
   eq(await p.evaluate(() => shell.modalOpen), false, 'Escape closes the modal'); await p.evaluate(() => { log.length = 0; }); await p.keyboard.press('v'); eq(await p.evaluate(() => log.join(',')), 'p:shift,r:shift', 'input works again after the modal closes');
 });
 await T('touch: on-screen buttons and the joystick work with pointer events at 390px, no horizontal scroll', async (p) => {
@@ -66,11 +68,11 @@ await T('modal: focus is trapped, Escape closes, focus returns to the opener', a
   await p.keyboard.press('Escape'); ok(!(await p.$('.hog-modal')), 'closed'); eq(await p.evaluate(() => document.activeElement.id), 'hog-setbtn', 'focus restored');
 });
 await T('saves menu: export, then import into a clean browser, restores the save; a malicious file is refused and nothing changes', async (p) => {
-  await p.goto(base + '?case=2'); await p.evaluate(() => { const S = HOG.schema; window.saves.save(2, { v: 1, game: 'veil', variant: 2, seed: '1', name: 'Ana', created: 1, updated: 1, state: { ch: 3 }, writing: { a: 'hi' } }); });
-  await p.click('#hog-savesbtn'); const dl = p.waitForEvent('download'); await p.click('.hog-slot:nth-child(2) >> text=Export'); const d = await dl; const file = await d.path(); const text = fs.readFileSync(file, 'utf8');
+  await p.goto(base); await p.evaluate(() => { HOG.variant.assign('veil', 2); window.saves.save(2, { v: 1, game: 'veil', variant: 2, seed: '1', name: 'Ana', created: 1, updated: 1, state: { ch: 3 }, writing: { a: 'hi' } }); });
+  await p.click('#hog-savesbtn'); const dl = p.waitForEvent('download'); await p.reload(); await p.click('#hog-savesbtn'); eq((await p.$$('.hog-slot')).length, 1, 'one saved game, not six slots'); ok(!/Case \d|case \d/.test(await p.textContent('.hog-modal')), 'no case number in the saves menu'); await p.click('.hog-slot >> text=Export'); const d = await dl; ok(!/case|\d/i.test(d.suggestedFilename().replace('.json', '')), 'no case number in the file name: ' + d.suggestedFilename()); const file = await d.path(); const text = fs.readFileSync(file, 'utf8');
   ok(JSON.parse(text).format === 'haunted-ohio-save', 'export format'); await p.keyboard.press('Escape');
   await p.evaluate(() => saves.clear(2)); eq(await p.evaluate(() => saves.load(2)), null, 'cleared');
-  await p.click('#hog-savesbtn'); p.once('dialog', (x) => x.accept()); await p.setInputFiles('#hog-import', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); await p.waitForTimeout(600);
+  await p.click('#hog-savesbtn'); p.once('dialog', (x) => x.accept()); await p.evaluate(() => HOG.variant.unassign('veil')); await p.setInputFiles('#hog-import', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); await p.waitForFunction(() => window.saves && saves.load(2) && HOG.variant.assigned('veil') === 2, null, { timeout: 8000 }); await p.waitForLoadState('load'); await p.waitForFunction(() => window.shell);
   eq(await p.evaluate(() => saves.load(2) && saves.load(2).state.ch), 3, 'restored');
   const bad = JSON.stringify({ format: 'haunted-ohio-save', formatVersion: 1, game: 'veil', variant: 4, exported: 1, data: { evil: 1 } });
   await p.evaluate(() => saves.clear(4)); await p.click('#hog-savesbtn'); await p.setInputFiles('#hog-import', { name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(bad) }); await p.waitForTimeout(400);

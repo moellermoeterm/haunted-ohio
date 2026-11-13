@@ -71,7 +71,7 @@ T('full playthrough by logic only (all variants): bell -> shift -> doors -> pews
     assert.equal(g.submitCase(d.truth, ['ledger', 'notice'], 'word '.repeat(30)).ok, false); assert.equal(g.submitCase(d.truth, ['ledger', 'letter'], 'short').ok, false);
     assert.equal(g.submitCase(d.truth, ['ledger', 'echo'], 'word '.repeat(30)).ok, true); assert.ok(g.s.caseDone);
     for (const b of L.BEATS) assert.equal(g.saveBeat(b.k, 'word '.repeat(20)).ok, true); assert.ok(g.storyReady()); g.finishStory(); assert.ok(g.s.done); assert.deepEqual(ev, ['doors', 'case', 'story']);
-    assert.match(g.reportText(), new RegExp('Case ' + v)); assert.match(g.storyText(), /The Veil, case/); assert.match(g.objective(), /complete/);
+    assert.doesNotMatch(g.reportText() + g.storyText(), /[Cc]ase \d/); assert.match(g.storyText(), /The Veil · /); assert.match(g.objective(), /complete/);
   }
 });
 T('shifting out of the sacristy in the Living World never traps the player', () => {
