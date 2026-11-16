@@ -1,6 +1,6 @@
 # The Last Light redesign: proposal (Step 3a)
 
-Status: **proposal only. No game code has been written.** Nothing is built until this is approved. Then only ONE scene is built first (the Haven Ridge radio room), delivered for review, and work stops again.
+Status: **approved by the owner; scene 1 (the radio room) is built and waiting for review on a real device.** Nothing else is built until that review. See "As built" at the end for the owner's later decisions and the places where the build differs from this proposal.
 
 ## What does not change
 - Every existing word: all six scenarios, the three missions (The Signal, The Supply Run, The Stranger), every transmission, every observation, every choice label, every journal and writing prompt, the ten final-story beats, the character creator and its perks.
@@ -118,6 +118,22 @@ Decided by the owner:
 - **Text mode** is both a visible student setting and an automatic fallback.
 - **One shared room shape** for all six scenarios is acceptable for the first review scene (each scenario keeps its own text and puzzle).
 
-Still needed:
-1. Approve the scene design above?
-2. Approve, edit or reject each of the ten proposed lines?
+- **The ten proposed lines:** approved as written.
+- **Three optional details**, approved as written and shown to every student. Each is a look-at line on an object in the room; none adds an observation or changes a score or an outcome:
+  1. Tape beside the dial: "Pencil marks on the tape beside the dial. Each one sits a little further along than the last."
+  2. Headphones on the bench, once the radio is powered: "Hold one cup to your ear. Under the static, a low, even hum."
+  3. Card pinned above the bench: "A faded procedures card. One line is underlined: repeat until acknowledged."
+- **Darkness:** full effects slightly lighter in the corners, same mood; the outline-when-near and the text prompt stay on every object.
+- **Frame rate:** a smaller internal canvas scaled up, flashlight redraws capped at about 20 a second, gated by the 30 frames-a-second test with an automatic drop to low effects.
+- **Textures:** the look-test did not read as flat shapes, so no asset files were proposed or added.
+
+## As built (scene 1): where the build differs from the text above
+- **The mission panel sits beside the room** (under it on a narrow screen) instead of on a drawn radio panel. It is the page's own panel, unchanged, and it is shown while you stand at the receiver (at the notebook for the journal). This keeps every existing word and rule in one place and keeps the existing tests driving the same controls.
+- **The shared game shell is not used.** The Last Light is a page-style game with its own menu, settings and saves; the room plugs into that page. Captions, settings and input for the room are in `last-light/js/radio-room.js`.
+- **The existing buttons stay in the panel** ("Leave the radio room for now", "Check your supplies first"). The door and the shelf press those same buttons, so both ways work and text mode is identical.
+- **After the journal is saved** the mission is complete and saved exactly as before; the room stays on screen until the student uses the door, then the map appears.
+- **The guide line** between powering the radio and the decision reuses existing text (the dial label, the decoding intro, the "What stands out?" heading, the first line of the decision), so no new line was needed.
+- **The horn** plays (with its caption) only in the scenario whose transmission has the horn. The other five scenarios' background sounds have no approved sound or caption yet, so they stay as text only.
+- **Near-object prompt:** the prompt shows the object's approved line with the key to press, rather than a separate "use the ..." label.
+- **Interface labels added** (not story text): the settings group "Radio room" with "Text mode", "Low effects", "Brightness" (Normal, Brighter, Brightest), "Contrast" (Normal, Higher, Highest) and "Volume"; the touch button "Use".
+- **View settings** are stored apart from the game save, under `ho-last-light-view`, and only when a student changes one.

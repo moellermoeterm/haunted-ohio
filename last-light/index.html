@@ -193,6 +193,34 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 @media(prefers-reduced-motion:reduce){body,.title .logo,.how{animation:none!important}.btn,.choice,.menu .btn{transition:none}}
 .pvbanner{position:sticky;top:0;z-index:60;margin:0;padding:.55rem 1rem;text-align:center;font-weight:700;background:#f2c14e;color:#17110a;border-bottom:2px solid #17110a}
 .sigtxt{word-break:break-word}
+
+/* ---------- the radio room (js/radio-room.js) ---------- */
+.rr{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:1rem;align-items:start}
+.rr-stage{position:sticky;top:5.2rem;min-width:0}
+.rr-side{min-width:0}
+@media(max-width:1000px){.rr{grid-template-columns:1fr}.rr-stage{position:static}}
+.rr-host{position:relative;background:#05070a;border:2px solid var(--line);border-radius:4px;overflow:hidden;aspect-ratio:14/9;touch-action:none;user-select:none;-webkit-user-select:none}
+.rr-canvas{width:100%;height:100%;cursor:pointer}
+.rr-canvas canvas{display:block;width:100%!important;height:100%!important;margin:0!important}
+.rr-canvas:focus-visible{outline:3px solid var(--sig);outline-offset:-3px}
+.rr-intro{position:absolute;left:6%;right:6%;top:50%;transform:translateY(-50%);margin:0;padding:.8rem 1rem;background:rgba(5,7,10,.82);border-left:4px solid var(--sig);font-size:1.05rem;pointer-events:none}
+.rr-cap{position:absolute;left:50%;top:.5rem;transform:translateX(-50%);margin:0;padding:.2rem .7rem;background:rgba(0,0,0,.82);border:1px solid var(--line);border-radius:3px;font-family:var(--mono);font-size:.9rem;color:#e9e4d2;max-width:92%;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rr-prompt{position:absolute;left:50%;bottom:.6rem;transform:translateX(-50%);margin:0;padding:.35rem .8rem;background:rgba(0,0,0,.86);border:2px solid var(--amber);border-radius:3px;max-width:76%;pointer-events:none;font-size:.98rem;text-align:center}
+.rr-prompt kbd{font-family:var(--mono);background:var(--amber);color:#1a0f05;border-radius:2px;padding:0 .35rem;font-weight:700}
+.rr-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rr-guide{margin:0 0 .8rem;padding:.55rem .8rem;background:var(--panel2);border-left:4px solid var(--amber);font-weight:600}
+.rr-stick{position:absolute;left:.7rem;bottom:.7rem;width:92px;height:92px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.35);display:none;touch-action:none}
+.rr-stick i{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(255,255,255,.45)}
+.rr-use{position:absolute;right:.7rem;bottom:.7rem;display:none;min-width:76px}
+.rr-use:disabled{opacity:.4}
+@media(pointer:coarse){.rr-stick{display:block}.rr-use{display:block}.rr-prompt{bottom:auto;top:2.6rem}.rr-prompt kbd{display:none}}
+.rr-dial{display:flex;gap:.8rem;align-items:center;justify-content:center;margin:.8rem 0;flex-wrap:wrap}
+.rr-knob{width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8a8f8b,#1c1f1d 70%);border:3px solid #0a0c09;box-shadow:0 4px 10px rgba(0,0,0,.6);position:relative;cursor:grab;touch-action:none;flex:none}
+.rr-knob i{position:absolute;inset:0;border-radius:50%}
+.rr-knob i:after{content:"";position:absolute;left:50%;top:8px;width:5px;height:30px;margin-left:-2.5px;background:#e8e0c8;border-radius:2px}
+.rr-settings label{display:flex;gap:.6rem;align-items:center;margin:.5rem 0}
+.rr-settings input[type=checkbox]{width:20px;height:20px}
+.rr-settings select{font:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:.3rem .5rem;min-height:40px}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 <script src="../assets/js/ho-track.js"></script>
@@ -208,6 +236,8 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 <script src="scenarios/s4.js"></script>
 <script src="scenarios/s5.js"></script>
 <script src="scenarios/s6.js"></script>
+<script src="js/room-art.js"></script>
+<script src="js/radio-room.js"></script>
 <script>
 (function(){
 'use strict';
@@ -322,9 +352,10 @@ function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]}
 function setP(p,v){var k=p.split('.'),o=S;for(var i=0;i<k.length-1;i++){if(!o[k[i]])o[k[i]]={};o=o[k[i]]}o[k[k.length-1]]=v}
 var tt;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},3300)}
 function ac(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();return AC}
-function blip(f,d,ty){if(!S.sound)return;try{var c=ac(),o=c.createOscillator(),g=c.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(c.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
-function staticOn(){if(!S.sound||NG)return;try{var c=ac(),len=c.sampleRate*2,b=c.createBuffer(1,len,c.sampleRate),d=b.getChannelData(0);for(var i=0;i<len;i++)d[i]=Math.random()*2-1;NOISE=c.createBufferSource();NOISE.buffer=b;NOISE.loop=true;NG=c.createGain();NG.gain.value=.05;NOISE.connect(NG);NG.connect(c.destination);NOISE.start()}catch(e){NG=null}}
-function staticSet(v){if(NG)try{NG.gain.value=Math.max(0,Math.min(.12,v*.12))}catch(e){}}
+function blip(f,d,ty){if(!S.sound)return;try{var c=ac(),o=c.createOscillator(),g=c.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.value=.05*VOL();o.connect(g);g.connect(c.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
+function staticOn(){if(!S.sound||NG)return;try{var c=ac(),len=c.sampleRate*2,b=c.createBuffer(1,len,c.sampleRate),d=b.getChannelData(0);for(var i=0;i<len;i++)d[i]=Math.random()*2-1;NOISE=c.createBufferSource();NOISE.buffer=b;NOISE.loop=true;NG=c.createGain();NG.gain.value=.05*VOL();NOISE.connect(NG);NG.connect(c.destination);NOISE.start()}catch(e){NG=null}}
+function VOL(){return window.LLRoom?LLRoom.volume():1}
+function staticSet(v){if(NG)try{NG.gain.value=Math.max(0,Math.min(.12,v*.12))*VOL()}catch(e){}}
 function staticOff(){try{if(NOISE)NOISE.stop()}catch(e){}NOISE=null;NG=null}
 function xp(n,why){S.xp+=n;toast('+'+n+' XP: '+why)}
 function award(id){if(S.ach[id])return;S.ach[id]=true;var a=ACH.filter(function(x){return x.id===id})[0];setTimeout(function(){toast('Achievement unlocked: '+a.n);blip(880,.3)},1000)}
@@ -407,7 +438,9 @@ map:function(){
   (done>=3?'<div class="fb good"><b>'+esc(SC.leads)+'</b> The next stage of the game opens that path. For now, your story is ready: the final story is unlocked once you have 3 journal entries.</div>':'')+'</div>'
 },
 
-mission:function(){return hud()+'<div class="wrap">'+(MISSIONS[S.m&&S.m.id]||function(){return '<p>No mission.</p>'})()+'</div>'},
+mission:function(){var mh=(MISSIONS[S.m&&S.m.id]||function(){return '<p>No mission.</p>'})();
+ /* The Signal is played inside the radio room (js/radio-room.js). The room only shows this same panel; text mode, or a canvas that cannot start, shows it as before. */
+ return hud()+'<div class="wrap">'+(roomOn()?LLRoom.frame(mh):mh)+'</div>'},
 
 pack:function(){
  var inv=S.inv.map(function(i){return '<li>'+esc(i)+'</li>'}).join('');
@@ -451,7 +484,7 @@ final:function(){
 settings:function(){return (S.started?hud():'')+'<div class="wrap" style="max-width:640px"><h2>Save and settings</h2><div class="panel"><p>Your progress saves automatically in this browser on this device. To move to another device, export a save file and import it there.</p>'+
  '<div class="row"><button class="btn" data-act="export">Export save file</button><label class="btn ghost" style="margin:0;display:inline-block">Import save file<input type="file" id="imp" accept=".json,application/json" style="display:none"></label></div>'+
  '<p class="muted" style="margin-top:.8rem">Clearing browser data erases your progress unless you exported a file.</p></div>'+
- '<div class="panel" style="margin-top:1rem"><label style="display:flex;gap:.6rem;align-items:center"><input type="checkbox" data-act="sound"'+(S.sound?' checked':'')+' style="width:20px;height:20px">Sound effects</label></div>'+
+ '<div class="panel" style="margin-top:1rem"><label style="display:flex;gap:.6rem;align-items:center"><input type="checkbox" data-act="sound"'+(S.sound?' checked':'')+' style="width:20px;height:20px">Sound effects</label></div>'+(window.LLRoom?LLRoom.settingsHTML():'')+
  '<div class="panel" style="margin-top:1rem"><p>Start over and erase this game?</p><button class="btn ghost" data-act="reset">Erase my progress</button></div>'+
  '<p style="margin-top:1rem"><button class="btn ghost" data-act="menu">Back to menu</button></p></div>'},
 
@@ -614,10 +647,13 @@ function strTalk(id){
 }
 
 /* ---------- rendering ---------- */
+function roomOn(){return !!(window.LLRoom&&LLRoom.on()&&S.m&&S.m.id==='signal')}
+var ROOM_API={S:function(){return S},SC:function(){return SC},clarity:function(f){return clarity(f)},render:function(){render()}};
 function render(){
  var f=SCREENS[S.screen]||SCREENS.title;
  if(S.screen==='mission'&&!S.m){S.screen='map';f=SCREENS.map}
  document.getElementById('app').innerHTML=pvBanner()+f();
+ if(window.LLRoom)LLRoom.sync(ROOM_API);
 }
 
 /* ---------- events ---------- */

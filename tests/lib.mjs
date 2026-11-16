@@ -27,9 +27,13 @@ export const IGNORED = /fonts\.g|ERR_|Failed to load resource|net::|favicon/i;
 // Games assign one of six cases at random on the first Begin. So that tests written for a known case stay repeatable, a normal test
 // page starts with case 1 already assigned in all four games. Tests about the assignment itself ask for a raw page: newPage(vp, { raw: true }).
 export const ASSIGN_KEYS = ['ho-haunting-files-assign', 'ho-last-light-assign', 'ho-veil-assign', 'ho-room214-assign'];
+// The Last Light plays The Signal inside the radio room. Tests written for the page-style mission ask for it the way the game's own
+// text mode does, without touching storage: the page reads window.LL_TEXT_MODE. Tests about the room itself ask for newPage(vp, { room: true }).
+// { touch: true } gives a touch screen; { reduced: true } asks for reduced motion.
 export async function newPage(browser, errs, viewport = { width: 1366, height: 800 }, opts = {}) {
-  const ctx = await browser.newContext({ viewport: viewport || { width: 1366, height: 800 }, acceptDownloads: true });
+  const ctx = await browser.newContext({ viewport: viewport || { width: 1366, height: 800 }, acceptDownloads: true, hasTouch: !!opts.touch, isMobile: !!opts.touch, reducedMotion: opts.reduced ? 'reduce' : 'no-preference' });
   const page = await ctx.newPage();
+  if (!opts.room) await page.addInitScript(() => { window.LL_TEXT_MODE = true; });
   if (!opts.raw) await page.addInitScript((keys) => { try { keys.forEach((k) => { if (!localStorage.getItem(k)) localStorage.setItem(k, '1'); }); } catch (e) { /* storage blocked */ } }, ASSIGN_KEYS);
   page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !IGNORED.test(m.text())) errs.push('console: ' + m.text()); });
