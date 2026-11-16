@@ -141,11 +141,11 @@ Process (same as The Last Light)
 - c) ONE hallway or floor first, as a pull request on the development branch with a short play guide. Stop for review on a real device. Nothing else is built until approved.
 - d) The playthrough bots, the sneaking bot and all six variants keep passing. Touching tests, then the full suite once, alone, before any pull request.
 
-How the brief meets the game as it is today (to settle in the proposal, not decided here)
-- The hotel has three floors (the lobby floor, floor 2, floor 3) joined by a stairwell. There is no basement, service corridor or working elevator in the map. Giving each of the three existing floors its own mood changes nothing; adding areas would change the map and the bots.
-- There is one kind of hiding spot in the rules. It can be drawn as a closet, a bed or a laundry cart depending on where it sits, with the same rule underneath.
-- The Porter's sight already follows line of sight through the map. Drawn shadows must match that rule exactly, so what looks like cover is cover.
-- An elevator can be set dressing (an indicator that does not move the player) without a rule change.
+Decided by the owner (these settle where the brief and the game as it is today differ)
+- **Three floors, each with its own mood.** The hotel keeps its three existing floors (the lobby floor, floor 2, floor 3) joined by the stairwell. No basement, service corridor or other area is added, so the map and the bots do not change.
+- **The elevator is set dressing.** It has a floor indicator and never moves the player. The stairwell stays the only way between floors.
+- **One hiding-spot rule.** The single existing rule is drawn as a closet, a bed or a laundry cart depending on where the spot sits. What it does is the same everywhere.
+- **Shadows come from the Porter's own line of sight.** The drawn shadows are produced by the same line-of-sight function the Porter uses, not by a separate drawing rule, so what looks like cover is cover. A test must prove the visuals and the rule never disagree (for sampled positions on every floor and in all six variants, a spot is drawn as hidden from the Porter exactly when the rule says he cannot see it).
 
 ### Step 4. The site
 Light touch: carry the visual language to the game cards and loading screens. Lessons and tools keep their layout and text.

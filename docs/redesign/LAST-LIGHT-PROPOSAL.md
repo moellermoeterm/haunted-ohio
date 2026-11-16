@@ -135,5 +135,5 @@ Decided by the owner:
 - **The guide line** between powering the radio and the decision reuses existing text (the dial label, the decoding intro, the "What stands out?" heading, the first line of the decision), so no new line was needed.
 - **The horn** plays (with its caption) only in the scenario whose transmission has the horn. The other five scenarios' background sounds have no approved sound or caption yet, so they stay as text only.
 - **Near-object prompt:** the prompt shows the object's approved line with the key to press, rather than a separate "use the ..." label.
-- **Interface labels added** (not story text): the settings group "Radio room" with "Text mode", "Low effects", "Brightness" (Normal, Brighter, Brightest), "Contrast" (Normal, Higher, Highest) and "Volume"; the touch button "Use".
+- **Interface labels added, approved by the owner** (not story text): the settings group "Radio room" with "Text mode", "Low effects", "Brightness" (Normal, Brighter, Brightest), "Contrast" (Normal, Higher, Highest) and "Volume"; the touch button "Use".
 - **View settings** are stored apart from the game save, under `ho-last-light-view`, and only when a student changes one.
