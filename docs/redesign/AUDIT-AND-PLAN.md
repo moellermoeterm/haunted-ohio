@@ -121,6 +121,32 @@ Keep every case, exhibit, classification, contradiction, theory, report and stor
 ### Step 3. The Veil and Room 214
 Art and sound pass on what already works: tile textures, lighting and shadows, weather, footsteps, doors, the Porter's presence. No rule or story changes.
 
+#### Room 214 visual direction (owner's brief, recorded; no work starts until its own proposal is approved)
+The order of the games is unchanged. This is art and feel only: every mechanic, story line, variant, save, the random case assignment, and touch and keyboard controls stay as they are.
+
+Problem: Room 214 looks bland. Sneaking through the hotel at night should feel like a video game, with atmosphere, depth and tension, not flat shapes.
+
+Goals
+1. **Lighting and shadow.** A visible flashlight cone with soft edges, dust or fog in the beam, and walls and furniture that cast shadows. A few working ceiling lights with warm pools, light under doors, moonlight through windows. Darkness is tense but never hides controls or objectives: outline-when-near plus a text prompt on every interactable, a visible next-step line, nothing essential shown by darkness alone.
+2. **Hotel detail.** Patterned carpet with wear, stained and peeling wallpaper, baseboards, door frames with brass room numbers, a red exit sign with a slow flicker (no more than 2 flashes a second), a luggage cart, a vending machine, an elevator with a floor indicator, a stairwell, vents, light fixtures. Each floor has its own mood. Props make hiding spots readable at a glance.
+3. **The threat.** A distinct silhouette, readable movement, and a clear "it noticed you" cue (screen-edge tint, a pulse, an indicator). Tense, not graphic: no gore, no blood, no injuries, for ages 14 to 18. Being caught still returns the player to a checkpoint.
+4. **Noise and feedback.** Visible noise rings and footstep trails, a proximity heartbeat or tone that rises as the threat nears, creaks, drips, a distant hum. Every sound has an on-screen caption and a visual indicator; sound is never required. No sudden loud sounds; volume and mute stay in Settings.
+5. **Camera and polish.** Smooth follow with slight look-ahead, a vignette, optional film grain, subtle sway while running, tidy transitions, all respecting the settings below.
+6. **Settings and safety.** Low-effects mode (no flicker, grain, sway or moving light; even lighting), brightness and contrast (three steps each), reduced motion, no flashing above 3 times a second, a text mode or fallback if the canvas cannot start, and keyboard, touch and trackpad all working.
+7. **Performance.** At least 30 frames per second with the processor throttled 4 times, measured in the existing test, with automatic drop to low-effects as the fallback. Static lighting baked once, a smaller internal canvas scaled up if needed, capped light redraws, new assets under 3 MB. No remote assets or network calls except the anonymous counter. Code-generated textures first; any openly licensed asset (CC0 preferred) is proposed first and recorded in `docs/ASSETS.md` with source, author and license text before it is added. No copyrighted assets, no real brand names.
+
+Process (same as The Last Light)
+- a) A short proposal first, no game code: every change, the budget, every proposed new line of text, sound or caption, and every asset with its license. Wait for approval.
+- b) Before building, an in-engine look-test of one hallway section at night (full effects and low-effects, before and after), with frame rates measured while moving, not only standing still.
+- c) ONE hallway or floor first, as a pull request on the development branch with a short play guide. Stop for review on a real device. Nothing else is built until approved.
+- d) The playthrough bots, the sneaking bot and all six variants keep passing. Touching tests, then the full suite once, alone, before any pull request.
+
+How the brief meets the game as it is today (to settle in the proposal, not decided here)
+- The hotel has three floors (the lobby floor, floor 2, floor 3) joined by a stairwell. There is no basement, service corridor or working elevator in the map. Giving each of the three existing floors its own mood changes nothing; adding areas would change the map and the bots.
+- There is one kind of hiding spot in the rules. It can be drawn as a closet, a bed or a laundry cart depending on where it sits, with the same rule underneath.
+- The Porter's sight already follows line of sight through the map. Drawn shadows must match that rule exactly, so what looks like cover is cover.
+- An elevator can be set dressing (an indicator that does not move the player) without a rule change.
+
 ### Step 4. The site
 Light touch: carry the visual language to the game cards and loading screens. Lessons and tools keep their layout and text.
 
