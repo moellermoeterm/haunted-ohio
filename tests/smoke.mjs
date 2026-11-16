@@ -564,29 +564,11 @@ T('haunting-files: six cases, each with 9 exhibits of all six types, 3 real cont
   eq(new Set(names).size, 6, 'six different places'); eq(files.size, 6, 'six different file numbers'); ok(new Set(strongest).size >= 4, 'varied strongest explanations: ' + strongest);
   eq(errs.length, 0, 'no page errors: ' + errs);
 });
-T('haunting-files: case code (?case=N, title field, random), per-case save slots, case shown in bar and saves', async ({ base, newPage }) => {
-  const p = await newPage();
-  await p.goto(base + 'haunting-files/?case=3'); await p.waitForTimeout(150);
-  ok(/Miami/.test(await p.textContent('#brief')), '?case=3 shows case 3 on the title screen'); eq(await p.inputValue('#caseCode'), '3', 'field shows the code');
-  await p.fill('#caseCode', '5'); await p.dispatchEvent('#caseCode', 'change'); await p.waitForTimeout(150);
-  ok(/Reformatory/.test(await p.textContent('#brief')), 'typing 5 switches to case 5'); eq(await p.inputValue('#caseCode'), '5', 'field keeps the code');
-  await p.click('[data-act="randcase"]'); const rc = +(await p.inputValue('#caseCode')); ok(rc >= 1 && rc <= 6, 'random gives 1 to 6: ' + rc);
-  await p.fill('#caseCode', '2'); await p.dispatchEvent('#caseCode', 'change');
-  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-act="begin"]'); await p.waitForTimeout(150);
-  ok(/Case 2/.test(await p.textContent('.casechip')), 'top bar shows the case code'); ok(/Golden Lamb/.test(await p.textContent('.paper h2')), 'case page is the Golden Lamb');
-  eq((await p.$$('.ex')).length, 9, 'nine exhibits');
-  await p.click('[data-act="readcase"]'); await p.click('.ex >> nth=0'); await p.click('[data-file] >> nth=0'); await p.waitForTimeout(100);
-  const s2 = JSON.parse(await lsGet(p, 'hf_save_v1_c2')); ok(s2 && s2.started && s2.case === 2, 'case 2 saves under hf_save_v1_c2 and records case: 2');
-  eq(await lsGet(p, 'hf_save_v1'), null, 'the original case-1 slot is untouched by other cases');
-  await p.goto(base + 'haunting-files/?case=4'); await p.click('[data-act="menu"]'); ok(!(await p.$('[data-act="resume"]')), 'case 4 has its own empty slot');
-  await p.goto(base + 'haunting-files/?case=2'); await p.click('[data-act="menu"]'); ok(await p.$('[data-act="resume"]'), 'case 2 still resumes');
-  await p.goto(base + 'haunting-files/'); await p.waitForTimeout(150); eq(await lsGet(p, 'hf_case'), '2', 'the last case played on this device is remembered'); ok(await p.$('[data-act="resume"]'), 'and its save resumes');
-});
 T('haunting-files: every case can be played from start to a filed report (no dead ends)', async ({ base, newPage }) => {
   const words = (n) => Array.from({ length: n }, (_, i) => 'word' + i).join(' ');
   for (const k of [1, 2, 3, 4, 5, 6]) {
     const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
-    await p.goto(base + 'haunting-files/?case=' + k);
+    await p.goto(base + 'haunting-files/?preview=' + k);
     const c = await p.evaluate((n) => JSON.parse(JSON.stringify(window.HF_CASES[n])), k);
     await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Player' + k); await p.click('[data-act="begin"]'); await p.waitForTimeout(100);
     await p.click('[data-act="readcase"]');
@@ -621,12 +603,12 @@ T('haunting-files: seeded shuffle is repeatable for a name and case; a pre-varia
   const order = async (p) => p.$$eval('[data-pick]', (e) => e.map((x) => x.getAttribute('data-pick')).join(''));
   const start = async (p, url, name) => { await p.goto(base + url); await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); await p.click('[data-act="begin"]'); await p.waitForTimeout(100);
     await p.click('[data-act="readcase"]'); for (const i of [2, 3]) { await p.click(`.ex >> nth=${i}`); await p.click('[data-file] >> nth=0'); } await p.click('[data-go="interview"]'); await p.waitForTimeout(100); };
-  const p = await newPage(); await start(p, 'haunting-files/?case=2', 'Ada'); const o1 = await order(p); eq(o1.length, 5, 'five options');
+  const p = await newPage(); await start(p, 'haunting-files/?preview=2', 'Ada'); const o1 = await order(p); eq(o1.length, 5, 'five options');
   await p.reload(); await p.waitForTimeout(150); eq(await order(p), o1, 'same name and case give the same order after a reload');
   const q = await newPage(); await q.addInitScript(() => { try { localStorage.setItem('hf_save_v1', JSON.stringify({ v: 1, started: true, name: 'Old', screen: 'interview', xp: 20, sel: null, cls: { E3: 'eye', E4: 'eye' }, coll: { E3: true, E4: true }, links: [], contra: { pick: [], text: '', done: false, score: 0 }, th: { choice: '', cites: [], why: '', change: '', done: false }, report: '', filed: false, story: {}, ach: {}, sound: true, readCase: true })); } catch (e) { /* ignore */ } });
   await q.goto(base + 'haunting-files/'); await q.waitForTimeout(200); eq(await order(q), 'abcde', 'a save from before variants keeps the original order (case 1)');
-  ok(/Case 1/.test(await q.textContent('.casechip')), 'a pre-variant save is Case 1');
-  const names = new Set(); for (const n of ['Ada', 'Ben', 'Cy', 'Di', 'Ed', 'Flo']) { const r = await newPage(); await start(r, 'haunting-files/?case=1', n); names.add(await order(r)); } ok(names.size >= 2, 'different names get different orders: ' + [...names]);
+  eq(await q.$('.casechip'), null, 'no case chip in the top bar'); eq(await lsGet(q, 'ho-haunting-files-assign'), '1', 'a save from before cases were assigned keeps case 1');
+  const names = new Set(); for (const n of ['Ada', 'Ben', 'Cy', 'Di', 'Ed', 'Flo']) { const r = await newPage(); await start(r, 'haunting-files/?preview=1', n); names.add(await order(r)); } ok(names.size >= 2, 'different names get different orders: ' + [...names]);
 });
 
 // ---------------------------------------------------------------- The Last Light
@@ -665,7 +647,7 @@ T('last-light: a save made BEFORE the P5 restyle still loads and plays', async (
 // ---------------------------------------------------------------- The Last Light: six scenarios (Phase 6)
 const llSeed = (patch) => '(function(){try{var b=' + fixture('ll_save_pre_p5.json') + ';var p=' + JSON.stringify(patch) + ';for(var k in p)b[k]=p[k];localStorage.setItem("tll_save_v1",JSON.stringify(b))}catch(e){}})()';
 const lsText = (page) => page.evaluate(() => JSON.stringify(Object.keys(localStorage).map((k) => localStorage.getItem(k))));
-const llKey = () => Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d)?$/.test(x));
+const llKey = () => Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d|_pv\d)?$/.test(x));
 T('last-light: six scenarios, each with its own map, signal and decoding puzzle, stranger, supply run and cause of The Silence', async ({ base, newPage }) => {
   const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   await p.goto(base + 'last-light/');
@@ -687,25 +669,10 @@ T('last-light: six scenarios, each with its own map, signal and decoding puzzle,
   ok(/2047/.test(t) && /11:47 p\.m\. on October 31, 2026/.test(t), 'the title screen keeps 2047 and Oct 31, 2026 at 11:47 p.m.');
   eq(errs.length, 0, 'no page errors: ' + errs);
 });
-T('last-light: case code (?case=N, title field, random), per-case save slots, case shown in bar and saves', async ({ base, newPage }) => {
-  const p = await newPage();
-  await p.goto(base + 'last-light/?case=4'); await p.waitForTimeout(150); eq(await p.inputValue('#caseCode'), '4', '?case=4 sets the field');
-  await p.fill('#caseCode', '6'); await p.dispatchEvent('#caseCode', 'change'); await p.waitForTimeout(100); eq(await p.inputValue('#caseCode'), '6', 'typing 6 switches the case');
-  await p.click('[data-act="randcase"]'); const rc = +(await p.inputValue('#caseCode')); ok(rc >= 1 && rc <= 6, 'random gives 1 to 6: ' + rc);
-  await p.fill('#caseCode', '3'); await p.dispatchEvent('#caseCode', 'change');
-  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:bold"]'); await p.click('[data-cr="str:hands"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(150);
-  ok(/Case 3/.test(await p.textContent('.casechip')), 'the bar shows the case code');
-  ok(/Ashgrove Silo/.test(await p.textContent('.mapbox')), 'the map is the scenario 3 map'); ok(/Columbus/.test(await p.textContent('.mapbox svg')), 'with its own labels');
-  const s3 = JSON.parse(await lsGet(p, 'tll_save_v1_c3')); ok(s3 && s3.started && s3.case === 3 && s3.vs, 'saved under tll_save_v1_c3 with case: 3 and a seed');
-  eq(await lsGet(p, 'tll_save_v1'), null, 'the original scenario-1 slot is untouched');
-  ok(/Survivor Tester wakes in Ashgrove Silo/.test(s3.log[0].t), 'the log names the scenario\'s opening location');
-  await p.goto(base + 'last-light/?case=5'); await p.click('[data-act="menu"]'); ok(!(await p.$('[data-act="resume"]')), 'scenario 5 has its own empty slot');
-  await p.goto(base + 'last-light/'); await p.waitForTimeout(100); eq(await lsGet(p, 'tll_case'), '5', 'the last case played is remembered');
-});
 T('last-light: every scenario\'s signal can be tuned, decoded and analysed from the UI', async ({ base, newPage }) => {
   for (const k of [1, 2, 3, 4, 5, 6]) {
     const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
-    await p.goto(base + 'last-light/?case=' + k);
+    await p.goto(base + 'last-light/?preview=' + k);
     const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k);
     await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester' + k);
     await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:bold"]'); await p.click('[data-cr="str:hands"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(100);
@@ -740,11 +707,11 @@ T('last-light: every scenario\'s supply run and stranger can be completed (no de
   const words = (n) => Array.from({ length: n }, (_, i) => 'word' + i).join(' ');
   for (const k of [1, 2, 3, 4, 5, 6]) {
     const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
-    await p.goto(base + 'last-light/?case=' + k);
+    await p.goto(base + 'last-light/?preview=' + k);
     const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k);
     await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester' + k);
     await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:suspicious"]'); await p.click('[data-cr="str:eyes"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(100);
-    await p.evaluate(() => { const key = Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d)?$/.test(x)); const s = JSON.parse(localStorage.getItem(key)); s.done.signal = true; s.res.meds = 4; s.res.food = 9; s.res.water = 9; localStorage.setItem(key, JSON.stringify(s)); });
+    await p.evaluate(() => { const key = Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d|_pv\d)?$/.test(x)); const s = JSON.parse(localStorage.getItem(key)); s.done.signal = true; s.res.meds = 4; s.res.food = 9; s.res.water = 9; localStorage.setItem(key, JSON.stringify(s)); });
     await p.reload(); await p.waitForTimeout(150);
     if (await p.$('[data-act="resume"]')) await p.click('[data-act="resume"]'); else if (await p.$('[data-act="menu"]')) { await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); }
     /* supply run */
@@ -755,7 +722,7 @@ T('last-light: every scenario\'s supply run and stranger can be completed (no de
     await p.click('[data-act="sup-pack"]'); await p.click('[data-act="sup-ev"][data-v="look"]'); await p.waitForTimeout(50);
     await p.fill('[data-bind="m.warn"]', 'Avoid the ' + (sc.supply.haz || 'flood').split('|').slice(0, 3).join(' and the ') + '. Stay close to the walls, watch the floor, and keep your light low. Do not go upstairs alone, check every step first.');
     await p.click('[data-act="sup-warn"]'); ok(/Write about the supply run/.test(await p.textContent('.wrap')), 'scenario ' + k + ': a warning that names two real hazards is accepted and the journal step opens');
-    const clues = await p.evaluate((key) => JSON.parse(localStorage.getItem(Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d)?$/.test(x)))).clues, 0);
+    const clues = await p.evaluate((key) => JSON.parse(localStorage.getItem(Object.keys(localStorage).find((x) => /^tll_save_v1(_c\d|_pv\d)?$/.test(x)))).clues, 0);
     ok(clues.includes(sc.supply.items.box.clue) && clues.includes(sc.supply.items.lan.clue) && clues.includes(sc.supply.notebook), 'scenario ' + k + ': the clues about the cause of The Silence are collected');
     await p.fill('[data-bind="m.jtext"]', 'I took the clues and left the rest. ' + words(26)); await p.click('[data-act="savejournal"]'); await p.waitForTimeout(60);
     /* stranger */
@@ -798,27 +765,16 @@ T('last-light: Scenario 1 still shows the original text now that it is assembled
 });
 
 // ---------------------------------------------------------------- Teacher tools (Phase 6)
-T('teacher: six links per game and a seating helper where touching seats never share a case code', async ({ base, newPage }) => {
+T('teacher fixture: says cases are assigned at random, has six leader-preview links per game, no case links, no seating helper and no place for student names', async ({ base, newPage }) => {
   const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
   await gotoTeacher(p, base); await p.waitForTimeout(200);
-  eq((await p.$$eval('#hfLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../haunting-files/?case=' + n).join(','), 'six Haunting Files links');
-  eq((await p.$$eval('#llLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../last-light/?case=' + n).join(','), 'six Last Light links');
-  eq((await p.$$eval('#vlLinks a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../the-veil/?case=' + n).join(','), 'six The Veil links');
-  eq((await p.$$eval('#r2Links a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => '../room-214/?case=' + n).join(','), 'six Room 214 links');
-  for (const [rows, cols] of [[5, 6], [3, 3], [8, 12], [1, 4], [12, 1]]) {
-    await p.fill('#rows', String(rows)); await p.fill('#cols', String(cols)); await p.click('#make');
-    for (let i = 0; i < 3; i++) { await p.click('#shuffle'); }
-    const codes = await p.$$eval('.seat b', (e) => e.map((x) => +x.textContent)); eq(codes.length, rows * cols, 'one seat per place');
-    const g = (r, c) => (r < 0 || c < 0 || r >= rows || c >= cols ? 0 : codes[r * cols + c]);
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const v = g(r, c); ok(v >= 1 && v <= 6, 'valid code');
-      for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) { const w = g(r + dr, c + dc); ok(!w || w !== v, `seat ${r},${c} and its neighbor share code ${v} (${rows}x${cols})`); } }
-    if (rows * cols >= 6) ok(new Set(codes).size >= Math.min(6, rows * cols), 'all six codes are used in a big enough room');
-  }
-  await p.fill('#names', '<img src=x onerror=window.__xss=1>\nAda\nBen'); await p.fill('#rows', '2'); await p.fill('#cols', '3'); await p.click('#make');
-  ok(!(await p.evaluate(() => window.__xss)) && !(await p.$('.seat img')), 'pasted names are escaped, never injected as markup'); ok(/Ada/.test(await p.textContent('#plan')), 'names appear in the plan');
-  ok(!(await p.evaluate(() => Object.keys(localStorage).some((k) => /name|seat|teacher/i.test(k) || /Ada/.test(localStorage.getItem(k) || '')))), 'nothing is stored');
+  for (const [id, path2] of [['hfLinks', '../haunting-files/'], ['llLinks', '../last-light/'], ['vlLinks', '../the-veil/'], ['r2Links', '../room-214/']]) eq((await p.$$eval('#' + id + ' a.primary', (e) => e.map((x) => x.getAttribute('href')))).join(','), [1, 2, 3, 4, 5, 6].map((n) => path2 + '?preview=' + n).join(','), 'six preview links in ' + id);
+  const txt = await p.innerText('#main'); ok(/Cases are assigned at random/.test(txt), 'says cases are assigned at random'); ok(/same case by chance/.test(txt), 'says neighbors can match'); ok(/Leader preview/.test(txt), 'a Leader preview section');
+  eq(await p.$$eval('a[href*="?case="]', (e) => e.length), 0, 'no ?case= links'); eq((await p.$$('#rows, #cols, #make, #shuffle, #names, #plan, .seat, textarea, input[type="text"]')).length, 0, 'no seating helper and nowhere to type student names'); ok(!/seating|case code/i.test(txt), 'no seating or case-code wording');
   eq(reqs.length, 0, 'nothing is sent anywhere: ' + reqs.join(','));
   await p.goto(base); await p.evaluate(() => { location.hash = '#leaders'; }); await p.waitForTimeout(300); eq((await p.$$('#leaders a[href="teacher/"]')).length, 1, 'the leaders page has the one visible link to the leader tools (the page behind it is locked; see docs/leaders/HOW-TO-LOCK.md)');
+  /* preview links are never on a public page */
+  for (const u of ['', 'show-dont-tell/', 'haunting-files/', 'last-light/', 'the-veil/', 'room-214/']) { const body = await (await fetch(base + u)).text(); ok(!/href=["'][^"']*\?preview=/.test(body), 'a public page links to a preview: ' + (u || 'home')); }
   eq(errs.length, 0, 'no page errors: ' + errs);
 });
 
@@ -972,13 +928,11 @@ T('locked page: a wrong password shows only the error (with a delay that grows),
   /* Lock again: reload = the prompt again, content gone */
   await p.click('#ho-lock-again'); await p.waitForSelector('#pw'); await p.waitForTimeout(150); ok(await p.isVisible('#go') && !(await p.textContent('body')).includes(LOCK_MARKER), 'back to the locked prompt'); ok(!(await storeDump(p)).includes(LOCK_MARKER), 'still nothing stored');
 });
-T('locked page: the real teacher page, locked and unlocked, still works (six links per game and the seating helper)', async ({ base, newPage }) => {
+T('locked page: the real teacher page, locked and unlocked, still works (the random-assignment note and the leader-preview links)', async ({ base, newPage }) => {
   const real = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8'); const { p: lp, text } = await lockIt(newPage, base, real, FAKE_LONG); await lp.close();
-  ok(!text.includes('Seating') && !text.includes('hfLinks') && !text.includes('case code'), 'no readable teacher content in the locked file');
+  ok(!text.includes('Leader preview') && !text.includes('hfLinks') && !text.includes('?preview='), 'no readable teacher content in the locked file');
   const p = await newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); await serveLocked(p, base, text); await p.fill('#pw', FAKE_LONG); await p.click('#go'); await p.waitForSelector('#hfLinks a.primary', { timeout: 15000 });
-  eq((await p.$$eval('#hfLinks a.primary', (e) => e.length)), 6, 'six Haunting Files links'); eq((await p.$$eval('#vlLinks a.primary', (e) => e.length)), 6, 'six The Veil links');
-  await p.fill('#rows', '4'); await p.fill('#cols', '5'); await p.click('#make'); await p.click('#shuffle'); const codes = await p.$$eval('.seat b', (e) => e.map((x) => +x.textContent)); eq(codes.length, 20, 'the seating helper works after unlock'); ok(codes.every((c) => c >= 1 && c <= 6), 'valid case codes');
-  const g = (r, c) => (r < 0 || c < 0 || r >= 4 || c >= 5 ? 0 : codes[r * 5 + c]); for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) { const w = g(r + dr, c + dc); ok(!w || w !== g(r, c), 'neighbors share a code'); }
+  eq((await p.$$eval('#hfLinks a.primary', (e) => e.length)), 6, 'six Haunting Files preview links'); eq((await p.$$eval('#vlLinks a.primary', (e) => e.length)), 6, 'six The Veil preview links'); ok(/Cases are assigned at random/.test(await p.innerText('#main')), 'the unlocked page shows the note (its script ran and built the links)');
   ok(await p.isVisible('#ho-lock-again'), 'Lock again is offered'); eq(errs.length, 0, 'page errors: ' + errs);
 });
 T('lock tool and locked page: no console errors, no horizontal scroll, and no cost wording at 1920, 1280 and 390 px', async ({ base, newPage }) => {
@@ -1048,7 +1002,7 @@ T('live teacher page: teacher/index.html is a LOCKED page (encrypted vault in th
   ok(/<input[^>]*type="password"/.test(live) && />\s*Unlock\s*<\/button>/.test(live) && /Enter the leader password/.test(live), 'a password prompt with an Unlock button'); eq((live.match(/data-goatcounter=/g) || []).length, 1, 'exactly one GoatCounter snippet'); ok(live.split('</head>')[0].includes('gc.zgo.at/count.js'), 'in the head'); ok(/<meta name="robots" content="noindex,nofollow">/.test(live), 'noindex,nofollow'); ok(/<title>Leader tools<\/title>/.test(live), 'title');
   /* none of the readable tool text: strings from the plain page's text, ids and links must not appear */
   const body = plain.split('<body>')[1].replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<style[\s\S]*?<\/style>/g, ' '); const texts = [...new Set([...body.matchAll(/>([^<>]{25,})</g)].map((x) => x[1].replace(/\s+/g, ' ').trim()))].slice(0, 20); const ids = [...new Set([...plain.matchAll(/id="([A-Za-z][A-Za-z0-9_-]{3,})"/g)].map((x) => x[1]))].filter((x) => !['main', 'theme', 'top', 'skip'].includes(x)).slice(0, 20);
-  const probe = [...texts, ...ids, '../haunting-files/?case=', '../the-veil/?case=', '../room-214/?case=', '../last-light/?case=', 'Seating', 'case codes', 'Teacher tools']; const leaks = probe.filter((s) => live.includes(s)); eq(leaks.length, 0, 'readable teacher text found in the locked page: ' + leaks.slice(0, 3)); ok(probe.length > 25, 'a real probe: ' + probe.length);
+  const probe = [...texts, ...ids, '../haunting-files/?case=', '../haunting-files/?preview=', '../the-veil/?preview=', '../room-214/?preview=', '../last-light/?preview=', 'Seating', 'Leader preview', 'case codes', 'Teacher tools']; const leaks = probe.filter((s) => live.includes(s)); eq(leaks.length, 0, 'readable teacher text found in the locked page: ' + leaks.slice(0, 3)); ok(probe.length > 15, 'a real probe: ' + probe.length);
   /* the page works as a prompt: it renders and shows a wrong-password error without revealing anything */
   const p = await newPage(); await p.goto(base + 'teacher/'); await p.waitForTimeout(200); ok(await p.isVisible('#pw') && await p.isVisible('#go'), 'the password prompt shows at /teacher/'); eq(await p.$$eval('#hfLinks, #vlLinks, .seat', (e) => e.length), 0, 'no tool is in the page before unlocking');
   /* no stray browser downloads such as "index (2).html" anywhere in the committed files */
@@ -1056,7 +1010,7 @@ T('live teacher page: teacher/index.html is a LOCKED page (encrypted vault in th
 });
 T('teacher fixture: the plain copy used by the teacher tests is a real, complete page, and nothing public links to it or serves it', async ({ base }) => {
   const name = path.basename(TEACHER_FIXTURE_PATH); const html = fs.readFileSync(TEACHER_FIXTURE_PATH, 'utf8');
-  ok(/id="hfLinks"/.test(html) && /id="vlLinks"/.test(html) && /id="make"/.test(html) && html.length > 5000, 'the fixture is the full teacher page (links and seating helper)');
+  ok(/id="hfLinks"/.test(html) && /id="vlLinks"/.test(html) && /Leader preview/.test(html) && html.length > 5000, 'the fixture is the full teacher page (the note and the preview links)');
   ok(name.startsWith('_'), 'the file name starts with an underscore, which the Jekyll build behind GitHub Pages leaves out of the published site');
   ok(!fs.existsSync(path.join(ROOT, '.nojekyll')), 'no .nojekyll file (it would switch that exclusion off)');
   /* nothing public points at it: not a page, a script, a data file, the sitemap or a card (docs and tests may name it) */
@@ -1144,6 +1098,110 @@ T('games and pages: no real street address (a number plus a street, or a named s
   ok(NUMBERED.test('Meet at 12 Example Street') && NAMED.test('on Example Avenue') && !NAMED.test('Take This Way'), 'the scanner catches planted made-up examples and not ordinary words');
 });
 
+// ---------------------------------------------------------------- randomly assigned cases (all four games)
+// Students do not choose a case and are never shown its number. These tests use raw pages (no case pre-assigned).
+const AG = [
+  { id: 'haunting-files', url: 'haunting-files/', key: 'ho-haunting-files-assign', save: (n) => (n === 1 ? 'hf_save_v1' : 'hf_save_v1_c' + n), pv: (n) => 'hf_save_v1_pv' + n,
+    begin: async (p, name) => { await toMenu(p); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); await p.click('[data-act="begin"]'); await p.waitForSelector('[data-act="readcase"], .ex'); },
+    startOver: async (p, name) => { await toMenu(p); p.once('dialog', (d) => d.accept()); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); await p.click('[data-act="begin"]'); await p.waitForSelector('[data-act="readcase"], .ex'); },
+    erase: async (p) => { await toSettings(p); p.once('dialog', (d) => d.accept()); await p.click('[data-act="reset"]'); },
+    exportSave: async (p) => { await toSettings(p); const [d] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="export"]')]); return d; },
+    importSave: async (p, text) => { await toSettings(p); await p.setInputFiles('#imp', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); },
+    fileCase: (text) => JSON.parse(text).case, banner: '#pvBanner' },
+  { id: 'last-light', url: 'last-light/', key: 'ho-last-light-assign', save: (n) => (n === 1 ? 'tll_save_v1' : 'tll_save_v1_c' + n), pv: (n) => 'tll_save_v1_pv' + n,
+    begin: async (p, name) => { await toMenu(p); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); for (const c of ['bg:mech', 'pers:suspicious', 'str:eyes', 'weak:nerves']) await p.click(`[data-cr="${c}"]`); await p.click('[data-act="start"]'); await p.waitForSelector('.mapbox'); },
+    startOver: async (p, name) => { await toMenu(p); p.once('dialog', (d) => d.accept()); await p.click('[data-act="newgame"]'); await p.fill('#nm', name); for (const c of ['bg:mech', 'pers:suspicious', 'str:eyes', 'weak:nerves']) await p.click(`[data-cr="${c}"]`); await p.click('[data-act="start"]'); await p.waitForSelector('.mapbox'); },
+    erase: async (p) => { await toSettings(p); p.once('dialog', (d) => d.accept()); await p.click('[data-act="reset"]'); },
+    exportSave: async (p) => { await toSettings(p); const [d] = await Promise.all([p.waitForEvent('download'), p.click('[data-act="export"]')]); return d; },
+    importSave: async (p, text) => { await toSettings(p); await p.setInputFiles('#imp', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); },
+    fileCase: (text) => JSON.parse(text).case, banner: '#pvBanner' },
+  { id: 'the-veil', url: 'the-veil/', key: 'ho-veil-assign', save: (n) => (n === 1 ? 'ho-veil' : 'ho-veil_c' + n), pv: (n) => (n === 1 ? 'ho-veil-pv' : 'ho-veil-pv_c' + n), phaser: true,
+    begin: async (p, name) => { await p.fill('#veil-name', name); await p.click('#veil-begin'); await p.waitForFunction(() => window.__veilGame && window.__veilScene && window.__veilScene.player, null, { timeout: 20000 }); },
+    startOver: async (p, name, base, url) => { await p.goto(base + url); await p.waitForSelector('#veil-continue'); p.once('dialog', (d) => d.accept()); await p.fill('#veil-name', name); await p.click('#veil-begin'); await p.waitForFunction(() => window.__veilGame && window.__veilScene && window.__veilScene.player, null, { timeout: 20000 }); },
+    erase: async (p) => { await p.click('#hog-setbtn'); p.once('dialog', (d) => d.accept()); await p.click('#hog-erase'); await p.waitForLoadState('load'); },
+    exportSave: async (p) => { await p.click('#hog-savesbtn'); const [d] = await Promise.all([p.waitForEvent('download'), p.click('.hog-slot >> text=Export')]); await p.keyboard.press('Escape'); return d; },
+    importSave: async (p, text) => { await p.click('#hog-savesbtn'); await p.setInputFiles('#hog-import', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); },
+    fileCase: (text) => JSON.parse(text).variant, banner: '#hog-preview' },
+  { id: 'room-214', url: 'room-214/', key: 'ho-room214-assign', save: (n) => (n === 1 ? 'ho-room214' : 'ho-room214_c' + n), pv: (n) => (n === 1 ? 'ho-room214-pv' : 'ho-room214-pv_c' + n), phaser: true,
+    begin: async (p, name) => { await p.fill('#r-name', name); await p.click('#r-begin'); await p.waitForFunction(() => window.__r214Game && window.__r214Scene && window.__r214Scene.playerG, null, { timeout: 20000 }); },
+    startOver: async (p, name, base, url) => { await p.goto(base + url); await p.waitForSelector('#r-continue'); p.once('dialog', (d) => d.accept()); await p.fill('#r-name', name); await p.click('#r-begin'); await p.waitForFunction(() => window.__r214Game && window.__r214Scene && window.__r214Scene.playerG, null, { timeout: 20000 }); },
+    erase: async (p) => { await p.click('#hog-setbtn'); p.once('dialog', (d) => d.accept()); await p.click('#hog-erase'); await p.waitForLoadState('load'); },
+    exportSave: async (p) => { await p.click('#hog-savesbtn'); const [d] = await Promise.all([p.waitForEvent('download'), p.click('.hog-slot >> text=Export')]); await p.keyboard.press('Escape'); return d; },
+    importSave: async (p, text) => { await p.click('#hog-savesbtn'); await p.setInputFiles('#hog-import', { name: 's.json', mimeType: 'application/json', buffer: Buffer.from(text) }); },
+    fileCase: (text) => JSON.parse(text).variant, banner: '#hog-preview' },
+];
+/* text that would tell a student which case they have, or let them pick one */
+const toSettings = async (p) => { if (!(await p.$('[data-go="settings"]'))) await p.click('[data-act="menu"] >> nth=0'); await p.click('[data-go="settings"]'); };
+const toMenu = async (p) => { if (!(await p.$('[data-act="newgame"]'))) await p.click('[data-act="menu"] >> nth=0'); };
+const CASE_TELL = /case code|random case|\bcase\s+[1-6]\b|\bscenario\s+[1-6]\b|\bvariant\b|case [1-6] of 6/i;
+const visibleText = (p) => p.evaluate(() => document.body.innerText + ' | ' + document.title + ' | ' + [...document.querySelectorAll('[title],[aria-label],[placeholder]')].map((e) => [e.getAttribute('title'), e.getAttribute('aria-label'), e.getAttribute('placeholder')].join(' ')).join(' '));
+const stubRoll = (p, byte) => p.addInitScript((b) => { const real = crypto.getRandomValues.bind(crypto); crypto.getRandomValues = (arr) => { if (arr && arr.length === 1 && arr instanceof Uint8Array) { arr[0] = b; return arr; } return real(arr); }; }, byte);
+for (const g of AG) {
+  T(`assigned case (${g.id}): no case field, Random case button or case number anywhere; ?case=N is ignored; the first Begin assigns one of six and it survives a reload, starting over, and export and import`, async ({ base, newPage }) => {
+    const p = await newPage(null, { raw: true }); await stubRoll(p, 3 + 6 * 7); /* byte 45 -> case 4 */
+    await p.goto(base + g.url + '?case=2'); await p.waitForTimeout(250);
+    eq((await p.$$('#caseCode, #hog-caseCode, #caseSlot, [data-act="randcase"], #hog-casebtn, #hog-case, .casechip')).length, 0, 'no case field, Random case button, case button or case chip on the title screen');
+    ok(!CASE_TELL.test(await visibleText(p)), 'no case wording on the title screen: ' + ((await visibleText(p)).match(CASE_TELL) || [])[0]); eq(await lsGet(p, g.key), null, 'nothing is assigned before Begin, and ?case=2 assigned nothing'); eq(await p.$(g.banner), null, 'no preview banner');
+    if (!g.phaser) { await p.click('[data-act="menu"]'); ok(!CASE_TELL.test(await visibleText(p)), 'no case wording in the menu'); eq(await lsGet(p, g.key), null, 'opening the menu assigns nothing'); await p.goto(base + g.url + '?case=2'); await p.waitForTimeout(150); }
+    await g.begin(p, 'Ana'); eq(await lsGet(p, g.key), '4', 'the first Begin assigns the case the random source gave (not the ?case=2 in the address)'); ok(await lsGet(p, g.save(4)), 'the game is saved in that case');
+    ok(!CASE_TELL.test(await visibleText(p)), 'no case number in the game screen, top bar or title: ' + ((await visibleText(p)).match(CASE_TELL) || [])[0]); ok(!/[?&](case|preview)=/.test(p.url().replace('?case=2', '')), 'the address never gains a case');
+    /* reload: same case, and the random source is not consulted again (the stub now says case 1) */
+    const q = await newPage(null, { raw: true }); await q.close();
+    await p.addInitScript(() => { const real = crypto.getRandomValues.bind(crypto); crypto.getRandomValues = (arr) => { if (arr && arr.length === 1) { arr[0] = 0; return arr; } return real(arr); }; });
+    await p.goto(base + g.url); await p.waitForTimeout(250); eq(await lsGet(p, g.key), '4', 'still case 4 after a reload'); ok(!CASE_TELL.test(await visibleText(p)), 'the returning title screen shows no case number');
+    /* start over: same case even though the random source would now give case 1 */
+    await g.startOver(p, 'Ben', base, g.url); eq(await lsGet(p, g.key), '4', 'starting over keeps the assigned case'); ok(JSON.parse(await lsGet(p, g.save(4))).name === 'Ben', 'the new game is in the same case'); eq(await lsGet(p, g.save(1)), null, 'no game was started in another case');
+    /* export: the file name has no case number; the file carries its case */
+    const d = await g.exportSave(p); const fname = d.suggestedFilename(); ok(!/case|scenario|variant|[1-6]\.json$/i.test(fname.replace(/214/, '')), 'the exported file name has no case number: ' + fname); const text = fs.readFileSync(await d.path(), 'utf8'); eq(g.fileCase(text), 4, 'the save file carries its case');
+    /* erase my progress is the only thing that clears the assignment */
+    if (g.phaser) await p.goto(base + g.url); await g.erase(p); await p.waitForFunction((k) => localStorage.getItem(k) === null, g.key); eq(await lsGet(p, g.save(4)), null, 'Erase my progress removes the save');
+    /* import on the cleared device: the same case comes back */
+    if (g.phaser) { await p.goto(base + g.url); await p.waitForTimeout(200); } await g.importSave(p, text); await p.waitForFunction((k) => localStorage.getItem(k) === '4', g.key, { timeout: 8000 }); ok(await lsGet(p, g.save(4)), 'import restores the save in its own case'); ok(true, 'import keeps the assigned case');
+  });
+  T(`assigned case (${g.id}): each of the six cases is reachable and equally likely with a stubbed random source, and a leader preview (?preview=N) is bannered, throwaway and never changes the real assignment`, async ({ base, newPage }) => {
+    /* one start per case: byte n-1 gives case n */
+    const got = []; for (let n = 1; n <= 6; n++) { const p = await newPage(null, { raw: true }); await stubRoll(p, n - 1); await p.goto(base + g.url); await p.waitForTimeout(150); await g.begin(p, 'Kid' + n); got.push(+(await lsGet(p, g.key))); await p.close(); }
+    eq(got.join(','), '1,2,3,4,5,6', 'every case can be assigned');
+    /* the picker itself: every byte value once gives each case exactly 42 times (the four highest bytes are thrown away) */
+    const p = await newPage(null, { raw: true }); await p.addInitScript(() => { let i = 0; const real = crypto.getRandomValues.bind(crypto); crypto.getRandomValues = (arr) => { if (arr && arr.length === 1) { arr[0] = i++ % 256; return arr; } return real(arr); }; });
+    await p.goto(base + g.url); await p.waitForTimeout(150); const counts = await p.evaluate(() => { const roll = (window.HOG && HOG.variant && HOG.variant.roll) || HOV.roll; const c = [0, 0, 0, 0, 0, 0, 0]; for (let k = 0; k < 252; k++) { const n = roll(); if (!(n >= 1 && n <= 6 && Number.isInteger(n))) return 'bad ' + n; c[n]++; } return c.slice(1).join(','); }); eq(counts, '42,42,42,42,42,42', 'uniform over the six cases, always 1 to 6');
+    await p.close();
+    /* a student with case 2 and a saved game; then a leader previews case 5 on the same device */
+    const s = await newPage(null, { raw: true }); await stubRoll(s, 1); await s.goto(base + g.url); await s.waitForTimeout(150); await g.begin(s, 'Stu'); eq(await lsGet(s, g.key), '2', 'the student has case 2'); const before = await lsGet(s, g.save(2));
+    await s.goto(base + g.url + '?preview=5'); await s.waitForSelector(g.banner); ok(/Leader preview: case 5 of 6/.test(await s.textContent(g.banner)), 'the banner is labeled and names the case'); ok(await s.isVisible(g.banner), 'and is visible');
+    await g.begin(s, 'Leader'); ok(await s.isVisible(g.banner), 'the banner stays while playing'); ok(await lsGet(s, g.pv(5)), 'the preview has its own throwaway save'); eq(await lsGet(s, g.key), '2', 'the real assignment is unchanged'); eq(await lsGet(s, g.save(2)), before, 'the student save is untouched'); eq(await lsGet(s, g.save(5)), null, 'nothing was written to a student slot for the previewed case');
+    for (const bad of ['?preview=0', '?preview=7', '?preview=x', '?previews=3']) { await s.goto(base + g.url + bad); await s.waitForTimeout(150); eq(await s.$(g.banner), null, bad + ' is not a preview'); }
+    await s.goto(base + g.url); await s.waitForTimeout(200); eq(await s.$(g.banner), null, 'no banner on the normal address'); eq(await lsGet(s, g.key), '2', 'and the student is still on case 2');
+  });
+}
+T('assigned case: copied and downloaded reports and stories never show the case number (all four games)', async ({ base, newPage }) => {
+  const NUM = /\bcase\s+[1-6]\b|\bscenario\s+[1-6]\b|variant/i;
+  const W16 = 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen';
+  const hf = await newPage(); await hf.addInitScript((w) => { try { localStorage.setItem('hf_save_v1', JSON.stringify({ v: 1, case: 1, vs: '5', started: true, name: 'Ana', screen: 'final', xp: 200, sel: null, cls: {}, coll: { E3: true, E4: true }, links: [], contra: { pick: [], text: '', done: true, score: 3 }, th: { choice: 'nat', cites: [], why: '', change: '', done: true }, report: '', filed: true, story: { open: w }, ach: {}, sound: false, readCase: true })); } catch (e) { /* ignore */ } }, W16);
+  await hf.goto(base + 'haunting-files/'); await hf.waitForTimeout(200); if (!(await hf.$('[data-act="export-story"]'))) { await hf.click('[data-act="menu"] >> nth=0'); await hf.click('[data-act="resume"]'); await hf.click('[data-go="final"]'); } await hf.waitForSelector('[data-act="export-story"]:not([disabled])');
+  let [d] = await Promise.all([hf.waitForEvent('download'), hf.click('[data-act="export-story"]')]); let txt = fs.readFileSync(await d.path(), 'utf8'); ok(!NUM.test(txt) && !NUM.test(d.suggestedFilename()) && /Case file: /.test(txt), 'Haunting Files story: ' + txt.slice(0, 80));
+  const ll = await newPage(); await ll.goto(base + 'last-light/'); await AG[1].begin(ll, 'Ana'); const llSave = JSON.parse(await lsGet(ll, 'tll_save_v1')); llSave.done = { signal: true, supply: true, stranger: true }; llSave.journal = [1, 2, 3].map((i) => ({ day: i, title: 't', text: 'x' })); llSave.story = { set: W16 }; llSave.screen = 'final'; await ll.close();
+  const l2 = await newPage(); await l2.addInitScript((v) => { try { localStorage.setItem('tll_save_v1', v); } catch (e) { /* ignore */ } }, JSON.stringify(llSave)); await l2.goto(base + 'last-light/'); await l2.waitForTimeout(200); if (!(await l2.$('[data-act="exportstory"]'))) { await l2.click('[data-act="menu"] >> nth=0'); await l2.click('[data-act="resume"]'); await l2.click('[data-go="final"]'); } await l2.waitForSelector('[data-act="exportstory"]:not([disabled])');
+  [d] = await Promise.all([l2.waitForEvent('download'), l2.click('[data-act="exportstory"]')]); txt = fs.readFileSync(await d.path(), 'utf8'); ok(!NUM.test(txt) && !NUM.test(d.suggestedFilename()), 'Last Light story: ' + txt.slice(0, 80));
+  const v = await newPage(); await v.goto(base + 'the-veil/'); await AG[2].begin(v, 'Ana'); txt = await v.evaluate(() => __veilGame.reportText() + '\n' + __veilGame.storyText()); ok(!NUM.test(txt), 'The Veil report and story'); await v.click('#h-menu'); await v.waitForSelector('.hog-modal'); ok(!NUM.test(await v.innerText('.hog-modal')), 'The Veil menu'); const [dv] = await Promise.all([v.waitForEvent('download'), v.click('.hog-modal >> text=Download my journal')]); ok(!NUM.test(dv.suggestedFilename()) && !/case/i.test(dv.suggestedFilename()), 'The Veil journal file name: ' + dv.suggestedFilename());
+  const r = await newPage(); await r.goto(base + 'room-214/'); await AG[3].begin(r, 'Ana'); txt = await r.evaluate(() => __r214UI.reportText()); ok(!NUM.test(txt), 'Room 214 journal'); await r.click('#h-menu'); await r.waitForSelector('.hog-modal'); ok(!NUM.test(await r.innerText('.hog-modal')), 'Room 214 menu'); const [dr] = await Promise.all([r.waitForEvent('download'), r.click('.hog-modal >> text=Download my journal')]); ok(!/case/i.test(dr.suggestedFilename()), 'Room 214 journal file name: ' + dr.suggestedFilename());
+});
+T('assigned case: saves made before this change keep their original case and are not re-rolled (all four games)', async ({ base, newPage }) => {
+  const hf = await newPage(null, { raw: true }); await stubRoll(hf, 0); await hf.addInitScript(() => { try { if (!localStorage.getItem('hf_save_v1_c3')) { localStorage.setItem('hf_case', '3'); localStorage.setItem('hf_save_v1_c3', JSON.stringify({ v: 1, case: 3, vs: '', started: true, name: 'Old', screen: 'case', xp: 30, sel: null, cls: {}, coll: {}, links: [], contra: { pick: [], text: '', done: false, score: 0 }, th: { choice: '', cites: [], why: '', change: '', done: false }, report: '', filed: false, story: {}, ach: {}, sound: true, readCase: true })); } } catch (e) { /* ignore */ } });
+  await hf.goto(base + 'haunting-files/'); await hf.waitForTimeout(200); eq(await lsGet(hf, 'ho-haunting-files-assign'), '3', 'an old Haunting Files save keeps case 3'); ok(/Miami/.test(await hf.textContent('#app')), 'and opens on its own case'); await hf.click('[data-act="menu"]'); ok(await hf.$('[data-act="resume"]'), 'and resumes');
+  const ll = await newPage(null, { raw: true }); await stubRoll(ll, 0); await ll.goto(base + 'last-light/?preview=5'); await AG[1].begin(ll, 'Old'); const old = await lsGet(ll, 'tll_save_v1_pv5'); await ll.evaluate((v) => { const s = JSON.parse(v); s.case = 5; localStorage.clear(); localStorage.setItem('tll_case', '5'); localStorage.setItem('tll_save_v1_c5', JSON.stringify(s)); }, old);
+  await ll.goto(base + 'last-light/'); await ll.waitForTimeout(200); eq(await lsGet(ll, 'ho-last-light-assign'), '5', 'an old Last Light save keeps scenario 5'); await ll.click('[data-act="menu"]'); ok(await ll.$('[data-act="resume"]'), 'and resumes');
+  for (const g of [AG[2], AG[3]]) { const p = await newPage(null, { raw: true }); await stubRoll(p, 0); await p.goto(base + g.url + '?preview=6'); await g.begin(p, 'Old'); const v = await lsGet(p, g.pv(6)); await p.evaluate(([val, slot, rk]) => { localStorage.clear(); localStorage.setItem(slot, val); localStorage.setItem(rk, '6'); }, [v, g.save(6), g.id === 'the-veil' ? 'hog_case_veil' : 'hog_case_room214']);
+    await p.goto(base + g.url); await p.waitForSelector(g.id === 'the-veil' ? '#veil-continue' : '#r-continue'); eq(await lsGet(p, g.key), '6', 'an old ' + g.id + ' save keeps case 6'); }
+});
+T('assigned case: title screens, the first game screen and the leader preview banner at 1920, 1280 and 390 px have no console errors and no sideways scroll', async ({ base, newPage }) => {
+  for (const w of [1920, 1280, 390]) for (const g of AG) {
+    const p = await newPage({ width: w, height: 900 }, { raw: true }); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+    await p.goto(base + g.url); await p.waitForTimeout(200); ok(await noHScroll(p), `${g.id} title at ${w}`); await g.begin(p, 'Ana'); await p.waitForTimeout(150); ok(await noHScroll(p), `${g.id} in play at ${w}`);
+    await p.goto(base + g.url + '?preview=3'); await p.waitForSelector(g.banner); ok(await noHScroll(p), `${g.id} preview banner at ${w}`); const b = await p.$eval(g.banner, (e) => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.height]; }); ok(b[0] >= -1 && b[1] <= w + 1 && b[2] > 20, `banner fits at ${w}: ` + b); eq(errs.length, 0, `${g.id} errors at ${w}: ${errs}`); await p.close();
+  }
+});
+
 // ---------------------------------------------------------------- navigation between pages
 T('navigation: every game links back to the site; site links reach every game', async ({ base, newPage }) => {
   const p = await newPage();
@@ -1184,18 +1242,18 @@ T('responsive: the teacher page, every case and scenario in play, and the Dossie
   for (const w of [1920, 1280, 390]) {
     const p = await newPage({ width: w, height: 800 }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push(m.text()); });
     await gotoTeacher(p, base); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on teacher/`);
-    await p.fill('#rows', '8'); await p.fill('#cols', '12'); await p.click('#make'); ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1 || document.getElementById('plan').scrollWidth >= 0), 'the big seating grid scrolls inside its own box');
+    eq((await p.$$('#hfLinks a.primary')).length, 6, 'the preview links are built');
     await p.goto(base + '#cemetery'); await p.click('#ct-hunt'); await p.waitForTimeout(150); ok(await noHScroll(p), `horizontal scroll at ${w}px on the Dossier`);
     await p.click('#ct-submit'); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on the turn-in tab`);
     for (const k of [1, 2, 3, 4, 5, 6]) {
-      await p.goto(base + 'haunting-files/?case=' + k); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} title`);
+      await p.goto(base + 'haunting-files/?preview=' + k); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} title`);
       await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-act="begin"]'); await p.waitForTimeout(80);
       await p.click('.ex >> nth=2'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} case file`);
       for (const s of ['E3', 'E4']) { await p.click(`[data-ex="${s}"]`); await p.click('[data-file="eye"]'); }
       await p.click('[data-go="interview"]'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} interview`);
       await p.click('[data-go="case"]'); await p.click('.ex >> nth=5'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Haunting Files case ${k} diagram exhibit`);
       await p.evaluate(() => localStorage.clear());
-      await p.goto(base + 'last-light/?case=' + k); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} title`);
+      await p.goto(base + 'last-light/?preview=' + k); await p.waitForTimeout(100); ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} title`);
       await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', 'Tester'); await p.click('[data-cr="bg:mech"]'); await p.click('[data-cr="pers:bold"]'); await p.click('[data-cr="str:hands"]'); await p.click('[data-cr="weak:nerves"]'); await p.click('[data-act="start"]'); await p.waitForTimeout(100);
       ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} map`);
       await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await p.click('[data-act="sig-power"]'); ok(await noHScroll(p), `horizontal scroll at ${w}px on Last Light case ${k} radio`);

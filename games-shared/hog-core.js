@@ -17,14 +17,24 @@
   };
   var variant = {
     valid: function (n) { n = +n; return n >= 1 && n <= 6 && n === Math.floor(n) ? n : 0; },
-    /* ?case=N wins, then the last variant played on this device, then 1 */
-    resolve: function (game) {
-      var u = 0; try { var m = /[?&]case=(\d+)/.exec(root.location.search); u = m ? variant.valid(m[1]) : 0; } catch (e) { /* ignore */ }
-      var r = 0; try { r = variant.valid(root.localStorage.getItem('hog_case_' + game)); } catch (e) { /* ignore */ }
-      return u || r || 1;
+    /* Which case a student plays. Students do not choose and are not told: the first time they press Begin on a device one of the
+       six is picked at random and kept under its own small key ("ho-<game>-assign"), which starting over does not clear (only
+       "Erase my progress" does). The old ?case=N address is ignored. Leaders can look at a case with ?preview=N (a throwaway save). */
+    preview: function () { try { var m = /[?&]preview=(\d+)(?:&|$)/.exec(root.location.search); return m ? variant.valid(m[1]) : 0; } catch (e) { return 0; } },
+    key: function (game) { return 'ho-' + game + '-assign'; },
+    assigned: function (game) { try { return variant.valid(root.localStorage.getItem(variant.key(game))); } catch (e) { return 0; } },
+    assign: function (game, n) { try { root.localStorage.setItem(variant.key(game), String(n)); } catch (e) { /* blocked: kept in memory by the page */ } },
+    unassign: function (game) { try { root.localStorage.removeItem(variant.key(game)); } catch (e) { /* ignore */ } },
+    /* one of 1 to 6, each equally likely (bytes of 252 or more are thrown away so no number is favoured) */
+    roll: function () {
+      try { var c = root.crypto || root.msCrypto, b = new Uint8Array(1); for (var i = 0; i < 64; i++) { c.getRandomValues(b); if (b[0] < 252) return 1 + (b[0] % 6); } } catch (e) { /* fall through */ }
+      return 1 + Math.floor(Math.random() * 6);
     },
-    remember: function (game, n) { try { root.localStorage.setItem('hog_case_' + game, String(n)); } catch (e) { /* blocked: fine */ } },
-    random: function () { return 1 + Math.floor(Math.random() * 6); }
+    /* a save made before cases were assigned keeps its case: the last case played if it has a save, else the first slot that has one */
+    legacy: function (game, saves) {
+      var r = 0; try { r = variant.valid(root.localStorage.getItem('hog_case_' + game)); } catch (e) { /* ignore */ }
+      if (r && saves.load(r)) return r; for (var n = 1; n <= 6; n++) if (saves.load(n)) return n; return 0;
+    }
   };
 
   /* ---------- strict schema validation (used for imports and for loading saves) ----------

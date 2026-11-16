@@ -130,14 +130,14 @@
   };
   G.storyWords = function () { var n = 0, self = this; BEATS.forEach(function (b) { n += words(self.writing('b_' + b.k)); }); return n; };
   G.storyText = function () {
-    var self = this, t = (self.writing('title') || 'Untitled') + '\n' + 'The Veil, case ' + self.rec.variant + ' · ' + self.rec.name + '\n\n';
+    var self = this, t = (self.writing('title') || 'Untitled') + '\n' + 'The Veil · ' + self.rec.name + '\n\n';
     BEATS.forEach(function (b) { var x = self.writing('b_' + b.k); if (x) t += x + '\n\n'; }); return t.trim() + '\n';
   };
   G.storyReady = function () { return this.s.beats.length === 9 && this.storyWords() >= MIN.story; };
   G.finishStory = function () { if (!this.storyReady() || this.s.done) return this.s.done; this.s.done = true; this.save(); this.emit('story'); return true; };
-  /* the full written record a student can copy or download (variant shown) */
+  /* the full written record a student can copy or download (the case number is never shown) */
   G.reportText = function () {
-    var self = this, d = self.d, t = 'THE VEIL, Chapter 1: The Keeper’s Bell\nCase ' + self.rec.variant + ' · Investigator: ' + self.rec.name + '\nGame material (fiction): ' + d.chapel + ', ' + d.place + '.\n\n';
+    var self = this, d = self.d, t = 'THE VEIL, Chapter 1: The Keeper’s Bell\nInvestigator: ' + self.rec.name + '\nGame material (fiction): ' + d.chapel + ', ' + d.place + '.\n\n';
     if (self.writing('note1')) t += 'FIELD NOTE 1 (the churchyard)\n' + self.writing('note1') + '\n\n';
     if (self.writing('note2')) t += 'FIELD NOTE 2 (the Echo)\n' + self.writing('note2') + '\n\n';
     if (self.s.pick) t += 'CASE FILE\nMy answer: ' + (D.OPTIONS[self.s.pick] || '') + '\nClues I cited: ' + self.s.cites.map(function (c) { return d.clues[c] ? d.clues[c].title : c; }).join('; ') + '\nWhy: ' + self.writing('why') + '\nResult: ' + (self.s.caseDone ? 'case closed' : 'not yet') + '\n\n';

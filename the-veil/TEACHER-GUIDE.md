@@ -4,8 +4,8 @@
 
 **Game material.** All places, people and events are fiction ("Game material"). Nothing in this chapter is presented as real history. The supernatural is **observed and investigated, never contacted**: no seances, no Ouija, no spirit-talking. The Echo is a replay the student reads like evidence.
 
-## Six versions (case codes 1 to 6)
-Each case is a different chapel and a different night, with its own clue wording and its own answer to "what was the bell for?" (guide the lost, warn of danger, or gather everyone in). Names change the puzzle answers too (bell pattern, pew-symbol order), so neighbors cannot copy each other. Give each student a different case code with the seating helper on the Teacher page, or students can use `?case=N`, the Case field, or "Random case".
+## Six versions, assigned at random
+Each case is a different chapel and a different night, with its own clue wording and its own answer to "what was the bell for?" (guide the lost, warn of danger, or gather everyone in). Names change the puzzle answers too (bell pattern, pew-symbol order), so neighbors cannot copy each other. The game assigns each student one of the six cases at random the first time they begin on a device, and keeps it. Students do not choose their case and are not shown which one they have, so two neighbors can get the same case by chance. Leaders can preview any case from the leader tools.
 
 ## What students do
 1. Find the Keeper's Bell near the road (the bell lets them shift worlds).
@@ -25,7 +25,7 @@ Each case is a different chapel and a different night, with its own clue wording
 ## Practical
 - Works on desktop Edge/Chrome and on touch tablets (on-screen stick and buttons appear automatically; Settings has a four-arrow D-pad option).
 - Keys: arrows/WASD move, E or Enter use, V shift, J evidence, Esc menu.
-- Saves stay in the browser, one slot per case code. **Saves menu** exports a save file and imports one back. Nothing is sent anywhere.
+- Saves stay in the browser. **Saves menu** exports a save file and imports one back. Nothing is sent anywhere.
 - Accessibility: every sound has a caption and a direction pulse; there is a mute and volume control, a low-intensity mode (no screen fade, calmer cues), and text size settings.
 - If a student is stuck, **Menu → Evidence** shows everything found so far, and the objective line above the game always says what to do next.
 

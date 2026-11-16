@@ -1,6 +1,6 @@
 # How to lock (and re-lock) the leader page
 
-The teacher page (`teacher/index.html`) has the six case-code links for each game and the seating helper. On the live site it is a **locked page**: it shows a password screen, and only someone who types the right password sees the tools. The Leaders page has a visible link to it, **Leader tools (password required)**. Students can see that link and the password screen, but they cannot see the tools without the password.
+The teacher page (`teacher/index.html`) explains that each game assigns one of its six cases at random, and has six leader-preview links per game. On the live site it is a **locked page**: it shows a password screen, and only someone who types the right password sees the tools. The Leaders page has a visible link to it, **Leader tools (password required)**. Students can see that link and the password screen, but they cannot see the tools without the password.
 
 ## Before you start
 - This is a **lock in the browser**. It keeps casual visitors out. It is only as strong as the password, so pick a long one (16 or more characters, such as four or five unrelated words). The password is the real protection.
@@ -23,7 +23,12 @@ The plain page is kept in the repo at `tests/fixtures/_teacher-page.html`. It is
    - The Leaders page shows **Leader tools (password required)**. Click it.
    - `/teacher/` shows "Leader tools" and a box that says **Enter the leader password**.
    - A wrong password shows "That password didn't work." and waits a little longer after each failed try.
-   - The right password opens the leader tools. The seating helper and the game links work as before. **Lock again** (bottom right) puts the prompt back.
+   - The right password opens the leader tools: the note about random cases and the leader-preview links. **Lock again** (bottom right) puts the prompt back.
+
+## Cases are assigned at random (re-lock needed once)
+- Each game picks one of its six cases at random the first time a student begins on a device, and keeps it. Students do not choose and are not shown which one they have. Two neighbors can get the same case by chance. Clearing the browser's site data, or "Erase my progress" in a game's settings, picks again.
+- Leaders can look at any case from the leader tools: each preview link opens that case with a clear "Leader preview" banner and a throwaway save that never changes a student's game or assigned case. Do not share preview links with students.
+- The plain copy (`tests/fixtures/_teacher-page.html`) was updated for this. **The live locked page does not change by itself.** Re-lock it once using the steps above: run the lock tool on the plain copy, name the download exactly `index.html`, and upload it into the `teacher` folder by hand. Until you do, the live locked page still shows the old case links, which now just open the game without choosing a case.
 
 ## Good to know
 - The site's automated tests do not read the live `teacher/index.html` for the tools. They use the plain copy at `tests/fixtures/_teacher-page.html`, so they keep passing while the locked file is live. Another test checks that the live `teacher/index.html` really is a locked page (encrypted, with no readable tool text), so a plain copy uploaded by mistake would be caught. The fixture's name starts with an underscore so the GitHub Pages build leaves it out of the published site, and no page links to it. Because it is a plain copy in the repo, **do not put anything sensitive in the teacher page**.

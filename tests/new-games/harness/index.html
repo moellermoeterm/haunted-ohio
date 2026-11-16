@@ -7,10 +7,10 @@
 <script src="../../../games-shared/hog-core.js"></script><script src="../../../games-shared/hog-input.js"></script><script src="../../../games-shared/hog-audio.js"></script><script src="../../../games-shared/hog-shell.js"></script>
 <script>
 (function(){
-  var S=HOG.schema, V=HOG.variant.resolve('harness');
+  var S=HOG.schema, PV=HOG.variant.preview(), V=PV||HOG.variant.assigned('veil')||0;
   var saves=HOG.save.create({game:'veil',baseKey:'ho-veil',stateSchema:S.obj({ch:S.int(1,9)}),summary:function(d){return 'chapter '+d.state.ch}});
   window.saves=saves;
-  var shell=HOG.shell.mount({game:'veil',title:'Harness',variant:V,saves:saves,baseKey:'ho-veil'});
+  var shell=HOG.shell.mount({game:'veil',title:'Harness',variant:V,preview:PV,saves:saves,baseKey:'ho-veil'});
   var input=HOG.input.create(document.body,{actions:['interact','shift','run','journal','pause'],touch:'auto'});
   shell.attachInput(input); window.shell=shell; window.input=input;
   window.log=[]; ['interact','shift','run','journal','pause','up','left'].forEach(function(a){input.onPress(a,function(){window.log.push('p:'+a)});input.onRelease(a,function(){window.log.push('r:'+a)})});

@@ -87,10 +87,10 @@
       var b = game.finishBlock(); if (b) { shell.toast(b); if (game.s.ledger) setTimeout(ui.journal, 600); return; }
       game.finish(); A.cue('success', {}); if (root.HO_track) root.HO_track('chapter-complete');
       var body = el('div'); body.appendChild(para('You push through the front door into the cold air. Behind you the lobby lamp goes out, and the doors lock with a soft, final click. Whatever the Night Porter was waiting for, it is over.')); body.appendChild(para('Your written account and story seed are saved. Copy or download your journal to keep it.'));
-      shell.modal({ title: 'You made it out', body: body, buttons: [{ label: 'Download my journal', keepOpen: true, onClick: function () { download('room-214-journal-case' + game.rec.variant + '.txt', ui.reportText()); } }, { label: 'Close', primary: true }] }); hud.refresh();
+      shell.modal({ title: 'You made it out', body: body, buttons: [{ label: 'Download my journal', keepOpen: true, onClick: function () { download('room-214-journal-' + String(game.rec.name || 'player').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) + '.txt', ui.reportText()); } }, { label: 'Close', primary: true }] }); hud.refresh();
     };
     ui.reportText = function () {
-      var d = game.d, t = 'ROOM 214\nCase ' + game.rec.variant + ' · Investigator: ' + game.rec.name + '\nGame material (fiction): ' + d.hotel + '.\n\n';
+      var d = game.d, t = 'ROOM 214\nInvestigator: ' + game.rec.name + '\nGame material (fiction): ' + d.hotel + '.\n\n';
       [[1, 'JOURNAL, FLOOR 2'], [2, 'JOURNAL, FLOOR 3']].forEach(function (e) { if (game.writing('j' + e[0])) t += e[1] + '\n' + game.writing('j' + e[0]) + '\n\n'; });
       t += 'NOTES FOUND (' + game.s.found.length + ' of 3)\n' + game.s.found.map(function (id) { return '- ' + d.notes[id].title; }).join('\n') + '\n\n'; if (game.writing('acct')) t += 'MY ACCOUNT OF ROOM 214\n' + game.writing('acct') + '\n\n'; if (game.writing('seed')) t += 'STORY SEED\n' + game.writing('seed') + '\n'; t += '\nTimes checked out by the Night Porter: ' + game.s.caught + '\n'; return t;
     };
@@ -100,8 +100,8 @@
     ui.menu = function () {
       if (shell.modalOpen) return; var body = el('div');
       body.appendChild(para('Move: arrows or WASD. Hold C to sneak (silent), Shift to run (loud). E: use. H: hide. F: flashlight. T: throw a bell. J: journal. Esc: this menu. Everything also works with the on-screen buttons. He never hurts anyone: if he reaches you he checks you out to your last checkpoint and you keep everything.'));
-      body.appendChild(para('Case ' + game.rec.variant + ' · Investigator ' + game.rec.name + ' · ' + game.d.hotel + ' (Game material).'));
-      shell.modal({ title: 'Menu', body: body, buttons: [{ label: 'Journal', onClick: function () { setTimeout(ui.journal, 30); } }, { label: 'Copy my journal', keepOpen: true, onClick: function () { copy(ui.reportText()); } }, { label: 'Download my journal', keepOpen: true, onClick: function () { download('room-214-journal-case' + game.rec.variant + '.txt', ui.reportText()); } }, { label: 'Saves', onClick: function () { setTimeout(shell.openSaves, 30); } }, { label: 'Settings', onClick: function () { setTimeout(shell.openSettings, 30); } }, { label: 'Resume', primary: true }] });
+      body.appendChild(para('Investigator ' + game.rec.name + ' · ' + game.d.hotel + ' (Game material).'));
+      shell.modal({ title: 'Menu', body: body, buttons: [{ label: 'Journal', onClick: function () { setTimeout(ui.journal, 30); } }, { label: 'Copy my journal', keepOpen: true, onClick: function () { copy(ui.reportText()); } }, { label: 'Download my journal', keepOpen: true, onClick: function () { download('room-214-journal-' + String(game.rec.name || 'player').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) + '.txt', ui.reportText()); } }, { label: 'Saves', onClick: function () { setTimeout(shell.openSaves, 30); } }, { label: 'Settings', onClick: function () { setTimeout(shell.openSettings, 30); } }, { label: 'Resume', primary: true }] });
     };
     return ui;
   }
