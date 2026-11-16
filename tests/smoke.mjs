@@ -703,6 +703,7 @@ T('last-light: every scenario\'s signal can be tuned, decoded and analysed from 
   }
 });
 /* ---------- The Last Light: the radio room (the scene that presents The Signal). These pages are opened with { room: true }. ---------- */
+const RR_BG = { 1: ['horn', '[a low horn, far off]'], 2: ['bell', '[a slow, hollow ring, far off]'], 3: ['chime', '[three steady chimes]'], 4: ['creak', '[a faint creak, like iron]'], 5: ['dog', '[a dog barks once, far off]'], 6: ['deep', '[a deep, slow hum, far off]'] };
 const RR_LINES = { receiver: 'The old receiver. Its needle is twitching.', crate: 'Batteries. Count them before you spend one.', crank: 'A hand crank, wired to the bench.', shelf: 'Everything you have, on one shelf.', door: 'The door to the yard. The wind is pushing on it.', notebook: 'Your notebook.', window: 'Dark fields. Nothing moving.', tape: 'Pencil marks on the tape beside the dial. Each one sits a little further along than the last.', phones: 'Hold one cup to your ear. Under the static, a low, even hum.', card: 'A faded procedures card. One line is underlined: repeat until acknowledged.' };
 const rrDbg = (p) => p.evaluate(() => window.LLRoom.debug());
 const rrReady = (p) => p.waitForFunction(() => window.LLRoom && window.LLRoom.debug().ready, null, { timeout: 20000 });
@@ -722,11 +723,14 @@ const rrNear = (p, id) => p.waitForFunction((i) => window.LLRoom.debug().near ==
 const rrCap = (p, text) => p.waitForFunction((t) => { const e = document.getElementById('rr-cap'); return e && !e.hidden && e.textContent === t; }, text, { timeout: 9000 });
 const rrPanel = (p, on) => p.waitForFunction((v) => window.LLRoom.debug().panel === v, on, { timeout: 8000 });
 /* the mission itself, driven through the page's own controls (the same steps as the page-style test above) */
-async function rrSignal(p, k, sc) {
+async function rrToTx(p, k, sc) {
   let found = false; for (let f = 880; f <= 1080 && !found; f++) { await p.evaluate((v) => { const el = document.getElementById('tune'); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, f); found = !(await p.$eval('#lockbtn', (b) => b.disabled)); }
   ok(found, 'scenario ' + k + ': the signal can be tuned'); await p.click('[data-act="sig-lock"]'); await p.waitForTimeout(60);
   if (sc.signal.decode) { if (sc.signal.decode.kind === 'shift') await p.evaluate((n) => { const el = document.getElementById('shift'); el.value = n; el.dispatchEvent(new Event('input', { bubbles: true })); }, sc.signal.decode.shift); else await p.fill('#ans', sc.signal.decode.answer.toLowerCase()); await p.click('[data-act="sig-decode"]'); await p.waitForTimeout(60); }
   ok((await p.textContent('.tx')).includes(sc.signal.tx[0]), 'scenario ' + k + ': the transmission is shown on the radio panel');
+}
+async function rrSignal(p, k, sc) {
+  await rrToTx(p, k, sc);
   for (const o of sc.signal.obs.filter((x) => x.ok).slice(0, 3)) await p.click(`[data-sigpick="${o.id}"]`);
   await p.fill('[data-bind="m.reason"]', 'I do not trust it fully because the details do not add up and the sender knew more than they said. extra words here to pass the minimum length for sure');
   await p.click('[data-act="sig-judge"]'); ok(/You picked 3 useful details/.test(await p.textContent('.fb')), 'scenario ' + k + ': three useful details found'); await p.click('[data-act="sig-next"]');
@@ -804,16 +808,41 @@ T('last-light room: pointer and touch: tap a spot to walk, tap an object to walk
   }
 });
 
-T('last-light room: every sound has a caption (shown with sound off too): battery or crank, hum, static, the tone near the signal, the lock, footsteps, the door, and the horn only where the transmission has one', async ({ base, newPage }) => {
+T('last-light room: every sound has a caption (shown with sound off too): battery or crank, hum, static, the tone near the signal, the lock, footsteps, the door, and each scenario\'s own background sound', async ({ base, newPage }) => {
   const p = await newPage(null, { room: true }); await rrStart(p, base, 1, { bg: 'student', pers: 'cautious', str: 'eyes', weak: 'trust' });
   await rrWalk(p, 'receiver'); await rrCap(p, '[footsteps]').catch(() => {}); await p.click('[data-act="sig-power"]'); await rrCap(p, '[a battery slots in]'); await rrCap(p, '[the receiver hums]'); await rrCap(p, '[static]');
   const sc = await p.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[1]))); let found = false, f = 880; for (; f <= 1080 && !found; f++) { await p.evaluate((v) => { const el = document.getElementById('tune'); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, f); found = !(await p.$eval('#lockbtn', (b) => b.disabled)); }
   await rrCap(p, '[a steady tone under the static]'); await p.click('[data-act="sig-lock"]'); await rrCap(p, '[the signal locks]'); ok(/horn/.test(sc.signal.tx.join(' ')), 'scenario 1 has the horn in its transmission'); await rrCap(p, '[a low horn, far off]');
   await rrWalk(p, 'door'); await rrNear(p, 'door'); await p.keyboard.press('KeyE'); await rrCap(p, '[wind at the door]'); eq(await p.getAttribute('#rr-cap', 'aria-live'), 'polite', 'captions are announced politely'); await p.context().close();
-  /* a survivor with a crank gets the crank caption (with sound off); a scenario without a horn gets no horn caption */
+  /* a survivor with a crank gets the crank caption (with sound off); a scenario without a horn gets its own background caption, never the horn */
   const q = await newPage(null, { room: true }); await q.addInitScript(llSeed({ screen: 'mission', bg: 'student', sound: false, flags: { crank: true }, m: { id: 'signal', step: 0 } })); await q.goto(base + 'last-light/'); await rrReady(q); await rrWalk(q, 'receiver'); await q.click('[data-act="sig-power"]'); await rrCap(q, '[the crank whirrs]'); eq(JSON.parse(await lsGet(q, 'tll_save_v1')).sound, false, 'this survivor has sound off, and the captions still show'); await q.context().close();
   const r = await newPage(null, { room: true }); await rrStart(r, base, 2); const sc2 = await r.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[2]))); ok(!/horn/.test(sc2.signal.tx.join(' ')), 'scenario 2 has no horn'); await rrWalk(r, 'receiver'); await r.click('[data-act="sig-power"]'); const caps = []; await r.exposeFunction('rrSeen', (t) => caps.push(t)); await r.evaluate(() => new MutationObserver(() => window.rrSeen(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true }));
-  await rrSignal(r, 2, sc2); await r.waitForTimeout(3200); ok(!caps.includes('[a low horn, far off]'), 'no horn caption in scenario 2: ' + caps.join(' ')); ok(caps.includes('[the signal locks]'), 'the lock caption was shown'); await r.context().close();
+  await rrToTx(r, 2, sc2); await rrCap(r, RR_BG[2][1]); await r.waitForTimeout(600); ok(!caps.includes('[a low horn, far off]'), 'no horn caption in scenario 2: ' + caps.join(' ')); ok(caps.includes('[the signal locks]'), 'the lock caption was shown'); await r.context().close();
+});
+
+T('last-light room: each scenario\'s background sound plays once per transmission view with its own caption, is no louder than the horn, never replays on re-render, going back or reload, and never starts after the student has muted', async ({ base, newPage }) => {
+  const observe = (pg) => pg.evaluate(() => new MutationObserver(() => window.rrSeen2(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true }));
+  const watch = async (pg) => { const seen = []; await pg.exposeFunction('rrSeen2', (t) => seen.push(t)); await pg.evaluate(() => new MutationObserver(() => window.rrSeen2(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true })); return seen; };
+  const count = (arr, x) => arr.filter((y) => y === x).length;
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const [key, cap] = RR_BG[k];
+    /* sound on: one sound, one caption */
+    const p = await newPage(null, { room: true }); await rrStart(p, base, k); const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k); ok(sc.signal.tx.some((x) => /\[BACKGROUND\]/.test(x)), 'scenario ' + k + ': the existing background line is there');
+    await rrWalk(p, 'receiver'); await p.click('[data-act="sig-power"]'); const seen = await watch(p); let d = await rrDbg(p); eq(d.soundOn, true, 'sound is on for this survivor'); eq(d.sounds.length, 0, 'nothing yet');
+    await rrToTx(p, k, sc); await rrCap(p, cap); d = await rrDbg(p); eq(JSON.stringify(d.sounds.map((x) => x.key)), JSON.stringify([key]), 'scenario ' + k + ': its own sound started, once');
+    ok(d.peaks[key] > 0 && d.peaks[key] <= d.peaks.horn + 1e-9, 'scenario ' + k + ': no louder than the horn (' + d.peaks[key].toFixed(3) + ' against ' + d.peaks.horn.toFixed(3) + ')');
+    /* re-render (tick a detail), leave to the menu and come back, wait past the delay each time: still once */
+    await p.click(`[data-sigpick="${sc.signal.obs[0].id}"]`); await p.waitForTimeout(2700); await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); await p.waitForFunction(() => window.LLRoom.debug().mounted); await p.waitForTimeout(2700);
+    d = await rrDbg(p); eq(d.sounds.length, 1, 'scenario ' + k + ': not replayed on re-render or on going back'); eq(count(seen, cap), 1, 'scenario ' + k + ': its caption was shown exactly once');
+    for (const other of Object.values(RR_BG)) if (other[1] !== cap) eq(count(seen, other[1]), 0, 'scenario ' + k + ': no other scenario\'s caption (' + other[1] + ')');
+    /* reload on the transmission: nothing plays again */
+    await p.reload(); await rrReady(p); const n0 = seen.length; await observe(p); await p.waitForTimeout(2900); const seen2 = seen.slice(n0); d = await rrDbg(p); eq(d.sounds.length, 0, 'scenario ' + k + ': not replayed after a reload'); eq(count(seen2, cap), 0, 'scenario ' + k + ': no caption replay after a reload'); await p.context().close();
+    /* muted before the transmission: the caption still shows, and no sound starts */
+    const q = await newPage(null, { room: true }); await rrStart(q, base, k); await rrWalk(q, 'receiver'); await q.click('[data-act="sig-power"]'); await q.click('[data-act="menu"]'); await q.click('[data-go="settings"]'); await q.uncheck('[data-act="sound"]'); await q.click('[data-act="menu"]'); await q.click('[data-act="resume"]'); await q.waitForFunction(() => window.LLRoom.debug().mounted);
+    eq(JSON.parse(await lsGet(q, 'tll_save_v1_pv' + k)).sound, false, 'muted in Settings'); await rrToTx(q, k, sc); await rrCap(q, cap); await q.waitForTimeout(400); d = await rrDbg(q); eq(d.soundOn, false, 'sound is off'); eq(d.sounds.length, 0, 'scenario ' + k + ': no sound starts after muting'); await q.context().close();
+  }
+  /* volume at zero is muted too */
+  const z = await newPage(null, { room: true }); await z.addInitScript(() => { try { localStorage.setItem('ho-last-light-view', JSON.stringify({ vol: 0 })); } catch (e) { /* blocked */ } }); await rrStart(z, base, 5); const sc5 = await z.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[5]))); await rrWalk(z, 'receiver'); await z.click('[data-act="sig-power"]'); await rrToTx(z, 5, sc5); await rrCap(z, RR_BG[5][1]); eq((await rrDbg(z)).sounds.length, 0, 'volume zero: no sound starts, the caption still shows');
 });
 
 T('last-light room: settings and safety: text mode (a visible setting, and the automatic fallback), low effects, brightness, contrast, volume, reduced motion, and nothing flashes', async ({ base, newPage }) => {

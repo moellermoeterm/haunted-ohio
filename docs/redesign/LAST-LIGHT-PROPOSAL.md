@@ -133,7 +133,7 @@ Decided by the owner:
 - **The existing buttons stay in the panel** ("Leave the radio room for now", "Check your supplies first"). The door and the shelf press those same buttons, so both ways work and text mode is identical.
 - **After the journal is saved** the mission is complete and saved exactly as before; the room stays on screen until the student uses the door, then the map appears.
 - **The guide line** between powering the radio and the decision reuses existing text (the dial label, the decoding intro, the "What stands out?" heading, the first line of the decision), so no new line was needed.
-- **The horn** plays (with its caption) only in the scenario whose transmission has the horn. The other five scenarios' background sounds have no approved sound or caption yet, so they stay as text only.
+- **Background sounds:** each scenario's "[BACKGROUND]" line has its own synthesized sound and caption (the horn, and the five approved later in `LAST-LIGHT-BACKGROUND-SOUNDS-PROPOSAL.md`). Each plays once per transmission view.
 - **Near-object prompt:** the prompt shows the object's approved line with the key to press, rather than a separate "use the ..." label.
 - **Interface labels added, approved by the owner** (not story text): the settings group "Radio room" with "Text mode", "Low effects", "Brightness" (Normal, Brighter, Brightest), "Contrast" (Normal, Higher, Highest) and "Volume"; the touch button "Use".
 - **View settings** are stored apart from the game save, under `ho-last-light-view`, and only when a student changes one.

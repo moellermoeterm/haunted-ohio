@@ -1,6 +1,8 @@
 # The Last Light: background sounds for the other five scenarios (proposal)
 
-Status: **proposal only. No code has been written and nothing is added until this is approved.**
+Status: **approved by the owner and built** (in the radio room pull request, still a draft). All five captions and all five sounds were approved as written. The dog bark is the synthesized version first: if it does not pass the owner's listen on a real device, it falls back to caption only, or to an openly licensed (CC0) recording proposed first with its source, author and license.
+
+Rules the owner added, each with a test: a sound plays once per transmission view; it never replays on a re-render, on going back, or on a reload; no sound is louder than the horn (louder ones are scaled down in code); no sound starts after the student has muted (the Sound effects switch off, or Volume at zero), and muting silences one that is still ringing; the caption always shows.
 
 ## Why
 Each scenario's transmission has one "[BACKGROUND]" line. In the radio room, scenario 1's line (the horn) already has a sound and a caption. The other five are still text only. This proposes a sound and a caption for each, so all six scenarios are treated the same.
@@ -35,7 +37,5 @@ All are synthesized in the browser, like the horn. No audio files. Each plays on
 - No asset files. About 1 KB of code.
 - Tests: each scenario shows its own caption once after the transmission appears, and no other scenario's caption; captions show with sound off; the existing horn test still passes.
 
-## Decisions needed
-1. Approve, edit or reject each of the five captions.
-2. Approve the five sounds as described?
-3. For the dog bark: try the synthesized version first (recommended), or go straight to caption only?
+## Decisions
+All decided by the owner: the five captions and the five sounds are approved as written; the dog bark is tried synthesized first.

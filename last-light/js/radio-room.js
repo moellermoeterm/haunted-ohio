@@ -28,7 +28,11 @@
     card: 'A faded procedures card. One line is underlined: repeat until acknowledged.'
   };
   var GUIDE_POWER = 'Walk to the receiver and power it.', GUIDE_LEAVE = 'Write in your notebook, then leave by the door.';
-  var CAP = { wind: '[wind in the grain elevator]', hum: '[the receiver hums]', stat: '[static]', fade: '[static, fading]', tone: '[a steady tone under the static]', click: '[click]', lock: '[the signal locks]', steps: '[footsteps]', batt: '[a battery slots in]', crank: '[the crank whirrs]', gust: '[wind at the door]', horn: '[a low horn, far off]' };
+  var CAP = { wind: '[wind in the grain elevator]', hum: '[the receiver hums]', stat: '[static]', fade: '[static, fading]', tone: '[a steady tone under the static]', click: '[click]', lock: '[the signal locks]', steps: '[footsteps]', batt: '[a battery slots in]', crank: '[the crank whirrs]', gust: '[wind at the door]', horn: '[a low horn, far off]', bell: '[a slow, hollow ring, far off]', chime: '[three steady chimes]', creak: '[a faint creak, like iron]', dog: '[a dog barks once, far off]', deep: '[a deep, slow hum, far off]' };
+  /* each scenario's transmission has one [BACKGROUND] line; this picks its sound and caption from that existing text */
+  var BG = [['horn', /horn/i], ['bell', /ship/i], ['chime', /chime/i], ['creak', /creak/i], ['dog', /dog/i], ['deep', /deep, slow hum/i]];
+  function bgKey() { var line = ((API.SC().signal.tx || []).filter(function (x) { return /\[BACKGROUND\]/.test(x); })[0]) || ''; for (var i = 0; i < BG.length; i++) if (BG[i][1].test(line)) return BG[i][0]; return ''; }
+  var bgSeen = typeof WeakSet === 'function' ? new WeakSet() : null;      /* a background sound plays once per transmission view: never again on re-render, going back, or reload */
 
   /* ---------- the room: what is where (1344 by 864 space) ---------- */
   var BX = T * 5.2, BY = WH - 14, BW = T * 5.2, BH = T * 1.25, FRONT = BY + BH + 44;      /* the bench, and the line you stand on in front of it */
@@ -72,16 +76,30 @@
     var ctx = null, master = null, noiseBuf = null, wind = null, hum = null, tone = null, lastClick = 0, lastStep = 0;
     function on() { return !!(API && API.S().sound) && view.vol > 0; }
     function ac() { if (ctx) return ctx; try { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = view.vol / 100; master.connect(ctx.destination); var len = ctx.sampleRate * 2, b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0); for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; noiseBuf = b; } catch (e) { ctx = null; } return ctx; }
-    function noise(freq, type, gain, dur, attack) { if (!on() || !ac()) return; try { var s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; var f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; var g = ctx.createGain(), t = ctx.currentTime; g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + 0.05); } catch (e) { /* audio blocked */ } }
-    function osc(freq, type, gain, dur, attack, to) { if (!on() || !ac()) return; try { var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime; o.type = type; o.frequency.setValueAtTime(freq, t); if (to) o.frequency.linearRampToValueAtTime(to, t + dur); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05); } catch (e) { /* audio blocked */ } }
+    function noise(freq, type, gain, dur, attack, at) { if (!on() || !ac()) return; try { master.gain.value = view.vol / 100; var s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; var f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; var g = ctx.createGain(), t = ctx.currentTime + (at || 0); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + 0.05); } catch (e) { /* audio blocked */ } }
+    function osc(freq, type, gain, dur, attack, to, at) { if (!on() || !ac()) return; try { master.gain.value = view.vol / 100; var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + (at || 0); o.type = type; o.frequency.setValueAtTime(freq, t); if (to) o.frequency.linearRampToValueAtTime(to, t + dur); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05); } catch (e) { /* audio blocked */ } }
     function loopStop(l) { if (!l) return null; try { l.g.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.2); l.s.forEach(function (x) { x.stop(ctx.currentTime + 0.8); }); } catch (e) { /* already stopped */ } return null; }
+    /* background sounds: [kind, frequency, wave or filter, level, length, fade-in, start offset, glide-to]. Every part fades in over at least a fifth of a second.
+       No sound's parts playing together may add up to more than the horn's (checked when the file loads, and by a test). */
+    var BGS = {
+      horn: [['o', 147, 'sine', 0.04, 2.6, 0.7, 0], ['o', 185, 'sine', 0.03, 2.6, 0.8, 0]],
+      bell: [['o', 220, 'sine', 0.045, 3.5, 0.5, 0], ['o', 554, 'sine', 0.012, 2.4, 0.5, 0]],
+      chime: [['o', 660, 'sine', 0.035, 0.6, 0.2, 0], ['o', 660, 'sine', 0.035, 0.6, 0.2, 0.75], ['o', 660, 'sine', 0.035, 0.6, 0.2, 1.5]],
+      creak: [['o', 92, 'sawtooth', 0.02, 1.5, 0.35, 0, 128], ['n', 700, 'bandpass', 0.012, 1.5, 0.35, 0]],
+      dog: [['n', 420, 'bandpass', 0.035, 0.5, 0.2, 0], ['o', 290, 'triangle', 0.015, 0.5, 0.2, 0, 200]],
+      deep: [['o', 55, 'sine', 0.05, 4.5, 1.5, 0, 51], ['o', 82, 'sine', 0.018, 4.5, 1.5, 0]]
+    }, log = [];
+    function bgPeak(key) { var parts = BGS[key] || [], best = 0; parts.forEach(function (p) { var sum = 0; parts.forEach(function (q) { if (q[6] < p[6] + p[4] && p[6] < q[6] + q[4]) sum += q[3]; }); best = Math.max(best, sum); }); return best; }
+    Object.keys(BGS).forEach(function (k) { var cap = bgPeak('horn'), pk = bgPeak(k); if (pk > cap) BGS[k].forEach(function (p) { p[3] *= cap / pk; }); });
     return {
-      vol: function () { if (master) try { master.gain.value = view.vol / 100; } catch (e) { /* closed */ } },
+      vol: function () { if (master) try { master.gain.value = on() ? view.vol / 100 : 0; } catch (e) { /* closed */ } },      /* muting silences anything still ringing */
+      on: on, log: log, bgPeak: bgPeak,
+      bg: function (key) { var parts = BGS[key]; if (!parts || !on() || !ac()) return false; this.vol(); parts.forEach(function (p) { if (p[0] === 'n') noise(p[1], p[2], p[3], p[4], p[5], p[6]); else osc(p[1], p[2], p[3], p[4], p[5], p[7], p[6]); }); log.push({ key: key, peak: bgPeak(key) }); return true; },
       loops: function (st) {                                                           /* wind, hum and the carrier tone follow the state */
         var want = mounted && on() && ac(), t;
         if (!want) { wind = loopStop(wind); hum = loopStop(hum); tone = loopStop(tone); return; }
         try {
-          t = ctx.currentTime;
+          t = ctx.currentTime; master.gain.value = view.vol / 100;
           if (!wind) { var s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; var f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 320; var g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.05, t + 2); s.connect(f); f.connect(g); g.connect(master); s.start(); wind = { s: [s], g: g }; }
           var powered = st.step >= 1;
           if (powered && !hum) { var o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), hg = ctx.createGain(); o1.frequency.value = 60; o2.frequency.value = 120; hg.gain.setValueAtTime(0.0001, t); hg.gain.linearRampToValueAtTime(0.02, t + 1); o1.connect(hg); o2.connect(hg); hg.connect(master); o1.start(); o2.start(); hum = { s: [o1, o2], g: hg }; }
@@ -97,10 +115,10 @@
       batt: function () { noise(300, 'lowpass', 0.1, 0.12, 0.02); setTimeout(function () { noise(500, 'lowpass', 0.07, 0.08, 0.02); }, 160); },
       crank: function () { osc(70, 'sawtooth', 0.025, 0.9, 0.08, 150); },
       gust: function () { noise(500, 'bandpass', 0.07, 1.6, 0.6); },
-      horn: function () { osc(147, 'sine', 0.04, 2.6, 0.7); osc(185, 'sine', 0.03, 2.6, 0.8); },
       lock: function () { /* the page already plays its lock tone; the room adds the caption */ }
     };
   })();
+  document.addEventListener('click', function (ev) { if (ev.target && ev.target.dataset && ev.target.dataset.act === 'sound') setTimeout(function () { Snd.vol(); Snd.loops(prev || { step: -1 }); }, 0); });
   var capT = 0;
   function caption(key) { var el = host && host.querySelector('#rr-cap'); if (!el) return; el.textContent = CAP[key]; el.hidden = false; clearTimeout(capT); capT = setTimeout(function () { el.hidden = true; }, 4200); }
 
@@ -134,7 +152,7 @@
     if (!a || !a.sig || !b.sig) return;
     if (a.step === 0 && b.step === 1) { if (b.batt < a.batt) { Snd.batt(); caption('batt'); } else if (b.crank) { Snd.crank(); caption('crank'); } setTimeout(function () { if (mounted) caption('hum'); }, 1600); setTimeout(function () { if (mounted && snap().step === 1) caption('stat'); }, 3600); intro(false); }
     if (a.step === 1 && !a.sub && (b.sub === 'decode' || b.step === 2)) caption('lock');
-    if (a.step < 2 && b.step === 2 && /\[BACKGROUND\][^.]*horn/i.test((API.SC().signal.tx || []).join(' '))) setTimeout(function () { if (mounted) { Snd.horn(); caption('horn'); } }, 2200);
+    if (a.step < 2 && b.step === 2) { var key = bgKey(), m = API.S().m; if (key && m && !(bgSeen && bgSeen.has(m))) { if (bgSeen) bgSeen.add(m); setTimeout(function () { var S2 = API.S(); if (!mounted || S2.m !== m || m.step !== 2) return; Snd.bg(key); caption(key); }, 2200); } }
   }
   function guide(s) {
     var el = document.getElementById('rr-guide'), SC = API.SC(), t = ''; if (!el) return;
@@ -325,7 +343,7 @@
 
   window.LLRoom = {
     on: function () { return !failed && !view.text && !window.LL_TEXT_MODE; }   /* LL_TEXT_MODE: a page can ask for the page-style mission before load (the tests of that mission do) */, frame: frame, sync: sync, settingsHTML: settingsHTML, volume: function () { return view.vol / 100; },
-    debug: function () { var o = nearest(), p = document.getElementById('rr-panel'); return { ready: !!(scene && scene.ready), mounted: mounted, after: after, x: scene ? scene.px : 0, y: scene ? scene.py : 0, ang: scene ? scene.ang : 0, near: o ? o.id : '', panel: !!p && !p.hidden, low: low(), autoLow: autoLow, fps: scene ? scene.fps : 0, frames: scene ? scene.frames || 0 : 0, paints: scene ? scene.paints || 0 : 0, failed: failed, objects: OBJ.map(function (x) { return { id: x.id, ap: x.ap, hit: x.hit, live: live(x, prev || snap()) }; }), size: [PW, PH], children: scene ? scene.children.list.length : 0, guide: (document.getElementById('rr-guide') || {}).textContent || '' }; },
+    debug: function () { var o = nearest(), p = document.getElementById('rr-panel'); return { ready: !!(scene && scene.ready), mounted: mounted, after: after, x: scene ? scene.px : 0, y: scene ? scene.py : 0, ang: scene ? scene.ang : 0, near: o ? o.id : '', panel: !!p && !p.hidden, low: low(), autoLow: autoLow, fps: scene ? scene.fps : 0, frames: scene ? scene.frames || 0 : 0, paints: scene ? scene.paints || 0 : 0, failed: failed, objects: OBJ.map(function (x) { return { id: x.id, ap: x.ap, hit: x.hit, live: live(x, prev || snap()) }; }), size: [PW, PH], children: scene ? scene.children.list.length : 0, sounds: Snd.log.slice(), soundOn: Snd.on(), peaks: ['horn', 'bell', 'chime', 'creak', 'dog', 'deep'].reduce(function (o, k) { o[k] = Snd.bgPeak(k); return o; }, {}), guide: (document.getElementById('rr-guide') || {}).textContent || '' }; },
     _warp: function (x, y) { if (scene) { scene.px = x; scene.py = y; scene.dirty = true; } },      /* tests only: put the survivor somewhere */
     _fail: function () { unmount(); failed = true; if (API) API.render(); }                                    /* tests only: pretend the canvas could not start */
   };
