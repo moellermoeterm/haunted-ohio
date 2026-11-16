@@ -88,7 +88,7 @@ Keyboard (arrows or WASD, E or Enter to use, Esc for the menu), touch (on-screen
 ### Technology
 - Phaser 3.90.0, already vendored in the repo. Loaded only when the scene starts, so the title screen stays light.
 - The existing shared game shell (`games-shared/`) provides captions, settings, input and the modal, as in The Veil and Room 214.
-- The mission logic stays in one place: the existing functions decide every outcome; the scene only presents them. A "text mode" switch in Settings opens the original page-style mission, which also remains the fallback if the canvas cannot start.
+- The mission logic stays in one place: the existing functions decide every outcome; the scene only presents them. **Text mode** (decided): a visible setting students can choose, which opens the original page-style mission, and also the automatic fallback if the canvas cannot start.
 
 ## Performance and size budget
 | Item | Budget |
@@ -113,8 +113,11 @@ Already in the repo and used: Phaser 3.90.0 (MIT license, recorded in `games-sha
 ## What you will get for review (Step 3c)
 A pull request on the development branch with the radio room playable for all six scenarios, a one-page play guide, the test results, and `docs/ASSETS.md`. Then work stops until you have played it on a real device.
 
-## Decisions I need
+## Decisions
+Decided by the owner:
+- **Text mode** is both a visible student setting and an automatic fallback.
+- **One shared room shape** for all six scenarios is acceptable for the first review scene (each scenario keeps its own text and puzzle).
+
+Still needed:
 1. Approve the scene design above?
 2. Approve, edit or reject each of the ten proposed lines?
-3. Keep "text mode" as a setting students can choose, or only as an automatic fallback?
-4. The room is the same shape for all six scenarios in this first build (each scenario's own text and puzzle, one shared room). Is that acceptable for the first review, with per-scenario rooms later?
