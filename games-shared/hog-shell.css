@@ -15,7 +15,7 @@ body.hog{margin:0;background:var(--hog-ink);color:var(--hog-fg);font-family:var(
 .hog-brand{color:var(--hog-muted);text-decoration:none;font-weight:700;min-height:44px;display:inline-flex;align-items:center}
 .hog-brand:hover{color:var(--hog-gold)}
 .hog-title{margin:0;font-family:var(--ho-display,Georgia,serif);font-weight:400;font-size:1.3rem;margin-right:auto}
-.hog-case{border:1.5px solid var(--hog-gold);color:var(--hog-gold);border-radius:99px;padding:.1rem .8rem;font-weight:700;white-space:nowrap}
+.hog-preview{position:sticky;top:0;z-index:90;margin:0;padding:.55rem 1rem;text-align:center;font-weight:700;background:#f2c14e;color:#17110a;border-bottom:2px solid #17110a}
 .hog-tools{display:flex;flex-wrap:wrap;gap:.4rem}
 .hog-stage{position:relative;width:100%;max-width:1280px;margin:0 auto;background:#05070b;touch-action:none;user-select:none;-webkit-user-select:none}
 .hog-stage canvas{display:block;width:100%;height:auto;touch-action:none}

@@ -180,8 +180,6 @@ a{color:var(--ho-spectral)}
 .logo{box-shadow:0 0 0 2px var(--ho-gold-dim),0 0 70px rgba(150,180,230,.28);animation:ho-breathe 5s ease-in-out infinite}
 .title h1{color:var(--paper);text-shadow:0 0 36px rgba(150,180,230,.3),0 3px 30px #000}
 .brief{background:rgba(255,255,255,.04);border:1px solid var(--steel2);border-left:3px solid var(--red);border-radius:8px;padding:1rem 1.2rem}
-.case-slot{margin:.2rem auto 1.1rem;max-width:34rem}
-.case-slot:empty{display:none}
 .stamp{border-radius:3px;opacity:.92}
 
 /* menu as case folders */
@@ -223,9 +221,7 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 .how{border-color:var(--ho-gold-dim);border-radius:18px;background:linear-gradient(180deg,var(--steel2),var(--steel));animation:ho-rise .28s var(--ho-ease)}
 .how h2{color:var(--ho-gold)}
 @media(prefers-reduced-motion:reduce){body,.logo,.how{animation:none!important}.btn,.ex,.menu .btn{transition:none}}
-.casechip{font:700 .78rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:.3rem .65rem;color:var(--ho-gold,var(--text))}
-#caseSlot label{display:block;text-align:center;font-weight:700;margin-bottom:.4rem}
-#caseSlot input{text-align:center}
+.pvbanner{position:sticky;top:0;z-index:60;margin:0;padding:.55rem 1rem;text-align:center;font-weight:700;background:#f2c14e;color:#17110a;border-bottom:2px solid #17110a}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 <script src="../assets/js/ho-track.js"></script>
@@ -244,7 +240,7 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 <script>
 (function(){
 'use strict';
-function KEY(){return HOV.slot('hf_save_v1',CASE)}
+function KEY(){return PREVIEW?'hf_save_v1_pv'+CASE:HOV.slot('hf_save_v1',CASE)}
 var mem=null;
 
 /* ---------- data ---------- */
@@ -256,9 +252,15 @@ var TYPES={
   spec:{n:'Speculation',d:'A guess or belief with no evidence behind it.'},
   mis:{n:'Possibly misleading',d:'Looks like evidence, but has an ordinary explanation.'}
 };
-/* The case (1 to 6) comes from ?case=N, then the last case played on this device, then 1. Case data lives in cases/c1.js to c6.js. */
-var CASE=HOV.pick('hf_case'),C=HF_CASES[CASE],EV,EVMAP,CONTRA,THEORIES;
-function useCase(n){CASE=n;C=HF_CASES[n];window.HF_ACTIVE=C;EV=C.ev;CONTRA=C.contra;THEORIES=C.theories;EVMAP={};EV.forEach(function(e){EVMAP[e.id]=e});HOV.remember('hf_case',n)}
+/* The case (1 to 6) is assigned at random the first time a student presses "New case" on a device, and kept (see assets/js/ho-variant.js).
+   Students do not choose it and are not shown its number. ?preview=N is for leaders: a labeled preview with a throwaway save.
+   Until a case is assigned nothing about any case is shown, and nothing is written to storage. Case data lives in cases/c1.js to c6.js. */
+var GAME='haunting-files',PREVIEW=HOV.preview(),CASE=PREVIEW||HOV.assigned(GAME)||HOV.legacy('hf_case','hf_save_v1'),UNASSIGNED=!CASE;
+if(!PREVIEW&&CASE&&!HOV.assigned(GAME))HOV.assign(GAME,CASE);
+if(UNASSIGNED)CASE=1;
+var C=HF_CASES[CASE],EV,EVMAP,CONTRA,THEORIES;
+function pvBanner(){return PREVIEW?'<p class="pvbanner" id="pvBanner" role="status">Leader preview: case '+PREVIEW+' of 6. This is a throwaway copy. It never changes a student\'s game or assigned case.</p>':''}
+function useCase(n){CASE=n;C=HF_CASES[n];window.HF_ACTIVE=UNASSIGNED?null:C;EV=C.ev;CONTRA=C.contra;THEORIES=C.theories;EVMAP={};EV.forEach(function(e){EVMAP[e.id]=e})}
 useCase(CASE);
 var STAGES=['Read the case file','File 6 exhibits (include both statements)','Solve the Interview Room','Make 2 connections on the board','Defend a theory','File your field report','Write your story'];
 var ACH=[
@@ -291,11 +293,10 @@ var S=load()||fresh();S.case=CASE;
 if(S.screen==='title'&&S.started){S.screen='title'}
 var T={linkFrom:null,pending:null,fbReport:null,fbTheory:null};
 
-function load(){try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}catch(e){}return mem}
-function save(){mem=S;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
+function load(){if(UNASSIGNED)return mem;try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}catch(e){}return mem}
+function save(){mem=S;if(UNASSIGNED)return;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
 /* seeded order: a new game (with a name) gets its own repeatable shuffle of answer options; a save made before this feature keeps the original order */
 function ord(arr,tag){return S.vs?HOV.shuffle(arr,S.vs+'|'+tag):arr}
-function setCase(n){S.case=CASE;if(S.started)save();useCase(n);S=load()||fresh();S.case=CASE;S.screen='title'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function wc(t){t=(t||'').trim();return t?t.split(/\s+/).length:0}
 function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]},S)}
@@ -339,7 +340,7 @@ function nav(){
   var tabs=[['case','Case file'],['board','Evidence board'],['interview','Interview room'],['theory','Theory'],['report','Field report'],['final','Final story'],['profile','Profile']];
   var r=rank(),pct=r.max?100:Math.round((S.xp-r.lo)/(r.hi-r.lo)*100);
   return '<header class="bar"><div class="bar-in"><a class="brand" href="#" data-act="menu"><img src="../assets/img/ho-logo.png" alt="">The Haunting Files</a>'+
-   '<span class="casechip" title="Your case code">Case '+CASE+'</span><div class="rank"><b>'+esc(r.name)+'</b> &middot; '+S.xp+' XP<div class="xpbar"><i style="width:'+pct+'%"></i></div></div>'+
+   '<div class="rank"><b>'+esc(r.name)+'</b> &middot; '+S.xp+' XP<div class="xpbar"><i style="width:'+pct+'%"></i></div></div>'+
    '<button class="btn ghost sm" data-howto>How to play</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
    '<nav class="tabs" aria-label="Case sections">'+tabs.map(function(t){
      var lock=LOCKMSG[t[0]]&&!unlocked(t[0]);
@@ -351,8 +352,7 @@ function count(p,min){var n=wc(getP(p));return '<div class="count'+(n>=min?' ok'
 var SCREENS={
 title:function(){return '<section class="title"><img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><h1>The Haunting Files</h1>'+
  '<p class="tag">Every legend has a story. Every story leaves evidence.</p>'+
- '<div class="brief" id="brief"><p>RESTRICTED ARCHIVE. Junior investigator access granted.</p>'+C.brief.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+'</div>'+
- '<div class="case-slot" id="caseSlot"><label for="caseCode">Case code (1 to 6)</label><div class="row" style="justify-content:center"><input id="caseCode" type="number" min="1" max="6" step="1" inputmode="numeric" value="'+CASE+'" style="max-width:6rem"><button class="btn ghost sm" type="button" data-act="randcase">Random case</button></div><p class="muted" style="margin:.4rem 0 0" aria-live="polite">Your leader may give you a code. Each code is a different case with its own evidence.</p></div>'+
+ '<div class="brief" id="brief"><p>RESTRICTED ARCHIVE. Junior investigator access granted.</p>'+(UNASSIGNED?'<p>Your case is assigned when you open a new case.</p>':C.brief.map(function(x){return '<p>'+esc(x)+'</p>'}).join(''))+'</div>'+
  '<div class="row" style="justify-content:center"><button class="btn" data-act="menu">Open the archive</button><button class="btn ghost" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none" href="../">Back to Haunted Ohio</a></div></section>'},
 
 menu:function(){return '<div class="wrap"><div class="menu"><div style="text-align:center"><img class="logo" style="width:96px;height:96px" src="../assets/img/ho-logo.png" alt=""><h2 style="margin-top:.6rem">The Haunting Files</h2><span class="stamp">CLASSIFIED</span></div>'+
@@ -473,7 +473,7 @@ function viewer(e){
 /* ---------- render + events ---------- */
 function render(){
  var f=SCREENS[S.screen]||SCREENS.title;
- document.getElementById('app').innerHTML=f();
+ document.getElementById('app').innerHTML=pvBanner()+f();
  if(S.screen==='board')setTimeout(drawLines,0);
 }
 function drawLines(){
@@ -550,7 +550,7 @@ document.addEventListener('click',function(ev){
  ev.preventDefault();
  if(a==='menu'){S.screen='menu';save();render();window.scrollTo(0,0)}
  else if(a==='resume'){S.screen='case';save();render()}
- else if(a==='newgame'){if(S.started&&!confirm('Start a new case? This erases your current progress unless you exported it.'))return;var snd=S.sound;S=fresh();S.sound=snd;S.screen='intro';save();render()}
+ else if(a==='newgame'){if(S.started&&!confirm('Start a new case? This erases your current progress unless you exported it.'))return;var snd=S.sound;if(UNASSIGNED){var rn=HOV.roll();HOV.assign(GAME,rn);UNASSIGNED=false;useCase(rn)}S=fresh();S.sound=snd;S.screen='intro';save();render()}
  else if(a==='begin'){if((S.name||'').trim().length<2){toast('Enter your investigator name.');return}S.vs=String(HOV.hash(CASE+'|'+S.name.trim().toLowerCase()));S.started=true;S.screen='case';save();render();window.scrollTo(0,0)}
  else if(a==='readcase'){S.readCase=true;save();render();toast('Case file read. Open the exhibits.')}
  else if(a==='addlink'){
@@ -575,12 +575,14 @@ document.addEventListener('click',function(ev){
   if(pass>=4&&!S.filed){S.filed=true;if(window.HO_track)HO_track('case-closed');xp(pass*10,'Field report filed');award('closed')}
   else if(pass>=4)toast('Report still passes.');
   save();render()}
- else if(a==='export'){download('haunting-files-save-'+(S.name||'investigator').replace(/\W+/g,'-')+(CASE>1?'-case-'+CASE:'')+'.json',JSON.stringify(S),'application/json')}
+ else if(a==='export'){download('haunting-files-save-'+(S.name||'investigator').replace(/\W+/g,'-')+'.json',JSON.stringify(S),'application/json')}
  else if(a==='export-story'){
-  var txt='The Haunting Files: story by '+(S.name||'Investigator')+'\nCase '+CASE+': '+C.name+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n');
+  var txt='The Haunting Files: story by '+(S.name||'Investigator')+'\nCase file: '+C.name+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n');
   download('my-ghost-story.txt',txt,'text/plain')}
- else if(a==='randcase'){var rn=HOV.random();setCase(rn);render()}
- else if(a==='reset'){if(confirm('Erase all progress? This cannot be undone.')){S=fresh();S.screen='menu';save();render()}}
+ else if(a==='reset'){if(confirm('Erase all progress? This cannot be undone.')){
+  /* the only thing that clears the assigned case: the next new case is picked at random again. A leader preview only clears its own throwaway copy. */
+  if(PREVIEW){S=fresh();S.screen='menu';save();render()}
+  else{try{for(var rk=1;rk<=6;rk++)localStorage.removeItem(HOV.slot('hf_save_v1',rk))}catch(e){}HOV.unassign(GAME);UNASSIGNED=true;mem=null;useCase(1);S=fresh();S.screen='menu';render()}}}
 });
 document.addEventListener('input',function(ev){
  var el=ev.target;
@@ -596,9 +598,9 @@ document.addEventListener('change',function(ev){
  if(el.dataset.pick){var p=S.contra.pick,i=p.indexOf(el.dataset.pick);if(el.checked&&i<0)p.push(el.dataset.pick);if(!el.checked&&i>-1)p.splice(i,1);save();render()}
  else if(el.dataset.th){S.th.choice=el.dataset.th;save();render()}
  else if(el.dataset.cite){var c=S.th.cites,j=c.indexOf(el.dataset.cite);if(el.checked&&j<0)c.push(el.dataset.cite);if(!el.checked&&j>-1)c.splice(j,1);save();render()}
- else if(el.id==='caseCode'){var cn=HOV.valid(el.value);if(cn===CASE)return;if(cn){setCase(cn);render();var ci=document.getElementById('caseCode');if(ci)ci.focus()}else{toast('Case codes are 1 to 6.')}}
  else if(el.id==='imp'&&el.files&&el.files[0]){
-  var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number')throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();useCase(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Haunting Files save.')}};fr.readAsText(el.files[0])}
+  if(PREVIEW){toast('Importing is turned off in the leader preview.');el.value='';return}
+  var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number')throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();/* a save file carries its own case: it becomes this device's assigned case */HOV.assign(GAME,oc);UNASSIGNED=false;useCase(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Haunting Files save.')}};fr.readAsText(el.files[0])}
 });
 function download(name,text,type){
  try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}
