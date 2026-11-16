@@ -49,11 +49,14 @@ export async function run(tests) {
     if (process.env.ONLY && !name.includes(process.env.ONLY)) continue;   // e.g. ONLY="BEFORE" npm run smoke
     const errs = [];
     const t0 = Date.now();
+    const opened = [];
     try {
-      await fn({ browser, base, errs, newPage: (vp, opts) => newPage(browser, errs, vp, opts) });
+      await fn({ browser, base, errs, newPage: async (vp, opts) => { const pg = await newPage(browser, errs, vp, opts); opened.push(pg.context()); return pg; } });
       if (errs.length) throw new Error('unexpected errors: ' + errs.slice(0, 3).join(' | '));
       console.log(`PASS  ${name}  (${Date.now() - t0} ms)`);
     } catch (e) { fail++; console.log(`FAIL  ${name}\n      ${String(e.message || e).split('\n').slice(0, 4).join('\n      ')}`); }
+    /* every page a test opened is closed when the test ends, pass or fail: pages left open keep drawing and slow every later test */
+    for (const c of opened) await c.close().catch(() => {});
   }
   await browser.close(); srv.close();
   console.log(fail ? `\n${fail} test(s) failed` : '\nAll tests passed');
