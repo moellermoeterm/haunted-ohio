@@ -24,9 +24,13 @@ export function serve() {
 // Console errors we do not care about when offline (Google Fonts etc.) are filtered out.
 export const IGNORED = /fonts\.g|ERR_|Failed to load resource|net::|favicon/i;
 
-export async function newPage(browser, errs, viewport = { width: 1366, height: 800 }) {
-  const ctx = await browser.newContext({ viewport, acceptDownloads: true });
+// Games assign one of six cases at random on the first Begin. So that tests written for a known case stay repeatable, a normal test
+// page starts with case 1 already assigned in all four games. Tests about the assignment itself ask for a raw page: newPage(vp, { raw: true }).
+export const ASSIGN_KEYS = ['ho-haunting-files-assign', 'ho-last-light-assign', 'ho-veil-assign', 'ho-room214-assign'];
+export async function newPage(browser, errs, viewport = { width: 1366, height: 800 }, opts = {}) {
+  const ctx = await browser.newContext({ viewport: viewport || { width: 1366, height: 800 }, acceptDownloads: true });
   const page = await ctx.newPage();
+  if (!opts.raw) await page.addInitScript((keys) => { try { keys.forEach((k) => { if (!localStorage.getItem(k)) localStorage.setItem(k, '1'); }); } catch (e) { /* storage blocked */ } }, ASSIGN_KEYS);
   page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !IGNORED.test(m.text())) errs.push('console: ' + m.text()); });
   return page;
@@ -42,7 +46,7 @@ export async function run(tests) {
     const errs = [];
     const t0 = Date.now();
     try {
-      await fn({ browser, base, errs, newPage: (vp) => newPage(browser, errs, vp) });
+      await fn({ browser, base, errs, newPage: (vp, opts) => newPage(browser, errs, vp, opts) });
       if (errs.length) throw new Error('unexpected errors: ' + errs.slice(0, 3).join(' | '));
       console.log(`PASS  ${name}  (${Date.now() - t0} ms)`);
     } catch (e) { fail++; console.log(`FAIL  ${name}\n      ${String(e.message || e).split('\n').slice(0, 4).join('\n      ')}`); }

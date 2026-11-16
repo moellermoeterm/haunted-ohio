@@ -168,8 +168,6 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 .title{min-height:calc(100vh - 44px)}
 .title>.skyline{position:absolute;left:0;right:0;bottom:30%;width:100%;height:34%;opacity:.5;pointer-events:none}
 .title .logo{box-shadow:0 0 0 2px var(--ho-gold-dim),0 0 50px rgba(255,122,26,.3);animation:ho-breathe 5s ease-in-out infinite}
-.case-slot{margin:.2rem 0 1.1rem;max-width:30rem}
-.case-slot:empty{display:none}
 
 /* menu */
 .menu .btn{border-radius:10px;border-left:4px solid var(--sig);transition:transform .2s var(--ho-ease),border-color .2s,color .2s}
@@ -193,9 +191,7 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 .how{border-color:var(--ho-gold-dim);border-radius:18px;background:linear-gradient(180deg,var(--panel2),var(--panel));animation:ho-rise .28s var(--ho-ease)}
 .how h2{color:var(--ho-gold)}
 @media(prefers-reduced-motion:reduce){body,.title .logo,.how{animation:none!important}.btn,.choice,.menu .btn{transition:none}}
-.casechip{font:700 .78rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:.3rem .65rem;color:var(--ho-gold,var(--text))}
-#caseSlot label{display:block;text-align:center;font-weight:700;margin-bottom:.4rem}
-#caseSlot input{text-align:center}
+.pvbanner{position:sticky;top:0;z-index:60;margin:0;padding:.55rem 1rem;text-align:center;font-weight:700;background:#f2c14e;color:#17110a;border-bottom:2px solid #17110a}
 .sigtxt{word-break:break-word}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
@@ -216,7 +212,7 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 (function(){
 'use strict';
 var mem=null;
-function KEY(){return HOV.slot('tll_save_v1',CASE)}
+function KEY(){return PREVIEW?'tll_save_v1_pv'+CASE:HOV.slot('tll_save_v1',CASE)}
 
 /* ---------- data ---------- */
 var BG=[
@@ -257,14 +253,18 @@ var ACH=[
  {id:'brief',n:'Short and clear',d:'Send a radio message in 20 words or fewer.'},
  {id:'author',n:'Storyteller',d:'Complete all 10 story beats.'}
 ];
-/* The scenario (1 to 6) comes from ?case=N, then the last one played on this device, then 1. Scenario data lives in scenarios/s1.js to s6.js. */
-var CASE=HOV.pick('tll_case'),SC,SN,PN,LOCS={};
+/* The scenario (1 to 6) is assigned at random the first time a student presses "New game" on a device, and kept (see assets/js/ho-variant.js). Students do not choose it and are not shown its number; ?preview=N is a labeled leader preview with a throwaway save. Scenario data lives in scenarios/s1.js to s6.js. */
+var GAME='last-light',PREVIEW=HOV.preview(),CASE=PREVIEW||HOV.assigned(GAME)||HOV.legacy('tll_case','tll_save_v1'),UNASSIGNED=!CASE;
+if(!PREVIEW&&CASE&&!HOV.assigned(GAME))HOV.assign(GAME,CASE);
+if(UNASSIGNED)CASE=1;
+var SC,SN,PN,LOCS={};
+function pvBanner(){return PREVIEW?'<p class="pvbanner" id="pvBanner" role="status">Leader preview: case '+PREVIEW+' of 6. This is a throwaway copy. It never changes a student\'s game or assigned case.</p>':''}
 var LOCMETA={home:{m:'signal'},cin:{m:'supply'},hol:{m:'stranger'},und:{m:'under',lock:'Locked. This location opens in the next stage of the game.'},moo:{m:'moon',lock:'Locked. This location opens in the next stage of the game.'},twr:{m:'tower',lock:'Locked. This location opens in the next stage of the game.'}};
 function useScenario(n){CASE=n;SC=LL_SCENARIOS[n];SN=SC.stranger;
  PN=SN.g==='m'?{S:'He',s:'he',o:'him',p:'his',r:'himself'}:{S:'She',s:'she',o:'her',p:'her',r:'herself'};
  LOCS={};Object.keys(LOCMETA).forEach(function(k){var o={},q;for(q in SC.locs[k])o[q]=SC.locs[k][q];for(q in LOCMETA[k])o[q]=LOCMETA[k][q];LOCS[k]=o});
  ACH.forEach(function(x){if(x.id==='tells')x.d='Find 4 tells in '+SN.name+'\'s story.'});
- window.LL_ACTIVE=SC;HOV.remember('tll_case',n)}
+ window.LL_ACTIVE=UNASSIGNED?null:SC}
 useScenario(CASE);
 function sigObs(){var o=SC.signal.obs.slice(),x=(SC.signal.extra||SIG_EXTRA)[bgd().tag];if(x)o.push(x);return o}
 function DIAL(){return SC.signal.dialMsg||SC.signal.msg}
@@ -272,7 +272,6 @@ function target(){return SC.signal.freq+(S.vs?(HOV.hash(S.vs+'|f')%9-4):0)}
 function shiftText(s,n){return s.replace(/[A-Z]/g,function(c){return String.fromCharCode((c.charCodeAt(0)-65-n+26)%26+65)})}
 /* seeded order: a new game (with a name) gets its own repeatable order of options; a save made before this feature keeps the original order */
 function ord(arr,tag){return S.vs?HOV.shuffle(arr,S.vs+'|'+tag):arr}
-function setCase(n){S.case=CASE;if(S.started)save();useScenario(n);S=load()||fresh();S.case=CASE;S.screen='title'}
 function itm(id){var b=ITEMS.filter(function(i){return i.id===id})[0],o=SC.supply.items[id],r={},k;for(k in b)r[k]=b[k];
  if(typeof o==='string')r.n=o;else if(o){r.n=o.n;if(o.clue)r.clue=o.clue}return r}
 var SIG_EXTRA={
@@ -315,8 +314,8 @@ function fresh(){return {v:1,case:CASE,vs:'',started:false,screen:'title',xp:0,n
 var S=load()||fresh();S.case=CASE;
 var AC=null,NOISE=null,NG=null;
 
-function load(){try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}catch(e){}return mem}
-function save(){mem=S;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
+function load(){if(UNASSIGNED)return mem;try{var v=localStorage.getItem(KEY());if(v)return JSON.parse(v)}catch(e){}return mem}
+function save(){mem=S;if(UNASSIGNED)return;try{localStorage.setItem(KEY(),JSON.stringify(S))}catch(e){}}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function wc(t){t=(t||'').trim();return t?t.split(/\s+/).length:0}
 function getP(p){return p.split('.').reduce(function(o,k){return o==null?o:o[k]},S)}
@@ -359,7 +358,7 @@ function hud(){
  var tabs=[['map','Map'],['pack','Pack'],['journal','Journal'],['log','Mission log'],['me','Survivor'],['final','Final story']];
  var cur=S.screen==='mission'?'map':S.screen;
  return '<header class="hud"><div class="hud-in"><a class="brand" href="#" data-act="menu"><img src="../assets/img/ho-logo.png" alt="">The Last Light</a>'+
-  '<span class="casechip" title="Your case code">Case '+CASE+'</span><div class="meters" aria-label="Resources"><span class="m">Day <b>'+S.day+'</b></span><span class="m'+(S.hp<=2?' low':'')+'">Health <b>'+S.hp+'</b></span>'+
+  '<div class="meters" aria-label="Resources"><span class="m">Day <b>'+S.day+'</b></span><span class="m'+(S.hp<=2?' low':'')+'">Health <b>'+S.hp+'</b></span>'+
   RES.map(function(r){return '<span class="m'+low(r[0])+'">'+r[1]+' <b>'+S.res[r[0]]+'</b></span>'}).join('')+'</div>'+
   '<button class="btn ghost sm" data-howto>How to play</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
   '<nav class="tabs" aria-label="Sections">'+tabs.map(function(t){var lock=t[0]==='final'&&!finalOk();return '<button class="tab'+(lock?' locked':'')+'" data-go="'+t[0]+'"'+(cur===t[0]?' aria-current="page"':'')+'>'+t[1]+(lock?' (locked)':'')+'</button>'}).join('')+'</nav></header>'
@@ -372,7 +371,6 @@ var SCREENS={
 title:function(){return '<section class="title"><svg class="skyline" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true"><path d="M0 200V120h40V90h30v40h30V60h26v70h40V100h36v30h30V70h24v60h50V40h30v90h40V110h30v20h30V80h28v50h40V95h34v35h40V55h26v75h40V105h30v25h50V85h30v45h40V120h40v80z" fill="#07090a"/></svg>'+
  '<img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><div class="signal-line"></div><h1>The Last Light</h1><p class="tag">The world went silent. Something is still calling.</p>'+
  '<p class="muted" style="max-width:32rem">Ohio, 2047. Twenty-one years ago, at 11:47 p.m. on October 31, 2026, The Silence took every signal, every grid, and most of the people. Tonight, your radio is speaking again.</p>'+
- '<div class="case-slot" id="caseSlot"><label for="caseCode">Case code (1 to 6)</label><div class="row" style="justify-content:center"><input id="caseCode" type="number" min="1" max="6" step="1" inputmode="numeric" value="'+CASE+'" style="max-width:6rem"><button class="btn ghost sm" type="button" data-act="randcase">Random case</button></div><p class="muted" style="margin:.4rem 0 0" aria-live="polite">Your leader may give you a code. Each code is a different story with its own map, signal, stranger and supply run.</p></div>'+
  '<div class="row"><button class="btn" data-act="menu">Enter the silence</button><button class="btn ghost" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="../">Back to Haunted Ohio</a></div></section>'},
 
 menu:function(){return '<div class="wrap"><div class="menu"><div style="text-align:center"><img src="../assets/img/ho-logo.png" style="width:84px;height:84px;border-radius:50%" alt=""><h2 style="margin-top:.5rem">The Last Light</h2></div>'+
@@ -619,7 +617,7 @@ function strTalk(id){
 function render(){
  var f=SCREENS[S.screen]||SCREENS.title;
  if(S.screen==='mission'&&!S.m){S.screen='map';f=SCREENS.map}
- document.getElementById('app').innerHTML=f();
+ document.getElementById('app').innerHTML=pvBanner()+f();
 }
 
 /* ---------- events ---------- */
@@ -634,7 +632,7 @@ document.addEventListener('click',function(ev){
  var m=S.m;
  if(a==='menu'){staticOff();S.screen='menu';save();render();window.scrollTo(0,0)}
  else if(a==='resume'){S.screen=S.m?'mission':'map';save();render()}
- else if(a==='newgame'){if(S.started&&!confirm('Start a new game? This erases your current progress unless you exported it.'))return;var sd=S.sound;S=fresh();S.sound=sd;S.screen='create';save();render()}
+ else if(a==='newgame'){if(S.started&&!confirm('Start a new game? This erases your current progress unless you exported it.'))return;var sd=S.sound;if(UNASSIGNED){var rn=HOV.roll();HOV.assign(GAME,rn);UNASSIGNED=false;useScenario(rn)}S=fresh();S.sound=sd;S.screen='create';save();render()}
  else if(a==='start'){var c=S.cr;
   if((c.name||'').trim().length<2){toast('Enter a name for your survivor.');return}
   if(!c.bg||!c.pers||!c.str||!c.weak){toast('Choose a background, personality, strength, and weakness.');return}
@@ -722,10 +720,12 @@ document.addEventListener('click',function(ev){
   if(pass){S.res.water+=1;award('brief');xp(20,'Clear under pressure');logIt('Radioed '+SC.locs.home.n+'. They sent a runner with water.');m.step=6}
   save();render()}
  /* settings */
- else if(a==='export'){dl('last-light-save-'+(S.name||'survivor').replace(/\W+/g,'-')+(CASE>1?'-case-'+CASE:'')+'.json',JSON.stringify(S),'application/json')}
- else if(a==='exportstory'){dl('my-survival-story.txt','The Last Light: story by '+(S.name||'Survivor')+'\nCase '+CASE+': '+SC.name+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n'),'text/plain')}
- else if(a==='randcase'){setCase(HOV.random());render()}
- else if(a==='reset'){if(confirm('Erase all progress? This cannot be undone.')){S=fresh();S.screen='menu';save();render()}}
+ else if(a==='export'){dl('last-light-save-'+(S.name||'survivor').replace(/\W+/g,'-')+'.json',JSON.stringify(S),'application/json')}
+ else if(a==='exportstory'){dl('my-survival-story.txt','The Last Light: story by '+(S.name||'Survivor')+'\nSettlement: '+SC.name+'\n\n'+BEATS.map(function(b){return (S.story[b.k]||'').trim()}).filter(Boolean).join('\n\n'),'text/plain')}
+ else if(a==='reset'){if(confirm('Erase all progress? This cannot be undone.')){
+  /* the only thing that clears the assigned case: the next new game is picked at random again. A leader preview only clears its own throwaway copy. */
+  if(PREVIEW){S=fresh();S.screen='menu';save();render()}
+  else{try{for(var rk=1;rk<=6;rk++)localStorage.removeItem(HOV.slot('tll_save_v1',rk))}catch(e){}HOV.unassign(GAME);UNASSIGNED=true;mem=null;useScenario(1);S=fresh();S.screen='menu';render()}}}
 });
 document.addEventListener('input',function(ev){
  var el=ev.target;
@@ -746,8 +746,7 @@ document.addEventListener('change',function(ev){
  var el=ev.target;
  if(el.dataset.sigpick){var m=S.m;m.pick=m.pick||[];var i=m.pick.indexOf(el.dataset.sigpick);if(el.checked&&i<0)m.pick.push(el.dataset.sigpick);if(!el.checked&&i>-1)m.pick.splice(i,1);save();render()}
  else if(el.dataset.sus){var m2=S.m;m2.sus=m2.sus||[];var j=m2.sus.indexOf(el.dataset.sus);if(el.checked&&j<0)m2.sus.push(el.dataset.sus);if(!el.checked&&j>-1)m2.sus.splice(j,1);save();render()}
- else if(el.id==='caseCode'){var cn=HOV.valid(el.value);if(cn===CASE)return;if(cn){setCase(cn);render();var ci=document.getElementById('caseCode');if(ci)ci.focus()}else{toast('Case codes are 1 to 6.')}}
- else if(el.id==='imp'&&el.files&&el.files[0]){var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number'||!o.res)throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();useScenario(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Last Light save.')}};fr.readAsText(el.files[0])}
+ else if(el.id==='imp'&&el.files&&el.files[0]){if(PREVIEW){toast('Importing is turned off in the leader preview.');el.value='';return}var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number'||!o.res)throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();/* a save file carries its own case: it becomes this device's assigned case */HOV.assign(GAME,oc);UNASSIGNED=false;useScenario(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Last Light save.')}};fr.readAsText(el.files[0])}
 });
 function dl(name,text,type){try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}}
 render();
