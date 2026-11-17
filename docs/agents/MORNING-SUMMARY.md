@@ -1,4 +1,43 @@
-# Morning summary (updated 2026-11-06)
+# Morning summary: finish-line run
+
+All four games are merged and live (deploys reported success; the live site could not be loaded from the build environment, so please check it in a private window).
+
+## What merged
+| Item | PR | Merge commit | Deploy |
+|---|---|---|---|
+| Room 214 sound | #41 | `aa220a8` | success (run 44) |
+| The Last Light: radio room, tour, Chapter 1 end | #40 | `cd83121` | success (run 45) |
+| The Veil: sound, first shift, tour, progress | #42 | `6910fb6` | success (run 46) |
+| Room 214: details noticed, tour, summary | #43 | `2efa431` | success (run 47) |
+| The Haunting Files: light tour | #44 | `786a616` | success (run 48) |
+| All four games: cross-game finish | #45 | `88b66f7` | success (run 49) |
+| Final QA sweep (test script only) | #46 | `c83edd2` | success (run 50) |
+| Docs (this file, STATUS.md, the leader game guide) | #47 | the squash commit of #47 | checked after merge |
+
+Not merged: **Ghost Lab (#38)**, left open because the instructions kept its "delete this line if not reviewed" note (D-38).
+
+## To undo any item
+Open the merged pull request on GitHub and press **Revert**, then merge the revert pull request. Items are independent except that The Veil, Room 214 and The Haunting Files use the tour code that came with #42 (`games-shared/ho-tour.js`); revert those three before #42 if you ever revert #42.
+
+## Manual steps for you
+1. **Re-lock the leader tools page by hand** from `tests/fixtures/_teacher-page.html` with the lock tool (see `docs/leaders/HOW-TO-LOCK.md`).
+2. **Play each game for about 10 minutes** on a real Chromebook or tablet, and on a phone.
+3. **Listen to Room 214 and The Veil on laptop speakers** at about half volume. Every level is in one table: `room-214/js/sound.js` and `the-veil/js/sound.js`.
+4. **Check the site in a private window**: the build environment cannot load the live site.
+
+## Next phase (deferred, not started)
+- The first-person prototype and rewrite (look-test results are in `docs/redesign/TOUR-SOUND-GAMIFY-PROPOSAL.md`, section E, and below).
+- The Haunting Files desk and night-site redesign.
+- The Last Light Chapter 2 (the three "Coming soon" places).
+- Any real visual assets beyond what is approved; any new narrative beyond the approved wording.
+- The per-layer ambience visuals proposed for Room 214 (vent grilles, wall rings, drip ripples); the ambience uses captions with a direction instead.
+
+### First-person look-test results (kept for the next phase)
+One hallway, drawn first person on a 320 by 180 canvas scaled up, everything in code. At 4x slower processor: full effects 57 fps standing, 58 walking, 55 turning, 55 walking and turning; low effects 60 throughout. Weak spots: the EXIT letters, dim walls away from the lamps, and keyboard-only turning.
+
+---
+
+## Earlier summary (2026-11-06)
 
 Everything below is **merged to `main` and deployed**. All merges were squash merges, one at a time; the GitHub Pages deploy was checked after each and succeeded. Nothing failed or was skipped.
 
