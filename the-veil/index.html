@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/css/ho-core.css">
 <link rel="stylesheet" href="../games-shared/hog-shell.css">
 <link rel="stylesheet" href="css/veil.css">
+<link rel="stylesheet" href="../games-shared/ho-tour.css">
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -17,6 +18,7 @@
   <section id="veil-title" class="veil-title" aria-labelledby="veil-h">
     <h2 id="veil-h">The Veil</h2>
     <p class="veil-lede">Chapter 1: The Keeper&rsquo;s Bell</p>
+    <p class="veil-purpose">Explore two worlds, solve what happened, and write the story.</p>
     <p>A closed chapel. A brass bell. Two worlds that do not always agree. Investigate what really happened there, then write an original horror story of your own.</p>
     <p class="veil-small">Game material (fiction). The strange things in this game are watched and investigated, never summoned. Your name and writing stay in this browser and are never sent anywhere.</p>
     <div id="veil-resume" class="veil-card" hidden></div>
@@ -30,7 +32,8 @@
   <section id="veil-play" hidden aria-label="Game">
     <div class="veil-hud" id="veil-hud">
       <p id="veil-obj" class="veil-obj" aria-live="polite"></p>
-      <div class="hog-tools"><button type="button" class="hog-btn" id="h-ev">Evidence</button><button type="button" class="hog-btn" id="h-case">Case File</button><button type="button" class="hog-btn" id="h-story">Story</button><button type="button" class="hog-btn" id="h-menu">Menu</button></div>
+      <p id="veil-prog" class="veil-prog"></p>
+      <div class="hog-tools"><button type="button" class="hog-btn" data-help aria-label="Help" title="Help">?</button><button type="button" class="hog-btn" id="h-ev">Evidence</button><button type="button" class="hog-btn" id="h-case">Case File</button><button type="button" class="hog-btn" id="h-story">Story</button><button type="button" class="hog-btn" id="h-menu">Menu</button></div>
     </div>
     <div id="veil-stage" class="hog-stage" role="application" aria-label="The Veil game area. Use the arrow keys or the on-screen controls. The text below the game always tells you what to do next."></div>
   </section>
@@ -45,7 +48,10 @@
 <script src="js/data.js"></script>
 <script src="js/logic.js"></script>
 <script src="js/scene.js"></script>
+<script src="js/sound.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
+<script src="../games-shared/ho-tour.js"></script>
+<script src="js/veil-tour.js"></script>
 </body>
 </html>
