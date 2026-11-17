@@ -505,7 +505,7 @@ T('show-dont-tell: the new areas have no cost wording, old saves load, and nothi
 // ---------------------------------------------------------------- The Haunting Files
 T('haunting-files: start a case, file an exhibit, save, resume, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'haunting-files/');
-  await p.click('[data-howto]'); ok(await p.isVisible('.how'), 'how-to opens'); await p.keyboard.press('Escape'); ok(!(await p.$('.how')), 'how-to closes');
+  await p.click('[data-help]'); ok(await p.isVisible('.hot-help'), 'the "?" Help list opens'); await p.keyboard.press('Escape'); ok(!(await p.$('.hot-help')), 'Help closes');
   await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]');
   await p.fill('#nm', 'Tester'); await p.click('[data-act="begin"]'); await p.waitForTimeout(200);
   eq((await p.$$('.ex')).length, 9, 'nine exhibits');
@@ -612,6 +612,21 @@ T('haunting-files: seeded shuffle is repeatable for a name and case; a pre-varia
 });
 
 // ---------------------------------------------------------------- The Last Light
+
+T('haunting-files tour: the purpose line, three cards and every bubble and tip at 12 words or fewer, the objective and "Exhibits filed N of 9" always shown, a "Filed" stamp on a freshly filed exhibit, bubbles that move on when the player acts, and the "?" Help list', async ({ base, newPage }) => {
+  const p = await newPage(null, { tour: true }); p.on('dialog', (d) => d.accept()); await p.goto(base + 'haunting-files/?preview=1');
+  eq((await p.textContent('.hf-purpose')).trim(), 'Sort fact from legend, then write what you can prove.', 'purpose line'); eq(await p.$('[data-howto]'), null, 'no How-to-play button'); const txt = await p.evaluate(() => window.HFTourText);
+  for (const c of txt.CARDS) ok(c.text.split(/\s+/).length <= 12, c.text); for (const t of txt.TIPS) ok(t.text.split(/\s+/).length <= 12, t.text); for (const st of txt.STEPS) for (const v of (typeof st.text === 'string' ? [st.text] : Object.values(st.text))) ok(v.split(/\s+/).length <= 12, v);
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.waitForSelector('.hot-intro'); await p.click('.hot-go');
+  const bub = (t) => p.waitForFunction((x) => { const b = document.querySelector('.hot-bub'); return b && !b.hidden && b.textContent.includes(x); }, t, { timeout: 8000 });
+  await bub('Enter your investigator name.'); await p.fill('#nm', 'Tess'); await p.click('[data-act="begin"]');
+  await bub('Read the file, then press I have read the file.'); eq((await p.textContent('#hfObj')).replace(/\s+/g, ' ').trim(), 'Read the case file. Exhibits filed 0 of 9', 'objective and progress'); await p.click('[data-act="readcase"]');
+  await bub('Click an exhibit.'); await p.click('[data-ex]'); await bub('What kind of evidence is it? Pick one.'); await p.click('[data-file]'); await p.waitForSelector('.tick.hf-stamp'); ok(true, 'a stamp on the freshly filed exhibit');
+  ok(/Exhibits filed 1 of 9/.test(await p.textContent('#hfObj')), 'progress counts up'); ok(/File at least six exhibits, including both witness statements\./.test(await p.textContent('#hfObj')), 'the next objective');
+  await p.click('[data-help]'); await p.waitForSelector('.hot-help'); const h = await p.innerText('.hot-help'); ok(h.includes(txt.PURPOSE) && h.includes(txt.CONNECT), 'purpose and the writing sentence'); for (const t of txt.TIPS) ok(h.includes(t.text), 'tip ' + t.label);
+  const keys = await p.evaluate(() => Object.keys(localStorage)); ok(keys.includes('ho-haunting-files-tour'), 'the tour is remembered on this device'); ok(!/Tess/.test(await p.evaluate(() => localStorage.getItem('ho-haunting-files-tour'))), 'with no name in it');
+});
+
 T('last-light: create survivor, open map, start mission, save, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'last-light/');
   await p.click('[data-help]'); ok(await p.isVisible('.hot-help'), 'the "?" Help list opens'); await p.keyboard.press('Escape'); ok(!(await p.$('.hot-help')), 'Help closes');

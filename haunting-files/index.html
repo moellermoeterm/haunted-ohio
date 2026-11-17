@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="../assets/img/ho-icon.png">
 <link rel="stylesheet" href="../assets/css/ho-fonts.css">
 <link rel="stylesheet" href="../assets/css/ho-core.css">
+<link rel="stylesheet" href="../games-shared/ho-tour.css">
 <style>
 :root{
   --ink:var(--ho-ink);--night:var(--ho-night-2);--steel:var(--ho-surface);--steel2:var(--ho-surface-2);
@@ -222,6 +223,13 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 .how h2{color:var(--ho-gold)}
 @media(prefers-reduced-motion:reduce){body,.logo,.how{animation:none!important}.btn,.ex,.menu .btn{transition:none}}
 .pvbanner{position:sticky;top:0;z-index:60;margin:0;padding:.55rem 1rem;text-align:center;font-weight:700;background:#f2c14e;color:#17110a;border-bottom:2px solid #17110a}
+/* objective, purpose line and the filing stamp */
+.hf-purpose{font-weight:700;color:var(--ho-gold,#e0b45a);font-size:1.15rem;margin:.3rem 0 .8rem}
+.hf-obj{max-width:1280px;margin:0 auto;padding:.35rem 1rem .5rem;font-weight:700;color:var(--ho-gold,#e0b45a)}
+.hf-prog{font-weight:600;color:var(--muted,#b9b19c);margin-left:.4rem}
+.hf-stamp{animation:hf-stamp .7s ease-out 1}
+@keyframes hf-stamp{0%{transform:scale(1.9) rotate(-12deg);opacity:0}60%{transform:scale(.95) rotate(-4deg);opacity:1}100%{transform:scale(1) rotate(-4deg)}}
+@media(prefers-reduced-motion:reduce){.hf-stamp{animation:none}}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 <script src="../assets/js/ho-track.js"></script>
@@ -237,6 +245,8 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--ho-spectra
 <script src="cases/c4.js"></script>
 <script src="cases/c5.js"></script>
 <script src="cases/c6.js"></script>
+<script src="../games-shared/ho-tour.js"></script>
+<script src="js/hf-tour.js"></script>
 <script>
 (function(){
 'use strict';
@@ -321,6 +331,16 @@ function stageDone(){return [
   S.filed,
   BEATS.every(function(b){return wc(S.story[b.k])>=15})
 ]}
+/* the always-visible objective and progress (owner-approved, light version) */
+function objective(){var d=stageDone();
+ if(!S.readCase)return 'Read the case file.';
+ if(!d[1])return 'File at least six exhibits, including both witness statements.';
+ if(!S.contra.done)return 'Compare the two witness statements in the Interview room.';
+ if(!d[3])return 'Tie at least two connections on the Evidence board.';
+ if(!S.th.done)return 'Choose the theory you will defend, with evidence.';
+ if(!S.filed)return 'Write your field report and cite your exhibits.';
+ return 'Case closed. Write your final story.'}
+function progress(){return 'Exhibits filed '+nColl()+' of 9'+(S.contra.done?' · Conflicts found '+Math.min(3,S.contra.score||0)+' of 3':'')}
 function unlocked(s){
   var d=stageDone();
   if(s==='interview')return !!(S.coll.E3&&S.coll.E4);
@@ -341,26 +361,26 @@ function nav(){
   var r=rank(),pct=r.max?100:Math.round((S.xp-r.lo)/(r.hi-r.lo)*100);
   return '<header class="bar"><div class="bar-in"><a class="brand" href="#" data-act="menu"><img src="../assets/img/ho-logo.png" alt="">The Haunting Files</a>'+
    '<div class="rank"><b>'+esc(r.name)+'</b> &middot; '+S.xp+' XP<div class="xpbar"><i style="width:'+pct+'%"></i></div></div>'+
-   '<button class="btn ghost sm" data-howto>How to play</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
+   '<button class="btn ghost sm" data-help aria-label="Help" title="Help">?</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
    '<nav class="tabs" aria-label="Case sections">'+tabs.map(function(t){
      var lock=LOCKMSG[t[0]]&&!unlocked(t[0]);
      return '<button class="tab'+(lock?' locked':'')+'" data-go="'+t[0]+'"'+(S.screen===t[0]?' aria-current="page"':'')+'>'+t[1]+(lock?' (locked)':'')+'</button>'}).join('')+
-   '</nav></header>';
+   '</nav><p class="hf-obj" id="hfObj">'+esc(objective())+' <span class="hf-prog">'+esc(progress())+'</span></p></header>';
 }
 function count(p,min){var n=wc(getP(p));return '<div class="count'+(n>=min?' ok':'')+'" data-count="'+p+'" data-min="'+min+'">'+n+' / '+min+' words</div>'}
 
 var SCREENS={
 title:function(){return '<section class="title"><img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><h1>The Haunting Files</h1>'+
- '<p class="tag">Every legend has a story. Every story leaves evidence.</p>'+
+ '<p class="tag">Every legend has a story. Every story leaves evidence.</p><p class="hf-purpose">Sort fact from legend, then write what you can prove.</p>'+
  '<div class="brief" id="brief"><p>RESTRICTED ARCHIVE. Junior investigator access granted.</p>'+(UNASSIGNED?'<p>Your case is assigned when you open a new case.</p>':C.brief.map(function(x){return '<p>'+esc(x)+'</p>'}).join(''))+'</div>'+
- '<div class="row" style="justify-content:center"><button class="btn" data-act="menu">Open the archive</button><button class="btn ghost" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none" href="../">Back to Haunted Ohio</a></div></section>'},
+ '<div class="row" style="justify-content:center"><button class="btn" data-act="menu">Open the archive</button><button class="btn ghost" data-help aria-label="Help" title="Help">?</button><a class="btn ghost" style="text-decoration:none" href="../">Back to Haunted Ohio</a></div></section>'},
 
 menu:function(){return '<div class="wrap"><div class="menu"><div style="text-align:center"><img class="logo" style="width:96px;height:96px" src="../assets/img/ho-logo.png" alt=""><h2 style="margin-top:.6rem">The Haunting Files</h2><span class="stamp">CLASSIFIED</span></div>'+
  (S.started?'<button class="btn primary" data-act="resume">Continue investigation</button>':'')+
  '<button class="btn'+(S.started?'':' primary')+'" data-act="newgame">New case</button>'+
  (S.started?'<button class="btn" data-go="board">Evidence board</button><button class="btn" data-go="profile">My profile</button>':'')+
  '<button class="btn" data-go="settings">Save and settings</button>'+
- '<button class="btn" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none;text-align:center" href="../">Back to Haunted Ohio</a></div></div>'},
+ '<button class="btn" data-help aria-label="Help" title="Help">?</button><a class="btn ghost" style="text-decoration:none;text-align:center" href="../">Back to Haunted Ohio</a></div></div>'},
 
 intro:function(){return '<div class="wrap"><div class="paper" style="max-width:640px;margin:3rem auto"><span class="stamp">CASE #'+C.file+'</span><h2 style="margin-top:.8rem">Welcome, Investigator</h2>'+
  '<p>You have been given access to the Haunting Files. Each case is a real location, a real history, and a mystery that needs answers.</p>'+
@@ -371,7 +391,7 @@ intro:function(){return '<div class="wrap"><div class="paper" style="max-width:6
 case:function(){
  var d=stageDone(),ev=S.sel?EVMAP[S.sel]:null;
  var cards=EV.map(function(e){
-   var c=S.cls[e.id],tick=c?'<span class="tick'+(c===e.type?'':' no')+'">'+(c===e.type?'Filed':'Review')+'</span>':'';
+   var c=S.cls[e.id],tick=c?'<span class="tick'+(c===e.type?'':' no')+(e.id===JUSTFILED?' hf-stamp':'')+'">'+(c===e.type?'Filed':'Review')+'</span>':'';
    return '<button class="ex'+(S.sel===e.id?' on':'')+'" data-ex="'+e.id+'">'+tick+'<b>'+e.id+'</b> '+esc(e.title)+'<small>'+esc(e.kind)+'</small></button>'}).join('');
  return nav()+'<div class="wrap"><div class="grid2 split">'+
  '<div class="paper"><span class="stamp">TRAINING CASE</span><h2 style="margin-top:.7rem">Case File #'+C.file+': '+esc(C.name)+'</h2>'+
@@ -487,8 +507,9 @@ function drawLines(){
 }
 window.addEventListener('resize',function(){if(S.screen==='board')drawLines()});
 
+var JUSTFILED=null;
 function fileEx(k){
- var e=EVMAP[S.sel];if(!e||S.cls[e.id])return;
+ var e=EVMAP[S.sel];if(!e||S.cls[e.id])return;JUSTFILED=e.id;setTimeout(function(){JUSTFILED=null},1600);
  S.cls[e.id]=k;S.coll[e.id]=true;
  var ok=k===e.type;
  xp(ok?12:5,ok?'Correct filing':'Good attempt. Read why.');blip(ok?660:240,.25,ok?'sine':'square');
@@ -606,30 +627,10 @@ function download(name,text,type){
  try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}
 }
 if(S.screen==='intro'&&!S.started){}
+window.HF_TOUR_API={S:function(){return S},unlocked:function(s){return unlocked(s)}};
 render();
+if(window.HFTourBoot)HFTourBoot();
 if(window.HO_track)HO_track('game-opened-haunting-files');
-})();
-;(function(){
-var HOW0={"title": "How to play The Haunting Files", "intro": "You are a junior investigator. The goal is not to find the scariest answer. It is to build a theory you can defend with evidence.", "steps": [["Start.", "Choose <i>Open the archive</i>, then <i>New case</i>. Enter your investigator name and read the case file, then press <i>I have read the file</i>."], ["Case file.", "Open each exhibit, decide what kind of evidence it is, and file it. Correct filings earn XP. A <i>Review</i> tag means read the explanation and try to understand why. File at least 6 exhibits, including both witness statements (E3 and E4)."], ["Interview room.", "Unlocks after you file E3 and E4. Compare the two statements line by line and select only the places where they truly conflict. Then write at least 20 words on whose account you trust about the open door."], ["Evidence board.", "Tap one exhibit, then another, to tie them with string. Choose <i>supports</i>, <i>contradicts</i>, or <i>explains</i> and say why in at least 6 words. Make at least 2 connections."], ["Theory.", "Pick the explanation you will defend, choose at least 2 exhibits that support it, write at least 30 words making your case, and say what new evidence would change your mind."], ["Field report.", "Write at least 80 words that put the reader on the balcony at 10:40 PM, say what you believe happened, and cite at least two exhibits by number, like E3. Press <i>Check my report</i>."], ["Final story.", "Write your own ghost story in beats, at least 15 words each. Invent your own place and mystery. Download it as a .txt file when you are ready."]], "tips": ["XP rewards good reasoning and strong writing, not speed or lucky guesses.", "Locked tabs tell you what to finish first.", "Your progress saves automatically in this browser. Use <i>Save and settings</i> to export a save file for another device.", "Exhibits are labeled real history or game material. Don’t treat game material as documented history."]};
-function HOWT(){var A=window.HF_ACTIVE,o=JSON.parse(JSON.stringify(HOW0));if(A&&A.code>1){o.steps.forEach(function(s){s[1]=s[1].replace('the balcony at 10:40 PM',A.scene).replace('the open door',A.trustQ)})}return o}
-var ov=null,prev=null;
-function close(){if(!ov)return;document.removeEventListener('keydown',key,true);ov.remove();ov=null;if(prev&&document.body.contains(prev)){try{prev.focus()}catch(e){}}prev=null}
-function key(e){
-  if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();return}
-  if(e.key==='Tab'&&ov){var f=ov.querySelectorAll('button,a[href]');if(!f.length)return;var a=f[0],z=f[f.length-1];
-    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
-}
-function open(opener){
-  var HOW=HOWT();close();prev=opener||document.activeElement;
-  ov=document.createElement('div');ov.className='how-ov';
-  ov.innerHTML='<div class="how" role="dialog" aria-modal="true" aria-labelledby="howT"><h2 id="howT" tabindex="-1">'+HOW.title+'</h2><p>'+HOW.intro+'</p><ol>'+HOW.steps.map(function(s){return '<li><b>'+s[0]+'</b> '+s[1]+'</li>'}).join('')+'</ol><h3>Good to know</h3><ul>'+HOW.tips.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><p><button class="btn" type="button" id="howClose">Got it</button></p></div>';
-  document.body.appendChild(ov);
-  ov.addEventListener('click',function(e){if(e.target===ov)close()});
-  document.getElementById('howClose').addEventListener('click',close);
-  document.addEventListener('keydown',key,true);
-  var h=document.getElementById('howT');h.focus();ov.firstChild.scrollTop=0;
-}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-howto]');if(b){e.preventDefault();open(b)}});
 })();
 </script>
 </body>
