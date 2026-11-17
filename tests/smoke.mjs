@@ -614,11 +614,11 @@ T('haunting-files: seeded shuffle is repeatable for a name and case; a pre-varia
 // ---------------------------------------------------------------- The Last Light
 T('last-light: create survivor, open map, start mission, save, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'last-light/');
-  await p.click('[data-howto]'); ok(await p.isVisible('.how'), 'how-to opens'); await p.keyboard.press('Escape');
+  await p.click('[data-help]'); ok(await p.isVisible('.hot-help'), 'the "?" Help list opens'); await p.keyboard.press('Escape'); ok(!(await p.$('.hot-help')), 'Help closes');
   await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]');
   for (const k of ['bg', 'pers', 'str', 'weak']) { const o = await p.$$(`[data-cr^="${k}:"]`); await o[0].click(); }
   await p.fill('#nm', 'Tester'); await p.press('#nm', 'Tab'); await p.click('[data-act="start"]'); await p.waitForTimeout(250);
-  ok((await p.$$('[data-loc]')).length >= 6, 'map has six locations');
+  eq((await p.$$('[data-loc]')).length + (await p.$$('.mk.soon')).length, 6, 'map has six locations (three to visit, three coming soon)');
   await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await p.waitForTimeout(200);
   ok((await p.textContent('#app')).includes('The Signal'), 'The Signal mission opens');
   ok(JSON.parse(await lsGet(p, 'tll_save_v1')).started, 'save written');
@@ -702,6 +702,276 @@ T('last-light: every scenario\'s signal can be tuned, decoded and analysed from 
     await p.context().close();
   }
 });
+/* ---------- The Last Light: the radio room (the scene that presents The Signal). These pages are opened with { room: true }. ---------- */
+const RR_BG = { 1: ['horn', '[a low horn, far off]'], 2: ['bell', '[a slow, hollow ring, far off]'], 3: ['chime', '[three steady chimes]'], 4: ['creak', '[a faint creak, like iron]'], 5: ['dog', '[a dog barks once, far off]'], 6: ['deep', '[a deep, slow hum, far off]'] };
+const RR_LINES = { receiver: 'The old receiver. Its needle is twitching.', crate: 'Batteries. Count them before you spend one.', crank: 'A hand crank, wired to the bench.', shelf: 'Everything you have, on one shelf.', door: 'The door to the yard. The wind is pushing on it.', notebook: 'Your notebook.', window: 'Dark fields. Nothing moving.', tape: 'Pencil marks on the tape beside the dial. Each one sits a little further along than the last.', phones: 'Hold one cup to your ear. Under the static, a low, even hum.', card: 'A faded procedures card. One line is underlined: repeat until acknowledged.' };
+const rrDbg = (p) => p.evaluate(() => window.LLRoom.debug());
+const rrReady = (p) => p.waitForFunction(() => window.LLRoom && window.LLRoom.debug().ready, null, { timeout: 20000 });
+async function rrStart(p, base, k, cr = { bg: 'mech', pers: 'bold', str: 'hands', weak: 'nerves' }, name) {
+  await p.goto(base + 'last-light/?preview=' + k); await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.fill('#nm', name || 'Tester' + k);
+  for (const key of ['bg', 'pers', 'str', 'weak']) await p.click(`[data-cr="${key}:${cr[key]}"]`);
+  await p.click('[data-act="start"]'); await p.waitForSelector('[data-loc="home"]'); await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await rrReady(p);
+}
+/* walk with key events until the survivor stands at the object's spot (real key presses are used in the keyboard test below) */
+const rrWalk = (p, id) => p.evaluate((id2) => new Promise((res, rej) => {
+  const o = window.LLRoom.debug().objects.find((x) => x.id === id2), t0 = performance.now(), K = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+  const set = (c, on) => document.dispatchEvent(new KeyboardEvent(on ? 'keydown' : 'keyup', { code: c, key: c, bubbles: true })), rel = () => K.forEach((c) => set(c, false));
+  (function step() { const d = window.LLRoom.debug(), dx = o.ap[0] - d.x, dy = o.ap[1] - d.y; if (Math.hypot(dx, dy) < 14) { rel(); return requestAnimationFrame(() => res()); } if (performance.now() - t0 > 20000) { rel(); return rej(new Error('stuck on the way to ' + id2 + ' at ' + Math.round(d.x) + ',' + Math.round(d.y))); }
+    rel(); if (Math.abs(dx) > 8) set(dx > 0 ? 'ArrowRight' : 'ArrowLeft', true); if (Math.abs(dy) > 8) set(dy > 0 ? 'ArrowDown' : 'ArrowUp', true); requestAnimationFrame(step); })();
+}), id);
+const rrNear = (p, id) => p.waitForFunction((i) => window.LLRoom.debug().near === i, id, { timeout: 8000 });
+const rrCap = (p, text) => p.waitForFunction((t) => { const e = document.getElementById('rr-cap'); return e && !e.hidden && e.textContent === t; }, text, { timeout: 9000 });
+const rrPanel = (p, on) => p.waitForFunction((v) => window.LLRoom.debug().panel === v, on, { timeout: 8000 });
+/* the mission itself, driven through the page's own controls (the same steps as the page-style test above) */
+async function rrToTx(p, k, sc) {
+  let found = false; for (let f = 880; f <= 1080 && !found; f++) { await p.evaluate((v) => { const el = document.getElementById('tune'); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, f); found = !(await p.$eval('#lockbtn', (b) => b.disabled)); }
+  ok(found, 'scenario ' + k + ': the signal can be tuned'); await p.click('[data-act="sig-lock"]'); await p.waitForTimeout(60);
+  if (sc.signal.decode) { if (sc.signal.decode.kind === 'shift') await p.evaluate((n) => { const el = document.getElementById('shift'); el.value = n; el.dispatchEvent(new Event('input', { bubbles: true })); }, sc.signal.decode.shift); else await p.fill('#ans', sc.signal.decode.answer.toLowerCase()); await p.click('[data-act="sig-decode"]'); await p.waitForTimeout(60); }
+  ok((await p.textContent('.tx')).includes(sc.signal.tx[0]), 'scenario ' + k + ': the transmission is shown on the radio panel');
+}
+async function rrSignal(p, k, sc) {
+  await rrToTx(p, k, sc);
+  for (const o of sc.signal.obs.filter((x) => x.ok).slice(0, 3)) await p.click(`[data-sigpick="${o.id}"]`);
+  await p.fill('[data-bind="m.reason"]', 'I do not trust it fully because the details do not add up and the sender knew more than they said. extra words here to pass the minimum length for sure');
+  await p.click('[data-act="sig-judge"]'); ok(/You picked 3 useful details/.test(await p.textContent('.fb')), 'scenario ' + k + ': three useful details found'); await p.click('[data-act="sig-next"]');
+}
+
+T('last-light room: all six scenarios open in the radio room with their own opening paragraph over the dark room, the guide line, the wind caption, and the mission panel waiting at the receiver', async ({ base, newPage }) => {
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const p = await newPage(null, { room: true }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); const reqs = []; p.on('request', (r) => { if (!r.url().startsWith(base) && !/gc\.zgo\.at|goatcounter\.com/.test(r.url())) reqs.push(r.url()); });
+    await rrStart(p, base, k); const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k);
+    ok(await p.isVisible('#rr-host canvas'), 'scenario ' + k + ': the room canvas is shown'); eq((await p.textContent('#rr-intro')).trim(), sc.signal.room, 'scenario ' + k + ': the existing opening paragraph, unchanged'); ok(await p.isVisible('#rr-intro'), 'shown over the room');
+    eq((await p.textContent('#rr-guide')).trim(), 'Walk to the receiver and power it.', 'scenario ' + k + ': the guide line'); eq((await p.textContent('#rr-cap')).trim(), '[wind in the grain elevator]', 'scenario ' + k + ': the wind caption');
+    const d = await rrDbg(p); eq(d.panel, false, 'the mission panel is not open away from the receiver'); ok(d.children <= 150, 'objects on screen: ' + d.children); ok((await p.textContent('#rr-panel')).includes(sc.signal.first), 'the page\'s own panel is in the room, with the existing first transmission');
+    await rrWalk(p, 'receiver'); await rrPanel(p, true); ok(!(await p.isVisible('#rr-intro')), 'the opening paragraph steps aside once you move'); ok(await p.isVisible('[data-act="sig-power"]'), 'scenario ' + k + ': the existing power choice is offered at the receiver'); ok(await noHScroll(p), 'no sideways scroll');
+    eq(errs.length, 0, 'scenario ' + k + ': page errors: ' + errs); eq(reqs.length, 0, 'nothing is sent anywhere: ' + reqs); await p.context().close();
+  }
+});
+
+T('last-light room: every object can be reached by keyboard, shows an outline target and its approved line in the prompt, and the three optional details are there for every background', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true }); await rrStart(p, base, 1, { bg: 'student', pers: 'cautious', str: 'eyes', weak: 'trust' });
+  const live = (await rrDbg(p)).objects.filter((o) => o.live).map((o) => o.id); ok(!live.includes('crank'), 'no hand crank unless the survivor has found one'); ok(!live.includes('phones'), 'the headphones detail waits until the radio is powered');
+  for (const id of ['notebook', 'crate', 'window', 'receiver', 'tape', 'card', 'shelf', 'door']) { await rrWalk(p, id); await rrNear(p, id); await p.waitForFunction((t) => { const e = document.getElementById('rr-prompt'); return e && !e.hidden && e.textContent.includes(t); }, RR_LINES[id]); ok(await p.isVisible('#rr-prompt'), id + ': the prompt is visible'); }
+  /* real key presses: hold a key and the survivor moves; E reads the line out for screen readers */
+  await rrWalk(p, 'window'); const x0 = (await rrDbg(p)).x; await p.focus('#rr-canvas'); await p.keyboard.down('KeyD'); await p.waitForFunction((x) => window.LLRoom.debug().x > x + 60, x0); await p.keyboard.up('KeyD');
+  await rrWalk(p, 'tape'); await p.keyboard.press('KeyE'); eq(await p.textContent('#rr-say'), RR_LINES.tape, 'E announces the line');
+  /* power the radio (this survivor pays one battery): the headphones detail appears */
+  await rrWalk(p, 'receiver'); const b0 = JSON.parse(await lsGet(p, 'tll_save_v1_pv1')).res.batt; await p.click('[data-act="sig-power"]'); eq(JSON.parse(await lsGet(p, 'tll_save_v1_pv1')).res.batt, b0 - 1, 'the existing rule: powering takes one battery');
+  await rrCap(p, '[a battery slots in]'); await rrWalk(p, 'phones'); await rrNear(p, 'phones'); ok((await p.textContent('#rr-prompt')).includes(RR_LINES.phones), 'headphones line'); await p.context().close();
+  /* a survivor who has a hand crank sees it */
+  const q = await newPage(null, { room: true }); await q.addInitScript(llSeed({ screen: 'mission', flags: { crank: true }, m: { id: 'signal', step: 0 } })); await q.goto(base + 'last-light/'); await rrReady(q); ok((await rrDbg(q)).objects.find((o) => o.id === 'crank').live, 'the crank is in the room'); await rrWalk(q, 'crank'); await rrNear(q, 'crank'); ok((await q.textContent('#rr-prompt')).includes(RR_LINES.crank), 'crank line'); await q.context().close();
+});
+
+T('last-light room: The Signal can be finished through the room in all six scenarios: receiver, dial, shelf, notebook, then out by the door, with the same save fields as before', async ({ base, newPage }) => {
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const p = await newPage(null, { room: true }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('dialog', (d) => d.accept());
+    await rrStart(p, base, k); const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k); const save = async () => JSON.parse(await lsGet(p, 'tll_save_v1_pv' + k));
+    await rrWalk(p, 'receiver'); await rrPanel(p, true); await p.click('[data-act="sig-power"]'); await p.waitForSelector('#rr-dial');
+    eq((await p.textContent('#rr-guide')).trim(), 'Turn the dial until the message comes in clearly.', 'guide while tuning (the existing label)');
+    /* the dial: the two buttons step the page's own slider, and so does dragging the knob */
+    const f0 = +(await p.$eval('#tune', (e) => e.value)); await p.click('[data-rr-turn="1"]'); await p.click('[data-rr-turn="1"]'); await p.click('[data-rr-turn="-1"]'); eq(+(await p.$eval('#tune', (e) => e.value)), f0 + 1, 'Turn right and Turn left step the dial'); eq((await save()).m.freq, f0 + 1, 'and the page saves it as before');
+    const kb = await p.$eval('#rr-knob', (e) => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }); await p.mouse.move(kb.x, kb.y - 30); await p.mouse.down(); await p.mouse.move(kb.x + 30, kb.y - 10, { steps: 6 }); await p.mouse.move(kb.x + 30, kb.y + 20, { steps: 6 }); await p.mouse.up(); ok(+(await p.$eval('#tune', (e) => e.value)) > f0 + 5, 'dragging the knob turns the dial');
+    await rrSignal(p, k, sc);
+    /* the decision: the shelf is the existing "Check your supplies first" choice */
+    eq((await save()).m.step, 3, 'at the decision'); await rrWalk(p, 'shelf'); await rrNear(p, 'shelf'); await p.keyboard.press('KeyE'); await p.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).m.checked === true, 'tll_save_v1_pv' + k); ok((await save()).flags.supplies, 'the existing supplies flag is set');
+    await rrWalk(p, 'receiver'); await rrPanel(p, true); ok(/You count what you have/.test(await p.textContent('#rr-panel')), 'the existing count is shown'); await p.click('[data-act="sig-dec"][data-v="investigate"]');
+    eq((await p.textContent('#rr-guide')).trim(), 'Write in your notebook, then leave by the door.', 'guide after the decision'); eq((await rrDbg(p)).panel, false, 'the journal is not at the receiver');
+    await rrWalk(p, 'notebook'); await rrPanel(p, true); await p.fill('[data-bind="m.jtext"]', 'The signal repeats in the dark and the hum of the receiver fills the cold room. I chose to follow it because someone may need help and I want to know the truth about it.'); await p.click('[data-act="savejournal"]');
+    await p.waitForFunction(() => window.LLRoom.debug().after === true); let s = await save(); ok(s.done.signal && s.screen === 'map' && s.journal.length === 1 && s.flags.investigate, 'scenario ' + k + ': the mission is complete and saved exactly as before'); ok(await p.isVisible('#rr-host canvas'), 'still in the room'); ok(!(await p.isVisible('.map, [data-loc="home"]')), 'the map waits behind the door');
+    await rrWalk(p, 'door'); await rrNear(p, 'door'); await p.keyboard.press('Enter'); await p.waitForSelector('[data-loc="home"]', { state: 'visible' }); eq(await p.$('#rr-host'), null, 'the room is gone'); eq((await rrDbg(p)).mounted, false, 'and paused');
+    s = await save(); eq(Object.keys(s).filter((x) => /room|rr|view/i.test(x)).length, 0, 'no new field in the save'); eq(await lsGet(p, 'ho-last-light-view'), null, 'no view setting is stored unless a student changes one'); eq(errs.length, 0, 'scenario ' + k + ': page errors: ' + errs); await p.context().close();
+  }
+});
+
+T('last-light room: the door at the start is the existing "Leave the radio room for now", a save made mid-mission before the redesign opens at the same step, and leaving and coming back works', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true }); await rrStart(p, base, 1); await rrWalk(p, 'door'); await rrNear(p, 'door'); await rrCap(p, '[footsteps]').catch(() => {}); await p.keyboard.press('KeyE'); await p.waitForSelector('[data-loc="home"]', { state: 'visible' }); const s = JSON.parse(await lsGet(p, 'tll_save_v1_pv1')); eq(s.screen, 'map', 'back on the map'); eq(s.m, null, 'the mission was left, as the existing choice does'); ok(!s.done.signal, 'not complete');
+  await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await p.waitForFunction(() => window.LLRoom.debug().mounted && window.LLRoom.debug().ready); ok(await p.isVisible('#rr-host canvas'), 'the room opens again'); await p.context().close();
+  for (const [step, more, sel] of [[1, { freq: 931 }, '#tune'], [2, { pick: ['a'] }, '[data-sigpick]'], [3, {}, '[data-act="sig-dec"]']]) {
+    const q = await newPage(null, { room: true }); await q.addInitScript(llSeed({ screen: 'mission', m: Object.assign({ id: 'signal', step }, more) })); await q.goto(base + 'last-light/'); await rrReady(q); await rrPanel(q, true); ok(await q.isVisible(sel), 'an old save at step ' + step + ' opens at the receiver with its panel'); if (step === 1) eq(await q.$eval('#tune', (e) => e.value), '931', 'the saved dial position'); await q.context().close();
+  }
+  const j = await newPage(null, { room: true }); await j.addInitScript(llSeed({ screen: 'mission', m: { id: 'signal', step: 4, jtext: 'kept words' } })); await j.goto(base + 'last-light/'); await rrReady(j); await rrWalk(j, 'notebook'); await rrPanel(j, true); eq(await j.$eval('[data-bind="m.jtext"]', (e) => e.value), 'kept words', 'an old journal draft is still there'); await j.context().close();
+});
+
+T('last-light room: pointer and touch: tap a spot to walk, tap an object to walk to it and use it, the on-screen stick and the Use button work at 390 and 768 px', async ({ base, newPage }) => {
+  /* trackpad or mouse */
+  const p = await newPage(null, { room: true }); await rrStart(p, base, 1); const pt = async (pg, o, dx = 0, dy = 0) => { const r = await pg.$eval('#rr-canvas', (e) => { const b = e.getBoundingClientRect(); return { l: b.left, t: b.top, w: b.width, h: b.height }; }); const d = await rrDbg(pg); return { x: r.l + (o[0] + dx) / d.size[0] * r.w, y: r.t + (o[1] + dy) / d.size[1] * r.h }; };
+  let d = await rrDbg(p); const spot = [d.x + 260, d.y - 40]; let c = await pt(p, spot); await p.mouse.click(c.x, c.y); await p.waitForFunction((s2) => { const g = window.LLRoom.debug(); return Math.hypot(g.x - s2[0], g.y - s2[1]) < 12; }, spot); ok(true, 'click a spot: the survivor walks there');
+  const rec = d.objects.find((o) => o.id === 'receiver'); c = await pt(p, [rec.hit[0] + rec.hit[2] / 2, rec.hit[1] + rec.hit[3] / 2]); await p.mouse.click(c.x, c.y); await rrNear(p, 'receiver'); await rrPanel(p, true); ok(await p.isVisible('[data-act="sig-power"]'), 'click the receiver: walk to it and the panel opens'); await p.context().close();
+  /* touch, phone and tablet widths */
+  for (const w of [390, 768]) {
+    const t = await newPage({ width: w, height: 800 }, { room: true, touch: true }); await rrStart(t, base, 2); ok(await t.isVisible('#rr-stick') && await t.isVisible('#rr-use'), w + ': the stick and the Use button are shown on a touch screen'); ok(await noHScroll(t), w + ': no sideways scroll'); ok(await t.isDisabled('#rr-use'), 'Use is off when nothing is near');
+    const sb = await t.$eval('#rr-stick', (e) => { const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; }); const x0 = (await rrDbg(t)).x;
+    await t.dispatchEvent('#rr-stick', 'pointerdown', { clientX: sb.x + 30, clientY: sb.y, pointerId: 5, pointerType: 'touch', bubbles: true }); await t.waitForFunction((x) => window.LLRoom.debug().x > x + 50, x0); await t.dispatchEvent('#rr-stick', 'pointerup', { clientX: sb.x + 30, clientY: sb.y, pointerId: 5, pointerType: 'touch', bubbles: true }); const x1 = (await rrDbg(t)).x; await t.waitForTimeout(250); ok(Math.abs((await rrDbg(t)).x - x1) < 12, w + ': letting go of the stick stops');
+    d = await rrDbg(t); const door = d.objects.find((o) => o.id === 'door'); c = await pt(t, [door.hit[0] + door.hit[2] / 2, door.hit[1] + 10]); await t.touchscreen.tap(c.x, c.y); await rrNear(t, 'door'); await t.waitForSelector('[data-loc="home"]', { state: 'visible' }); ok(true, w + ': tap the door: walk to it and leave (the existing choice)');
+    await t.click('[data-loc="home"]'); await t.click('[data-act="travel"]'); await t.waitForFunction(() => window.LLRoom.debug().mounted && window.LLRoom.debug().ready); await rrWalk(t, 'receiver'); await rrPanel(t, true); await t.tap('[data-act="sig-power"]'); await t.waitForSelector('#rr-dial');
+    const ov = await t.evaluate(() => { const d = window.LLRoom.debug(), r = document.getElementById('rr-canvas').getBoundingClientRect(), o = d.objects.find((x) => x.id === 'receiver'), a = { l: r.left + o.hit[0] / d.size[0] * r.width, t: r.top + o.hit[1] / d.size[1] * r.height, r: r.left + (o.hit[0] + o.hit[2]) / d.size[0] * r.width, b: r.top + (o.hit[1] + o.hit[3]) / d.size[1] * r.height }, q = document.getElementById('rr-prompt').getBoundingClientRect(), s = document.getElementById('rr-stick').getBoundingClientRect(), u = document.getElementById('rr-use').getBoundingClientRect(), hit = (m, n) => m.left < n.right && n.left < m.right && m.top < n.bottom && n.top < m.bottom;
+      return { onObj: q.left < a.r && a.l < q.right && q.top < a.b && a.t < q.bottom, onStick: hit(q, s), onUse: hit(q, u), visible: q.width > 0 }; });
+    ok(ov.visible && !ov.onObj && !ov.onStick && !ov.onUse, w + ': the prompt does not cover the receiver, the stick or Use: ' + JSON.stringify(ov));
+    /* the panel is under the room on this screen: scroll to the dial and the room (with the receiver) is still in view, not covered by the top bar */
+    await t.$eval('#tune', (e) => e.scrollIntoView({ block: 'center' })); await t.waitForTimeout(150); const cover = await t.evaluate(() => { const d = window.LLRoom.debug(), r = document.getElementById('rr-canvas').getBoundingClientRect(), o = d.objects.find((x) => x.id === 'receiver'), x = r.left + (o.hit[0] + o.hit[2] / 2) / d.size[0] * r.width, y = r.top + (o.hit[1] + o.hit[3] / 2) / d.size[1] * r.height, el = document.elementFromPoint(x, y); return { inView: y > 0 && y < innerHeight, mine: !!(el && el.closest('#rr-host')), tune: document.getElementById('tune').getBoundingClientRect().top < innerHeight }; });
+    ok(cover.inView && cover.mine && cover.tune, w + ': while tuning, the receiver in the room is on screen and not covered: ' + JSON.stringify(cover)); const v0 = +(await t.$eval('#tune', (e) => e.value)); await t.tap('[data-rr-turn="1"]'); eq(+(await t.$eval('#tune', (e) => e.value)), v0 + 1, w + ': the dial buttons work by touch');
+    await rrWalk(t, 'window'); await rrNear(t, 'window'); ok(!(await t.isDisabled('#rr-use')), 'Use is on next to something'); await t.tap('#rr-use'); eq(await t.textContent('#rr-say'), RR_LINES.window, w + ': Use reads the line'); await t.context().close();
+  }
+});
+
+T('last-light room: every sound has a caption (shown with sound off too): battery or crank, hum, static, the tone near the signal, the lock, footsteps, the door, and each scenario\'s own background sound', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true }); await rrStart(p, base, 1, { bg: 'student', pers: 'cautious', str: 'eyes', weak: 'trust' });
+  await rrWalk(p, 'receiver'); await rrCap(p, '[footsteps]').catch(() => {}); await p.click('[data-act="sig-power"]'); await rrCap(p, '[a battery slots in]'); await rrCap(p, '[the receiver hums]'); await rrCap(p, '[static]');
+  const sc = await p.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[1]))); let found = false, f = 880; for (; f <= 1080 && !found; f++) { await p.evaluate((v) => { const el = document.getElementById('tune'); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, f); found = !(await p.$eval('#lockbtn', (b) => b.disabled)); }
+  await rrCap(p, '[a steady tone under the static]'); await p.click('[data-act="sig-lock"]'); await rrCap(p, '[the signal locks]'); ok(/horn/.test(sc.signal.tx.join(' ')), 'scenario 1 has the horn in its transmission'); await rrCap(p, '[a low horn, far off]');
+  await rrWalk(p, 'door'); await rrNear(p, 'door'); await p.keyboard.press('KeyE'); await rrCap(p, '[wind at the door]'); eq(await p.getAttribute('#rr-cap', 'aria-live'), 'polite', 'captions are announced politely'); await p.context().close();
+  /* a survivor with a crank gets the crank caption (with sound off); a scenario without a horn gets its own background caption, never the horn */
+  const q = await newPage(null, { room: true }); await q.addInitScript(llSeed({ screen: 'mission', bg: 'student', sound: false, flags: { crank: true }, m: { id: 'signal', step: 0 } })); await q.goto(base + 'last-light/'); await rrReady(q); await rrWalk(q, 'receiver'); await q.click('[data-act="sig-power"]'); await rrCap(q, '[the crank whirrs]'); eq(JSON.parse(await lsGet(q, 'tll_save_v1')).sound, false, 'this survivor has sound off, and the captions still show'); await q.context().close();
+  const r = await newPage(null, { room: true }); await rrStart(r, base, 2); const sc2 = await r.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[2]))); ok(!/horn/.test(sc2.signal.tx.join(' ')), 'scenario 2 has no horn'); await rrWalk(r, 'receiver'); await r.click('[data-act="sig-power"]'); const caps = []; await r.exposeFunction('rrSeen', (t) => caps.push(t)); await r.evaluate(() => new MutationObserver(() => window.rrSeen(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true }));
+  await rrToTx(r, 2, sc2); await rrCap(r, RR_BG[2][1]); await r.waitForTimeout(600); ok(!caps.includes('[a low horn, far off]'), 'no horn caption in scenario 2: ' + caps.join(' ')); ok(caps.includes('[the signal locks]'), 'the lock caption was shown'); await r.context().close();
+});
+
+T('last-light room: each scenario\'s background sound plays once per transmission view with its own caption, is no louder than the horn, never replays on re-render, going back or reload, and never starts after the student has muted', async ({ base, newPage }) => {
+  const observe = (pg) => pg.evaluate(() => new MutationObserver(() => window.rrSeen2(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true }));
+  const watch = async (pg) => { const seen = []; await pg.exposeFunction('rrSeen2', (t) => seen.push(t)); await pg.evaluate(() => new MutationObserver(() => window.rrSeen2(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true })); return seen; };
+  const count = (arr, x) => arr.filter((y) => y === x).length;
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const [key, cap] = RR_BG[k];
+    /* sound on: one sound, one caption */
+    const p = await newPage(null, { room: true }); await rrStart(p, base, k); const sc = await p.evaluate((n) => JSON.parse(JSON.stringify(window.LL_SCENARIOS[n])), k); ok(sc.signal.tx.some((x) => /\[BACKGROUND\]/.test(x)), 'scenario ' + k + ': the existing background line is there');
+    await rrWalk(p, 'receiver'); await p.click('[data-act="sig-power"]'); const seen = await watch(p); let d = await rrDbg(p); eq(d.soundOn, true, 'sound is on for this survivor'); eq(d.sounds.length, 0, 'nothing yet');
+    await rrToTx(p, k, sc); await rrCap(p, cap); d = await rrDbg(p); eq(JSON.stringify(d.sounds.map((x) => x.key)), JSON.stringify([key]), 'scenario ' + k + ': its own sound started, once');
+    ok(d.peaks[key] > 0 && d.peaks[key] <= d.peaks.horn + 1e-9, 'scenario ' + k + ': no louder than the horn (' + d.peaks[key].toFixed(3) + ' against ' + d.peaks.horn.toFixed(3) + ')');
+    /* re-render (tick a detail), leave to the menu and come back, wait past the delay each time: still once */
+    await p.click(`[data-sigpick="${sc.signal.obs[0].id}"]`); await p.waitForTimeout(2700); await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); await p.waitForFunction(() => window.LLRoom.debug().mounted); await p.waitForTimeout(2700);
+    d = await rrDbg(p); eq(d.sounds.length, 1, 'scenario ' + k + ': not replayed on re-render or on going back'); eq(count(seen, cap), 1, 'scenario ' + k + ': its caption was shown exactly once');
+    for (const other of Object.values(RR_BG)) if (other[1] !== cap) eq(count(seen, other[1]), 0, 'scenario ' + k + ': no other scenario\'s caption (' + other[1] + ')');
+    /* reload on the transmission: nothing plays again */
+    await p.reload(); await rrReady(p); const n0 = seen.length; await observe(p); await p.waitForTimeout(2900); const seen2 = seen.slice(n0); d = await rrDbg(p); eq(d.sounds.length, 0, 'scenario ' + k + ': not replayed after a reload'); eq(count(seen2, cap), 0, 'scenario ' + k + ': no caption replay after a reload'); await p.context().close();
+    /* muted before the transmission: the caption still shows, and no sound starts */
+    const q = await newPage(null, { room: true }); await rrStart(q, base, k); await rrWalk(q, 'receiver'); await q.click('[data-act="sig-power"]'); await q.click('[data-act="menu"]'); await q.click('[data-go="settings"]'); await q.uncheck('[data-act="sound"]'); await q.click('[data-act="menu"]'); await q.click('[data-act="resume"]'); await q.waitForFunction(() => window.LLRoom.debug().mounted);
+    eq(JSON.parse(await lsGet(q, 'tll_save_v1_pv' + k)).sound, false, 'muted in Settings'); await rrToTx(q, k, sc); await rrCap(q, cap); await q.waitForTimeout(400); d = await rrDbg(q); eq(d.soundOn, false, 'sound is off'); eq(d.sounds.length, 0, 'scenario ' + k + ': no sound starts after muting'); await q.context().close();
+  }
+  /* volume at zero is muted too */
+  const z = await newPage(null, { room: true }); await z.addInitScript(() => { try { localStorage.setItem('ho-last-light-view', JSON.stringify({ vol: 0 })); } catch (e) { /* blocked */ } }); await rrStart(z, base, 5); const sc5 = await z.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[5]))); await rrWalk(z, 'receiver'); await z.click('[data-act="sig-power"]'); await rrToTx(z, 5, sc5); await rrCap(z, RR_BG[5][1]); eq((await rrDbg(z)).sounds.length, 0, 'volume zero: no sound starts, the caption still shows');
+});
+
+T('last-light room: settings and safety: text mode (a visible setting, and the automatic fallback), low effects, brightness, contrast, volume, reduced motion, and nothing flashes', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true }); await rrStart(p, base, 1); eq((await rrDbg(p)).low, false, 'full effects by default');
+  await p.click('[data-act="menu"]'); await p.click('[data-go="settings"]'); const txt = await p.innerText('.rr-settings'); for (const w of ['Radio room', 'Text mode', 'Low effects', 'Brightness', 'Contrast', 'Volume']) ok(txt.includes(w), 'setting: ' + w);
+  await p.check('[data-rr-set="low"]'); await p.selectOption('[data-rr-set="bright"]', '2'); await p.selectOption('[data-rr-set="contrast"]', '1'); await p.fill('[data-rr-set="vol"]', '35'); await p.dispatchEvent('[data-rr-set="vol"]', 'change');
+  const v = JSON.parse(await lsGet(p, 'ho-last-light-view')); ok(v.low === true && v.bright === 2 && v.contrast === 1 && v.vol === 35 && v.text === false, 'the view settings are kept apart from the game save: ' + JSON.stringify(v));
+  await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); await p.waitForFunction(() => window.LLRoom.debug().mounted); const d = await rrDbg(p); eq(d.low, true, 'low effects is on'); ok(/brightness\(1\.5\)/.test(await p.$eval('#rr-host', (e) => e.style.filter)) && /contrast\(1\.2\)/.test(await p.$eval('#rr-host', (e) => e.style.filter)), 'brightness and contrast apply to the whole scene');
+  /* low effects: nothing moves by itself. Two frames a moment apart are identical. */
+  await p.waitForTimeout(400); const shot = () => p.$eval('#rr-host canvas', (c) => c.toDataURL()); const a1 = await shot(); await p.waitForTimeout(500); eq(await shot() === a1, true, 'low effects: no flicker, dust or moving light');
+  /* text mode: the page-style mission, no canvas */
+  await p.click('[data-act="menu"]'); await p.click('[data-go="settings"]'); await p.check('[data-rr-set="text"]'); await p.click('[data-act="menu"]'); await p.click('[data-act="resume"]'); await p.waitForSelector('[data-act="sig-power"]', { state: 'visible' }); eq(await p.$('#rr-host'), null, 'text mode: no canvas'); eq(await p.$('#rr-panel'), null, 'the original page layout'); await p.context().close();
+  /* full effects: the lamp flicker is slow and slight (never a flash). Sample the lamp pool for two seconds. */
+  const f = await newPage(null, { room: true }); await rrStart(f, base, 1); await f.waitForTimeout(500);
+  const lum = await f.evaluate(() => new Promise((res) => { const c = document.querySelector('#rr-host canvas'), x = c.getContext('2d'), out = [], t0 = performance.now(); (function s() { const d = x.getImageData(Math.round(c.width * 0.43), Math.round(c.height * 0.42), 8, 8).data; let n = 0; for (let i = 0; i < d.length; i += 4) n += d[i] + d[i + 1] + d[i + 2]; out.push(n / (d.length / 4) / 3); if (performance.now() - t0 > 2000) res(out); else requestAnimationFrame(s); })(); }));
+  const mx = Math.max(...lum), mn = Math.min(...lum); ok(mx > 20, 'the lamp pool is lit: ' + mx.toFixed(1)); ok((mx - mn) / mx < 0.12, 'the flicker is slight (no flashing): ' + mn.toFixed(1) + ' to ' + mx.toFixed(1)); await f.context().close();
+  /* reduced motion asks for the same calm scene */
+  const r = await newPage(null, { room: true, reduced: true }); await rrStart(r, base, 1); eq((await rrDbg(r)).low, true, 'reduced motion: low effects'); await r.context().close();
+  /* the canvas cannot start: the page-style mission appears by itself, and nothing is stored */
+  const x = await newPage(null, { room: true }); await x.route('**/phaser.min.js', (rt) => rt.abort()); await x.goto(base + 'last-light/?preview=3'); await x.click('[data-act="menu"]'); await x.click('[data-act="newgame"]'); await x.fill('#nm', 'Fallback'); for (const k of ['bg:mech', 'pers:bold', 'str:hands', 'weak:nerves']) await x.click(`[data-cr="${k}"]`); await x.click('[data-act="start"]'); await x.click('[data-loc="home"]'); await x.click('[data-act="travel"]');
+  await x.waitForFunction(() => window.LLRoom.debug().failed === true); await x.waitForSelector('[data-act="sig-power"]', { state: 'visible' }); eq(await x.$('#rr-host'), null, 'fallback: no canvas'); await x.click('[data-act="sig-power"]'); ok(await x.isVisible('#tune'), 'fallback: the mission plays as the page-style mission'); eq(await lsGet(x, 'ho-last-light-view'), null, 'fallback stores nothing'); await x.context().close();
+});
+
+T('last-light room: performance and layout: at least 30 frames a second while walking with the processor slowed 4 times, under 150 objects, no console errors or sideways scroll at 1920, 1280 and 390 px, and the darkness never hides the prompt or the guide', async ({ base, newPage }) => {
+  for (const w of [1920, 1280, 390]) { const p = await newPage({ width: w, height: w === 390 ? 800 : 900 }, { room: true }); const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push(m.text()); }); await rrStart(p, base, 1); ok(await noHScroll(p), w + ': no sideways scroll'); await rrWalk(p, 'crate'); await rrNear(p, 'crate'); ok(await p.isVisible('#rr-prompt') && await p.isVisible('#rr-guide'), w + ': the prompt and the guide are on screen'); const b = await p.$eval('#rr-host', (e) => { const r = e.getBoundingClientRect(); return r.width / r.height; }); ok(Math.abs(b - 14 / 9) < 0.05, w + ': the room keeps its shape'); eq(errs.length, 0, w + ': errors: ' + errs); await p.context().close(); }
+  const p = await newPage({ width: 1366, height: 768 }, { room: true }); await rrStart(p, base, 1); const cdp = await p.context().newCDPSession(p); await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 }); await p.waitForTimeout(600);
+  const run = () => p.evaluate(() => new Promise((res) => { let n = 0, dir = 1; const t0 = performance.now(), set = (c, on) => document.dispatchEvent(new KeyboardEvent(on ? 'keydown' : 'keyup', { code: c, key: c, bubbles: true })); const st = window.LLRoom.debug(), x0 = st.x; let far = 0; set('ArrowRight', true);
+    (function f() { n++; const d = window.LLRoom.debug(); far = Math.max(far, Math.abs(d.x - x0)); if ((dir > 0 && d.x > 1000) || (dir < 0 && d.x < 420)) { set(dir > 0 ? 'ArrowRight' : 'ArrowLeft', false); dir = -dir; set(dir > 0 ? 'ArrowRight' : 'ArrowLeft', true); set(dir > 0 ? 'ArrowUp' : 'ArrowDown', true); set(dir > 0 ? 'ArrowDown' : 'ArrowUp', false); }
+      if (performance.now() - t0 > 4000) { ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].forEach((c) => set(c, false)); const sec = (performance.now() - t0) / 1000; res({ fps: Math.min(n, d.frames - st.frames) / sec, lights: (d.paints - st.paints) / sec, far, low: d.low, objs: d.children }); } else requestAnimationFrame(f); })(); }));
+  const full = await run(); console.log('      radio room, 4x throttle, WALKING, full effects: ' + full.fps.toFixed(1) + ' fps, light redrawn ' + full.lights.toFixed(1) + ' times a second (objects ' + full.objs + ', dropped to low effects by itself: ' + full.low + ')'); ok(full.far > 300, 'the survivor really was walking: ' + full.far); ok(full.objs <= 150, 'objects: ' + full.objs); ok(full.low || (full.lights > 5 && full.lights <= 21), 'the flashlight is redrawn while walking, at most about 20 times a second: ' + full.lights.toFixed(1));
+  await p.evaluate(() => { localStorage.setItem('ho-last-light-view', JSON.stringify({ low: true })); }); await p.reload(); await rrReady(p); await p.waitForTimeout(400); const lowr = await run(); console.log('      radio room, 4x throttle, WALKING, low effects: ' + lowr.fps.toFixed(1) + ' fps'); ok(lowr.low, 'low effects is on');
+  ok(full.fps >= 30 || (full.low && lowr.fps >= 30), 'at least 30 fps while walking (full ' + full.fps.toFixed(1) + ', low ' + lowr.fps.toFixed(1) + ')'); ok(lowr.fps >= 30, 'low effects holds 30 fps while walking: ' + lowr.fps.toFixed(1)); await p.context().close();
+});
+
+
+/* ---------- The Last Light: the tour (intro cards, bubbles, "?" Help), step dots and reward moments. Pages opened with { tour: true }. ---------- */
+const bub = (p, text) => p.waitForFunction((t) => { const b = document.querySelector('.hot-bub'); return b && !b.hidden && b.textContent.includes(t); }, text, { timeout: 9000 }).catch(async () => { const now = await p.evaluate(() => { const b = document.querySelector('.hot-bub'); return b ? (b.hidden ? '(hidden) ' : '') + b.textContent : '(none)'; }); throw new Error('waited for the bubble "' + text + '" but it shows: ' + now); });
+const twords = (t) => t.trim().split(/\s+/).length;
+async function llNew(p, base, k = 1, name = 'Tess') { await p.goto(base + 'last-light/?preview=' + k); await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); }
+
+T('last-light tour: the purpose line, at most three intro cards with an icon and 12 words or fewer, Skip tour is remembered, and the old How-to-play window is gone', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true, tour: true }); await p.goto(base + 'last-light/?preview=1');
+  eq((await p.textContent('.ll-purpose')).trim(), 'Survive a silent Ohio, decide who to trust, and write to stay alive.', 'the purpose line on the title screen'); eq(await p.$('[data-howto]'), null, 'no How-to-play button'); ok(await p.isVisible('[data-help]'), 'the ? Help button');
+  const txt = await p.evaluate(() => window.LLTourText); ok(txt.CARDS.length <= 3, 'at most three cards');
+  for (const c of txt.CARDS) ok(twords(c.text) <= 12, 'card: ' + c.text); for (const s of txt.STEPS) for (const v of (typeof s.text === 'string' ? [s.text] : Object.values(s.text))) ok(twords(v) <= 12, 'bubble: ' + v); for (const t of txt.TIPS) if (t.label !== 'Final story') ok(twords(t.text) <= 12, 'tip: ' + t.text); eq(txt.TIPS.find((t) => t.label === 'Final story').text, 'Finish all three missions and write three journal entries to unlock the final story.', 'the owner\'s own wording for the final-story tip (14 words, kept as given)');
+  await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.waitForSelector('.hot-intro'); eq((await p.textContent('.hot-card')).trim(), txt.CARDS[0].text, 'card 1'); ok(await p.$('.hot-card svg'), 'with an icon');
+  await p.keyboard.press('ArrowRight'); eq((await p.textContent('.hot-card')).trim(), txt.CARDS[1].text, 'arrow keys move between cards'); await p.click('.hot-card'); eq((await p.textContent('.hot-card')).trim(), txt.CARDS[2].text, 'a tap moves on too');
+  await p.click('.hot-skip'); eq(await p.$('.hot-intro'), null, 'Skip tour closes it'); const st = JSON.parse(await lsGet(p, 'ho-last-light-tour')); ok(st.off && st.intro, 'Skip tour is remembered on this device: ' + JSON.stringify(st));
+  await p.waitForTimeout(600); ok(await p.isHidden('.hot-bub').catch(() => true), 'no bubbles after Skip tour'); ok(await p.isVisible('#nm'), 'play goes on');
+  await p.reload(); await p.waitForTimeout(400); eq(await p.$('.hot-intro'), null, 'not shown again after Skip tour (after a reload)');
+});
+
+T('last-light tour: each bubble points at the thing to use and moves on when the player does it, from naming a survivor to leaving the radio room by the door', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true, tour: true }); p.on('dialog', (d) => d.accept()); await llNew(p, base, 1); await p.click('.hot-go'); eq(await p.$('.hot-intro'), null, 'Start closes the cards');
+  await bub(p, 'Name your survivor.'); const near = async (sel) => p.evaluate((s) => { const b = document.querySelector('.hot-bub').getBoundingClientRect(), t = document.querySelector(s).getBoundingClientRect(); return Math.min(Math.abs(b.top - t.bottom), Math.abs(t.top - b.bottom)) < 30; }, sel);
+  ok(await near('#nm'), 'it sits next to the name box'); ok((await p.getAttribute('.hot-sr', 'aria-live')) === 'polite', 'read out politely');
+  await p.fill('#nm', 'Tess'); await bub(p, 'Pick a background. Each one changes what you notice.'); for (const k of ['bg:mech', 'pers:bold', 'str:hands', 'weak:nerves']) await p.click(`[data-cr="${k}"]`);
+  /* starting the story already selects home on the map, so the home bubble is done and the next one points at the way in */
+  await bub(p, 'Ready? Start the story.'); await p.click('[data-act="start"]'); await bub(p, 'Go to the radio room.'); ok(await near('[data-act="travel"]'), 'next to the button'); await p.click('[data-act="travel"]'); await rrReady(p);
+  await bub(p, 'Click the floor to walk there.'); await rrWalk(p, 'receiver'); await rrPanel(p, true); await bub(p, 'Power the radio to listen.'); await p.click('[data-act="sig-power"]');
+  await bub(p, 'Turn the knob until the words come in clear.'); const sc = await p.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[1])));
+  let found = false; for (let f = 880; f <= 1080 && !found; f++) { await p.evaluate((v) => { const el = document.getElementById('tune'); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, f); found = !(await p.$eval('#lockbtn', (b) => b.disabled)); }
+  await bub(p, 'Clear enough. Lock the signal.'); await p.click('[data-act="sig-lock"]'); if (sc.signal.decode) { if (sc.signal.decode.kind === 'shift') await p.evaluate((n) => { const el = document.getElementById('shift'); el.value = n; el.dispatchEvent(new Event('input', { bubbles: true })); }, sc.signal.decode.shift); else await p.fill('#ans', sc.signal.decode.answer); await p.click('[data-act="sig-decode"]'); }
+  await bub(p, 'Tick every detail that raises a question.'); for (const o of sc.signal.obs.filter((x) => x.ok).slice(0, 3)) await p.click(`[data-sigpick="${o.id}"]`);
+  await bub(p, 'Explain why, using two details you ticked.'); await p.fill('[data-bind="m.reason"]', 'I do not trust it fully because the details do not add up and the sender knew more than they said. extra words here to pass the minimum length for sure');
+  await p.click('[data-act="sig-judge"]'); await p.click('[data-act="sig-next"]'); await bub(p, 'Not sure? Check your supplies on the shelf first.'); await rrWalk(p, 'shelf'); await rrNear(p, 'shelf'); await p.keyboard.press('KeyE');
+  await rrWalk(p, 'receiver'); await rrPanel(p, true); await p.click('[data-act="sig-dec"][data-v="investigate"]'); await bub(p, 'Walk to your notebook and write your entry.'); await rrWalk(p, 'notebook'); await rrPanel(p, true);
+  await p.fill('[data-bind="m.jtext"]', 'The signal repeats in the dark and the hum of the receiver fills the cold room. I chose to follow it because someone may need help and I want to know.'); await p.click('[data-act="savejournal"]');
+  await bub(p, 'Leave by the door to reach the map.'); await rrWalk(p, 'door'); await rrNear(p, 'door'); await p.keyboard.press('KeyE'); await p.waitForSelector('[data-loc="home"]', { state: 'visible' });
+  await p.waitForFunction(() => JSON.parse(localStorage.getItem('ho-last-light-tour')).done.includes('door'), null, { timeout: 4000 }); const st = JSON.parse(await lsGet(p, 'ho-last-light-tour')); for (const id of ['name', 'bg', 'start', 'home', 'travel', 'move', 'power', 'knob', 'lock', 'detail', 'reason', 'shelf', 'notebook', 'door']) ok(st.done.includes(id), 'tour step remembered as done: ' + id);
+  const save = JSON.parse(await lsGet(p, 'tll_save_v1_pv1')); eq(Object.keys(save).filter((k) => /tour|hot/i.test(k)).length, 0, 'the tour adds nothing to the game save');
+});
+
+T('last-light tour: the "?" Help list has the purpose, the writing sentence and every tip; a tip replays its bubble; Replay tour starts over; the idle hint glows (and pulses only without reduced motion)', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true, tour: true }); p.on('dialog', (d) => d.accept()); await llNew(p, base, 2); await p.click('.hot-skip');
+  for (const k of ['bg:mech', 'pers:bold', 'str:hands', 'weak:nerves']) await p.click(`[data-cr="${k}"]`); await p.fill('#nm', 'Ru'); await p.click('[data-act="start"]'); await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await rrReady(p);
+  await p.click('[data-help]'); await p.waitForSelector('.hot-help'); const txt = await p.evaluate(() => window.LLTourText); const help = await p.innerText('.hot-help');
+  ok(help.includes(txt.PURPOSE) && help.includes(txt.CONNECT), 'purpose and the writing sentence'); for (const t of txt.TIPS) ok(help.includes(t.text), 'tip: ' + t.text); ok(/Replay tour/.test(help) && /Skip tour/.test(help), 'Replay tour and Skip tour');
+  await p.click('[data-tip="Moving"]'); await bub(p, 'Click the floor to walk there.'); ok(true, 'the Moving tip replays its bubble on the room, even after Skip tour');
+  await rrWalk(p, 'window'); await p.waitForFunction(() => document.querySelector('.hot-bub').hidden, null, { timeout: 6000 }); ok(true, 'and it goes away once you move');
+  /* idle hint */
+  /* Replay tour: the cards again, then the tour picks up from where the player is (already moved, so: the receiver) */
+  await p.click('[data-help]'); await p.click('#hot-replay'); await p.waitForSelector('.hot-intro'); await p.click('.hot-go'); await bub(p, 'Click the receiver.'); await p.evaluate(() => { window.LLTour.shownAt -= 16000; }); await p.waitForSelector('.hot-bub.hot-pulse'); ok(true, 'the bubble pulses once after about 15 seconds idle');
+  const r = await newPage(null, { room: true, tour: true, reduced: true }); r.on('dialog', (d) => d.accept()); await llNew(r, base, 2); await r.click('.hot-go'); await bub(r, 'Name your survivor.'); await r.evaluate(() => { window.LLTour.shownAt -= 16000; }); await r.waitForSelector('#nm.hot-glow'); eq(await r.$('.hot-bub.hot-pulse'), null, 'reduced motion: the glow, no pulse');
+});
+
+T('last-light tour on a phone: the touch wording, bubbles inside the screen, no sideways scroll, and the bubbles never block a tap', async ({ base, newPage }) => {
+  const p = await newPage({ width: 390, height: 844 }, { room: true, tour: true, touch: true }); p.on('dialog', (d) => d.accept()); await llNew(p, base, 3); await p.tap('.hot-go');
+  await bub(p, 'Name your survivor.'); await p.fill('#nm', 'Lee'); for (const k of ['bg:mech', 'pers:bold', 'str:hands', 'weak:nerves']) await p.tap(`[data-cr="${k}"]`); await p.tap('[data-act="start"]');
+  await bub(p, 'Go to the radio room.'); const b = await p.$eval('.hot-bub', (e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right }; }); ok(b.l >= 0 && b.r <= 390, 'inside the screen: ' + JSON.stringify(b)); ok(await noHScroll(p), 'no sideways scroll');
+  await p.tap('[data-act="travel"]'); await rrReady(p); await bub(p, 'Drag the stick to move.'); ok(await noHScroll(p), 'no sideways scroll in the room'); await rrWalk(p, 'window'); await p.tap('#rr-guide'); await bub(p, 'Tap Use.'); ok(true, 'the receiver bubble follows the device last used: touch words after a tap');
+});
+
+T('last-light map: the places not built yet are faint "Coming soon" markers that cannot be clicked, no padlock or "next stage" wording anywhere, and Chapter 1 ends with its own panel and a "Write your final story" button', async ({ base, newPage }) => {
+  const p = await newPage(); await p.addInitScript(llSeed({ screen: 'map', done: {}, journal: [] })); await p.goto(base + 'last-light/'); await p.waitForSelector('.mapbox');
+  eq(await p.$$eval('.mk.soon', (e) => e.length), 3, 'three faint markers'); eq(await p.$$eval('.mk.soon', (e) => e.filter((x) => x.tagName === 'BUTTON' || x.hasAttribute('data-loc')).length), 0, 'none of them is a button'); eq(await p.$$eval('.mk-l.soon', (e) => e.filter((x) => /Coming soon/.test(x.textContent)).length), 3, 'each says Coming soon');
+  eq(await p.$$eval('.mk.soon', (e) => e.filter((x) => getComputedStyle(x).pointerEvents !== 'none').length), 0, 'they never take a click');
+  const html = await p.content(); ok(!/next stage/i.test(html) && !html.includes('■') && !/&#9632;/.test(html), 'no padlock glyph and no "next stage" wording'); eq(await p.$('#chDone'), null, 'no Chapter 1 panel yet');
+  const q = await newPage(); await q.addInitScript(llSeed({ screen: 'map', done: { signal: true, supply: true, stranger: true }, journal: [{ day: 1, title: 'a', text: 'x' }, { day: 2, title: 'b', text: 'y' }, { day: 3, title: 'c', text: 'z' }] })); await q.goto(base + 'last-light/'); await q.waitForSelector('#chDone');
+  const t = await q.innerText('#chDone'); ok(t.includes('Chapter 1 complete.') && t.includes('The signal leads deeper. You have what you need to tell your story.'), 'the Chapter 1 panel: ' + t); await q.click('#chDone [data-go="final"]'); await q.waitForFunction(() => JSON.parse(localStorage.getItem('tll_save_v1')).screen === 'final'); ok(true, 'Write your final story opens the final story');
+});
+
+T('last-light radio room: every caption name is used once (a repeated name silently replaced "[a soft chime]" with another caption)', async () => {
+  const src = fs.readFileSync(path.join(ROOT, 'last-light/js/radio-room.js'), 'utf8'), lit = src.match(/var CAP = \{([^}]*)\}/)[1], keys = [...lit.matchAll(/(\w+):\s*'/g)].map((m) => m[1]);
+  const dup = keys.filter((k, i) => keys.indexOf(k) !== i); eq(dup.join(','), '', 'repeated caption names'); ok(keys.length >= 19 && keys.includes('softChime') && keys.includes('deep'), 'all the captions were read: ' + keys.length);
+});
+
+T('last-light radio room: step dots and reward moments (Radio on, Signal locked, Analysis filed, Decision made, Mission complete) with their soft sounds captioned; no pulse in low effects', async ({ base, newPage }) => {
+  const p = await newPage(null, { room: true }); p.on('dialog', (d) => d.accept()); await rrStart(p, base, 1); eq((await rrDbg(p)).steps, 'Step 1 of 5: power the radio', 'step 1');
+  await p.evaluate(() => { window.__caps = []; new MutationObserver(() => window.__caps.push(document.getElementById('rr-cap').textContent)).observe(document.getElementById('rr-cap'), { childList: true, characterData: true, subtree: true }); });
+  const seenCap = (t) => p.waitForFunction((x) => window.__caps.includes(x), t, { timeout: 6000 }).catch(async () => { throw new Error('caption ' + t + ' not seen; seen: ' + (await p.evaluate(() => window.__caps.join(' | '))) + ' rewards: ' + (await rrDbg(p)).rewards); });
+  const rw = (k) => p.waitForFunction((x) => window.LLRoom.debug().rewards.includes(x), k, { timeout: 6000 }).catch(async () => { throw new Error('reward ' + k + ' not seen; rewards: ' + (await rrDbg(p)).rewards + ' steps: ' + (await rrDbg(p)).steps); }); eq(await p.$$eval('#rr-steps i.on', (e) => e.length), 1, 'one dot lit');
+  await rrWalk(p, 'receiver'); await p.click('[data-act="sig-power"]'); await rw('power'); eq((await rrDbg(p)).steps, 'Step 2 of 5: tune the signal', 'step 2');
+  const sc = await p.evaluate(() => JSON.parse(JSON.stringify(window.LL_SCENARIOS[1]))); await rrToTx(p, 1, sc); await rw('lock'); await seenCap('[a soft rising chime]'); eq((await rrDbg(p)).steps, 'Step 3 of 5: study the message', 'step 3');
+  for (const o of sc.signal.obs.filter((x) => x.ok).slice(0, 3)) await p.click(`[data-sigpick="${o.id}"]`); await p.fill('[data-bind="m.reason"]', 'I do not trust it fully because the details do not add up and the sender knew more than they said. extra words here to pass the minimum length for sure');
+  await p.click('[data-act="sig-judge"]'); await rw('judged'); await seenCap('[a soft chime]'); await p.click('[data-act="sig-next"]'); eq((await rrDbg(p)).steps, 'Step 4 of 5: decide', 'step 4');
+  await p.click('[data-act="sig-dec"][data-v="investigate"]'); await rw('decided'); eq((await rrDbg(p)).steps, 'Step 5 of 5: write it down', 'step 5');
+  await rrWalk(p, 'notebook'); await rrPanel(p, true); await p.fill('[data-bind="m.jtext"]', 'The signal repeats in the dark and the hum of the receiver fills the cold room. I chose to follow it because someone may need help and I want to know.'); await p.click('[data-act="savejournal"]');
+  await rw('done'); await p.waitForFunction(() => [...document.querySelectorAll('.rr-reward')].some((e) => e.textContent === 'Mission complete: The Signal') || window.LLRoom.debug().rewards.includes('done')); eq(JSON.stringify((await rrDbg(p)).rewards), JSON.stringify(['power', 'lock', 'judged', 'decided', 'done']), 'each reward once, in order');
+  eq(await p.$$eval('#rr-steps i.done', (e) => e.length), 5, 'all five dots done');
+  const q = await newPage(null, { room: true }); await q.addInitScript(() => { localStorage.setItem('ho-last-light-view', JSON.stringify({ low: true })); }); p.on('dialog', (d) => d.accept()); await rrStart(q, base, 1); await rrWalk(q, 'receiver'); await q.click('[data-act="sig-power"]'); await q.waitForSelector('.rr-reward'); eq(await q.$('.rr-ping'), null, 'low effects: the label shows, no pulse ring');
+});
+
 T('last-light: every scenario\'s supply run and stranger can be completed (no dead ends)', async ({ base, newPage }) => {
   const fbT = async (p, l) => { try { return await p.textContent('.fb', { timeout: 3000 }); } catch (e) { throw new Error('no .fb at ' + l + ': ' + (await p.textContent('body')).replace(/\s+/g, ' ').slice(0, 400)); } };
   const words = (n) => Array.from({ length: n }, (_, i) => 'word' + i).join(' ');

@@ -27,9 +27,15 @@ export const IGNORED = /fonts\.g|ERR_|Failed to load resource|net::|favicon/i;
 // Games assign one of six cases at random on the first Begin. So that tests written for a known case stay repeatable, a normal test
 // page starts with case 1 already assigned in all four games. Tests about the assignment itself ask for a raw page: newPage(vp, { raw: true }).
 export const ASSIGN_KEYS = ['ho-haunting-files-assign', 'ho-last-light-assign', 'ho-veil-assign', 'ho-room214-assign'];
+// The Last Light plays The Signal inside the radio room. Tests written for the page-style mission ask for it the way the game's own
+// text mode does, without touching storage: the page reads window.LL_TEXT_MODE. Tests about the room itself ask for newPage(vp, { room: true }).
+// { touch: true } gives a touch screen; { reduced: true } asks for reduced motion.
 export async function newPage(browser, errs, viewport = { width: 1366, height: 800 }, opts = {}) {
-  const ctx = await browser.newContext({ viewport: viewport || { width: 1366, height: 800 }, acceptDownloads: true });
+  const ctx = await browser.newContext({ viewport: viewport || { width: 1366, height: 800 }, acceptDownloads: true, hasTouch: !!opts.touch, isMobile: !!opts.touch, reducedMotion: opts.reduced ? 'reduce' : 'no-preference' });
   const page = await ctx.newPage();
+  if (!opts.room) await page.addInitScript(() => { window.LL_TEXT_MODE = true; });
+  // The Last Light's tour is turned off (as Skip tour does) unless a test is about the tour: newPage(vp, { tour: true }).
+  if (!opts.tour) await page.addInitScript(() => { try { if (!localStorage.getItem('ho-last-light-tour')) localStorage.setItem('ho-last-light-tour', JSON.stringify({ intro: true, done: [], off: true })); } catch (e) { /* storage blocked */ } });
   if (!opts.raw) await page.addInitScript((keys) => { try { keys.forEach((k) => { if (!localStorage.getItem(k)) localStorage.setItem(k, '1'); }); } catch (e) { /* storage blocked */ } }, ASSIGN_KEYS);
   page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !IGNORED.test(m.text())) errs.push('console: ' + m.text()); });
@@ -45,11 +51,14 @@ export async function run(tests) {
     if (process.env.ONLY && !name.includes(process.env.ONLY)) continue;   // e.g. ONLY="BEFORE" npm run smoke
     const errs = [];
     const t0 = Date.now();
+    const opened = [];
     try {
-      await fn({ browser, base, errs, newPage: (vp, opts) => newPage(browser, errs, vp, opts) });
+      await fn({ browser, base, errs, newPage: async (vp, opts) => { const pg = await newPage(browser, errs, vp, opts); opened.push(pg.context()); return pg; } });
       if (errs.length) throw new Error('unexpected errors: ' + errs.slice(0, 3).join(' | '));
       console.log(`PASS  ${name}  (${Date.now() - t0} ms)`);
     } catch (e) { fail++; console.log(`FAIL  ${name}\n      ${String(e.message || e).split('\n').slice(0, 4).join('\n      ')}`); }
+    /* every page a test opened is closed when the test ends, pass or fail: pages left open keep drawing and slow every later test */
+    for (const c of opened) await c.close().catch(() => {});
   }
   await browser.close(); srv.close();
   console.log(fail ? `\n${fail} test(s) failed` : '\nAll tests passed');
