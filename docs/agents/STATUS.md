@@ -6,8 +6,8 @@ The owner authorised squash-merging the items below, one at a time, when every g
 |---|---|---|---|
 | 1 | Ghost Lab | #38 | **Not merged** (see D-38) |
 | 2 | Room 214 sound | #41 | Merged as `aa220a8` |
-| 3 | The Last Light radio room, tour, Chapter 1 panel | #40 | In progress |
-| 4 | The Veil: first shift, sound, tour | (new) | Not started |
+| 3 | The Last Light radio room, tour, Chapter 1 panel | #40 | Merged as `cd83121` |
+| 4 | The Veil: first shift, sound, tour | branch `agent/veil-tour-sound` | In progress |
 | 5 | Room 214: tour, details noticed, summary | (new) | Not started |
 | 6 | The Haunting Files: light tour | (new) | Not started |
 | 7 | Cross-game finish | (new) | Not started |
