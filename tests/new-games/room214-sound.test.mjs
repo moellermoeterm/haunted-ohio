@@ -11,7 +11,7 @@ const browser = await chromium.launch(); let fail = 0, pass = 0;
 const ok = (v, m) => { if (!v) throw new Error(m || 'expected truthy'); }; const eq = (a, b, m) => { if (a !== b) throw new Error(`${m}: got ${JSON.stringify(a)}, expected ${JSON.stringify(b)}`); };
 const only = process.env.ONLY;
 async function T(name, fn) {
-  if (only && !name.includes(only)) return; const t0 = Date.now(); const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } }); const p = await ctx.newPage(); const errs = [], reqs = [];
+  if (only && !name.includes(only)) return; const t0 = Date.now(); const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } }); const p = await ctx.newPage(); if (!(typeof opts !== 'undefined' && opts && opts.tour)) await p.addInitScript(() => { try { localStorage.setItem('ho-room214-tour', JSON.stringify({ intro: true, done: [], off: true })); } catch (e) { /* blocked */ } }); const errs = [], reqs = [];
   p.on('pageerror', (e) => errs.push('pageerror: ' + e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push('console: ' + m.text()); });
   p.on('request', (r) => { const u = r.url(); if (!u.startsWith('http://127.0.0.1') && !u.startsWith('data:') && !u.startsWith('blob:') && !/gc\.zgo\.at|goatcounter/.test(u)) reqs.push(u); }); p.setDefaultTimeout(15000); p.on('dialog', (d) => d.accept());
   try { await fn(p); if (errs.length) throw new Error('errors: ' + errs.slice(0, 3).join(' | ')); eq(reqs.length, 0, 'outbound requests: ' + reqs.join(',')); pass++; console.log(`PASS  ${name}  (${Date.now() - t0} ms)`); }

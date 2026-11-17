@@ -116,7 +116,9 @@
     var it = this.itemNear(); if (it) return { kind: 'item', item: it, label: it.kind === 'card' ? 'Take the keycard' : it.kind === 'battery' ? 'Take the battery' : it.kind === 'bell' ? 'Take the room-service bell' : it.kind === 'note' ? 'Read the note' : 'Read the ledger' };
     var pl = this.pl, f = pl.f, u = this.nearTile('u', 1.6), v = this.nearTile('v', 1.6), sf = this.nearTile('s', 1.6), ex = this.nearTile('X', 1.7), h = this.nearTile('h', 1.5);
     if (u && v) { var du = Math.hypot(u[0] + 0.5 - pl.x, u[1] + 0.5 - pl.y), dv = Math.hypot(v[0] + 0.5 - pl.x, v[1] + 0.5 - pl.y); if (du <= dv) v = null; else u = null; }
-    if (u) return { kind: 'up', label: 'Go up the stairs' }; if (v) return { kind: 'down', label: 'Go down the stairs' }; if (sf) return { kind: 'safe', label: this.s.safe ? 'The safe is open' : 'Try the safe' }; if (ex) return { kind: 'exit', label: 'Leave the hotel' }; if (h) return { kind: 'hide', spot: h, label: 'Hide' };
+    if (u) return { kind: 'up', label: 'Go up the stairs' }; if (v) return { kind: 'down', label: 'Go down the stairs' }; if (sf) return { kind: 'safe', label: this.s.safe ? 'The safe is open' : 'Try the safe' }; if (ex) return { kind: 'exit', label: 'Leave the hotel' };
+    var dt = this.detailNear(); if (dt) return { kind: 'detail', detail: dt, label: 'Notice' };
+    if (h) return { kind: 'hide', spot: h, label: 'Hide' };
     return null;
   };
   G.move = function (ax, ay, mode, dt) {
@@ -150,6 +152,10 @@
     s.got.push(it.id); this.noise(this.pl.x, this.pl.y, NOISE.pick, 'player'); this.save(); this.emit('item', it); return { ok: true, item: it };
   };
   G.trySafe = function (code) { if (this.d.checkSafe(code)) { this.s.safe = true; this.save(); this.emit('safe'); return { ok: true }; } return { ok: false }; };
+  /* details noticed: kept in the existing "got" list as det1 to det8, so the save format does not change */
+  G.detailNear = function () { var pl = this.pl, s = this.s, best = null, bd = 1.3; (this.d.details || []).forEach(function (d) { if (d.floor !== pl.f || s.got.indexOf(d.id) >= 0) return; var dd = Math.hypot(d.x + 0.5 - pl.x, d.y + 0.5 - pl.y); if (dd < bd) { bd = dd; best = d; } }); return best; };
+  G.noticed = function () { var s = this.s; return (this.d.details || []).filter(function (d) { return s.got.indexOf(d.id) >= 0; }); };
+  G.notice = function (d) { var s = this.s; if (!d || s.got.indexOf(d.id) >= 0) return false; s.got.push(d.id); this.save(); this.emit('detail', d); return true; };
   G.digitsFound = function () { var s = this.s; return [0, 1, 2].map(function (f) { return s.found.indexOf('note' + f) >= 0; }); };
   G.finishBlock = function () { if (!this.s.ledger) return 'You have not found what is in Room 214 yet.'; if (words(this.writing('acct')) < MIN.account) return 'Write your account of Room 214 first (about ' + MIN.account + ' words).'; if (words(this.writing('seed')) < MIN.seed) return 'Write your story seed first (about ' + MIN.seed + ' words).'; return ''; };
   G.finish = function () { if (this.finishBlock()) return false; this.s.done = true; this.save(); this.emit('done'); return true; };

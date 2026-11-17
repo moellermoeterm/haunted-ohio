@@ -29,6 +29,7 @@
     ui.act = function (nr) {
       if (!nr) return;
       switch (nr.kind) {
+        case 'detail': { if (game.notice(nr.detail)) { A.cue('notice', {}); shell.toast('Detail noticed. ' + nr.detail.text); hud.refresh(); } break; }
         case 'item': { var r = game.pick(nr.item); break; }
         case 'up': { var u = game.stairs(1); if (!u.ok) shell.toast(u.msg); break; }
         case 'down': { game.stairs(-1); break; }
@@ -57,11 +58,19 @@
     /* ----- writing ----- */
     ui.write = function (o) {
       var body = el('div'); body.appendChild(para(o.prompt)); var lab = el('label', 'hog-label', o.label || 'Your writing'); lab.htmlFor = 'r-w'; body.appendChild(lab);
-      var ta = el('textarea'); ta.id = 'r-w'; ta.value = o.value || ''; ta.rows = 7; ta.setAttribute('data-autofocus', '1'); ta.maxLength = 8000; body.appendChild(ta); var cnt = el('p', 'hog-muted'); cnt.setAttribute('aria-live', 'polite'); body.appendChild(cnt); var save;
+      var ta = el('textarea'); ta.id = 'r-w'; ta.value = o.value || ''; ta.rows = 7; ta.setAttribute('data-autofocus', '1'); ta.maxLength = 8000; body.appendChild(ta); body.appendChild(noticedBox()); var cnt = el('p', 'hog-muted'); cnt.setAttribute('aria-live', 'polite'); body.appendChild(cnt); var save;
       function upd() { var n = L.words(ta.value); cnt.textContent = n + ' words' + (n < o.min ? ' (at least ' + o.min + ' to save)' : ' — ready to save'); if (save) save.disabled = n < o.min; } ta.addEventListener('input', upd);
       var m = shell.modal({ title: o.title, body: body, buttons: [{ label: o.saveLabel || 'Save', primary: true, keepOpen: true, onClick: function () { if (L.words(ta.value) < o.min) return; o.onSave(ta.value); m.close(); hud.refresh(); } }, { label: o.cancelLabel || 'Later' }], onClose: o.onClosed });
       save = m.el.querySelector('.hog-btn.primary'); upd(); return m;
     };
+    /* "What you noticed": the details found so far, beside the writing box, so the play feeds the writing */
+    function noticedBox() { var box = el('div', 'r-noticed'), list = game.noticed(); box.appendChild(el('h3', null, 'What you noticed')); if (!list.length) box.appendChild(el('p', 'hog-muted', 'None yet.')); else { var ul = el('ul'); list.forEach(function (d) { var li = el('li'); li.appendChild(el('b', null, d.sense + ': ')); li.appendChild(doc.createTextNode(d.text)); ul.appendChild(li); }); box.appendChild(ul); } return box; }
+    ui.noticedBox = noticedBox;
+    /* the end-of-case summary */
+    function summary() { var s = game.s, box = el('div', 'r-summary'), ul = el('ul'); box.appendChild(el('h3', null, 'Case summary'));
+      [['Details noticed', game.noticed().length + ' of ' + (game.d.details || []).length], ['Notes found', s.found.length + ' of 3'], ['Times checked out', String(s.caught)]].forEach(function (r) { var li = el('li'); li.appendChild(el('b', null, r[0] + ': ')); li.appendChild(doc.createTextNode(r[1])); ul.appendChild(li); });
+      box.appendChild(ul); return box; }
+    ui.summary = summary;
     ui.journalEntry = function (f) {
       return ui.write({ title: 'Journal: floor ' + (f + 1), prompt: 'You are at a stairwell checkpoint. Write what you have heard, seen and felt so far. Use at least three senses and show it with details; no feeling words.', label: 'Journal entry', min: L.MIN.journal, value: game.writing('j' + f), saveLabel: 'Save entry', onSave: function (t) { game.write('j' + f, t); shell.say('Journal entry saved.'); } });
     };
@@ -74,7 +83,7 @@
     ui.journal = function () {
       if (shell.modalOpen) return; var body = el('div'); body.appendChild(para('Your journal is saved in this browser only.'));
       [[1, 'Floor 2 entry'], [2, 'Floor 3 entry']].forEach(function (e) { body.appendChild(el('h3', null, e[1])); body.appendChild(para(game.writing('j' + e[0]) || '(not written yet)')); });
-      body.appendChild(el('h3', null, 'Notes found')); var fnd = game.s.found; if (!fnd.length) body.appendChild(para('None yet.')); fnd.forEach(function (id) { var d = el('details'); d.appendChild(el('summary', null, game.d.notes[id].title)); d.appendChild(para(game.d.notes[id].body)); body.appendChild(d); });
+      body.appendChild(noticedBox()); body.appendChild(el('h3', null, 'Notes found')); var fnd = game.s.found; if (!fnd.length) body.appendChild(para('None yet.')); fnd.forEach(function (id) { var d = el('details'); d.appendChild(el('summary', null, game.d.notes[id].title)); d.appendChild(para(game.d.notes[id].body)); body.appendChild(d); });
       body.appendChild(el('h3', null, 'Final writing')); body.appendChild(para('Account: ' + (L.words(game.writing('acct')) ? L.words(game.writing('acct')) + ' words' : 'not written') + '  ·  Story seed: ' + (L.words(game.writing('seed')) ? L.words(game.writing('seed')) + ' words' : 'not written')));
       var r1 = el('div', 'row'); [1, 2].forEach(function (f) { r1.appendChild(btn('Write floor ' + (f + 1) + ' entry', '', function () { m.close(); setTimeout(function () { if (game.s.seen.indexOf(f) < 0) shell.toast('You have not been to that floor yet.'); else ui.journalEntry(f); }, 30); })); }); body.appendChild(r1);
       var r2 = el('div', 'row'); r2.appendChild(btn('Write my account', '', function () { m.close(); setTimeout(function () { if (!game.s.ledger) shell.toast('Find out what is in Room 214 first.'); else ui.account(); }, 30); })); r2.appendChild(btn('Write my story seed', '', function () { m.close(); setTimeout(function () { if (!game.s.ledger) shell.toast('Find out what is in Room 214 first.'); else ui.seed(); }, 30); })); body.appendChild(r2);
@@ -85,13 +94,13 @@
     ui.exit = function () {
       var b = game.finishBlock(); if (b) { shell.toast(b); if (game.s.ledger) setTimeout(ui.journal, 600); return; }
       game.finish(); A.cue('success', {}); if (root.HO_track) root.HO_track('chapter-complete');
-      var body = el('div'); body.appendChild(para('You push through the front door into the cold air. Behind you the lobby lamp goes out, and the doors lock with a soft, final click. Whatever the Night Porter was waiting for, it is over.')); body.appendChild(para('Your written account and story seed are saved. Copy or download your journal to keep it.'));
+      var body = el('div'); body.appendChild(summary()); body.appendChild(para('You push through the front door into the cold air. Behind you the lobby lamp goes out, and the doors lock with a soft, final click. Whatever the Night Porter was waiting for, it is over.')); body.appendChild(para('Your written account and story seed are saved. Copy or download your journal to keep it.'));
       shell.modal({ title: 'You made it out', body: body, buttons: [{ label: 'Download my journal', keepOpen: true, onClick: function () { download('room-214-journal-' + String(game.rec.name || 'player').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) + '.txt', ui.reportText()); } }, { label: 'Close', primary: true }] }); hud.refresh();
     };
     ui.reportText = function () {
       var d = game.d, t = 'ROOM 214\nInvestigator: ' + game.rec.name + '\nGame material (fiction): ' + d.hotel + '.\n\n';
       [[1, 'JOURNAL, FLOOR 2'], [2, 'JOURNAL, FLOOR 3']].forEach(function (e) { if (game.writing('j' + e[0])) t += e[1] + '\n' + game.writing('j' + e[0]) + '\n\n'; });
-      t += 'NOTES FOUND (' + game.s.found.length + ' of 3)\n' + game.s.found.map(function (id) { return '- ' + d.notes[id].title; }).join('\n') + '\n\n'; if (game.writing('acct')) t += 'MY ACCOUNT OF ROOM 214\n' + game.writing('acct') + '\n\n'; if (game.writing('seed')) t += 'STORY SEED\n' + game.writing('seed') + '\n'; t += '\nTimes checked out by the Night Porter: ' + game.s.caught + '\n'; return t;
+      t += 'NOTES FOUND (' + game.s.found.length + ' of 3)\n' + game.s.found.map(function (id) { return '- ' + d.notes[id].title; }).join('\n') + '\n\n'; if (game.writing('acct')) t += 'MY ACCOUNT OF ROOM 214\n' + game.writing('acct') + '\n\n'; if (game.writing('seed')) t += 'STORY SEED\n' + game.writing('seed') + '\n'; t += '\nTimes checked out by the Night Porter: ' + game.s.caught + '\n'; var nd = game.noticed(); if (nd.length) t += '\nWHAT YOU NOTICED (' + nd.length + ' of ' + game.d.details.length + ')\n' + nd.map(function (d) { return '- ' + d.sense + ': ' + d.text; }).join('\n') + '\n'; return t;
     };
     function download(name, text) { var b = new Blob([text], { type: 'text/plain' }), u = URL.createObjectURL(b), a = el('a'); a.href = u; a.download = name; doc.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); }
     function copy(text) { var ta = el('textarea'); ta.value = text; doc.body.appendChild(ta); ta.select(); try { if (root.navigator.clipboard) root.navigator.clipboard.writeText(text); else doc.execCommand('copy'); shell.toast('Copied.'); } catch (e) { shell.toast('Select the text and copy it.'); } ta.remove(); }
