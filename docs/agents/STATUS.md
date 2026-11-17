@@ -1,18 +1,23 @@
-# Status: finish-line run (unattended)
+# Status: finish-line run (unattended), finished
 
-The owner authorised squash-merging the items below, one at a time, when every gate passes (touching tests, then the full suite once, alone, on the head, no conflicts), then waiting for the Pages deploy. The live site cannot be loaded from the build environment; deploy results come from the GitHub Pages workflow status.
+The owner authorised squash-merging the items below, one at a time, when every gate passed (touching tests, then the full suite once, alone, on the head, no conflicts), then waiting for the Pages deploy. The live site cannot be loaded from the build environment; deploy results come from the GitHub Pages workflow status.
 
-| # | Item | PR | State |
-|---|---|---|---|
-| 1 | Ghost Lab | #38 | **Not merged** (see D-38) |
-| 2 | Room 214 sound | #41 | Merged as `aa220a8` |
-| 3 | The Last Light radio room, tour, Chapter 1 panel | #40 | Merged as `cd83121` |
-| 4 | The Veil: first shift, sound, tour | #42 | Merged as `6910fb6` |
-| 5 | Room 214: tour, details noticed, summary | #43 | Merged as `2efa431` |
-| 6 | The Haunting Files: light tour | #44 | Merged as `786a616` |
-| 7 | Cross-game finish | #45 | Merged as `88b66f7` |
-| 8 | Final QA sweep | branch `agent/final-qa` | In progress |
-| 9 | Docs: status, morning summary, leader game guide | (new) | Not started |
+| # | Item | PR | Merge commit | Deploy |
+|---|---|---|---|---|
+| 1 | Ghost Lab | #38 | **Not merged** (D-38) | |
+| 2 | Room 214 sound | #41 | `aa220a8` | success (run 44) |
+| 3 | The Last Light radio room, tour, Chapter 1 end | #40 | `cd83121` | success (run 45) |
+| 4 | The Veil: first shift, sound, tour, progress | #42 | `6910fb6` | success (run 46) |
+| 5 | Room 214: details noticed, tour, summary | #43 | `2efa431` | success (run 47) |
+| 6 | The Haunting Files: light tour | #44 | `786a616` | success (run 48) |
+| 7 | Cross-game finish | #45 | `88b66f7` | success (run 49) |
+| 8 | Final QA sweep | #46 | `c83edd2` | success (run 50) |
+| 9 | Docs: this file, the morning summary, the leader game guide | #47 | its squash commit | checked after merge |
 
-## How to resume
-Read this table, then `docs/agents/DECISIONS.md` from D-38 on. Each open item has its own branch named in its row once started. Run one heavy test at a time: `cd tests && node smoke.mjs` then `node content-check.mjs`; the game bots are in `tests/new-games/`.
+Gate failures during the run: one, on The Veil's unmerged branch (2 of 97, caused by the new intro cards meeting older tests; fixed in the test setup and every gate rerun; D-45). Main never broke and nothing was reverted.
+
+## To undo an item
+Revert its squash commit on main (GitHub: open the merged pull request, press Revert, merge the revert pull request). The Veil, Room 214 and The Haunting Files use the shared tour code that came with #42.
+
+## How to resume (next phase)
+Nothing is in progress. The deferred work is listed in `docs/agents/MORNING-SUMMARY.md` under "Next phase". Decisions made during the run are D-38 to D-49 in `docs/agents/DECISIONS.md`. Tests: `cd tests && node smoke.mjs`, then `node content-check.mjs`, then `node qa.mjs`, and each file in `tests/new-games/`, one at a time.
