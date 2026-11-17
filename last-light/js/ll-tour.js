@@ -45,7 +45,7 @@
     { label: 'Travel', text: 'Travelling to a new place costs one day.', step: 'travel' },
     { label: 'Tuning', text: 'Turn slowly. The static fades as you get close.', step: 'knob' },
     { label: 'Journal', text: 'Each mission ends with a journal entry.' },
-    { label: 'Final story', text: 'Three journal entries unlock your final story.', step: 'final' },
+    { label: 'Final story', text: 'Finish all three missions and write three journal entries to unlock the final story.', step: 'final' },
     { label: 'XP', text: 'XP rewards careful thinking and writing, not speed.' },
     { label: 'Saves', text: 'Progress saves in this browser. Export it to change devices.' },
     { label: 'Sound', text: 'Every sound has a caption. Sound is optional.' },

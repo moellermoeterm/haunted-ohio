@@ -109,6 +109,10 @@ input[type=range]{width:100%;height:44px;accent-color:var(--sig)}
 .mk.here{border-color:var(--amber)}
 .mk.todo{border-color:var(--sig);animation:pulse 2s infinite}
 .mk.lock{border-color:#3a4338;color:#59635a}
+.mk.soon{opacity:.35;border-style:dashed;border-color:#59635a;background:transparent;pointer-events:none;animation:none}
+.mk-l.soon{opacity:.5;text-align:center;line-height:1.2}
+.ch-done{margin-top:1rem;border-color:var(--amber)}
+.ch-done h3{color:var(--amber)}
 .mk.sel{background:var(--sig);color:#1a0f05}
 .mk-l{position:absolute;transform:translate(-50%,0);font-size:.72rem;color:var(--muted);white-space:nowrap;pointer-events:none}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,122,26,.5)}50%{box-shadow:0 0 0 10px rgba(255,122,26,0)}}
@@ -335,7 +339,7 @@ if(!PREVIEW&&CASE&&!HOV.assigned(GAME))HOV.assign(GAME,CASE);
 if(UNASSIGNED)CASE=1;
 var SC,SN,PN,LOCS={};
 function pvBanner(){return PREVIEW?'<p class="pvbanner" id="pvBanner" role="status">Leader preview: case '+PREVIEW+' of 6. This is a throwaway copy. It never changes a student\'s game or assigned case.</p>':''}
-var LOCMETA={home:{m:'signal'},cin:{m:'supply'},hol:{m:'stranger'},und:{m:'under',lock:'Locked. This location opens in the next stage of the game.'},moo:{m:'moon',lock:'Locked. This location opens in the next stage of the game.'},twr:{m:'tower',lock:'Locked. This location opens in the next stage of the game.'}};
+var LOCMETA={home:{m:'signal'},cin:{m:'supply'},hol:{m:'stranger'},und:{m:'under',soon:true},moo:{m:'moon',soon:true},twr:{m:'tower',soon:true}};
 function useScenario(n){CASE=n;SC=LL_SCENARIOS[n];SN=SC.stranger;
  PN=SN.g==='m'?{S:'He',s:'he',o:'him',p:'his',r:'himself'}:{S:'She',s:'she',o:'her',p:'her',r:'herself'};
  LOCS={};Object.keys(LOCMETA).forEach(function(k){var o={},q;for(q in SC.locs[k])o[q]=SC.locs[k][q];for(q in LOCMETA[k])o[q]=LOCMETA[k][q];LOCS[k]=o});
@@ -468,11 +472,14 @@ create:function(){
 map:function(){
  var L=LOCS,html='';
  var marks=Object.keys(L).map(function(k){var o=L[k],st=locState(k);
-   return '<button class="mk '+st+(S.sel===k?' sel':'')+'" style="left:'+o.x+'%;top:'+o.y+'%" data-loc="'+k+'" aria-label="'+o.n+'">'+(st==='lock'?'&#9632;':(S.done[o.m]?'&#10003;':o.i))+'</button><span class="mk-l" style="left:'+o.x+'%;top:calc('+o.y+'% + 26px)">'+o.n+'</span>'}).join('');
+   /* places that are not built yet: a faint marker and "Coming soon", never clickable */
+   if(st==='soon')return '<span class="mk soon" style="left:'+o.x+'%;top:'+o.y+'%" role="img" aria-label="'+o.n+': Coming soon"></span><span class="mk-l soon" style="left:'+o.x+'%;top:calc('+o.y+'% + 26px)" aria-hidden="true">'+o.n+'<br>Coming soon</span>';
+   return '<button class="mk '+st+(S.sel===k?' sel':'')+'" style="left:'+o.x+'%;top:'+o.y+'%" data-loc="'+k+'" aria-label="'+o.n+'">'+(S.done[o.m]?'&#10003;':o.i)+'</button><span class="mk-l" style="left:'+o.x+'%;top:calc('+o.y+'% + 26px)">'+o.n+'</span>'}).join('');
  var info='';
+ if(S.sel&&LOCS[S.sel]&&locState(S.sel)==='soon')S.sel=null;
  if(S.sel){var o=L[S.sel],st=locState(S.sel);
    info='<div class="panel" style="margin-top:1rem"><h3>'+o.n+'</h3><p>'+o.d+'</p>';
-   if(st==='lock')info+='<p class="muted">'+(o.lock||'Locked. Finish The Signal first.')+'</p>';
+   if(st==='lock')info+='<p class="muted">Locked. Finish The Signal first.</p>';
    else if(S.done[o.m])info+='<p class="muted">Mission complete.</p>';
    else if(S.sel==='home')info+='<button class="btn" data-act="travel">Go to the radio room</button>';
    else info+='<p class="muted">Travel takes 1 day: -1 food, -1 water.</p><button class="btn" data-act="travel">Travel here</button>';
@@ -481,7 +488,7 @@ map:function(){
  return hud()+'<div class="wrap"><h2>Ohio, 2047</h2><p class="muted">Locations: choose where to go. Every trip costs a day of food and water.</p>'+
   '<div class="mapbox"><svg viewBox="0 0 400 420" aria-hidden="true"><polygon points="'+SC.map.poly+'" fill="#121a12" stroke="#4a5d46" stroke-width="2"/>'+
   '<g fill="#59635a" font-size="11">'+SC.map.labels.map(function(l){return '<text x="'+l[0]+'" y="'+l[1]+'">'+esc(l[2])+'</text>'}).join('')+'</g></svg>'+marks+'</div>'+info+
-  (done>=3?'<div class="fb good"><b>'+esc(SC.leads)+'</b> The next stage of the game opens that path. For now, your story is ready: the final story is unlocked once you have 3 journal entries.</div>':'')+'</div>'
+  (finalOk()?'<div class="panel ch-done" id="chDone"><h3>Chapter 1 complete.</h3><p><b>'+esc(SC.leads)+'</b></p><p>The signal leads deeper. You have what you need to tell your story.</p><button class="btn" data-go="final">Write your final story</button></div>':'')+'</div>'
 },
 
 mission:function(){var mh=(MISSIONS[S.m&&S.m.id]||function(){return '<p>No mission.</p>'})();
@@ -539,7 +546,7 @@ over:function(){return '<div class="wrap" style="max-width:640px;margin-top:3rem
 };
 
 /* ---------- map data ---------- */
-function locState(k){var o=LOCS[k];if(o.lock)return 'lock';if(S.done[o.m])return 'here';if(k==='cin'||k==='hol'){if(!S.done.signal)return 'lock'}return 'todo'}
+function locState(k){var o=LOCS[k];if(o.soon)return 'soon';if(S.done[o.m])return 'here';if(k==='cin'||k==='hol'){if(!S.done.signal)return 'lock'}return 'todo'}
 
 /* ---------- missions ---------- */
 function newM(id){S.m={id:id,step:0,done:false};S.screen='mission'}
@@ -723,7 +730,7 @@ document.addEventListener('click',function(ev){
   if(c.weak==='thirst')S.res.water=Math.max(0,S.res.water-1);if(c.weak==='nerves')S.res.batt=Math.max(0,S.res.batt-1);
   S.started=true;S.screen='map';S.sel='home';logIt('Survivor '+S.name+' '+SC.wake);save();render();window.scrollTo(0,0)}
  else if(a==='travel'){
-  var k=S.sel,o=LOCS[k];if(locState(k)==='lock'||S.done[o.m])return;
+  var k=S.sel,o=LOCS[k];if(!o||locState(k)==='lock'||locState(k)==='soon'||S.done[o.m])return;
   if(k!=='home'){S.cp=null;S.cp=snap();advance(1);logIt('Traveled to '+o.n+'.');if(S.screen==='over'){save();render();return}}
   newM(o.m);save();render();window.scrollTo(0,0)}
  else if(a==='backmap'){S.m=null;S.screen='map';staticOff();save();render()}

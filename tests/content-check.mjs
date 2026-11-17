@@ -12,6 +12,9 @@ const BASE = path.join(path.dirname(new URL(import.meta.url).pathname), 'baselin
 
 // Text that is allowed to change, with the reason. Keep this list short and honest.
 const ALLOWED_REMOVALS = new Set([
+  // Owner's decision (finish-line run): no padlocks or "next stage" wording; the places not built yet say "Coming soon", and Chapter 1 ends with its own panel.
+  "Locked. This location opens in the next stage of the game.",
+  "The next stage of the game opens that path. For now, your story is ready: the final story is unlocked once you have 3 journal entries.",
   // Owner's decision: The Last Light's How-to-play window (tutorial text, not story) is replaced by the tour and the "?" Help list.
   "After each mission you write a short entry. You can add more any time (at least 20 words each).",
   "Build your survivor: name, background, personality, strength, and weakness. These change what you can notice, what you can say, and what you start with.",

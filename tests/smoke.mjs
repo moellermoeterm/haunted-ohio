@@ -618,7 +618,7 @@ T('last-light: create survivor, open map, start mission, save, how-to', async ({
   await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]');
   for (const k of ['bg', 'pers', 'str', 'weak']) { const o = await p.$$(`[data-cr^="${k}:"]`); await o[0].click(); }
   await p.fill('#nm', 'Tester'); await p.press('#nm', 'Tab'); await p.click('[data-act="start"]'); await p.waitForTimeout(250);
-  ok((await p.$$('[data-loc]')).length >= 6, 'map has six locations');
+  eq((await p.$$('[data-loc]')).length + (await p.$$('.mk.soon')).length, 6, 'map has six locations (three to visit, three coming soon)');
   await p.click('[data-loc="home"]'); await p.click('[data-act="travel"]'); await p.waitForTimeout(200);
   ok((await p.textContent('#app')).includes('The Signal'), 'The Signal mission opens');
   ok(JSON.parse(await lsGet(p, 'tll_save_v1')).started, 'save written');
@@ -893,7 +893,7 @@ T('last-light tour: the purpose line, at most three intro cards with an icon and
   const p = await newPage(null, { room: true, tour: true }); await p.goto(base + 'last-light/?preview=1');
   eq((await p.textContent('.ll-purpose')).trim(), 'Survive a silent Ohio, decide who to trust, and write to stay alive.', 'the purpose line on the title screen'); eq(await p.$('[data-howto]'), null, 'no How-to-play button'); ok(await p.isVisible('[data-help]'), 'the ? Help button');
   const txt = await p.evaluate(() => window.LLTourText); ok(txt.CARDS.length <= 3, 'at most three cards');
-  for (const c of txt.CARDS) ok(twords(c.text) <= 12, 'card: ' + c.text); for (const s of txt.STEPS) for (const v of (typeof s.text === 'string' ? [s.text] : Object.values(s.text))) ok(twords(v) <= 12, 'bubble: ' + v); for (const t of txt.TIPS) ok(twords(t.text) <= 12, 'tip: ' + t.text);
+  for (const c of txt.CARDS) ok(twords(c.text) <= 12, 'card: ' + c.text); for (const s of txt.STEPS) for (const v of (typeof s.text === 'string' ? [s.text] : Object.values(s.text))) ok(twords(v) <= 12, 'bubble: ' + v); for (const t of txt.TIPS) if (t.label !== 'Final story') ok(twords(t.text) <= 12, 'tip: ' + t.text); eq(txt.TIPS.find((t) => t.label === 'Final story').text, 'Finish all three missions and write three journal entries to unlock the final story.', 'the owner\'s own wording for the final-story tip (14 words, kept as given)');
   await p.click('[data-act="menu"]'); await p.click('[data-act="newgame"]'); await p.waitForSelector('.hot-intro'); eq((await p.textContent('.hot-card')).trim(), txt.CARDS[0].text, 'card 1'); ok(await p.$('.hot-card svg'), 'with an icon');
   await p.keyboard.press('ArrowRight'); eq((await p.textContent('.hot-card')).trim(), txt.CARDS[1].text, 'arrow keys move between cards'); await p.click('.hot-card'); eq((await p.textContent('.hot-card')).trim(), txt.CARDS[2].text, 'a tap moves on too');
   await p.click('.hot-skip'); eq(await p.$('.hot-intro'), null, 'Skip tour closes it'); const st = JSON.parse(await lsGet(p, 'ho-last-light-tour')); ok(st.off && st.intro, 'Skip tour is remembered on this device: ' + JSON.stringify(st));
@@ -940,6 +940,15 @@ T('last-light tour on a phone: the touch wording, bubbles inside the screen, no 
   await bub(p, 'Name your survivor.'); await p.fill('#nm', 'Lee'); for (const k of ['bg:mech', 'pers:bold', 'str:hands', 'weak:nerves']) await p.tap(`[data-cr="${k}"]`); await p.tap('[data-act="start"]');
   await bub(p, 'Go to the radio room.'); const b = await p.$eval('.hot-bub', (e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right }; }); ok(b.l >= 0 && b.r <= 390, 'inside the screen: ' + JSON.stringify(b)); ok(await noHScroll(p), 'no sideways scroll');
   await p.tap('[data-act="travel"]'); await rrReady(p); await bub(p, 'Drag the stick to move.'); ok(await noHScroll(p), 'no sideways scroll in the room'); await rrWalk(p, 'window'); await p.tap('#rr-guide'); await bub(p, 'Tap Use.'); ok(true, 'the receiver bubble follows the device last used: touch words after a tap');
+});
+
+T('last-light map: the places not built yet are faint "Coming soon" markers that cannot be clicked, no padlock or "next stage" wording anywhere, and Chapter 1 ends with its own panel and a "Write your final story" button', async ({ base, newPage }) => {
+  const p = await newPage(); await p.addInitScript(llSeed({ screen: 'map', done: {}, journal: [] })); await p.goto(base + 'last-light/'); await p.waitForSelector('.mapbox');
+  eq(await p.$$eval('.mk.soon', (e) => e.length), 3, 'three faint markers'); eq(await p.$$eval('.mk.soon', (e) => e.filter((x) => x.tagName === 'BUTTON' || x.hasAttribute('data-loc')).length), 0, 'none of them is a button'); eq(await p.$$eval('.mk-l.soon', (e) => e.filter((x) => /Coming soon/.test(x.textContent)).length), 3, 'each says Coming soon');
+  eq(await p.$$eval('.mk.soon', (e) => e.filter((x) => getComputedStyle(x).pointerEvents !== 'none').length), 0, 'they never take a click');
+  const html = await p.content(); ok(!/next stage/i.test(html) && !html.includes('■') && !/&#9632;/.test(html), 'no padlock glyph and no "next stage" wording'); eq(await p.$('#chDone'), null, 'no Chapter 1 panel yet');
+  const q = await newPage(); await q.addInitScript(llSeed({ screen: 'map', done: { signal: true, supply: true, stranger: true }, journal: [{ day: 1, title: 'a', text: 'x' }, { day: 2, title: 'b', text: 'y' }, { day: 3, title: 'c', text: 'z' }] })); await q.goto(base + 'last-light/'); await q.waitForSelector('#chDone');
+  const t = await q.innerText('#chDone'); ok(t.includes('Chapter 1 complete.') && t.includes('The signal leads deeper. You have what you need to tell your story.'), 'the Chapter 1 panel: ' + t); await q.click('#chDone [data-go="final"]'); await q.waitForFunction(() => JSON.parse(localStorage.getItem('tll_save_v1')).screen === 'final'); ok(true, 'Write your final story opens the final story');
 });
 
 T('last-light radio room: every caption name is used once (a repeated name silently replaced "[a soft chime]" with another caption)', async () => {
