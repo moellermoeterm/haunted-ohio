@@ -9,8 +9,8 @@ The owner authorised squash-merging the items below, one at a time, when every g
 | 3 | The Last Light radio room, tour, Chapter 1 panel | #40 | Merged as `cd83121` |
 | 4 | The Veil: first shift, sound, tour | #42 | Merged as `6910fb6` |
 | 5 | Room 214: tour, details noticed, summary | #43 | Merged as `2efa431` |
-| 6 | The Haunting Files: light tour | branch `agent/haunting-files-tour` | In progress |
-| 7 | Cross-game finish | (new) | Not started |
+| 6 | The Haunting Files: light tour | #44 | Merged as `786a616` |
+| 7 | Cross-game finish | branch `agent/cross-game-finish` | In progress |
 | 8 | Final QA sweep | (new) | Not started |
 | 9 | Docs: status, morning summary, leader game guide | (new) | Not started |
 

@@ -153,7 +153,7 @@
     /* ----- menu + help ----- */
     ui.menu = function () {
       if (shell.modalOpen) return; var body = el('div');
-      body.appendChild(para('Move: arrows or WASD, or the on-screen stick. E / Enter: use what is near. V: shift between the Living World and the Echo. J: Evidence Archive. Esc: this menu. Everything works by keyboard or touch.'));
+      body.appendChild(para('Controls and tips are in Help: press the ? button.'));
       body.appendChild(para('Investigator ' + game.rec.name + ' · ' + game.d.chapel + ' Chapel (Game material).'));
       shell.modal({ title: 'Menu', body: body, buttons: [
         { label: 'Evidence', onClick: function () { setTimeout(ui.evidence, 30); } }, { label: 'Case File', onClick: function () { setTimeout(ui.caseFile, 30); } }, { label: 'Story Workshop', onClick: function () { setTimeout(ui.story, 30); } },

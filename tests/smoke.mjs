@@ -627,6 +627,23 @@ T('haunting-files tour: the purpose line, three cards and every bubble and tip a
   const keys = await p.evaluate(() => Object.keys(localStorage)); ok(keys.includes('ho-haunting-files-tour'), 'the tour is remembered on this device'); ok(!/Tess/.test(await p.evaluate(() => localStorage.getItem('ho-haunting-files-tour'))), 'with no name in it');
 });
 
+
+T('all four games: the title shows the purpose line up front with the story folded under "About this game", no case number on any title, a "?" Help that opens, no padlock or "next stage" wording, and menus point to Help instead of a controls paragraph', async ({ base, newPage }) => {
+  const games = [['haunting-files/', '.hf-purpose', 'Sort fact from legend, then write what you can prove.'], ['last-light/', '.ll-purpose', 'Survive a silent Ohio, decide who to trust, and write to stay alive.'], ['the-veil/', '.veil-purpose', 'Explore two worlds, solve what happened, and write the story.'], ['room-214/', '.r-purpose', 'Find the room missing from the plan, unseen, and collect details for your story.']];
+  for (const [g, sel, line] of games) {
+    const p = await newPage(null, { raw: true }); await p.goto(base + g); eq((await p.textContent(sel)).trim(), line, g + ': purpose line'); ok(await p.isVisible(sel), g + ': purpose line visible');
+    const about = await p.$('details.ho-about'); ok(about, g + ': the story folds under About this game'); eq(await p.$eval('details.ho-about', (d) => d.open), false, g + ': folded by default'); eq((await p.textContent('details.ho-about summary')).trim(), 'About this game', g + ': its label');
+    const vis = await p.evaluate(() => document.body.innerText); ok(!/\bcase\s*[1-6]\b/i.test(vis), g + ': no case number on the title');
+    const html = await p.content(); ok(!/&#9632;|■|🔒|next stage/i.test(html), g + ': no padlock or next-stage wording');
+    await p.context().close();
+  }
+  for (const [g, input, begin] of [['the-veil/', '#veil-name', '#veil-begin'], ['room-214/', '#r-name', '#r-begin']]) {
+    const p = await newPage(); await p.goto(base + g + '?preview=1'); ok(await p.isVisible(input), g + ': the name box is up front'); await p.fill(input, 'Ana'); await p.click(begin); await p.waitForSelector('[data-help]', { state: 'visible' }); await p.click('[data-help]'); await p.waitForSelector('.hot-help'); await p.keyboard.press('Escape'); await p.waitForTimeout(200); eq(await p.$('.hog-modal'), null, g + ': Escape on Help closes it without opening the game menu');
+    await p.click('#h-menu'); await p.waitForSelector('.hog-modal'); const m = await p.innerText('.hog-modal'); ok(m.includes('Controls and tips are in Help: press the ? button.') && !/Move: arrows or WASD/.test(m), g + ': the menu points to Help'); await p.context().close();
+  }
+  for (const g of ['haunting-files/', 'last-light/']) { const p = await newPage(); await p.goto(base + g); await p.click('[data-help]'); await p.waitForSelector('.hot-help'); ok(true, g + ': Help opens from the title'); await p.context().close(); }
+});
+
 T('last-light: create survivor, open map, start mission, save, how-to', async ({ base, newPage }) => {
   const p = await newPage(); await p.goto(base + 'last-light/');
   await p.click('[data-help]'); ok(await p.isVisible('.hot-help'), 'the "?" Help list opens'); await p.keyboard.press('Escape'); ok(!(await p.$('.hot-help')), 'Help closes');

@@ -24,3 +24,8 @@
 .hot-tip{width:100%;text-align:left;background:var(--panel2,var(--hog-panel2,#1d2427));border:1px solid var(--line,var(--hog-line,#3a3f42));border-radius:8px;padding:.6rem .8rem;color:var(--text,var(--hog-text,#f2ead6));font:inherit}
 .hot-tip b{color:var(--amber,var(--hog-gold,#e0b45a));margin-right:.35rem}
 [data-help]{min-width:46px;font-size:1.3rem}
+
+/* title screens: the story folds under "About this game" so the name box and purpose line come first */
+.ho-about{margin:.4rem 0 1rem;max-width:40rem}
+.ho-about summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+.ho-about[open] summary{margin-bottom:.4rem}
