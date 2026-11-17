@@ -33,7 +33,7 @@ await T('noticing a detail: the prompt says Notice; E notices it; "Detail notice
   const d = await p.evaluate(() => { const g = __r214Game, d = g.d.details[0]; g.pl.x = d.x + 0.5; g.pl.y = d.y + 0.5; return d; }); await p.waitForTimeout(300);
   eq(await p.evaluate(() => __r214Game.nearest() && __r214Game.nearest().label), 'Notice', 'the prompt'); await p.keyboard.press('KeyE');
   await p.waitForFunction((t) => (document.querySelector('.hog-toast') || {}).textContent === 'Detail noticed. ' + t, d.text); await p.waitForFunction(() => /a soft tone/.test(document.querySelector('#hog-captions').textContent));
-  await p.waitForFunction(() => /Details noticed: 1 of 8/.test(document.getElementById('r-stats').textContent)); ok(!(await p.evaluate((id) => window.__r214Scene.detG[id].visible, d.id)), 'the glint is gone');
+  await p.waitForFunction(() => /Details noticed: 1 of 8/.test(document.getElementById('r-stats').textContent)); await p.waitForFunction((id) => !window.__r214Scene.detG[id].visible, d.id, { timeout: 4000 }); ok(true, 'the glint is gone');
   await p.reload(); await p.click('#r-continue'); await p.waitForFunction(() => window.__r214Game && /Details noticed: 1 of 8/.test(document.getElementById('r-stats').textContent)); ok(true, 'kept after a reload');
 });
 
