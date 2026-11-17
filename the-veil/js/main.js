@@ -34,7 +34,7 @@
     $('#veil-title').hidden = true; $('#veil-play').hidden = false; shell.say('The Veil. ' + game.objective());
     var stage = $('#veil-stage'), input = HOG.input.create(doc.body, { actions: ['interact', 'shift', 'run', 'journal', 'pause'] });
     shell.attachInput(input); root.__veilInput = input;
-    var hud = { refresh: function () { var o = game.objective(); var el = $('#veil-obj'); if (el.textContent !== o) el.textContent = o; $('#h-case').disabled = false; } };
+    var hud = { refresh: function () { var o = game.objective(); var el = $('#veil-obj'); if (el.textContent !== o) el.textContent = o; var pg = 'Clues ' + game.s.found.length + ' of ' + Object.keys(game.d.clues).length, pe = $('#veil-prog'); if (pe && pe.textContent !== pg) pe.textContent = pg; $('#h-case').disabled = false; } };
     var ui = V.ui.create(game, shell, hud); root.__veilUI = ui;
     $('#h-ev').addEventListener('click', ui.evidence); $('#h-case').addEventListener('click', ui.caseFile); $('#h-story').addEventListener('click', ui.story); $('#h-menu').addEventListener('click', ui.menu);
     hud.refresh();

@@ -34,8 +34,8 @@ export async function newPage(browser, errs, viewport = { width: 1366, height: 8
   const ctx = await browser.newContext({ viewport: viewport || { width: 1366, height: 800 }, acceptDownloads: true, hasTouch: !!opts.touch, isMobile: !!opts.touch, reducedMotion: opts.reduced ? 'reduce' : 'no-preference' });
   const page = await ctx.newPage();
   if (!opts.room) await page.addInitScript(() => { window.LL_TEXT_MODE = true; });
-  // The Last Light's tour is turned off (as Skip tour does) unless a test is about the tour: newPage(vp, { tour: true }).
-  if (!opts.tour) await page.addInitScript(() => { try { if (!localStorage.getItem('ho-last-light-tour')) localStorage.setItem('ho-last-light-tour', JSON.stringify({ intro: true, done: [], off: true })); } catch (e) { /* storage blocked */ } });
+  // Every game's tour is turned off (as Skip tour does) unless a test is about the tour: newPage(vp, { tour: true }).
+  if (!opts.tour) await page.addInitScript(() => { try { ['ho-last-light-tour', 'ho-veil-tour', 'ho-room214-tour', 'ho-haunting-files-tour'].forEach((k) => { if (!localStorage.getItem(k)) localStorage.setItem(k, JSON.stringify({ intro: true, done: [], off: true })); }); } catch (e) { /* storage blocked */ } });
   if (!opts.raw) await page.addInitScript((keys) => { try { keys.forEach((k) => { if (!localStorage.getItem(k)) localStorage.setItem(k, '1'); }); } catch (e) { /* storage blocked */ } }, ASSIGN_KEYS);
   page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !IGNORED.test(m.text())) errs.push('console: ' + m.text()); });
