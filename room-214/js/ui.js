@@ -9,11 +9,10 @@
 
   function create(game, shell, hud) {
     var A = HOG.audio, ui = {}, lastCue = {};
-    var defs = { porterStep: ['slow footsteps', function (c, o) { A.noise(c, o, { f: 220, dur: 0.1, gain: 0.12, filter: 'lowpass' }); }], porterNear: ['slow breathing close by', function (c, o) { A.noise(c, o, { f: 500, q: 2, dur: 0.9, attack: 0.3, gain: 0.08 }); }],
-      alertSeen: ['a sharp bell: he has seen you', function (c, o) { A.tone(c, o, { f: 880, dur: 0.5, gain: 0.2 }); A.tone(c, o, { f: 1320, dur: 0.4, gain: 0.1, at: 0.05 }); }], alertHeard: ['the footsteps turn toward the sound', function (c, o) { A.tone(c, o, { f: 300, to: 220, dur: 0.3, type: 'triangle', gain: 0.12 }); }],
-      playerLoud: ['your footsteps echo', function (c, o) { A.noise(c, o, { f: 400, dur: 0.12, gain: 0.16, filter: 'lowpass' }); }], bellLand: ['a bell clangs', function (c, o) { A.tone(c, o, { f: 520, dur: 1.2, gain: 0.22 }); A.tone(c, o, { f: 1250, dur: 0.8, gain: 0.08 }); }],
-      doorCreak: ['a door creaks', function (c, o) { A.tone(c, o, { f: 170, to: 120, dur: 0.5, type: 'sawtooth', gain: 0.07 }); }], checkedOut: ['a calm voice: "Checking you out, guest."', function (c, o) { A.tone(c, o, { f: 196, dur: 0.7, gain: 0.14 }); }] };
-    Object.keys(defs).forEach(function (k) { A.define(k, { caption: defs[k][0], important: k === 'alertSeen', make: defs[k][1] }); });
+    /* every sound and its level is in sound.js (one table to tune by ear) */
+    R.sound.define(A);
+    var amb = R.sound.ambience(game, shell); ui.amb = amb; root.__r214Amb = amb;
+    root.setInterval(function () { if (!shell.modalOpen) amb.tick(0.2); }, 200);
     ui.say = function (m) { shell.say(m); };
     function para(t) { var p = el('p'); p.style.whiteSpace = 'pre-wrap'; p.textContent = t; return p; }
     function tag(t) { var p = el('p', 'hog-muted', t); p.style.fontSize = '.85rem'; p.style.opacity = '.8'; return p; }
