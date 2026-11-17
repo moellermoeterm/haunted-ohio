@@ -31,6 +31,8 @@
         sc.maskG = sc.make.graphics({ x: 0, y: 0, add: false }); sc.bright.setMask(sc.maskG.createGeometryMask());
         sc.labels = []; sc.itemG = {}; sc.ring = sc.add.graphics().setDepth(8); sc.porterG = sc.add.graphics().setDepth(7); sc.playerG = sc.add.graphics().setDepth(6); sc.lightG = sc.add.graphics().setDepth(2);
         game.d.items.forEach(function (it) { var g = sc.add.graphics().setDepth(4); drawItem(g, it); sc.itemG[it.id] = g; });
+        /* a detail to notice: a small pale glint (shown where the light reaches, like the items) */
+        sc.detG = {}; (game.d.details || []).forEach(function (d) { var g = sc.add.graphics().setDepth(4); g.fillStyle(0xf4ecd0, 0.85); g.fillCircle(0, 0, 3); g.lineStyle(1.5, 0xf4ecd0, 0.6); g.strokeCircle(0, 0, 7); sc.detG[d.id] = g; });
         sc.hidTxt = sc.add.text(MW * TW / 2, 40, 'HIDDEN: press H to come out', { fontFamily: 'system-ui, sans-serif', fontSize: '22px', color: '#fff7dd', backgroundColor: '#000000cc', padding: { x: 10, y: 4 } }).setOrigin(0.5).setDepth(20).setVisible(false);
         sc.prompt = sc.add.text(0, 0, '', { fontFamily: 'system-ui, sans-serif', fontSize: '18px', color: '#fff7dd', backgroundColor: '#000000cc', padding: { x: 8, y: 3 } }).setOrigin(0.5, 1).setDepth(21).setVisible(false);
         sc.fade = sc.add.rectangle(0, 0, MW * TW, MH * TW, 0x000000, 0).setOrigin(0).setDepth(30); sc.flr = -1; sc.near = null; sc.rt = 0;
@@ -57,6 +59,7 @@
         if (on) { for (var i = 0; i <= 28; i++) { var an = pl.face - half + (2 * half) * i / 28, d = 0.4; while (d < range && !game.solid(pl.f, Math.floor(pl.x + Math.cos(an) * d), Math.floor(pl.y + Math.sin(an) * d))) d += 0.25; poly.push(new Phaser.Math.Vector2(px + Math.cos(an) * d * TW, py + Math.sin(an) * d * TW)); } poly.push(new Phaser.Math.Vector2(px, py)); g.fillPoints(poly, true); sc.lightG.fillStyle(0xfff1c0, 0.08); sc.lightG.fillPoints(poly, true); }
         /* things only appear where the light is */
         function lit(x, y) { var dx = x - pl.x, dy = y - pl.y, d = Math.hypot(dx, dy); if (d <= 2.4) return true; if (!on || d > range) return false; var an = Math.atan2(dy, dx), df = Math.abs(Math.atan2(Math.sin(an - pl.face), Math.cos(an - pl.face))); return df <= half && game.los(pl.f, pl.x, pl.y, x, y); }
+        (game.d.details || []).forEach(function (d) { var g3 = sc.detG[d.id]; g3.setVisible(d.floor === pl.f && s.got.indexOf(d.id) < 0 && lit(d.x + 0.5, d.y + 0.5)); g3.setPosition(d.x * TW + 16, d.y * TW + 16); });
         game.d.items.forEach(function (it) { var g2 = sc.itemG[it.id]; g2.setVisible(it.floor === pl.f && s.got.indexOf(it.id) < 0 && (it.id !== 'ledger' || s.safe) && lit(it.x + 0.5, it.y + 0.5)); g2.setPosition(it.x * TW + 16, it.y * TW + 16); });
         /* the player */
         var p = sc.playerG; p.clear(); p.setPosition(px, py); if (!pl.hidden) { p.fillStyle(0x000000, 0.35); p.fillEllipse(0, 9, 18, 7); p.fillStyle(0xe8c9a0, 1); p.fillCircle(0, -8, 6); p.fillStyle(0x3f7fb0, 1); p.fillRoundedRect(-7, -3, 14, 16, 4); p.lineStyle(2, 0xffffff, 0.8); p.strokeRoundedRect(-7, -3, 14, 16, 4); if (pl.mode === 'sneak') { p.lineStyle(2, 0x9fe0b0, 1); p.strokeCircle(0, 4, 14); } } else { p.lineStyle(2, 0x9fe0b0, 1); p.strokeCircle(0, 0, 10); }

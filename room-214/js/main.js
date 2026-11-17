@@ -5,7 +5,7 @@
   /* Which case: a leader preview (?preview=N, a throwaway save), else the case already assigned on this device, else the case of a save made
      before cases were assigned. 0 means none yet: it is picked at random when the student first presses Begin. Its number is never shown. */
   var preview = HOG.variant.preview();
-  var saves = HOG.save.create({ game: 'room214', baseKey: preview ? 'ho-room214-pv' : 'ho-room214', stateSchema: L.STATE_SCHEMA, summary: function (d) { return 'floor ' + (d.state.floor + 1) + ' · ' + d.state.got.length + ' items' + (d.state.done ? ' · escaped' : ''); } });
+  var saves = HOG.save.create({ game: 'room214', baseKey: preview ? 'ho-room214-pv' : 'ho-room214', stateSchema: L.STATE_SCHEMA, summary: function (d) { return 'floor ' + (d.state.floor + 1) + ' · ' + d.state.got.filter(function (x) { return !/^det/.test(x); }).length + ' items' + (d.state.done ? ' · escaped' : ''); } });
   var variant = preview || HOG.variant.assigned('room214') || HOG.variant.legacy('room214', saves);
   if (!preview && variant && !HOG.variant.assigned('room214')) HOG.variant.assign('room214', variant);
   var shell = HOG.shell.mount({ game: 'room214', title: 'Room 214', variant: variant, preview: preview, saves: saves, baseKey: 'ho-room214', home: '../', onCleared: function () { root.location.reload(); } });
@@ -31,7 +31,7 @@
     $('#r-title').hidden = true; $('#r-play').hidden = false;
     var stage = $('#r-stage'), input = HOG.input.create(doc.body, { actions: ['interact', 'hide', 'light', 'throw', 'sneak', 'run', 'journal', 'pause'] });
     shell.attachInput(input); root.__r214Input = input;
-    var hud = { refresh: function () { var o = game.objective(), s = game.s, el = $('#r-obj'); if (el.textContent !== o) el.textContent = o; var t = 'Floor ' + (game.pl.f + 1) + ' · Battery ' + s.batt + '% · Bells ' + s.bells + ' · Keycard ' + s.cards + ' · Checked out ' + s.caught + '×'; var st = $('#r-stats'); if (st.textContent !== t) st.textContent = t; } };
+    var hud = { refresh: function () { var o = game.objective(), s = game.s, el = $('#r-obj'); if (el.textContent !== o) el.textContent = o; var t = 'Floor ' + (game.pl.f + 1) + ' · Battery ' + s.batt + '% · Bells ' + s.bells + ' · Keycard ' + s.cards + ' · Checked out ' + s.caught + '× · Details noticed: ' + game.noticed().length + ' of ' + game.d.details.length; var st = $('#r-stats'); if (st.textContent !== t) st.textContent = t; } };
     var ui = R.ui.create(game, shell, hud); root.__r214UI = ui;
     $('#h-journal').addEventListener('click', ui.journal); $('#h-menu').addEventListener('click', ui.menu);
     hud.refresh(); root.setInterval(hud.refresh, 500);
