@@ -58,6 +58,11 @@
     [[0, 'bell0'], [1, 'bell1'], [2, 'bell2']].forEach(function (b) { place(b[0], 'bell', b[1], 'bell'); });
     [0, 1, 2].forEach(function (f) { place(f, 'note', 'note' + f, 'note', { digit: digits[f] }); });
     items.push({ id: 'ledger', kind: 'ledger', floor: 1, x: R214.spot[0], y: R214.spot[1], room: 'r214' });
+    /* details to notice (owner-approved lines, the same eight in every hotel), each in a guest room with nothing else in it on that floor */
+    var DETAIL_LINES = [[0, 'Sight', 'A brass bell on the desk, polished, with no dust on it.'], [0, 'Smell', 'Old carpet and floor wax, like a school after hours.'], [0, 'Sound', 'A clock ticks somewhere, a little slower than it should.'],
+      [1, 'Touch', 'A doorknob, still warm, as if someone just let go.'], [1, 'Sight', 'A room-service tray, the cups set out for two guests.'], [1, 'Sound', 'Footsteps above you stop, then start again.'],
+      [2, 'Touch', 'Cold air slides from under a door, though every window is shut.'], [2, 'Sight', 'Nothing here is broken. Dust sits on everything, thick and even.']];
+    var details = DETAIL_LINES.map(function (l, i) { var r = ROOMS.filter(function (x) { return x.kind !== 'center' && !used[l[0] + x.id]; })[0]; used[l[0] + r.id] = 1; return { id: 'det' + (i + 1), floor: l[0], sense: l[1], text: l[2], x: r.spot[0], y: r.spot[1], room: r.id }; });
     var fill = function (s) { return String(s).replace(/\{hotel\}/g, c.hotel).replace(/\{guest\}/g, c.guest).replace(/\{tag\}/g, c.tag).replace(/\{town\}/g, c.town); };
     var NOTES = {
       note0: { title: 'The floor plan by the front desk', body: fill('{hotel}. Floors 1 to 3. Rooms 201 to 213 and 215 to 220 are marked on the plan. There is no Room 214 on the plan.\n\nA brass plaque screwed to the desk reads: "Lobby number: ' + digits[0] + '."') },
@@ -67,7 +72,7 @@
     var ledger = { title: 'The Lost and Found ledger', body: fill('A tall ledger in careful handwriting. Page after page of names, each beside an item and a date long past: "{tag}: {guest}. To be returned." The last line has no date: "Everyone is out. The doors can lock now."\n\nShelves along the walls hold hundreds of forgotten things, each with a paper tag. Nothing here is broken. Everything is waiting.') };
     var seedPatrol = function (f) { return { dir: S.int(seed, 'dir' + f, 0, 1) ? 1 : -1, start: S.int(seed, 'start' + f, 0, 3), speed: 1.7 + S.int(seed, 'spd' + f, 0, 4) * 0.1, detour: S.int(seed, 'det' + f, 0, 1) }; };
     return {
-      variant: variant, seed: seed, c: c, hotel: c.hotel, floors: floors, items: items, digits: digits, notes: NOTES, ledger: ledger, patrol: [seedPatrol(0), seedPatrol(1), seedPatrol(2)],
+      variant: variant, seed: seed, c: c, hotel: c.hotel, floors: floors, items: items, details: details, digits: digits, notes: NOTES, ledger: ledger, patrol: [seedPatrol(0), seedPatrol(1), seedPatrol(2)],
       checkSafe: function (code) { return code.length === 3 && code.every(function (d, i) { return d === digits[i]; }); }
     };
   }

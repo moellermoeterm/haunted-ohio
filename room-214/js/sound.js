@@ -27,6 +27,7 @@
     latch:        { gain: 0.09, f: 2400, f2: 900, every: [25, 50] },
     overhead:     { gain: 0.14, f: 650, q: 0.9, dur: 0.08, gap: 0.7, near: 7 },
     drip:         { gain: 0.07, from: 1500, to: 900, dur: 0.09, every: [6, 12] },
+    notice:       { gain: 0.08, f: 880, f2: 1320 },                                         /* a soft tone when a detail is noticed */
     lowIntensity: 0.5                                                                      /* the Low effects setting: ambience at half, no pulse */
   };
 
@@ -47,6 +48,7 @@
       creakFar: function (c, o) { var l = L.creakFar; T(c, o, { f: l.from, to: l.to, dur: l.dur, type: 'sawtooth', gain: l.gain, attack: 0.2 }); },
       latch: function (c, o) { var l = L.latch; N(c, o, { f: l.f, q: 2, dur: 0.04, gain: l.gain }); T(c, o, { f: l.f2, dur: 0.05, gain: l.gain * 0.5, at: 0.05, type: 'square' }); },
       overhead: function (c, o) { var l = L.overhead; N(c, o, { f: l.f, q: l.q, dur: l.dur, gain: l.gain }); },
+      notice: function (c, o) { var l = L.notice; T(c, o, { f: l.f, dur: 0.5, gain: l.gain, attack: 0.02 }); T(c, o, { f: l.f2, dur: 0.6, gain: l.gain * 0.5, at: 0.12, attack: 0.02 }); },
       drip: function (c, o) { var l = L.drip; T(c, o, { f: l.from, to: l.to, dur: l.dur, gain: l.gain, attack: 0.005 }); }
     };
   }
@@ -54,7 +56,7 @@
     porterStep: 'slow footsteps', porterNear: 'slow breathing close by', alertSeen: 'a sharp bell: he has seen you', alertHeard: 'the footsteps turn toward the sound',
     playerLoud: 'your footsteps echo', bellLand: 'a bell clangs', doorCreak: 'a door creaks', checkedOut: 'a calm voice: "Checking you out, guest."',
     pulse: 'a slow pulse: he is close', hum: 'the building hums', wind: 'wind moans in the vents', pipes: 'pipes knock in the walls', creakFar: 'a floorboard creaks somewhere',
-    latch: 'a latch clicks down the hall', overhead: 'footsteps on the floor above', radioHiss: 'faint radio hiss', drip: 'water drips'
+    latch: 'a latch clicks down the hall', notice: 'a soft tone', overhead: 'footsteps on the floor above', radioHiss: 'faint radio hiss', drip: 'water drips'
   };
   var HAUNTED = ['porterStep', 'porterNear', 'doorCreak', 'playerLoud', 'alertHeard', 'pulse', 'pipes', 'creakFar', 'latch', 'overhead', 'drip', 'hum', 'wind', 'radioHiss'];
 
