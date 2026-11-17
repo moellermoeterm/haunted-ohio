@@ -148,6 +148,7 @@
   G.objective = function () {
     var s = this.s;
     if (!s.bell) return 'Find the Keeper’s Bell on the road, near the start.';
+    if (s.shifts === 0 && !words(this.writing('note1'))) return 'Write a quick field note first. Then press V to shift.';
     if (s.shifts === 0) return 'Hold the bell and shift worlds: press V, or tap the Veil button.';
     if (!s.doors) return 'Listen in the Echo, then strike the bell plates by the chapel doors.';
     if (!s.cabinet) return 'Inside: read the pew marks in the Echo, then open the cabinet by the altar in the Living World.';
