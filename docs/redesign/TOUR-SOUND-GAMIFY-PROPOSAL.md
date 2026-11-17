@@ -1,6 +1,6 @@
 # Tours, purpose, sound and play: proposal for all four games
 
-Status: **proposal only. No code has been written for any item here.** Every new line of text, sound and caption below is listed for the owner's approval. Existing story text stays unchanged. After an item is approved it is built as its own small pull request.
+Status: **approved by the owner (see "Decisions" at the end), with conditions.** Being built item by item, each as its own small pull request. Still waiting for approval: the Room 214 detail lines (B4a).
 
 Word counts: every intro card, bubble and tip card below has 12 words or fewer (checked by a script; numbers and "E3" count as words).
 
@@ -209,12 +209,30 @@ Each title screen gets one purpose line, and the game shows an always-visible cu
 - **Why it matters:** your noticed details sit beside the journal box when you write each floor's journal and your story seed, so the play feeds the writing directly.
 - **When you are caught:** you go back to your last checkpoint and keep everything you found (unchanged rule). A short line says so the first time (bubble above).
 
+### B4a. Room 214 "details noticed": the detail lines (for approval)
+Eight details per hotel, the same eight in all six hotels, so every student can collect the same number. Each sits in a room that has no keycard, note or bell in it on that floor, so it never blocks or replaces anything. Press E (or tap Use) next to it to notice it. Each line has 12 words or fewer and nothing graphic. Lines marked **reused** are sentences already in the hotel's notes.
+
+| # | Floor | Where | Sense | Line |
+|---|---|---|---|---|
+| 1 | Lobby floor | By the front desk | Sight | A brass bell on the desk, polished, with no dust on it. |
+| 2 | Lobby floor | A guest room | Smell | Old carpet and floor wax, like a school after hours. |
+| 3 | Lobby floor | The central room | Sound | A clock ticks somewhere, a little slower than it should. |
+| 4 | Floor 2 | A guest room | Touch | A doorknob, still warm, as if someone just let go. |
+| 5 | Floor 2 | A guest room | Sight | A room-service tray, the cups set out for two guests. |
+| 6 | Floor 2 | Outside Room 214's wall | Sound | He is not angry. He is only very late. (**reused**, from the note under a door) |
+| 7 | Floor 3 | A guest room | Touch | Cold air slides from under a door, though every window is shut. |
+| 8 | Floor 3 | The linen room | Sight | Nothing here is broken. Everything is waiting. (**reused**, from the Lost and Found ledger) |
+
+New interface text that comes with it (for approval): the prompt next to a detail, **"Notice"**; the objective-line counter, **"Details noticed: 3 of 8"**; the reward moment, **"Detail noticed"** with a soft tone and the caption **[a soft tone]**; and the journal's side list heading, **"What you noticed"**.
+
+Note on line 6: it is a line someone wrote about the Porter, not a sense. If you would rather keep every detail a sense, the replacement would be: "Footsteps above you stop, then start again." (7 words, sound).
+
 ---
 
 ## C. Room 214 sound
 
 ### What is there now, and why it is hard to hear
-All Room 214 sounds go through the shared sound code at the default volume of 60%. The quiet ones are also **very low in pitch**: the Porter's footsteps are a short rumble at about 220 Hz, and the door creak is a low buzz at 170 Hz falling to 120 Hz. Laptop and Chromebook speakers play almost nothing below about 200 to 300 Hz, so these sounds mostly vanish on them. Raising their level alone would not fix it; they need their sound moved up into the range those speakers can play.
+All Room 214 sounds go through the shared sound code at the default volume of 60%. The quiet ones are also **very low in pitch**: the Porter's footsteps are a short rumble at about 220 Hz, and the door creak is a low buzz at 170 Hz falling to 120 Hz. Laptop and Chromebook speakers play almost nothing below about 200 to 300 Hz. **Correction after measuring:** the Porter's footsteps did mostly vanish (almost no energy above 300 Hz), but the old door creak did not: its buzzy sound already reached above 300 Hz, it was simply quiet. Both are now louder and higher.
 
 ### A question first: which sound is "the buzz when the player hits a wall"?
 **Room 214 has no sound for bumping into a wall.** Two existing sounds could be heard that way:
@@ -342,12 +360,13 @@ This keeps the radio room going first, puts the sound fix early because it is sm
 
 ---
 
-## Decisions needed
-1. Approve, edit or reject the intro cards, bubbles and tip cards for each game (A1 to A4). The Last Light set is needed first, for PR #40.
-2. Approve the four purpose lines and the four "how the writing connects" sentences (B).
-3. Room 214: approve the "details noticed" collectible as a mechanic (B4)? New detail lines, or reuse existing note sentences?
-4. **Which sound is "the buzz when the player hits a wall": the door creak or the "no" buzz?** (C)
-5. Approve the Room 214 level changes, the limiter, the pulse and the ambience layers with their captions (C).
-6. Approve the radio room step dots and reward moments with their sounds and captions (D, radio room).
-7. Approve the first-person look-test for Room 214 (E)?
-8. Approve the order (F)?
+## Decisions
+Decided by the owner:
+1. All intro cards, bubbles and tip cards in A1 to A4: **approved as written.** The Last Light's are built first, inside PR #40.
+2. The four purpose lines and the four writing sentences (B): **approved.**
+3. Room 214 "details noticed": **the mechanic is approved.** The detail lines (B4a) wait for approval before anything is built.
+4. **The "no" buzz is the sound that stays unchanged**, with a test. The door creak gets louder. Any sound that plays on wall contact is left unchanged (there is none: walking into a wall makes no sound, and a test checks that).
+5. Room 214 levels, limiter, pulse and ambience: **approved**, on two conditions: (a) a laptop-speaker test that high-passes the output at about 250 Hz and requires measurable energy above 300 Hz for every haunted sound; (b) every level in one constants table, to tune by ear.
+6. The radio room step dots and reward moments, with their sounds and captions: **approved.**
+7. The Room 214 first-person look-test (Option 1): **approved.** Screenshots in full and low effects, frame rates while walking and turning at 4x throttle. Nothing committed from it.
+8. The order (F): **approved.** The Room 214 sound pull request runs in parallel with the radio room work, each from its own worktree off `main`, with only one heavy test run at a time.
