@@ -2,6 +2,12 @@
 
 This is the first redesigned scene. Only **The Signal** mission has changed how it looks. Its words, rules, costs, choices and saves are the same.
 
+## The tour (new)
+- The first time you start a new game on a device, three short cards appear. Swipe, use the arrow keys or tap to move through them, or press **Skip tour**.
+- Then small bubbles point at what to do next, one at a time. Each one goes away when you do the thing it says. They use the words for the device you last used (keys, tap or click).
+- The **?** button (where "How to play" used to be) lists one-line tips. Tap a tip to see its bubble again. **Replay tour** starts over; **Skip tour** turns the bubbles off on this device.
+- In the radio room, five dots under the guide line show which step you are on, and a short label rises over the room at each milestone (Radio on, Signal locked, Analysis filed, Decision made, Mission complete).
+
 ## Getting there
 1. Open The Last Light, choose **Enter the silence**, then **New game**, and build a survivor.
 2. On the map choose the home settlement, then **Go to the radio room**.

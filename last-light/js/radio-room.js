@@ -27,8 +27,10 @@
     phones: 'Hold one cup to your ear. Under the static, a low, even hum.',
     card: 'A faded procedures card. One line is underlined: repeat until acknowledged.'
   };
+  var STEP_LABELS = ['Step 1 of 5: power the radio', 'Step 2 of 5: tune the signal', 'Step 3 of 5: study the message', 'Step 4 of 5: decide', 'Step 5 of 5: write it down'];
+  var REWARD = { power: 'Radio on', lock: 'Signal locked', judged: 'Analysis filed', decided: 'Decision made', done: 'Mission complete: The Signal' }, rewardLog = [];
   var GUIDE_POWER = 'Walk to the receiver and power it.', GUIDE_LEAVE = 'Write in your notebook, then leave by the door.';
-  var CAP = { wind: '[wind in the grain elevator]', hum: '[the receiver hums]', stat: '[static]', fade: '[static, fading]', tone: '[a steady tone under the static]', click: '[click]', lock: '[the signal locks]', steps: '[footsteps]', batt: '[a battery slots in]', crank: '[the crank whirrs]', gust: '[wind at the door]', horn: '[a low horn, far off]', bell: '[a slow, hollow ring, far off]', chime: '[three steady chimes]', creak: '[a faint creak, like iron]', dog: '[a dog barks once, far off]', deep: '[a deep, slow hum, far off]' };
+  var CAP = { wind: '[wind in the grain elevator]', hum: '[the receiver hums]', stat: '[static]', fade: '[static, fading]', tone: '[a steady tone under the static]', click: '[click]', lock: '[the signal locks]', steps: '[footsteps]', batt: '[a battery slots in]', crank: '[the crank whirrs]', gust: '[wind at the door]', rise: '[a soft rising chime]', softChime: '[a soft chime]', horn: '[a low horn, far off]', bell: '[a slow, hollow ring, far off]', chime: '[three steady chimes]', creak: '[a faint creak, like iron]', dog: '[a dog barks once, far off]', deep: '[a deep, slow hum, far off]' };
   /* each scenario's transmission has one [BACKGROUND] line; this picks its sound and caption from that existing text */
   var BG = [['horn', /horn/i], ['bell', /ship/i], ['chime', /chime/i], ['creak', /creak/i], ['dog', /dog/i], ['deep', /deep, slow hum/i]];
   function bgKey() { var line = ((API.SC().signal.tx || []).filter(function (x) { return /\[BACKGROUND\]/.test(x); })[0]) || ''; for (var i = 0; i < BG.length; i++) if (BG[i][1].test(line)) return BG[i][0]; return ''; }
@@ -115,7 +117,8 @@
       batt: function () { noise(300, 'lowpass', 0.1, 0.12, 0.02); setTimeout(function () { noise(500, 'lowpass', 0.07, 0.08, 0.02); }, 160); },
       crank: function () { osc(70, 'sawtooth', 0.025, 0.9, 0.08, 150); },
       gust: function () { noise(500, 'bandpass', 0.07, 1.6, 0.6); },
-      lock: function () { /* the page already plays its lock tone; the room adds the caption */ }
+      lock: function () { /* the page already plays its lock tone; the room adds the caption */ },
+      notes: function (n) { var f = [523, 659, 784]; for (var i = 0; i < n; i++) osc(f[n === 1 ? 1 : i], 'sine', 0.03, 0.5, 0.03, 0, i * 0.16); }      /* reward notes: soft, short, quieter than the horn */
     };
   })();
   document.addEventListener('click', function (ev) { if (ev.target && ev.target.dataset && ev.target.dataset.act === 'sound') setTimeout(function () { Snd.vol(); Snd.loops(prev || { step: -1 }); }, 0); });
@@ -130,21 +133,21 @@
   
   /* ---------- the page calls these ---------- */
   function frame(html) {
-    return '<div class="rr"><div class="rr-stage" id="rr-slot"></div><div class="rr-side"><p class="rr-guide" id="rr-guide" role="status"></p><div id="rr-panel">' + html + '</div></div></div>';
+    return '<div class="rr"><div class="rr-stage" id="rr-slot"></div><div class="rr-side"><p class="rr-guide" id="rr-guide" role="status"></p><div class="rr-steps" id="rr-steps"></div><div id="rr-panel">' + html + '</div></div></div>';
   }
   function sync(api) {
     API = api || API; if (!API) return;
     var S = API.S(), slot = document.getElementById('rr-slot'), now = snap();
     if (!slot && mounted && !after && prev && prev.sig && prev.step === 4 && S.screen === 'map' && S.done.signal && !failed && scene) {       /* the journal was just saved: stay in the room until the student uses the door */
       var app = document.getElementById('app'), map = app.querySelector('.wrap'), blk = document.createElement('div'); blk.className = 'wrap'; blk.id = 'rr-after';
-      blk.innerHTML = '<div class="rr"><div class="rr-stage" id="rr-slot"></div><div class="rr-side"><p class="rr-guide" id="rr-guide" role="status"></p></div></div>';
-      if (map) { map.hidden = true; map.setAttribute('data-rr-held', '1'); app.insertBefore(blk, map); slot = blk.querySelector('#rr-slot'); after = true; now = snap(); }
+      blk.innerHTML = '<div class="rr"><div class="rr-stage" id="rr-slot"></div><div class="rr-side"><p class="rr-guide" id="rr-guide" role="status"></p><div class="rr-steps" id="rr-steps"></div></div></div>';
+      if (map) { map.hidden = true; map.setAttribute('data-rr-held', '1'); app.insertBefore(blk, map); slot = blk.querySelector('#rr-slot'); after = true; now = snap(); setTimeout(function () { reward('done', 'notebook', 3); }, 0); }
     } else if (after) after = false;
     if (!slot) { unmount(); prev = now; return; }
     ensureHost(); if (host.parentNode !== slot) slot.appendChild(host);
     if (!mounted) { mounted = true; host.hidden = false; place(now); if (game) game.loop.wake(); start(); if (now.step === 0) intro(true); caption('wind'); stackedScroll(); }
     transitions(prev, now); prev = now;
-    enhanceDial(); guide(now); panel(); applyView(); if (scene) { scene.dirty = true; scene.redrawRoom(now); } Snd.loops(now);
+    enhanceDial(); guide(now); dots(now); panel(); applyView(); if (scene) { scene.dirty = true; scene.redrawRoom(now); } Snd.loops(now);
   }
   /* stacked layout (phone, tablet): open with the room at the top of the screen instead of under the top bar. After the page's own scroll to the top. */
   function stackedScroll() { var mq = false; try { mq = window.matchMedia('(max-width: 1000px)').matches; } catch (e) { /* old browser */ } if (!mq) return; setTimeout(function () { if (mounted && host && host.parentNode) try { host.parentNode.scrollIntoView({ block: 'start' }); } catch (e) { /* fine */ } }, 0); }
@@ -153,8 +156,20 @@
   function transitions(a, b) {
     if (!a || !a.sig || !b.sig) return;
     if (a.step === 0 && b.step === 1) { if (b.batt < a.batt) { Snd.batt(); caption('batt'); } else if (b.crank) { Snd.crank(); caption('crank'); } setTimeout(function () { if (mounted) caption('hum'); }, 1600); setTimeout(function () { if (mounted && snap().step === 1) caption('stat'); }, 3600); intro(false); }
-    if (a.step === 1 && !a.sub && (b.sub === 'decode' || b.step === 2)) caption('lock');
+    if (a.step === 1 && !a.sub && (b.sub === 'decode' || b.step === 2)) { caption('lock'); reward('lock', 'receiver', 2, 700); }
+    if (a.step === 0 && b.step === 1) reward('power', 'receiver', 0);
+    if (!a.judged && b.judged) reward('judged', 'receiver', 1);
+    if (a.step === 3 && b.step === 4) reward('decided', 'receiver', 0);
     if (a.step < 2 && b.step === 2) { var key = bgKey(), m = API.S().m; if (key && m && !(bgSeen && bgSeen.has(m))) { if (bgSeen) bgSeen.add(m); setTimeout(function () { var S2 = API.S(); if (!mounted || S2.m !== m || m.step !== 2) return; Snd.bg(key); caption(key); }, 2200); } }
+  }
+  /* step dots under the guide line: the current step is lit; screen readers hear "Step n of 5: ..." */
+  function dots(s) { var el = document.getElementById('rr-steps'); if (!el) return; var n = after ? 5 : Math.max(1, Math.min(5, s.step + 1)), key = n + (after ? 'a' : ''); if (el.dataset.k === key) return; el.dataset.k = key;
+    el.innerHTML = [0, 1, 2, 3, 4].map(function (i) { return '<i class="' + (i < n - 1 || after ? 'done' : i === n - 1 ? 'on' : '') + '" aria-hidden="true"></i>'; }).join('') + '<span class="rr-sr"></span>'; el.lastChild.textContent = STEP_LABELS[n - 1]; }
+  /* a reward moment: a short label rises over the room and fades; a soft pulse on the object (none in low effects); a soft sound with its caption */
+  function reward(kind, objId, notes, delay) {
+    setTimeout(function () { if (!host) return; rewardLog.push(kind); var lab = document.createElement('p'); lab.className = 'rr-reward'; lab.textContent = REWARD[kind]; lab.setAttribute('role', 'status'); host.appendChild(lab); setTimeout(function () { lab.remove(); }, 1800);
+      var o = obj(objId); if (o && !low()) { var ring = document.createElement('i'); ring.className = 'rr-ping'; ring.style.left = (o.hit[0] / PW * 100) + '%'; ring.style.top = (o.hit[1] / PH * 100) + '%'; ring.style.width = (o.hit[2] / PW * 100) + '%'; ring.style.height = (o.hit[3] / PH * 100) + '%'; host.appendChild(ring); setTimeout(function () { ring.remove(); }, 1200); }
+      if (notes) { Snd.notes(notes); setTimeout(function () { if (host) caption(notes === 1 ? 'softChime' : 'rise'); }, 150); } }, delay || 0);
   }
   function guide(s) {
     var el = document.getElementById('rr-guide'), SC = API.SC(), t = ''; if (!el) return;
@@ -346,7 +361,7 @@
 
   window.LLRoom = {
     on: function () { return !failed && !view.text && !window.LL_TEXT_MODE; }   /* LL_TEXT_MODE: a page can ask for the page-style mission before load (the tests of that mission do) */, frame: frame, sync: sync, settingsHTML: settingsHTML, volume: function () { return view.vol / 100; },
-    debug: function () { var o = nearest(), p = document.getElementById('rr-panel'); return { ready: !!(scene && scene.ready), mounted: mounted, after: after, x: scene ? scene.px : 0, y: scene ? scene.py : 0, ang: scene ? scene.ang : 0, near: o ? o.id : '', panel: !!p && !p.hidden, low: low(), autoLow: autoLow, fps: scene ? scene.fps : 0, frames: scene ? scene.frames || 0 : 0, paints: scene ? scene.paints || 0 : 0, failed: failed, objects: OBJ.map(function (x) { return { id: x.id, ap: x.ap, hit: x.hit, live: live(x, prev || snap()) }; }), size: [PW, PH], children: scene ? scene.children.list.length : 0, sounds: Snd.log.slice(), soundOn: Snd.on(), peaks: ['horn', 'bell', 'chime', 'creak', 'dog', 'deep'].reduce(function (o, k) { o[k] = Snd.bgPeak(k); return o; }, {}), guide: (document.getElementById('rr-guide') || {}).textContent || '' }; },
+    debug: function () { var o = nearest(), p = document.getElementById('rr-panel'); return { ready: !!(scene && scene.ready), mounted: mounted, after: after, x: scene ? scene.px : 0, y: scene ? scene.py : 0, ang: scene ? scene.ang : 0, near: o ? o.id : '', panel: !!p && !p.hidden, low: low(), autoLow: autoLow, fps: scene ? scene.fps : 0, frames: scene ? scene.frames || 0 : 0, paints: scene ? scene.paints || 0 : 0, failed: failed, objects: OBJ.map(function (x) { return { id: x.id, ap: x.ap, hit: x.hit, live: live(x, prev || snap()) }; }), size: [PW, PH], children: scene ? scene.children.list.length : 0, sounds: Snd.log.slice(), soundOn: Snd.on(), peaks: ['horn', 'bell', 'chime', 'creak', 'dog', 'deep'].reduce(function (o, k) { o[k] = Snd.bgPeak(k); return o; }, {}), guide: (document.getElementById('rr-guide') || {}).textContent || '', rewards: rewardLog.slice(), steps: (document.querySelector('#rr-steps .rr-sr') || {}).textContent || '' }; },
     _warp: function (x, y) { if (scene) { scene.px = x; scene.py = y; scene.dirty = true; } },      /* tests only: put the survivor somewhere */
     _fail: function () { unmount(); failed = true; if (API) API.render(); }                                    /* tests only: pretend the canvas could not start */
   };

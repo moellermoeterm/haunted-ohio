@@ -12,6 +12,18 @@ const BASE = path.join(path.dirname(new URL(import.meta.url).pathname), 'baselin
 
 // Text that is allowed to change, with the reason. Keep this list short and honest.
 const ALLOWED_REMOVALS = new Set([
+  // Owner's decision: The Last Light's How-to-play window (tutorial text, not story) is replaced by the tour and the "?" Help list.
+  "After each mission you write a short entry. You can add more any time (at least 20 words each).",
+  "Build your survivor: name, background, personality, strength, and weakness. These change what you can notice, what you can say, and what you start with.",
+  "Each mission is a short scene with choices. Your decisions are remembered and shape later scenes and your final story.",
+  "Ohio, 2047. Survive, make choices you can live with, and write your way through the silence.",
+  "Sound effects can be turned off in",
+  "Tap a location to read about it.",
+  "The bar at the top shows Day, Health, Food, Water, Meds, Batteries, and Fuel. Every day costs 1 food and 1 water. Run out and you lose health. If health runs out, the game ends. Check the",
+  "Unlocks after 3 journal entries. Write your own survival horror in ten beats of at least 15 words each. Invent your own character and world, then download it as a .txt file.",
+  "Your progress saves automatically in this browser. Export a save file to move to another device.",
+  "costs 1 day: 1 food and 1 water. Some places stay locked until you finish an earlier mission.",
+  "tab for your inventory and clues.",
   // Leaders' decision: Mrs. Hahn joins the leaders, so "three teachers" becomes "four" and she is added to the Instructors line.
   'Meet the three teachers leading Haunted Ohio.',
   'Meet the three teachers running Haunted Ohio.',

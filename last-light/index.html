@@ -212,6 +212,17 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 .rr-prompt{position:absolute;left:50%;bottom:.6rem;transform:translateX(-50%);margin:0;padding:.35rem .8rem;background:rgba(0,0,0,.86);border:2px solid var(--amber);border-radius:3px;max-width:76%;pointer-events:none;font-size:.98rem;text-align:center}
 .rr-prompt kbd{font-family:var(--mono);background:var(--amber);color:#1a0f05;border-radius:2px;padding:0 .35rem;font-weight:700}
 .rr-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rr-steps{display:flex;gap:.45rem;align-items:center;margin:-.35rem 0 .9rem .2rem}
+.rr-steps i{width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);display:block}
+.rr-steps i.done{background:var(--muted)}
+.rr-steps i.on{background:var(--amber);border-color:var(--amber)}
+.rr-reward{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);margin:0;padding:.35rem .9rem;background:rgba(0,0,0,.82);border:2px solid var(--amber);border-radius:3px;font-family:var(--disp);font-size:1.3rem;font-weight:700;letter-spacing:.03em;color:#ffe2a8;pointer-events:none;white-space:nowrap;animation:rr-rise 1.8s ease-out forwards}
+@keyframes rr-rise{0%{opacity:0;transform:translate(-50%,-30%)}15%{opacity:1;transform:translate(-50%,-50%)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%)}}
+.rr-ping{position:absolute;border:3px solid #ffd27a;border-radius:8px;pointer-events:none;animation:rr-ping 1.1s ease-out forwards}
+@keyframes rr-ping{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
+.rr-low .rr-reward{animation:rr-fade 1.8s linear forwards}
+@keyframes rr-fade{0%,80%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.rr-reward{animation:rr-fade 1.8s linear forwards}.rr-ping{display:none}}
 .rr-guide{margin:0 0 .8rem;padding:.55rem .8rem;background:var(--panel2);border-left:4px solid var(--amber);font-weight:600}
 .rr-stick{position:absolute;left:.7rem;bottom:.7rem;width:92px;height:92px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.35);display:none;touch-action:none}
 .rr-stick i{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(255,255,255,.45)}
@@ -225,6 +236,35 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 .rr-settings label{display:flex;gap:.6rem;align-items:center;margin:.5rem 0}
 .rr-settings input[type=checkbox]{width:20px;height:20px}
 .rr-settings select{font:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:.3rem .5rem;min-height:40px}
+
+/* ---------- the tour (js/tour.js) ---------- */
+.ll-purpose{font-family:var(--disp);font-size:1.35rem;letter-spacing:.02em;color:var(--amber);margin:.2rem 0 .9rem}
+.hot-ov{position:fixed;inset:0;z-index:300;background:rgba(2,6,8,.8);display:flex;align-items:center;justify-content:center;padding:1rem}
+.hot-intro,.hot-help{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.3rem;max-width:26rem;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.hot-help{max-width:34rem;max-height:86vh;overflow:auto}
+.hot-card{text-align:center;cursor:pointer;user-select:none;min-height:9.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem}
+.hot-card p{font-size:1.3rem;font-weight:700;margin:0;line-height:1.35}
+.hot-ic{width:56px;height:56px;color:var(--amber)}
+.hot-dots{display:flex;gap:.45rem;justify-content:center;margin:.9rem 0}
+.hot-dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.hot-dots i.on{background:var(--amber)}
+.hot-row{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.hot-bub{pointer-events:none;position:absolute;z-index:250;background:#fff3d6;color:#1a1208;border-radius:10px;padding:.6rem 2.2rem .6rem .85rem;font-weight:700;font-size:1.05rem;line-height:1.3;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.hot-bub:before{content:"";position:absolute;left:calc(var(--arrow,20px) - 8px);top:-8px;border:8px solid transparent;border-top:0;border-bottom-color:#fff3d6}
+.hot-bub.up:before{top:auto;bottom:-8px;border-bottom:0;border-top:8px solid #fff3d6}
+.hot-msg{margin:0}
+.hot-x{pointer-events:auto;position:absolute;right:.25rem;top:.2rem;background:none;border:0;font-size:1.4rem;line-height:1;color:#1a1208;min-width:32px;min-height:32px}
+.hot-pulse{animation:hot-pulse .9s ease-in-out 1}
+@keyframes hot-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.hot-glow{box-shadow:0 0 0 3px #ffd27a,0 0 18px 4px rgba(255,210,122,.6)!important}
+.hot-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hot-purpose{font-weight:700;color:var(--amber)}
+.hot-connect{color:var(--muted)}
+.hot-tips{list-style:none;padding:0;margin:.8rem 0 1rem;display:grid;gap:.45rem}
+.hot-tip{width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;color:var(--text);font:inherit}
+.hot-tip b{color:var(--amber);margin-right:.35rem}
+[data-help]{min-width:46px;font-size:1.3rem}
+@media(prefers-reduced-motion:reduce){.hot-pulse{animation:none}}
 </style>
 <script data-goatcounter="https://ohmoellermoeterm.goatcounter.com/count" data-goatcounter-settings='{"no_onload": true}' async src="//gc.zgo.at/count.js"></script>
 <script src="../assets/js/ho-track.js"></script>
@@ -242,6 +282,8 @@ input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var
 <script src="scenarios/s6.js"></script>
 <script src="js/room-art.js"></script>
 <script src="js/radio-room.js"></script>
+<script src="js/tour.js"></script>
+<script src="js/ll-tour.js"></script>
 <script>
 (function(){
 'use strict';
@@ -395,7 +437,7 @@ function hud(){
  return '<header class="hud"><div class="hud-in"><a class="brand" href="#" data-act="menu"><img src="../assets/img/ho-logo.png" alt="">The Last Light</a>'+
   '<div class="meters" aria-label="Resources"><span class="m">Day <b>'+S.day+'</b></span><span class="m'+(S.hp<=2?' low':'')+'">Health <b>'+S.hp+'</b></span>'+
   RES.map(function(r){return '<span class="m'+low(r[0])+'">'+r[1]+' <b>'+S.res[r[0]]+'</b></span>'}).join('')+'</div>'+
-  '<button class="btn ghost sm" data-howto>How to play</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
+  '<button class="btn ghost sm" data-help aria-label="Help" title="Help">?</button><button class="btn ghost sm" data-act="menu">Menu</button></div>'+
   '<nav class="tabs" aria-label="Sections">'+tabs.map(function(t){var lock=t[0]==='final'&&!finalOk();return '<button class="tab'+(lock?' locked':'')+'" data-go="'+t[0]+'"'+(cur===t[0]?' aria-current="page"':'')+'>'+t[1]+(lock?' (locked)':'')+'</button>'}).join('')+'</nav></header>'
 }
 function count(p,min,max){var n=wc(getP(p));var ok=max?(n>=min&&n<=max):n>=min;return '<div class="count'+(ok?' ok':'')+'" data-count="'+p+'" data-min="'+min+'" data-max="'+(max||'')+'">'+n+' words, need '+(max?min+' to '+max:min+' or more')+'</div>'}
@@ -404,16 +446,16 @@ function resBadge(fx){return Object.keys(fx).map(function(k){return '+'+fx[k]+' 
 /* ---------- screens ---------- */
 var SCREENS={
 title:function(){return '<section class="title"><svg class="skyline" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true"><path d="M0 200V120h40V90h30v40h30V60h26v70h40V100h36v30h30V70h24v60h50V40h30v90h40V110h30v20h30V80h28v50h40V95h34v35h40V55h26v75h40V105h30v25h50V85h30v45h40V120h40v80z" fill="#07090a"/></svg>'+
- '<img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><div class="signal-line"></div><h1>The Last Light</h1><p class="tag">The world went silent. Something is still calling.</p>'+
+ '<img class="logo" src="../assets/img/ho-logo.png" alt="Haunted Ohio icon"><div class="signal-line"></div><h1>The Last Light</h1><p class="tag">The world went silent. Something is still calling.</p><p class="ll-purpose">Survive a silent Ohio, decide who to trust, and write to stay alive.</p>'+
  '<p class="muted" style="max-width:32rem">Ohio, 2047. Twenty-one years ago, at 11:47 p.m. on October 31, 2026, The Silence took every signal, every grid, and most of the people. Tonight, your radio is speaking again.</p>'+
- '<div class="row"><button class="btn" data-act="menu">Enter the silence</button><button class="btn ghost" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="../">Back to Haunted Ohio</a></div></section>'},
+ '<div class="row"><button class="btn" data-act="menu">Enter the silence</button><button class="btn ghost" data-help aria-label="Help" title="Help">?</button><a class="btn ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="../">Back to Haunted Ohio</a></div></section>'},
 
 menu:function(){return '<div class="wrap"><div class="menu"><div style="text-align:center"><img src="../assets/img/ho-logo.png" style="width:84px;height:84px;border-radius:50%" alt=""><h2 style="margin-top:.5rem">The Last Light</h2></div>'+
  (S.started?'<button class="btn primary" data-act="resume">Continue</button>':'')+
  '<button class="btn'+(S.started?'':' primary')+'" data-act="newgame">New game</button>'+
  (S.started?'<button class="btn" data-go="me">Survivor</button>':'')+
  '<button class="btn" data-go="settings">Save and settings</button>'+
- '<button class="btn" data-howto>How to play</button><a class="btn ghost" style="text-decoration:none;text-align:center" href="../">Back to Haunted Ohio</a></div></div>'},
+ '<button class="btn" data-help aria-label="Help" title="Help">?</button><a class="btn ghost" style="text-decoration:none;text-align:center" href="../">Back to Haunted Ohio</a></div></div>'},
 
 create:function(){
  var c=S.cr;
@@ -789,29 +831,10 @@ document.addEventListener('change',function(ev){
  else if(el.id==='imp'&&el.files&&el.files[0]){if(PREVIEW){toast('Importing is turned off in the leader preview.');el.value='';return}var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o||o.v!==1||typeof o.xp!=='number'||!o.res)throw 0;var oc=HOV.valid(o.case)||1;S.case=CASE;save();/* a save file carries its own case: it becomes this device's assigned case */HOV.assign(GAME,oc);UNASSIGNED=false;useScenario(oc);S=o;S.case=oc;S.screen='menu';save();render();toast('Save file imported.')}catch(e){toast('That file is not a Last Light save.')}};fr.readAsText(el.files[0])}
 });
 function dl(name,text,type){try{var b=new Blob([text],{type:type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},500)}catch(e){toast('Download failed on this browser.')}}
+window.LL_TOUR_API={S:function(){return S}};
 render();
+if(window.LLTourBoot)LLTourBoot();
 if(window.HO_track)HO_track('game-opened-last-light');
-})();
-;(function(){
-var HOW={"title": "How to play The Last Light", "intro": "Ohio, 2047. Survive, make choices you can live with, and write your way through the silence.", "steps": [["Start.", "Choose <i>Enter the silence</i>, then <i>New game</i>. Build your survivor: name, background, personality, strength, and weakness. These change what you can notice, what you can say, and what you start with."], ["Map.", "Tap a location to read about it. <i>Travel</i> costs 1 day: 1 food and 1 water. Some places stay locked until you finish an earlier mission."], ["Missions.", "Each mission is a short scene with choices. Your decisions are remembered and shape later scenes and your final story."], ["Watch your supplies.", "The bar at the top shows Day, Health, Food, Water, Meds, Batteries, and Fuel. Every day costs 1 food and 1 water. Run out and you lose health. If health runs out, the game ends. Check the <i>Pack</i> tab for your inventory and clues."], ["Journal.", "After each mission you write a short entry. You can add more any time (at least 20 words each)."], ["Final story.", "Unlocks after 3 journal entries. Write your own survival horror in ten beats of at least 15 words each. Invent your own character and world, then download it as a .txt file."]], "tips": ["XP rewards careful thinking and strong writing, not speed.", "Sound effects can be turned off in <i>Save and settings</i>.", "Your progress saves automatically in this browser. Export a save file to move to another device."]};
-var ov=null,prev=null;
-function close(){if(!ov)return;document.removeEventListener('keydown',key,true);ov.remove();ov=null;if(prev&&document.body.contains(prev)){try{prev.focus()}catch(e){}}prev=null}
-function key(e){
-  if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();return}
-  if(e.key==='Tab'&&ov){var f=ov.querySelectorAll('button,a[href]');if(!f.length)return;var a=f[0],z=f[f.length-1];
-    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
-}
-function open(opener){
-  close();prev=opener||document.activeElement;
-  ov=document.createElement('div');ov.className='how-ov';
-  ov.innerHTML='<div class="how" role="dialog" aria-modal="true" aria-labelledby="howT"><h2 id="howT" tabindex="-1">'+HOW.title+'</h2><p>'+HOW.intro+'</p><ol>'+HOW.steps.map(function(s){return '<li><b>'+s[0]+'</b> '+s[1]+'</li>'}).join('')+'</ol><h3>Good to know</h3><ul>'+HOW.tips.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul><p><button class="btn" type="button" id="howClose">Got it</button></p></div>';
-  document.body.appendChild(ov);
-  ov.addEventListener('click',function(e){if(e.target===ov)close()});
-  document.getElementById('howClose').addEventListener('click',close);
-  document.addEventListener('keydown',key,true);
-  var h=document.getElementById('howT');h.focus();ov.firstChild.scrollTop=0;
-}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-howto]');if(b){e.preventDefault();open(b)}});
 })();
 </script>
 </body>
