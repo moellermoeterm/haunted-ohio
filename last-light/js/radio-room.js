@@ -142,10 +142,12 @@
     } else if (after) after = false;
     if (!slot) { unmount(); prev = now; return; }
     ensureHost(); if (host.parentNode !== slot) slot.appendChild(host);
-    if (!mounted) { mounted = true; host.hidden = false; place(now); if (game) game.loop.wake(); start(); if (now.step === 0) intro(true); caption('wind'); }
+    if (!mounted) { mounted = true; host.hidden = false; place(now); if (game) game.loop.wake(); start(); if (now.step === 0) intro(true); caption('wind'); stackedScroll(); }
     transitions(prev, now); prev = now;
     enhanceDial(); guide(now); panel(); applyView(); if (scene) { scene.dirty = true; scene.redrawRoom(now); } Snd.loops(now);
   }
+  /* stacked layout (phone, tablet): open with the room at the top of the screen instead of under the top bar. After the page's own scroll to the top. */
+  function stackedScroll() { var mq = false; try { mq = window.matchMedia('(max-width: 1000px)').matches; } catch (e) { /* old browser */ } if (!mq) return; setTimeout(function () { if (mounted && host && host.parentNode) try { host.parentNode.scrollIntoView({ block: 'start' }); } catch (e) { /* fine */ } }, 0); }
   function unmount() { if (!mounted) return; mounted = false; after = false; target = null; pendingUse = null; keys = {}; stick.x = stick.y = 0; if (game) game.loop.sleep(); if (host && host.parentNode) host.parentNode.removeChild(host); Snd.loops({ step: -1 }); }
   function leaveAfter() { var app = document.getElementById('app'), blk = document.getElementById('rr-after'), map = app.querySelector('[data-rr-held]'); unmount(); if (blk) blk.remove(); if (map) { map.hidden = false; map.removeAttribute('data-rr-held'); } prev = snap(); window.scrollTo(0, 0); var f = app.querySelector('.mk, [data-loc]'); if (f) try { f.focus(); } catch (e) { /* not focusable */ } }
   function transitions(a, b) {
@@ -217,6 +219,7 @@
   function prompt() {
     var el = host && host.querySelector('#rr-prompt'); if (!el) return; var o = nearest(), t = o ? LINES[o.id] : '';
     if (el.dataset.t !== t) { el.dataset.t = t; el.hidden = !t; el.innerHTML = t ? '<kbd>E</kbd> <span></span>' : ''; if (t) el.lastChild.textContent = t; }
+    el.classList.toggle('rr-up', !!o && o.hit[1] + o.hit[3] / 2 < PH * 0.45);      /* the object is in the top part of the room: on touch screens the prompt moves below it */
     var ub = host.querySelector('#rr-use'); if (ub) ub.disabled = !o;
   }
 
