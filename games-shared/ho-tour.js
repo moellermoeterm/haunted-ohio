@@ -39,7 +39,7 @@
       function draw() { face.textContent = ''; face.appendChild(icon(o.cards[i].icon)); face.appendChild(el('p', null, o.cards[i].text)); dots.textContent = ''; o.cards.forEach(function (_, k) { dots.appendChild(el('i', k === i ? 'on' : null)); }); }
       function end(skipped) { store.intro = true; if (skipped) store.off = true; save(); doc.removeEventListener('keydown', key, true); bg.remove(); T.tick(); }
       function next() { if (i < o.cards.length - 1) { i++; draw(); } else end(false); }
-      function key(e) { if (e.key === 'Escape') { e.preventDefault(); end(true); } else if (e.key === 'ArrowRight') { e.preventDefault(); next(); } else if (e.key === 'ArrowLeft') { e.preventDefault(); if (i) { i--; draw(); } } }
+      function key(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); end(true); } else if (e.key === 'ArrowRight') { e.preventDefault(); next(); } else if (e.key === 'ArrowLeft') { e.preventDefault(); if (i) { i--; draw(); } } }
       var sx = null; face.addEventListener('pointerdown', function (e) { sx = e.clientX; }); face.addEventListener('pointerup', function (e) { if (sx != null && Math.abs(e.clientX - sx) > 40) { if (e.clientX < sx) next(); else if (i) { i--; draw(); } } else if (sx != null) next(); sx = null; });
       skip.addEventListener('click', function () { end(true); }); go.addEventListener('click', function () { end(false); });
       doc.addEventListener('keydown', key, true); draw(); doc.body.appendChild(bg); try { go.focus(); } catch (e) { /* fine */ } T.introOpen = bg; return true;
@@ -92,7 +92,7 @@
       var row = el('div', 'hot-row'), rep = el('button', 'btn ghost', 'Replay tour'), sk = el('button', 'btn ghost', 'Skip tour'), cl = el('button', 'btn', 'Close'); rep.type = sk.type = cl.type = 'button'; rep.id = 'hot-replay'; sk.id = 'hot-skipall';
       row.appendChild(rep); row.appendChild(sk); row.appendChild(cl); box.appendChild(row);
       function close() { doc.removeEventListener('keydown', key, true); bg.remove(); if (opener && doc.body.contains(opener)) try { opener.focus(); } catch (e) { /* fine */ } }
-      function key(e) { if (e.key === 'Escape') { e.preventDefault(); close(); } if (e.key === 'Tab') { var f = box.querySelectorAll('button'), a = f[0], z = f[f.length - 1]; if (e.shiftKey && doc.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && doc.activeElement === z) { e.preventDefault(); a.focus(); } } }
+      function key(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }   /* the game never also sees this Escape (it would open its own menu) */ if (e.key === 'Tab') { var f = box.querySelectorAll('button'), a = f[0], z = f[f.length - 1]; if (e.shiftKey && doc.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && doc.activeElement === z) { e.preventDefault(); a.focus(); } } }
       rep.addEventListener('click', function () { store = { intro: false, done: [], off: false }; save(); close(); hide(); T.intro(true); });
       sk.addEventListener('click', function () { store.off = true; store.intro = true; save(); close(); hide(); });
       cl.addEventListener('click', close); bg.addEventListener('click', function (e) { if (e.target === bg) close(); });

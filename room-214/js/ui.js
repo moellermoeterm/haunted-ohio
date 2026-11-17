@@ -107,7 +107,7 @@
 
     ui.menu = function () {
       if (shell.modalOpen) return; var body = el('div');
-      body.appendChild(para('Move: arrows or WASD. Hold C to sneak (silent), Shift to run (loud). E: use. H: hide. F: flashlight. T: throw a bell. J: journal. Esc: this menu. Everything also works with the on-screen buttons. He never hurts anyone: if he reaches you he checks you out to your last checkpoint and you keep everything.'));
+      body.appendChild(para('Controls and tips are in Help: press the ? button.')); body.appendChild(para('He never hurts anyone: if he reaches you he checks you out to your last checkpoint and you keep everything.'));
       body.appendChild(para('Investigator ' + game.rec.name + ' · ' + game.d.hotel + ' (Game material).'));
       shell.modal({ title: 'Menu', body: body, buttons: [{ label: 'Journal', onClick: function () { setTimeout(ui.journal, 30); } }, { label: 'Copy my journal', keepOpen: true, onClick: function () { copy(ui.reportText()); } }, { label: 'Download my journal', keepOpen: true, onClick: function () { download('room-214-journal-' + String(game.rec.name || 'player').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) + '.txt', ui.reportText()); } }, { label: 'Saves', onClick: function () { setTimeout(shell.openSaves, 30); } }, { label: 'Settings', onClick: function () { setTimeout(shell.openSettings, 30); } }, { label: 'Resume', primary: true }] });
     };
