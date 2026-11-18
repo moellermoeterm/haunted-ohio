@@ -4,7 +4,7 @@ The owner authorised squash-merging the items below, one at a time, when every g
 
 | # | Item | PR | Merge commit | Deploy |
 |---|---|---|---|---|
-| 1 | Ghost Lab | #38 | **Not merged** (D-38) | |
+| 1 | Ghost Lab | #38 | Merged later at the owner's request (main merged in first, all gates passed) | see the Pages workflow |
 | 2 | Room 214 sound | #41 | `aa220a8` | success (run 44) |
 | 3 | The Last Light radio room, tour, Chapter 1 end | #40 | `cd83121` | success (run 45) |
 | 4 | The Veil: first shift, sound, tour, progress | #42 | `6910fb6` | success (run 46) |
