@@ -1,0 +1,31 @@
+/* Haunted Ohio: the tour (games-shared/ho-tour.js). Uses the site's colour tokens where a page has them, with fallbacks. */
+.hot-ov{position:fixed;inset:0;z-index:300;background:rgba(2,6,8,.8);display:flex;align-items:center;justify-content:center;padding:1rem}
+.hot-intro,.hot-help{background:var(--panel,var(--hog-panel,#151a1d));color:var(--text,var(--hog-text,#f2ead6));border:1px solid var(--line,var(--hog-line,#3a3f42));border-radius:14px;padding:1.4rem 1.3rem;max-width:26rem;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.hot-help{max-width:34rem;max-height:86vh;overflow:auto}
+.hot-card{text-align:center;cursor:pointer;user-select:none;min-height:9.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem}
+.hot-card p{font-size:1.3rem;font-weight:700;margin:0;line-height:1.35}
+.hot-ic{width:56px;height:56px;color:var(--amber,var(--hog-gold,#e0b45a))}
+.hot-dots{display:flex;gap:.45rem;justify-content:center;margin:.9rem 0}
+.hot-dots i{width:10px;height:10px;border-radius:50%;background:var(--line,var(--hog-line,#3a3f42))}
+.hot-dots i.on{background:var(--amber,var(--hog-gold,#e0b45a))}
+.hot-row{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.hot-bub{pointer-events:none;position:absolute;z-index:250;background:#fff3d6;color:#1a1208;border-radius:10px;padding:.6rem 2.2rem .6rem .85rem;font-weight:700;font-size:1.05rem;line-height:1.3;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.hot-bub:before{content:"";position:absolute;left:calc(var(--arrow,20px) - 8px);top:-8px;border:8px solid transparent;border-top:0;border-bottom-color:#fff3d6}
+.hot-bub.up:before{top:auto;bottom:-8px;border-bottom:0;border-top:8px solid #fff3d6}
+.hot-msg{margin:0}
+.hot-x{pointer-events:auto;position:absolute;right:.25rem;top:.2rem;background:none;border:0;font-size:1.4rem;line-height:1;color:#1a1208;min-width:32px;min-height:32px}
+.hot-pulse{animation:hot-pulse .9s ease-in-out 1}
+@keyframes hot-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.hot-glow{box-shadow:0 0 0 3px #ffd27a,0 0 18px 4px rgba(255,210,122,.6)!important}
+.hot-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hot-purpose{font-weight:700;color:var(--amber,var(--hog-gold,#e0b45a))}
+.hot-connect{color:var(--muted,var(--hog-muted,#b9b19c))}
+.hot-tips{list-style:none;padding:0;margin:.8rem 0 1rem;display:grid;gap:.45rem}
+.hot-tip{width:100%;text-align:left;background:var(--panel2,var(--hog-panel2,#1d2427));border:1px solid var(--line,var(--hog-line,#3a3f42));border-radius:8px;padding:.6rem .8rem;color:var(--text,var(--hog-text,#f2ead6));font:inherit}
+.hot-tip b{color:var(--amber,var(--hog-gold,#e0b45a));margin-right:.35rem}
+[data-help]{min-width:46px;font-size:1.3rem}
+
+/* title screens: the story folds under "About this game" so the name box and purpose line come first */
+.ho-about{margin:.4rem 0 1rem;max-width:40rem}
+.ho-about summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+.ho-about[open] summary{margin-bottom:.4rem}

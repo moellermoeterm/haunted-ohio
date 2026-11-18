@@ -5,10 +5,14 @@ import { chromium } from './node_modules/playwright/index.mjs';
 const { srv, base } = await serve(); const b = await chromium.launch();
 const problems = []; let checks = 0;
 const ROUTES = ['', '#learn', '#games', '#prompts', '#draft', '#legend', '#dread', '#resources', '#cemetery', '#week', '#leaders', '#about'];
-const PAGES = [...ROUTES, ...Array.from({ length: 10 }, (_, i) => 'show-dont-tell/#lesson-' + (i + 1)), 'design-system/', 'teacher/', 'haunting-files/', 'last-light/'];
+const PAGES = [...ROUTES, ...Array.from({ length: 10 }, (_, i) => 'show-dont-tell/#lesson-' + (i + 1)), 'design-system/', 'teacher/', 'haunting-files/', 'last-light/', 'the-veil/', 'room-214/'];
 for (const theme of ['dark', 'light']) for (const w of [1920, 1280, 390]) {
   const ctx = await b.newContext({ viewport: { width: w, height: 900 } });
   await ctx.addInitScript((t) => { try { localStorage.setItem('ho-theme', JSON.stringify(t)); } catch (e) { /* ignore */ } }, theme);
+  /* The Last Light's mission is driven here the page-style way (text mode); the radio room has its own tests */
+  await ctx.addInitScript(() => { window.LL_TEXT_MODE = true; });
+  /* the games' tours start off here, as Skip tour leaves them; the tours have their own tests */
+  await ctx.addInitScript(() => { try { ['ho-last-light-tour', 'ho-veil-tour', 'ho-room214-tour', 'ho-haunting-files-tour'].forEach((k) => localStorage.setItem(k, JSON.stringify({ intro: true, done: [], off: true }))); } catch (e) { /* ignore */ } });
   const p = await ctx.newPage(); let where = '';
   const bad = (m) => problems.push(`[${theme} ${w}px] ${where}: ${m}`);
   p.on('pageerror', (e) => bad('page error: ' + e.message));
@@ -16,7 +20,7 @@ for (const theme of ['dark', 'light']) for (const w of [1920, 1280, 390]) {
   p.on('requestfailed', (r) => { if (r.url().startsWith(base)) bad('failed request ' + r.url()); });
   p.on('response', (r) => { if (r.url().startsWith(base) && r.status() >= 400) bad(r.status() + ' ' + r.url()); });
   const noScroll = async (label) => { checks++; if (!(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1))) bad('horizontal scroll: ' + label);
-    const t = await p.evaluate(() => document.documentElement.getAttribute('data-theme')); checks++; if (theme === 'light' && t !== 'light' && !/^(hf|ll) |haunting-files|last-light/.test(label)) bad('theme not applied: ' + label); };
+    const t = await p.evaluate(() => document.documentElement.getAttribute('data-theme')); checks++; if (theme === 'light' && t !== 'light' && !/^(hf|ll) |haunting-files|last-light|the-veil|room-214/.test(label)) bad('theme not applied: ' + label); };
   for (const u of PAGES) { where = u || 'home'; await p.goto(base + u); await p.waitForTimeout(150); await noScroll(where); }
   where = 'dossier'; await p.goto(base + '#cemetery'); for (const tab of ['#ct-legends', '#ct-hunt', '#ct-submit']) { await p.click(tab); await p.waitForTimeout(80); await noScroll('cemetery ' + tab); }
   for (const k of [1, 2, 3, 4, 5, 6]) {

@@ -13,6 +13,8 @@ const only = process.env.ONLY, variants = (process.env.VARIANTS || '1,2,3,4,5,6'
 async function T(name, fn, opts = {}) {
   if (only && !name.includes(only)) return;
   const t0 = Date.now(); const ctx = await browser.newContext({ viewport: opts.viewport || { width: 1280, height: 800 }, hasTouch: !!opts.touch, isMobile: !!opts.touch, acceptDownloads: true }); const p = await ctx.newPage(); const errs = [], reqs = [];
+  /* the tour is off (as Skip tour leaves it) unless a test is about the tour */
+  if (!opts.tour) await p.addInitScript(() => { try { if (!localStorage.getItem('ho-veil-tour')) localStorage.setItem('ho-veil-tour', JSON.stringify({ intro: true, done: [], off: true })); } catch (e) { /* blocked */ } });
   p.on('pageerror', (e) => errs.push('pageerror: ' + e.message)); p.on('console', (m) => { if (m.type() === 'error' && !/fonts|ERR_|Failed to load/.test(m.text())) errs.push('console: ' + m.text()); });
   p.on('request', (r) => { const u = r.url(); if (!u.startsWith('http://127.0.0.1') && !u.startsWith('data:') && !u.startsWith('blob:') && !/gc\.zgo\.at|goatcounter/.test(u)) reqs.push(u); });
   p.setDefaultTimeout(15000);
@@ -163,7 +165,7 @@ await T('performance: runs near 60 fps and uses a small number of game objects (
 });
 await T('privacy: no storage of names outside the save; a leader preview writes only its own throwaway save and the settings (never the student save or the assigned case)', async (p) => {
   await begin(p, 6, 'Zoe'); await walkTo(p, 10, 19); await interact(p); await modal(p); await p.click('.hog-modal .hog-btn:last-child'); await p.waitForFunction(() => /Field note 1/.test((document.querySelector('.hog-modal h2') || {}).textContent || '')); await p.keyboard.press('Escape');
-  const keys = await p.evaluate(() => Object.keys(localStorage).sort()); ok(keys.every((k) => /^(ho-veil-pv(_c\d)?|ho-veil_set)$/.test(k)), 'keys: ' + keys);
+  const keys = await p.evaluate(() => Object.keys(localStorage).sort()); ok(keys.every((k) => /^(ho-veil-pv(_c\d)?|ho-veil_set|ho-veil-tour)$/.test(k)), 'keys: ' + keys); const tour = await p.evaluate(() => localStorage.getItem('ho-veil-tour')); ok(!tour || !/Ana|Tester/.test(tour), 'the tour key holds no name');
   ok(!(await p.evaluate(() => document.cookie)), 'no cookies');
 });
 await browser.close(); srv.close(); console.log(fail ? `\n${fail} failed, ${pass} passed` : `\nAll ${pass} tests passed`); process.exit(fail ? 1 : 0);

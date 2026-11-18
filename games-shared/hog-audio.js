@@ -3,13 +3,20 @@
 (function (root) {
   'use strict';
   var HOG = root.HOG = root.HOG || {};
-  var ctx = null, master = null, muted = false, volume = 0.6, defs = {}, listeners = [], last = {}, MIN_GAP = 340;
+  var ctx = null, master = null, limiter = null, wantLimiter = null, muted = false, volume = 0.6, defs = {}, listeners = [], last = {}, MIN_GAP = 340;
 
   function ensure() {
     if (ctx) return ctx;
-    try { var AC = root.AudioContext || root.webkitAudioContext; if (!AC) return null; ctx = new AC(); master = ctx.createGain(); master.gain.value = muted ? 0 : volume; master.connect(ctx.destination); } catch (e) { ctx = null; }
+    try { var AC = root.AudioContext || root.webkitAudioContext; if (!AC) return null; ctx = new AC(); master = ctx.createGain(); master.gain.value = muted ? 0 : volume; master.connect(ctx.destination); if (wantLimiter) attachLimiter(); } catch (e) { ctx = null; }
     return ctx;
   }
+  /* an optional limiter after the volume control, so no sound or stack of sounds can spike. A game turns it on with useLimiter(). */
+  /* a soft limiter: below the threshold the sound passes through exactly unchanged (the curve is a straight line there, so quiet sounds such as
+     the "no" buzz keep their exact level); above it, peaks are rounded off smoothly and can never pass about 0.86 of full scale. Returns { input, output }. */
+  function makeLimiter(c, o) { var T = Math.pow(10, o.threshold / 20), n = 4097, curve = new Float32Array(n), k = (1 - T) * 0.9;
+    for (var i = 0; i < n; i++) { var x = i / (n - 1) * 2 - 1, ax = Math.abs(x); curve[i] = ax <= T ? x : (x < 0 ? -1 : 1) * (T + k * Math.tanh((ax - T) / k)); }
+    var w = c.createWaveShaper(); w.curve = curve; w.oversample = 'none'; return { input: w, output: w }; }
+  function attachLimiter() { if (!ctx || limiter) return; try { limiter = makeLimiter(ctx, wantLimiter); master.disconnect(); master.connect(limiter.input); limiter.output.connect(ctx.destination); } catch (e) { limiter = null; } }
   function unlock() { var c = ensure(); if (c && c.state === 'suspended') { try { c.resume(); } catch (e) { /* ignore */ } } }
   if (root.document) { ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { root.document.addEventListener(ev, unlock, { passive: true }); }); }
 
@@ -47,6 +54,11 @@
     setVolume: function (v) { volume = Math.max(0, Math.min(1, +v || 0)); if (master && !muted) master.gain.value = volume; },
     isMuted: function () { return muted; }, getVolume: function () { return volume; },
     names: function () { return Object.keys(defs); },
+    useLimiter: function (o) { wantLimiter = { threshold: (o && o.threshold != null) ? o.threshold : -6 }; attachLimiter(); },
+    makeLimiter: function (c) { return makeLimiter(c, wantLimiter || { threshold: -6 }); },
+    /* for layers that last (hums, wind): they play through the same master, so mute and volume apply to them too */
+    bus: function () { var c = ensure(); return c ? { ctx: c, out: master } : null; },
+    recipe: function (name) { return defs[name] ? defs[name].make : null; },
     unlock: unlock
   };
 

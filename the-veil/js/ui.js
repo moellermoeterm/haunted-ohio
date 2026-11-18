@@ -13,6 +13,9 @@
     ['LOW', 'MIDDLE', 'HIGH'].forEach(function (n) { A.define('bell' + n, { caption: 'a ' + n + ' bell', important: true, make: function (c, o) { A.tone(c, o, { f: game.d.noteF[n], dur: 1.4, gain: 0.22 }); A.tone(c, o, { f: game.d.noteF[n] * 2.4, dur: 0.9, gain: 0.07 }); } }); });
     function say(m) { shell.say(m); }
     ui.say = say;
+    /* quiet ambience and its levels live in sound.js (one table to tune by ear) */
+    V.sound.define(A); var amb = V.sound.ambience(game, shell); ui.amb = amb; root.__veilAmb = amb;
+    root.setInterval(function () { if (!shell.modalOpen) amb.tick(0.2); }, 200);
     function para(t) { var p = el('p'); p.style.whiteSpace = 'pre-wrap'; p.textContent = t; return p; }
     function tag(t) { var p = el('p', 'hog-muted', t); p.style.fontSize = '.85rem'; p.style.opacity = '.8'; return p; }
 
@@ -24,16 +27,16 @@
     };
     /* ----- writing editor ----- */
     ui.write = function (o) {
-      var body = el('div'); body.appendChild(para(o.prompt)); var lab = el('label', 'hog-label', o.label || 'Your writing'); lab.htmlFor = 'veil-w'; body.appendChild(lab);
+      var body = el('div'); if (o.lead) { var ld = para(o.lead); ld.className = 'veil-lead'; ld.style.fontWeight = '700'; body.appendChild(ld); } body.appendChild(para(o.prompt)); var lab = el('label', 'hog-label', o.label || 'Your writing'); lab.htmlFor = 'veil-w'; body.appendChild(lab);
       var ta = el('textarea'); ta.id = 'veil-w'; ta.value = o.value || ''; ta.rows = 7; ta.setAttribute('data-autofocus', '1'); ta.maxLength = 8000; body.appendChild(ta);
       var cnt = el('p', 'hog-muted'); cnt.setAttribute('aria-live', 'polite'); body.appendChild(cnt); var save;
       function upd() { var n = L.words(ta.value); cnt.textContent = n + ' words' + (n < o.min ? ' (at least ' + o.min + ' to save)' : ' — ready to save'); if (save) save.disabled = n < o.min; }
       ta.addEventListener('input', upd); var m;
-      m = shell.modal({ title: o.title, body: body, buttons: [{ label: o.saveLabel || 'Save', primary: true, keepOpen: true, onClick: function () { if (L.words(ta.value) < o.min) return; var res = o.onSave(ta.value); if (res && res.ok === false) { shell.toast(res.msg); return; } m.close(); hud.refresh(); } }, { label: o.cancelLabel || 'Later' }], onClose: o.onClosed });
+      m = shell.modal({ title: o.title, body: body, buttons: [{ label: o.saveLabel || 'Save', primary: true, keepOpen: true, onClick: function () { if (L.words(ta.value) < o.min) return; var res = o.onSave(ta.value); if (res && res.ok === false) { shell.toast(res.msg); return; } m.close(); hud.refresh(); } }, { label: o.cancelLabel || 'Later', onClick: function () { if (o.onCancel) setTimeout(o.onCancel, 30); } }], onClose: o.onClosed });
       save = m.el.querySelector('.hog-btn.primary'); upd(); return m;
     };
     ui.note1 = function (thenShift) {
-      return ui.write({ title: 'Field note 1: the churchyard', prompt: 'You are standing outside a closed chapel. Using at least three senses (sight, sound, smell, touch), describe what you notice. Show it; do not tell us how you feel.', label: 'Field note', min: L.MIN.note1, value: game.writing('note1'), saveLabel: thenShift ? 'Save note and shift' : 'Save note',
+      return ui.write({ title: 'Field note 1: the churchyard', lead: thenShift ? 'Write your note, then the world shifts.' : '', onCancel: thenShift ? function () { shell.toast('No shift yet. Press V when your note is ready.'); } : null, prompt: 'You are standing outside a closed chapel. Using at least three senses (sight, sound, smell, touch), describe what you notice. Show it; do not tell us how you feel.', label: 'Field note', min: L.MIN.note1, value: game.writing('note1'), saveLabel: thenShift ? 'Save note and shift' : 'Save note',
         onSave: function (t) { game.write('note1', t); if (thenShift) setTimeout(function () { ui.shift(); }, 50); return { ok: true }; } });
     };
     ui.note2 = function () {
@@ -45,7 +48,7 @@
     ui.shift = function () {
       if (shell.modalOpen) return;
       if (!game.canShift()) { shell.toast(game.shift().msg); return; }
-      if (!game.writing('note1') && game.s.shifts === 0) { ui.note1(true); return; }
+      if (!game.writing('note1') && game.s.shifts === 0) { if (ui.firstNoteHint && ui.firstNoteHint()) { setTimeout(function () { ui.note1(true); }, 1400); return; } ui.note1(true); return; }
       var r = game.shift(); A.cue('shift', {}); hud.refresh();
       say(r.world === 'E' ? 'You shift into the Echo. The gate stands open and the air hums.' : 'You shift back to the Living World.' + (r.moved ? ' The sacristy door is locked again, so you are back in the nave.' : ''));
       clearToll(); if (r.world === 'E' && !game.s.doors) ui.toll();
@@ -118,10 +121,16 @@
         var cs = boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
         var r = game.submitCase(pick, cs, ta.value); if (!r.ok) { A.cue('no', {}); shell.toast(r.msg); return; }
         A.cue('success', {}); m.close(); hud.refresh(); if (HOG.shell && root.HO_track) root.HO_track('chapter-complete');
-        var b2 = el('div'); b2.appendChild(para('Case closed. The Keeper rang the bell to look after other people, and the township’s notice never said so. You found it by reading the evidence in two worlds.')); b2.appendChild(para('Now it is your turn to be the author. Use what you learned about atmosphere, clues and suspense to write an original horror story in the Story Workshop.'));
+        var b2 = el('div'); b2.appendChild(summary()); b2.appendChild(para('Case closed. The Keeper rang the bell to look after other people, and the township’s notice never said so. You found it by reading the evidence in two worlds.')); b2.appendChild(para('Now it is your turn to be the author. Use what you learned about atmosphere, clues and suspense to write an original horror story in the Story Workshop.'));
         shell.modal({ title: 'Chapter 1 solved', body: b2, buttons: [{ label: 'Open the Story Workshop', primary: true, onClick: function () { setTimeout(ui.story, 30); } }, { label: 'Later' }] });
       } }, { label: 'Close' }] });
     };
+
+    /* the end-of-case summary */
+    function summary() { var s = game.s, box = el('div', 'veil-summary'), ul = el('ul'); box.appendChild(el('h3', null, 'Case summary'));
+      [['Clues found', s.found.length + ' of ' + Object.keys(game.d.clues).length], ['Field notes written', String(['note1', 'note2'].filter(function (k) { return L.words(game.writing(k)) > 0; }).length)], ['Times you shifted worlds', String(s.shifts)]].forEach(function (r) { var li = el('li'); li.appendChild(el('b', null, r[0] + ': ')); li.appendChild(doc.createTextNode(r[1])); ul.appendChild(li); });
+      box.appendChild(ul); return box; }
+    ui.summary = summary;
 
     /* ----- story workshop ----- */
     ui.story = function () {
@@ -144,7 +153,7 @@
     /* ----- menu + help ----- */
     ui.menu = function () {
       if (shell.modalOpen) return; var body = el('div');
-      body.appendChild(para('Move: arrows or WASD, or the on-screen stick. E / Enter: use what is near. V: shift between the Living World and the Echo. J: Evidence Archive. Esc: this menu. Everything works by keyboard or touch.'));
+      body.appendChild(para('Controls and tips are in Help: press the ? button.'));
       body.appendChild(para('Investigator ' + game.rec.name + ' · ' + game.d.chapel + ' Chapel (Game material).'));
       shell.modal({ title: 'Menu', body: body, buttons: [
         { label: 'Evidence', onClick: function () { setTimeout(ui.evidence, 30); } }, { label: 'Case File', onClick: function () { setTimeout(ui.caseFile, 30); } }, { label: 'Story Workshop', onClick: function () { setTimeout(ui.story, 30); } },
@@ -158,7 +167,10 @@
       if (!r) return; if (r.msg) { shell.toast(r.msg); return; }
       if (r.open === 'clue') ui.clue(r.id, r.after); else if (r.open === 'plates') ui.plates(); else if (r.open === 'cabinet') ui.cabinet(); else if (r.open === 'scene') ui.scene(r.first);
     };
-    game.on('clue', function (id) { shell.say('New evidence: ' + game.clue(id).title); });
+    game.on('clue', function (id) { shell.say('New evidence: ' + game.clue(id).title); hud.refresh();
+      /* reward: the Evidence button shimmers and a short label shows (no shimmer in Low effects or reduced motion; the label stays) */
+      var ev = doc.getElementById('h-ev'); if (ev && !(shell.settings && shell.settings.low)) { ev.classList.remove('veil-shimmer'); void ev.offsetWidth; ev.classList.add('veil-shimmer'); }
+      var pg = doc.getElementById('veil-prog'); if (pg) { pg.setAttribute('data-new', 'Clue found'); clearTimeout(ui.cfT); ui.cfT = setTimeout(function () { pg.removeAttribute('data-new'); }, 2200); } });
     return ui;
   }
   V.ui = { create: create };

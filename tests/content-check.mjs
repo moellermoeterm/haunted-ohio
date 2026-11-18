@@ -12,6 +12,36 @@ const BASE = path.join(path.dirname(new URL(import.meta.url).pathname), 'baselin
 
 // Text that is allowed to change, with the reason. Keep this list short and honest.
 const ALLOWED_REMOVALS = new Set([
+  // Owner's decision (finish-line run): The Haunting Files' How-to-play window (tutorial text, not story) is replaced by the tour and the "?" Help list.
+  "Enter your investigator name and read the case file, then press",
+  "Exhibits are labeled real history or game material. Don’t treat game material as documented history.",
+  "Locked tabs tell you what to finish first.",
+  "Open each exhibit, decide what kind of evidence it is, and file it. Correct filings earn XP. A",
+  "Pick the explanation you will defend, choose at least 2 exhibits that support it, write at least 30 words making your case, and say what new evidence would change your mind.",
+  "Tap one exhibit, then another, to tie them with string. Choose",
+  "Unlocks after you file E3 and E4. Compare the two statements line by line and select only the places where they truly conflict. Then write at least 20 words on whose account you trust about the open door.",
+  "Write at least 80 words that put the reader on the balcony at 10:40 PM, say what you believe happened, and cite at least two exhibits by number, like E3. Press",
+  "Write your own ghost story in beats, at least 15 words each. Invent your own place and mystery. Download it as a .txt file when you are ready.",
+  "You are a junior investigator. The goal is not to find the scariest answer. It is to build a theory you can defend with evidence.",
+  "Your progress saves automatically in this browser. Use",
+  "and say why in at least 6 words. Make at least 2 connections.",
+  "tag means read the explanation and try to understand why. File at least 6 exhibits, including both witness statements (E3 and E4).",
+  "to export a save file for another device.",
+  // Owner's decision (finish-line run): no padlocks or "next stage" wording; the places not built yet say "Coming soon", and Chapter 1 ends with its own panel.
+  "Locked. This location opens in the next stage of the game.",
+  "The next stage of the game opens that path. For now, your story is ready: the final story is unlocked once you have 3 journal entries.",
+  // Owner's decision: The Last Light's How-to-play window (tutorial text, not story) is replaced by the tour and the "?" Help list.
+  "After each mission you write a short entry. You can add more any time (at least 20 words each).",
+  "Build your survivor: name, background, personality, strength, and weakness. These change what you can notice, what you can say, and what you start with.",
+  "Each mission is a short scene with choices. Your decisions are remembered and shape later scenes and your final story.",
+  "Ohio, 2047. Survive, make choices you can live with, and write your way through the silence.",
+  "Sound effects can be turned off in",
+  "Tap a location to read about it.",
+  "The bar at the top shows Day, Health, Food, Water, Meds, Batteries, and Fuel. Every day costs 1 food and 1 water. Run out and you lose health. If health runs out, the game ends. Check the",
+  "Unlocks after 3 journal entries. Write your own survival horror in ten beats of at least 15 words each. Invent your own character and world, then download it as a .txt file.",
+  "Your progress saves automatically in this browser. Export a save file to move to another device.",
+  "costs 1 day: 1 food and 1 water. Some places stay locked until you finish an earlier mission.",
+  "tab for your inventory and clues.",
   // Leaders' decision: Mrs. Hahn joins the leaders, so "three teachers" becomes "four" and she is added to the Instructors line.
   'Meet the three teachers leading Haunted Ohio.',
   'Meet the three teachers running Haunted Ohio.',
